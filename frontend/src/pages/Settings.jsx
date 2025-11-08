@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Settings() {
@@ -55,45 +57,6 @@ export default function Settings() {
             <Label>Email</Label>
             <Input value={user?.email} disabled />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>API Keys</CardTitle>
-          <CardDescription>Configure your third-party integrations</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>ElevenLabs API Key</Label>
-            <Input
-              type="password"
-              placeholder="sk_..."
-              value={apiKeys.elevenlabs}
-              onChange={(e) => setApiKeys({ ...apiKeys, elevenlabs: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Twilio Auth Token</Label>
-            <Input
-              type="password"
-              placeholder="Enter Twilio token"
-              value={apiKeys.twilio}
-              onChange={(e) => setApiKeys({ ...apiKeys, twilio: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>SendGrid API Key</Label>
-            <Input
-              type="password"
-              placeholder="SG...."
-              value={apiKeys.sendgrid}
-              onChange={(e) => setApiKeys({ ...apiKeys, sendgrid: e.target.value })}
-            />
-          </div>
-          <Button onClick={handleSaveApiKeys} disabled={updateApiKeysMutation.isPending}>
-            {updateApiKeysMutation.isPending ? 'Saving...' : 'Save API Keys'}
-          </Button>
         </CardContent>
       </Card>
 

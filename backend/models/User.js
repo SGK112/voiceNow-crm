@@ -51,6 +51,15 @@ const userSchema = new mongoose.Schema({
     twilio: { type: String, select: false },
     sendgrid: { type: String, select: false }
   },
+  emailConfig: {
+    smtpHost: { type: String, default: 'smtp.gmail.com' },
+    smtpPort: { type: Number, default: 587 },
+    smtpSecure: { type: Boolean, default: false },
+    smtpUser: { type: String },
+    smtpPassword: { type: String, select: false }, // Gmail app password
+    fromEmail: { type: String },
+    fromName: { type: String, default: 'VoiceFlow CRM' }
+  },
   phoneNumbers: [{
     number: String,
     provider: String,

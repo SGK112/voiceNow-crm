@@ -1,7 +1,9 @@
 import VoiceAgent from '../models/VoiceAgent.js';
 import CallLog from '../models/CallLog.js';
+import User from '../models/User.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
 
+// Use centralized ElevenLabs service with platform credentials
 const elevenLabsService = new ElevenLabsService();
 
 export const getAgents = async (req, res) => {
@@ -31,14 +33,55 @@ export const createAgent = async (req, res) => {
   try {
     const { name, type, voiceId, script, phoneNumber } = req.body;
 
+    // Get user to check subscription limits
+    const user = await User.findById(req.user._id);
+
+    // Check subscription limits based on plan
+    const agentCount = await VoiceAgent.countDocuments({ userId: req.user._id });
+    const planLimits = {
+      trial: 1,
+      starter: 1,
+      professional: 5,
+      enterprise: Infinity
+    };
+
+    const maxAgents = planLimits[user.plan] || 1;
+    if (agentCount >= maxAgents) {
+      return res.status(403).json({
+        message: `Your ${user.plan} plan allows up to ${maxAgents} agent(s). Upgrade to create more agents.`
+      });
+    }
+
+    // Get prebuilt agent configuration
     const prebuiltAgents = elevenLabsService.getPrebuiltAgents();
     const prebuiltAgent = prebuiltAgents[type];
 
+    if (!prebuiltAgent) {
+      return res.status(400).json({ message: 'Invalid agent type' });
+    }
+
+    // Create agent in ElevenLabs using PLATFORM credentials
+    let elevenLabsAgent;
+    try {
+      elevenLabsAgent = await elevenLabsService.createAgent({
+        name: name || prebuiltAgent.name,
+        voiceId: voiceId || prebuiltAgent.voiceId,
+        script: script || prebuiltAgent.script,
+        firstMessage: `Hi! I'm ${name || prebuiltAgent.name}. How can I help you today?`
+      });
+    } catch (error) {
+      console.error('Failed to create agent in ElevenLabs:', error.message);
+      return res.status(500).json({
+        message: 'Failed to create agent. Please try again or contact support.'
+      });
+    }
+
+    // Save to database with REAL elevenLabsAgentId
     const agent = await VoiceAgent.create({
       userId: req.user._id,
       name: name || prebuiltAgent.name,
       type,
-      elevenLabsAgentId: prebuiltAgent.elevenLabsAgentId,
+      elevenLabsAgentId: elevenLabsAgent.agent_id,
       voiceId: voiceId || prebuiltAgent.voiceId,
       script: script || prebuiltAgent.script,
       phoneNumber,

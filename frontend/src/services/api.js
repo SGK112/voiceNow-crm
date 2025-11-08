@@ -67,6 +67,7 @@ export const agentApi = {
 export const callApi = {
   getCalls: (params) => api.get('/calls', { params }),
   getCallById: (id) => api.get(`/calls/${id}`),
+  initiateCall: (data) => api.post('/calls/initiate', data),
   deleteCall: (id) => api.delete(`/calls/${id}`),
 };
 

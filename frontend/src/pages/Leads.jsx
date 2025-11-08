@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { leadApi } from '@/services/api';
+import { leadApi, callApi, agentApi } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -8,17 +8,26 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Download, Phone } from 'lucide-react';
 import { formatDateTime, formatCurrency, formatPhoneNumber } from '@/lib/utils';
 
 export default function Leads() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCallOpen, setIsCallOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', value: 0 });
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['leads'],
     queryFn: () => leadApi.getLeads().then(res => res.data),
+  });
+
+  const { data: agentsData } = useQuery({
+    queryKey: ['agents'],
+    queryFn: () => agentApi.getAgents().then(res => res.data),
   });
 
   const createMutation = useMutation({
@@ -30,7 +39,23 @@ export default function Leads() {
     },
   });
 
+  const callMutation = useMutation({
+    mutationFn: (data) => callApi.initiateCall(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['leads']);
+      queryClient.invalidateQueries(['calls']);
+      setIsCallOpen(false);
+      setSelectedLead(null);
+      setSelectedAgent('');
+      alert('Call initiated successfully!');
+    },
+    onError: (error) => {
+      alert(error.response?.data?.message || 'Failed to initiate call');
+    },
+  });
+
   const leads = data?.leads || [];
+  const agents = agentsData || [];
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -56,6 +81,23 @@ export default function Leads() {
 
   const handleCreate = () => {
     createMutation.mutate(formData);
+  };
+
+  const handleCallLead = (lead) => {
+    setSelectedLead(lead);
+    setIsCallOpen(true);
+  };
+
+  const handleInitiateCall = () => {
+    if (!selectedAgent) {
+      alert('Please select an agent');
+      return;
+    }
+    callMutation.mutate({
+      leadId: selectedLead._id,
+      agentId: selectedAgent,
+      phoneNumber: selectedLead.phone
+    });
   };
 
   if (isLoading) {
@@ -149,6 +191,7 @@ export default function Leads() {
                   <TableHead>Status</TableHead>
                   <TableHead>Qualified</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -166,6 +209,16 @@ export default function Leads() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">{formatDateTime(lead.createdAt)}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCallLead(lead)}
+                      >
+                        <Phone className="h-4 w-4 mr-1" />
+                        Call
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -175,6 +228,54 @@ export default function Leads() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={isCallOpen} onOpenChange={setIsCallOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Initiate Call</DialogTitle>
+            <DialogDescription>
+              Select an agent to call {selectedLead?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Lead Information</Label>
+              <div className="p-3 bg-muted rounded-md">
+                <p className="font-medium">{selectedLead?.name}</p>
+                <p className="text-sm text-muted-foreground">{selectedLead?.phone}</p>
+                <p className="text-sm text-muted-foreground">{selectedLead?.email}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Select Agent</Label>
+              <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an agent" />
+                </SelectTrigger>
+                <SelectContent>
+                  {agents.map((agent) => (
+                    <SelectItem key={agent._id} value={agent._id}>
+                      {agent.name} ({agent.type})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {agents.length === 0 && (
+              <p className="text-sm text-amber-600">
+                No agents available. Please create an agent first in the Agents page.
+              </p>
+            )}
+            <Button
+              onClick={handleInitiateCall}
+              className="w-full"
+              disabled={callMutation.isPending || !selectedAgent}
+            >
+              {callMutation.isPending ? 'Initiating Call...' : 'Initiate Call'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

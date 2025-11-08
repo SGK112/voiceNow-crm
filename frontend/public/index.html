@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow CRM - AI Voice Agents for Contractors</title>
+    <meta name="description" content="Stop losing jobs to speed. AI voice agents that answer calls, qualify leads, and book jobs 24/7. Built for contractors. Live in 2-3 days.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: #ffffff;
+            line-height: 1.6;
+            background: #0a0a14;
+            overflow-x: hidden;
+        }
+        @keyframes fadeInUpSmooth {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatGentle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulseHighlight {
+            0%, 100% { color: #3b82f6; text-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+            50% { color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.5); }
+        }
+        @keyframes countdownGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            filter: brightness(0.8) contrast(1.1);
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10, 10, 20, 0.6) 0%, rgba(15, 15, 30, 0.5) 50%, rgba(10, 10, 20, 0.6) 100%);
+            z-index: 1;
+            backdrop-filter: blur(2px);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(251, 191, 36, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #e5e7eb;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+            animation: fadeInUpSmooth 0.8s ease-out 0.2s forwards;
+        }
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, #3b82f6 0%, #fbbf24 50%, #10b981 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0;
+            animation: fadeInUpSmooth 0.8s ease-out 0.4s forwards;
+        }
+        .hero h1 .highlight {
+            animation: pulseHighlight 2.5s ease-in-out infinite;
+        }
+        .hero-text p {
+            font-size: 18px;
+            color: #d1d5db;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto 28px;
+            opacity: 0;
+            animation: fadeInUpSmooth 0.8s ease-out 0.6s forwards;
+            font-weight: 500;
+        }
+        .cta-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeInUpSmooth 0.8s ease-out 0.8s forwards;
+        }
+        .btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+        .btn-secondary:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .countdown {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d1d5db;
+            margin-top: 12px;
+            animation: countdownGlow 2s ease-in-out infinite;
+        }
+        .countdown span {
+            color: #fbbf24;
+            font-weight: 700;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 60px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding-top: 100px;
+            opacity: 0;
+            animation: fadeInUpSmooth 0.8s ease-out 1s forwards;
+        }
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #fbbf24);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .pricing { padding: 100px 0; background: linear-gradient(180deg, #0a0a14 0%, #111827 100%); }
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+        .section-header h2 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 18px;
+            color: #ffffff;
+        }
+        .section-header h2 span {
+            background: linear-gradient(135deg, #3b82f6, #fbbf24);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .section-header p {
+            color: #d1d5db;
+            font-size: 17px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 70px;
+        }
+        .pricing-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(251, 191, 36, 0.03));
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+            padding: 36px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .pricing-card.featured {
+            border: 2px solid #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(251, 191, 36, 0.08));
+            transform: scale(1.05);
+            z-index: 1;
+        }
+        .pricing-card:hover:not(.featured) {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+        }
+        .pricing-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .pricing-name { font-size: 18px; font-weight: 800; margin-bottom: 14px; color: #ffffff; }
+        .pricing-amount { font-size: 48px; font-weight: 900; margin-bottom: 4px; color: #3b82f6; }
+        .pricing-period { color: #9ca3af; font-size: 12px; margin-bottom: 28px; }
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .pricing-features li {
+            padding: 10px 0;
+            color: #d1d5db;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        .pricing-features li:before {
+            content: '✓ ';
+            color: #10b981;
+            font-weight: 700;
+        }
+        .pricing-cta {
+            width: 100%;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .pricing-card.featured .pricing-cta {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+        }
+        .pricing-card.featured .pricing-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+        }
+        .pricing-card:not(.featured) .pricing-cta {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .pricing-card:not(.featured) .pricing-cta:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .final-cta {
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(251, 191, 36, 0.02) 100%);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .final-cta h2 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 18px;
+            color: #ffffff;
+        }
+        .final-cta h2 span {
+            background: linear-gradient(135deg, #3b82f6, #fbbf24);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .final-cta p {
+            color: #d1d5db;
+            font-size: 16px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .contact-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #d1d5db;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 8px;
+        }
+        .badge-icon {
+            font-size: 24px;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 42px; }
+            .hero-text p { font-size: 16px; }
+            .btn { width: 100%; }
+            .cta-container { flex-direction: column; }
+            .pricing-card.featured { transform: scale(1); }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 34px; }
+            .hero-content { padding: 40px 16px; }
+            .stat-number { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <video class="hero-video" autoplay muted loop playsinline>
+            <source src="https://res.cloudinary.com/drrwdgggx/video/upload/swgwfgyvchrma0ct88q9913b98_xx0ekc.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">Built for Contractors - Zero Setup Required</div>
+            <h1>Stop Losing Jobs to <span class="highlight">Speed</span></h1>
+            <p class="hero-text">Your competitors have AI answering calls 24/7 while you're still playing phone tag. Same tools you use—just working together automatically. Get quotes out in minutes, never miss a lead, schedule without drama. <strong>No API keys, no tech knowledge needed—just sign up and start calling.</strong></p>
+            <div class="cta-container">
+                <a href="/login" class="btn btn-primary">Start Free Trial</a>
+                <a href="https://elevenlabs.io/app/talk-to?agent_id=agent_3601k949jev2ekj8qe50z5c7tdfc" target="_blank" class="btn btn-secondary">Hear It Work</a>
+            </div>
+            <div class="countdown">⏰ 14 Days Free Trial • No Credit Card Required</div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="stat-number">2-3</div>
+                    <div class="stat-label">Days to Live</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-number">50-70%</div>
+                    <div class="stat-label">Admin Cut</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-number">30%+</div>
+                    <div class="stat-label">More Jobs/Mo</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2><span>Plans Built for Growth</span></h2>
+                <p>Start lean. Scale up. Pay only for what you use. Get first 14 days free to prove ROI before spending a dime.</p>
+            </div>
+            <div style="margin-bottom: 40px; text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid #10b981;">
+                <p style="color: #d1d5db; margin: 0;"><strong style="color: #10b981;">🎯 Platform-as-a-Service:</strong> We handle ALL the tech. You just use it. No API keys, no setup, no headaches.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-name">Starter</div>
+                    <div class="pricing-amount">$99</div>
+                    <div class="pricing-period">/month</div>
+                    <ul class="pricing-features">
+                        <li>1 AI Voice Agent</li>
+                        <li>100 Calls/Month</li>
+                        <li>Inbound Call Handling</li>
+                        <li>Lead Capture & Tracking</li>
+                        <li>Email Notifications</li>
+                        <li>Phone Number Included</li>
+                    </ul>
+                    <a href="/login" class="pricing-cta">Start Free Trial</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-name">Professional</div>
+                    <div class="pricing-amount">$299</div>
+                    <div class="pricing-period">/month</div>
+                    <ul class="pricing-features">
+                        <li>5 AI Voice Agents</li>
+                        <li>500 Calls/Month</li>
+                        <li>Smart Call Routing</li>
+                        <li>Advanced Workflows</li>
+                        <li>SMS & Email Automation</li>
+                        <li>Calendar Integration</li>
+                        <li>Priority Support</li>
+                    </ul>
+                    <a href="/login" class="pricing-cta">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-name">Enterprise</div>
+                    <div class="pricing-amount">$999</div>
+                    <div class="pricing-period">/month</div>
+                    <ul class="pricing-features">
+                        <li>Unlimited AI Agents</li>
+                        <li>Unlimited Calls</li>
+                        <li>Custom Workflows</li>
+                        <li>White-Label Options</li>
+                        <li>Dedicated Account Manager</li>
+                        <li>Custom AI Training</li>
+                        <li>API Access</li>
+                    </ul>
+                    <a href="/login" class="pricing-cta">Start Free Trial</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <h2>Ready to <span>Automate Your Business?</span></h2>
+            <p>Sign up free. We handle all the tech. You start winning more jobs this week. That's it.</p>
+            <div class="contact-buttons">
+                <a href="/login" class="btn btn-primary">Start Free Trial</a>
+                <a href="tel:+16028335307" class="btn btn-secondary">📞 Call Us</a>
+                <a href="mailto:help@remodely.ai" class="btn btn-secondary">✉️ Email Support</a>
+            </div>
+            <div class="trust-badges">
+                <div class="badge"><div class="badge-icon">🚀</div>Live in 2-3 Days</div>
+                <div class="badge"><div class="badge-icon">🛡️</div>Bank-Grade Security</div>
+                <div class="badge"><div class="badge-icon">💰</div>14-Day Free Trial</div>
+                <div class="badge"><div class="badge-icon">💬</div>AI Support 24/7</div>
+                <div class="badge"><div class="badge-icon">🔧</div>Zero Setup Required</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ backend/node_modules/
 .env.local
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
 frontend/.env
 backend/.env
@@ -19,6 +20,7 @@ frontend/dist/
 frontend/build/
 backend/dist/
 backend/build/
+out/
 
 # Logs
 *.log
