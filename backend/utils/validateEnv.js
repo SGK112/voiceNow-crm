@@ -11,7 +11,6 @@ const REQUIRED_ENV_VARS = {
 
   // Database
   MONGODB_URI: 'required',
-  REDIS_URL: 'required',
 
   // Authentication
   JWT_SECRET: 'required',
@@ -115,17 +114,6 @@ export function validateEnvironment() {
 
   // Check required variables
   for (const [name, type] of Object.entries(REQUIRED_ENV_VARS)) {
-    // Special case: REDIS_URL is optional if REDIS_HOST/PORT/PASSWORD are set
-    if (name === 'REDIS_URL') {
-      const hasRedisUrl = process.env.REDIS_URL && process.env.REDIS_URL.trim() !== '';
-      const hasRedisConfig = process.env.REDIS_HOST && process.env.REDIS_PORT && process.env.REDIS_PASSWORD;
-
-      if (!hasRedisUrl && !hasRedisConfig) {
-        errors.push('REDIS_URL (or REDIS_HOST + REDIS_PORT + REDIS_PASSWORD) is required but not set');
-      }
-      continue;
-    }
-
     const value = process.env[name];
     const error = validateEnvVar(name, value, type);
     if (error) {
