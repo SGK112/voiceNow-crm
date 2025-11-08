@@ -9,10 +9,10 @@ export default function Landing() {
   useEffect(() => {
     // If user is logged in, redirect to dashboard
     if (user) {
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } else {
-      // Redirect to the static marketing page
-      window.location.href = '/index.html';
+      // If not logged in, redirect to login page
+      navigate('/login');
     }
   }, [user, navigate]);
 
