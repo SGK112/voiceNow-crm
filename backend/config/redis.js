@@ -4,32 +4,37 @@ let redisClient = null;
 
 export const connectRedis = async () => {
   try {
-    // Parse Redis URL or use config object for Redis Cloud
     let redisConfig;
 
-    if (process.env.REDIS_URL) {
-      // Try URL format first
-      try {
-        redisConfig = { url: process.env.REDIS_URL };
-      } catch (urlError) {
-        // Fallback to manual config if URL parsing fails
-        const host = process.env.REDIS_HOST || 'localhost';
-        const port = process.env.REDIS_PORT || 6379;
-        const password = process.env.REDIS_PASSWORD;
+    // Check if using individual config variables
+    if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
+      const host = process.env.REDIS_HOST;
+      const port = parseInt(process.env.REDIS_PORT);
+      const password = process.env.REDIS_PASSWORD;
 
-        redisConfig = {
-          socket: {
-            host,
-            port: parseInt(port),
-            tls: host.includes('redis-cloud.com') || host.includes('redislabs.com')
-          }
-        };
+      console.log(`Connecting to Redis at ${host}:${port} with TLS`);
 
-        if (password) {
-          redisConfig.password = password;
+      redisConfig = {
+        socket: {
+          host,
+          port,
+          tls: true,
+          rejectUnauthorized: false
         }
+      };
+
+      if (password) {
+        redisConfig.password = password;
       }
-    } else {
+    }
+    // Otherwise try REDIS_URL
+    else if (process.env.REDIS_URL) {
+      console.log('Connecting to Redis via URL');
+      redisConfig = { url: process.env.REDIS_URL };
+    }
+    // Fallback to localhost
+    else {
+      console.log('No Redis config found, using localhost');
       redisConfig = { url: 'redis://localhost:6379' };
     }
 
