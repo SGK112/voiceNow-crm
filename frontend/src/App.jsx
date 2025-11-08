@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Pricing from './pages/Pricing';
@@ -30,19 +31,20 @@ function PrivateRoute({ children }) {
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/pricing" element={<Pricing />} />
 
       <Route
-        path="/"
+        path="/app"
         element={
           <PrivateRoute>
             <Layout />
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to="/app/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="agents" element={<Agents />} />
         <Route path="agents/:id" element={<AgentDetail />} />
@@ -52,6 +54,9 @@ function App() {
         <Route path="billing" element={<Billing />} />
         <Route path="settings" element={<Settings />} />
       </Route>
+
+      {/* Redirect old paths to new /app paths */}
+      <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
     </Routes>
   );
 }
