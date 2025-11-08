@@ -1,19 +1,21 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: voiceflow-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
-    networks:
-      - voiceflow-network
+  # MongoDB is now using MongoDB Atlas in production
+  # Uncomment below only for local development
+  # mongodb:
+  #   image: mongo:7.0
+  #   container_name: voiceflow-mongodb
+  #   restart: unless-stopped
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #   networks:
+  #     - voiceflow-network
 
   redis:
     image: redis:7-alpine
@@ -28,60 +30,70 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: voiceflow-backend
     restart: unless-stopped
     ports:
       - "5000:5000"
     env_file:
-      - .env
-    depends_on:
-      - mongodb
-      - redis
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - voiceflow-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: voiceflow-frontend
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
-    env_file:
-      - ./frontend/.env
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - voiceflow-network
-
-  n8n:
-    image: n8nio/n8n
-    container_name: voiceflow-n8n
-    restart: unless-stopped
-    ports:
-      - "5678:5678"
+      - .env.production
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=password
-      - N8N_HOST=localhost
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
       - NODE_ENV=production
-      - WEBHOOK_URL=http://localhost:5678/
-    volumes:
-      - n8n_data:/home/node/.n8n
+      - PORT=5000
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     networks:
       - voiceflow-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  # Frontend is now deployed to Vercel/Render separately
+  # Uncomment below only for local development or all-in-one deployment
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: voiceflow-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5173:5173"
+  #   env_file:
+  #     - ./frontend/.env
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - voiceflow-network
+
+  # n8n is now using cloud instance (remodely.app.n8n.cloud)
+  # Uncomment below only for local development or self-hosted n8n
+  # n8n:
+  #   image: n8nio/n8n
+  #   container_name: voiceflow-n8n
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5678:5678"
+  #   environment:
+  #     - N8N_BASIC_AUTH_ACTIVE=true
+  #     - N8N_BASIC_AUTH_USER=admin
+  #     - N8N_BASIC_AUTH_PASSWORD=password
+  #     - N8N_HOST=localhost
+  #     - N8N_PORT=5678
+  #     - N8N_PROTOCOL=http
+  #     - NODE_ENV=production
+  #     - WEBHOOK_URL=http://localhost:5678/
+  #   volumes:
+  #     - n8n_data:/home/node/.n8n
+  #   networks:
+  #     - voiceflow-network
 
 volumes:
   mongodb_data:
