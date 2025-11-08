@@ -9,6 +9,11 @@ const __dirname = dirname(__filename);
 // Load from parent directory (.env in project root)
 dotenv.config({ path: join(__dirname, '../.env') });
 
+// Validate environment variables
+import { validateEnvironment, getEnvSummary } from './utils/validateEnv.js';
+validateEnvironment();
+getEnvSummary();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

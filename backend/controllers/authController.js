@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Usage from '../models/Usage.js';
 import { generateToken } from '../middleware/auth.js';
 import { OAuth2Client } from 'google-auth-library';
+import emailService from '../services/emailService.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -29,6 +30,11 @@ export const signup = async (req, res) => {
     });
 
     const token = generateToken(user._id);
+
+    // Send welcome email (don't wait for it)
+    emailService.sendWelcomeEmail(user.email, user.company).catch(err => {
+      console.error('Failed to send welcome email:', err.message);
+    });
 
     res.status(201).json({
       _id: user._id,
