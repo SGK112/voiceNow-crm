@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
-import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Pricing from './pages/Pricing';
@@ -33,7 +32,8 @@ function PrivateRoute({ children }) {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
+      {/* Root path is handled by backend serving static HTML from public/index.html */}
+      {/* React router should not handle / - only /login, /signup, /app/* */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/pricing" element={<Pricing />} />
