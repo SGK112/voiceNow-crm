@@ -46,10 +46,19 @@ app.use(helmet({
 }));
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+// CORS configuration
+// In production, frontend and backend are served from same origin, so we can be more permissive
+const corsOptions = process.env.NODE_ENV === 'production'
+  ? {
+      origin: true, // Allow same-origin requests
+      credentials: true
+    }
+  : {
+      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      credentials: true
+    };
+
+app.use(cors(corsOptions));
 
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
 
