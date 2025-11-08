@@ -16,9 +16,12 @@ RUN npm install
 # Copy all application code
 COPY . ./
 
-# Install frontend dependencies and build (skip postinstall scripts to avoid patch-package issues)
+# Install patch-package globally to handle postinstall scripts
+RUN npm install -g patch-package
+
+# Install frontend dependencies and build
 WORKDIR /app/frontend
-RUN npm install --ignore-scripts
+RUN npm install
 RUN npm run build
 
 # Clean up frontend node_modules to save space
