@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package files from root
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install ALL dependencies (including dev deps needed for frontend build)
+RUN npm install
 
 # Copy all application code
 COPY . ./
@@ -18,8 +18,9 @@ COPY . ./
 WORKDIR /app/frontend
 RUN npm run build
 
-# Switch back to app root
+# Remove dev dependencies after build to reduce image size
 WORKDIR /app
+RUN npm prune --production
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
