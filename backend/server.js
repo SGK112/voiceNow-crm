@@ -40,7 +40,10 @@ const app = express();
 connectDB();
 connectRedis();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for now to allow frontend assets
+  crossOriginEmbedderPolicy: false
+}));
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 app.use(cors({
@@ -72,6 +75,19 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/campaigns', campaignRoutes);
 
 app.use('/api', apiLimiter);
+
+// Serve static frontend files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendDistPath = join(__dirname, '../frontend/dist');
+
+  // Serve static files
+  app.use(express.static(frontendDistPath));
+
+  // Serve index.html for all non-API routes (SPA fallback)
+  app.get('*', (req, res) => {
+    res.sendFile(join(frontendDistPath, 'index.html'));
+  });
+}
 
 app.use(errorHandler);
 
