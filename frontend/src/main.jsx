@@ -17,11 +17,6 @@ console.error('API URL:', apiUrl);
 console.error('Mode:', import.meta.env.MODE);
 console.error('=======================');
 
-// Show visible error if API URL is wrong
-if (!apiUrl || apiUrl === 'NOT SET' || apiUrl.includes('localhost')) {
-  document.body.innerHTML = '<div style="color: red; font-size: 24px; padding: 50px;">ERROR: API_URL is ' + apiUrl + '</div>';
-}
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -31,16 +26,34 @@ const queryClient = new QueryClient({
   },
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </QueryClientProvider>
-      </BrowserRouter>
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+try {
+  const root = document.getElementById('root');
+  if (!root) {
+    throw new Error('Root element not found!');
+  }
+
+  console.error('Starting React render...');
+
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+
+  console.error('React render initiated successfully');
+} catch (error) {
+  console.error('FATAL ERROR during React initialization:', error);
+  document.body.innerHTML = '<div style="color: red; font-size: 20px; padding: 50px; font-family: monospace;">' +
+    '<h1>Fatal Error</h1>' +
+    '<p>' + error.message + '</p>' +
+    '<pre>' + error.stack + '</pre>' +
+    '</div>';
+}
