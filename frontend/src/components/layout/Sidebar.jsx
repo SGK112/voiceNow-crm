@@ -64,7 +64,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
       >
         {/* Header */}
         <div className={cn(
-          'border-b border-border flex items-center justify-between transition-all duration-300',
+          'border-b border-border flex items-center justify-between transition-all duration-300 relative',
           isCollapsed ? 'p-4' : 'p-6'
         )}>
           <div className={cn(
@@ -82,6 +82,19 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
               V
             </div>
           )}
+
+          {/* Desktop Collapse Toggle - Top Right */}
+          <button
+            onClick={toggleCollapse}
+            className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 items-center justify-center bg-card border border-border rounded-full hover:bg-accent transition-all shadow-sm hover:shadow-md z-10"
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
 
           {/* Mobile Close Button */}
           <button
@@ -128,24 +141,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             );
           })}
         </nav>
-
-        {/* Collapse Toggle Button - Desktop Only */}
-        <div className={cn(
-          'border-t border-border hidden lg:flex',
-          isCollapsed ? 'justify-center p-2' : 'justify-end p-4'
-        )}>
-          <button
-            onClick={toggleCollapse}
-            className="p-2 hover:bg-accent rounded-lg transition-colors text-muted-foreground hover:text-foreground"
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
-          </button>
-        </div>
       </div>
     </>
   );
