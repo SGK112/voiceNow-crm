@@ -62,7 +62,15 @@ export default function AgentDetail() {
     queryKey: ['agent', id],
     queryFn: () => agentApi.getAgentById(id).then(res => res.data),
     onSuccess: (data) => {
-      setEditedAgent(data);
+      const agentWithDefaults = {
+        ...data,
+        configuration: data.configuration || {
+          temperature: 0.8,
+          maxDuration: 300,
+          language: 'en'
+        }
+      };
+      setEditedAgent(agentWithDefaults);
       const voice = ELEVENLABS_VOICES.find(v => v.id === data.voiceId);
       setSelectedVoice(voice || ELEVENLABS_VOICES[0]);
     }

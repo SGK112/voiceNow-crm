@@ -179,14 +179,14 @@ export default function AIAgents() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">AI Chat Agents</h1>
+          <h1 className="text-2xl font-bold text-gray-900">AI Chat Agents</h1>
           <p className="text-gray-600">
             Create and manage multi-provider AI agents for customer support, sales, and more
           </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
         >
           + Create AI Agent
         </button>
@@ -194,16 +194,16 @@ export default function AIAgents() {
 
       {/* Templates Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Quick Start Templates</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Start Templates</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {templates.map((template) => (
             <div
               key={template.name}
-              className="border rounded-lg p-4 hover:shadow-lg cursor-pointer transition-all"
+              className="border rounded-lg p-4 hover:shadow-lg cursor-pointer transition-all bg-white"
               onClick={() => handleUseTemplate(template)}
             >
               <div className="text-3xl mb-2">{template.icon}</div>
-              <h3 className="font-semibold mb-1">{template.name}</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
               <p className="text-sm text-gray-600 mb-2">{template.description}</p>
               <div className="flex items-center text-xs text-gray-500">
                 <span className="mr-2">{getProviderIcon(template.provider)}</span>
@@ -216,14 +216,14 @@ export default function AIAgents() {
 
       {/* Agents List */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Your AI Agents ({agents.length})</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Your AI Agents ({agents.length})</h2>
         {agents.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <div className="text-4xl mb-4">🤖</div>
             <p className="text-gray-600 mb-4">No AI agents yet</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium"
             >
               Create Your First AI Agent
             </button>
@@ -231,10 +231,10 @@ export default function AIAgents() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {agents.map((agent) => (
-              <div key={agent._id} className="border rounded-lg p-6 hover:shadow-lg transition-all">
+              <div key={agent._id} className="border rounded-lg p-6 hover:shadow-lg transition-all bg-white">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg">{agent.name}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900">{agent.name}</h3>
                     <p className="text-sm text-gray-600 capitalize">{agent.type}</p>
                   </div>
                   <span
@@ -259,19 +259,19 @@ export default function AIAgents() {
                 {agent.analytics && (
                   <div className="grid grid-cols-3 gap-2 mb-4 text-center">
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold">
+                      <div className="text-lg font-semibold text-gray-900">
                         {agent.analytics.totalConversations || 0}
                       </div>
                       <div className="text-xs text-gray-600">Conversations</div>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold">
+                      <div className="text-lg font-semibold text-gray-900">
                         {agent.analytics.totalMessages || 0}
                       </div>
                       <div className="text-xs text-gray-600">Messages</div>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold">
+                      <div className="text-lg font-semibold text-gray-900">
                         {agent.analytics.averageResponseTime
                           ? `${agent.analytics.averageResponseTime}ms`
                           : 'N/A'}
@@ -284,28 +284,28 @@ export default function AIAgents() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleTestAgent(agent)}
-                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700"
+                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 font-medium"
                   >
                     Test Chat
                   </button>
                   {agent.deployment.status === 'draft' || agent.deployment.status === 'paused' ? (
                     <button
                       onClick={() => handleDeployAgent(agent._id)}
-                      className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700"
+                      className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 font-medium"
                     >
                       Deploy
                     </button>
                   ) : (
                     <button
                       onClick={() => handlePauseAgent(agent._id)}
-                      className="flex-1 bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700"
+                      className="flex-1 bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700 font-medium"
                     >
                       Pause
                     </button>
                   )}
                   <button
                     onClick={() => handleDeleteAgent(agent._id)}
-                    className="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700"
+                    className="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 font-medium"
                   >
                     Delete
                   </button>
@@ -474,7 +474,7 @@ export default function AIAgents() {
                       }
                       className="mr-2"
                     />
-                    <span className="text-sm">Web Search</span>
+                    <span className="text-sm text-gray-700">Web Search</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -491,7 +491,7 @@ export default function AIAgents() {
                       }
                       className="mr-2"
                     />
-                    <span className="text-sm">Function Calling</span>
+                    <span className="text-sm text-gray-700">Function Calling</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -508,7 +508,7 @@ export default function AIAgents() {
                       }
                       className="mr-2"
                     />
-                    <span className="text-sm">File Analysis</span>
+                    <span className="text-sm text-gray-700">File Analysis</span>
                   </label>
                 </div>
               </div>
@@ -516,7 +516,7 @@ export default function AIAgents() {
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
                 >
                   Create AI Agent
                 </button>
@@ -526,7 +526,7 @@ export default function AIAgents() {
                     setShowCreateModal(false);
                     setSelectedTemplate(null);
                   }}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                  className="px-4 py-2 border rounded hover:bg-gray-50 text-gray-700 font-medium"
                 >
                   Cancel
                 </button>
@@ -539,12 +539,12 @@ export default function AIAgents() {
       {/* Chat Test Modal */}
       {showChatModal && selectedAgent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full h-[600px] flex flex-col">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full h-[600px] flex flex-col shadow-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Test Chat: {selectedAgent.name}</h2>
+              <h2 className="text-xl font-bold text-gray-900">Test Chat: {selectedAgent.name}</h2>
               <button
                 onClick={() => setShowChatModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ✕
               </button>
@@ -600,14 +600,14 @@ export default function AIAgents() {
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 border rounded px-4 py-2"
+                className="flex-1 border rounded px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Type your message..."
                 disabled={chatLoading}
               />
               <button
                 type="submit"
                 disabled={chatLoading || !chatInput.trim()}
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-300"
+                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-300 font-medium"
               >
                 Send
               </button>
