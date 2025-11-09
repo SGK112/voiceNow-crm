@@ -26,9 +26,12 @@ export default function Agents() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: agents, isLoading } = useQuery({
+  const { data: agents = [], isLoading } = useQuery({
     queryKey: ['agents'],
-    queryFn: () => agentApi.getAgents().then(res => res.data),
+    queryFn: async () => {
+      const res = await agentApi.getAgents();
+      return Array.isArray(res.data) ? res.data : [];
+    },
   });
 
   const createMutation = useMutation({
@@ -110,7 +113,7 @@ export default function Agents() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {agents?.map((agent) => (
+        {(agents || []).map((agent) => (
           <Card key={agent._id} className="relative">
             <CardHeader>
               <div className="flex items-start justify-between">
