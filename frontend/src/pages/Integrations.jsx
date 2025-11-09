@@ -172,13 +172,13 @@ export default function Integrations() {
     <div className="space-y-8 pb-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Integrations</h1>
-        <p className="text-gray-600 mt-1">Connect third-party services and manage webhooks</p>
+        <h1 className="text-3xl font-bold">Integrations</h1>
+        <p className="text-muted-foreground mt-1">Connect third-party services and manage webhooks</p>
       </div>
 
       {/* Third-Party Integrations */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Third-Party Services</h2>
+        <h2 className="text-xl font-bold mb-4">Third-Party Services</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {AVAILABLE_INTEGRATIONS.map((integration) => {
             const Icon = integration.icon;
@@ -193,7 +193,7 @@ export default function Integrations() {
                         <Icon className={`h-6 w-6 text-${integration.color}-600`} />
                       </div>
                       <div>
-                        <CardTitle className="text-gray-900">{integration.name}</CardTitle>
+                        <CardTitle>{integration.name}</CardTitle>
                         <CardDescription>{integration.description}</CardDescription>
                       </div>
                     </div>
@@ -204,10 +204,10 @@ export default function Integrations() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Features:</p>
+                    <p className="text-sm font-medium mb-2">Features:</p>
                     <ul className="space-y-1">
                       {integration.features.map((feature, idx) => (
-                        <li key={idx} className="text-sm text-gray-600 flex items-center gap-2">
+                        <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-600" />
                           {feature}
                         </li>
@@ -219,7 +219,7 @@ export default function Integrations() {
                     <div className="space-y-3 border-t pt-4">
                       {integration.setupFields.map((field) => (
                         <div key={field.name}>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium mb-1">
                             {field.label}
                           </label>
                           <input
@@ -227,7 +227,7 @@ export default function Integrations() {
                             placeholder={field.placeholder}
                             value={setupData[field.name] || ''}
                             onChange={(e) => setSetupData({ ...setupData, [field.name]: e.target.value })}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full border rounded px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>
                       ))}
@@ -281,15 +281,15 @@ export default function Integrations() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Custom Webhooks</h2>
-            <p className="text-sm text-gray-600">Integrate voice agents with your website or CRM</p>
+            <h2 className="text-xl font-bold">Custom Webhooks</h2>
+            <p className="text-sm text-muted-foreground">Integrate voice agents with your website or CRM</p>
           </div>
         </div>
 
         {/* Create New Webhook */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gray-900">
+            <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Create New Webhook
             </CardTitle>
@@ -300,7 +300,7 @@ export default function Integrations() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium mb-1">
                   Webhook Name
                 </label>
                 <input
@@ -308,11 +308,11 @@ export default function Integrations() {
                   placeholder="My Website Integration"
                   value={newWebhook.name}
                   onChange={(e) => setNewWebhook({ ...newWebhook, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium mb-1">
                   Webhook URL
                 </label>
                 <input
@@ -320,13 +320,13 @@ export default function Integrations() {
                   placeholder="https://yoursite.com/api/webhooks"
                   value={newWebhook.url}
                   onChange={(e) => setNewWebhook({ ...newWebhook, url: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2">
                 Events to Subscribe
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -342,9 +342,9 @@ export default function Integrations() {
                           setNewWebhook({ ...newWebhook, events: newWebhook.events.filter(e => e !== event) });
                         }
                       }}
-                      className="text-blue-600 focus:ring-blue-500"
+                      className="text-primary focus:ring-primary"
                     />
-                    <span className="text-sm text-gray-900">{event}</span>
+                    <span className="text-sm">{event}</span>
                   </label>
                 ))}
               </div>
@@ -370,14 +370,14 @@ export default function Integrations() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <Webhook className="h-5 w-5 text-blue-600" />
-                        <h3 className="font-semibold text-gray-900">{webhook.name}</h3>
+                        <h3 className="font-semibold">{webhook.name}</h3>
                         <Badge variant={webhook.enabled ? 'success' : 'secondary'}>
                           {webhook.enabled ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-900 flex-1">
+                          <code className="text-sm bg-muted px-2 py-1 rounded flex-1">
                             {webhook.url}
                           </code>
                           <Button
@@ -392,7 +392,7 @@ export default function Integrations() {
                             )}
                           </Button>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>Events:</span>
                           {webhook.events.map((event, idx) => (
                             <Badge key={idx} variant="outline" className="text-xs">
@@ -400,7 +400,7 @@ export default function Integrations() {
                             </Badge>
                           ))}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground">
                           Last triggered: {webhook.lastTriggered || 'Never'}
                         </div>
                       </div>
@@ -425,9 +425,9 @@ export default function Integrations() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
-              <Webhook className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600 font-medium">No webhooks configured</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <Webhook className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground font-medium">No webhooks configured</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Create a webhook above to start receiving events
               </p>
             </CardContent>
@@ -437,12 +437,12 @@ export default function Integrations() {
 
       {/* Storage Management */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Storage & Resources</h2>
+        <h2 className="text-xl font-bold mb-4">Storage & Resources</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Storage Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-900">
+              <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5" />
                 File Storage
               </CardTitle>
@@ -453,12 +453,12 @@ export default function Integrations() {
             <CardContent className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Storage Used</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium">Storage Used</span>
+                  <span className="text-sm font-medium">
                     {storage?.used} GB / {storage?.total} GB
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-300 ${
                       getStoragePercentage() >= 90 ? 'bg-red-600' :
@@ -467,13 +467,13 @@ export default function Integrations() {
                     style={{ width: `${getStoragePercentage()}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {getStoragePercentage().toFixed(1)}% used
                 </p>
               </div>
 
               <div className="border-t pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">Upgrade Storage:</p>
+                <p className="text-sm font-medium mb-3">Upgrade Storage:</p>
                 <div className="space-y-2">
                   {[
                     { size: '50 GB', price: 10 },
@@ -483,15 +483,15 @@ export default function Integrations() {
                   ].map((option) => (
                     <button
                       key={option.size}
-                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="text-left">
-                        <p className="font-medium text-gray-900">{option.size}</p>
-                        <p className="text-xs text-gray-600">Additional storage</p>
+                        <p className="font-medium">{option.size}</p>
+                        <p className="text-xs text-muted-foreground">Additional storage</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">${option.price}/mo</p>
-                        <p className="text-xs text-gray-600">+${option.price}</p>
+                        <p className="font-bold">${option.price}/mo</p>
+                        <p className="text-xs text-muted-foreground">+${option.price}</p>
                       </div>
                     </button>
                   ))}
@@ -503,7 +503,7 @@ export default function Integrations() {
           {/* Usage Top-ups Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-900">
+              <CardTitle className="flex items-center gap-2">
                 <Zap className="h-5 w-5" />
                 Usage Top-Ups
               </CardTitle>
@@ -513,7 +513,7 @@ export default function Integrations() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="border-t pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">Voice Minutes:</p>
+                <p className="text-sm font-medium mb-3">Voice Minutes:</p>
                 <div className="space-y-2">
                   {[
                     { minutes: 500, price: 25 },
@@ -522,15 +522,15 @@ export default function Integrations() {
                   ].map((option) => (
                     <button
                       key={option.minutes}
-                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
+                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="text-left">
-                        <p className="font-medium text-gray-900">{option.minutes} minutes</p>
-                        <p className="text-xs text-gray-600">Voice call time</p>
+                        <p className="font-medium">{option.minutes} minutes</p>
+                        <p className="text-xs text-muted-foreground">Voice call time</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">${option.price}</p>
-                        <p className="text-xs text-gray-600">One-time</p>
+                        <p className="font-bold">${option.price}</p>
+                        <p className="text-xs text-muted-foreground">One-time</p>
                       </div>
                     </button>
                   ))}
@@ -538,7 +538,7 @@ export default function Integrations() {
               </div>
 
               <div className="border-t pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">AI Tokens:</p>
+                <p className="text-sm font-medium mb-3">AI Tokens:</p>
                 <div className="space-y-2">
                   {[
                     { tokens: 100000, price: 15 },
@@ -547,15 +547,15 @@ export default function Integrations() {
                   ].map((option) => (
                     <button
                       key={option.tokens}
-                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors"
+                      className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="text-left">
-                        <p className="font-medium text-gray-900">{(option.tokens / 1000).toFixed(0)}K tokens</p>
-                        <p className="text-xs text-gray-600">AI chat usage</p>
+                        <p className="font-medium">{(option.tokens / 1000).toFixed(0)}K tokens</p>
+                        <p className="text-xs text-muted-foreground">AI chat usage</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">${option.price}</p>
-                        <p className="text-xs text-gray-600">One-time</p>
+                        <p className="font-bold">${option.price}</p>
+                        <p className="text-xs text-muted-foreground">One-time</p>
                       </div>
                     </button>
                   ))}
@@ -569,7 +569,7 @@ export default function Integrations() {
       {/* Webhook Documentation */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900">
+          <CardTitle className="flex items-center gap-2">
             <ExternalLink className="h-5 w-5" />
             Webhook Documentation
           </CardTitle>
@@ -577,8 +577,8 @@ export default function Integrations() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Webhook Payload Example:</h4>
-            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+            <h4 className="font-medium mb-2">Webhook Payload Example:</h4>
+            <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto">
 {`{
   "event": "call.completed",
   "timestamp": "2024-01-15T10:30:00Z",
@@ -596,14 +596,14 @@ export default function Integrations() {
             </pre>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Available Events:</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">call.started</code> - When a call begins</li>
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">call.completed</code> - When a call ends</li>
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">lead.created</code> - When a new lead is added</li>
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">lead.qualified</code> - When a lead is qualified</li>
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">deal.won</code> - When a deal is won</li>
-              <li>• <code className="bg-gray-100 px-2 py-0.5 rounded">deal.lost</code> - When a deal is lost</li>
+            <h4 className="font-medium mb-2">Available Events:</h4>
+            <ul className="space-y-1 text-sm">
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">call.started</code> - When a call begins</li>
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">call.completed</code> - When a call ends</li>
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">lead.created</code> - When a new lead is added</li>
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">lead.qualified</code> - When a lead is qualified</li>
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">deal.won</code> - When a deal is won</li>
+              <li>• <code className="bg-muted px-2 py-0.5 rounded">deal.lost</code> - When a deal is lost</li>
             </ul>
           </div>
         </CardContent>

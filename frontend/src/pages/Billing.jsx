@@ -177,8 +177,8 @@ export default function Billing() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Billing & Subscription</h1>
-        <p className="text-gray-600 mt-1">Manage your subscription, usage, and invoices</p>
+        <h1 className="text-3xl font-bold">Billing & Subscription</h1>
+        <p className="text-muted-foreground mt-1">Manage your subscription, usage, and invoices</p>
       </div>
 
       {/* Current Plan Card */}
@@ -200,17 +200,17 @@ export default function Billing() {
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-bold capitalize text-gray-900">
+              <div className="text-3xl font-bold capitalize">
                 {user?.plan || 'trial'} Plan
               </div>
-              <p className="text-gray-600 mt-2">
+              <p className="text-muted-foreground mt-2">
                 {user?.plan === 'starter' && '$49/month'}
                 {user?.plan === 'professional' && '$99/month'}
                 {user?.plan === 'enterprise' && '$299/month'}
                 {user?.plan === 'trial' && 'Free Trial'}
               </p>
               {user?.subscriptionEndDate && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Next billing date: {formatDate(new Date(user.subscriptionEndDate))}
                 </p>
               )}
@@ -244,20 +244,20 @@ export default function Billing() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium text-gray-900">Voice Minutes</span>
+                  <span className="font-medium">Voice Minutes</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-muted-foreground">
                   {usageData.voiceMinutes.used.toLocaleString()} / {usageData.voiceMinutes.limit.toLocaleString()}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${getUsagePercentage(usageData.voiceMinutes.used, usageData.voiceMinutes.limit)}%` }}
                 />
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {getUsagePercentage(usageData.voiceMinutes.used, usageData.voiceMinutes.limit).toFixed(1)}% used
                 </span>
                 {getUsagePercentage(usageData.voiceMinutes.used, usageData.voiceMinutes.limit) >= 90 && (
@@ -274,20 +274,20 @@ export default function Billing() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-purple-600" />
-                  <span className="font-medium text-gray-900">AI Tokens</span>
+                  <span className="font-medium">AI Tokens</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-muted-foreground">
                   {usageData.aiTokens.used.toLocaleString()} / {usageData.aiTokens.limit.toLocaleString()}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${getUsagePercentage(usageData.aiTokens.used, usageData.aiTokens.limit)}%` }}
                 />
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {getUsagePercentage(usageData.aiTokens.used, usageData.aiTokens.limit).toFixed(1)}% used
                 </span>
               </div>
@@ -298,20 +298,20 @@ export default function Billing() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-green-600" />
-                  <span className="font-medium text-gray-900">SMS Messages</span>
+                  <span className="font-medium">SMS Messages</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-muted-foreground">
                   {usageData.smsMessages.used.toLocaleString()} / {usageData.smsMessages.limit.toLocaleString()}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-green-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${getUsagePercentage(usageData.smsMessages.used, usageData.smsMessages.limit)}%` }}
                 />
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {getUsagePercentage(usageData.smsMessages.used, usageData.smsMessages.limit).toFixed(1)}% used
                 </span>
               </div>
@@ -322,20 +322,20 @@ export default function Billing() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-orange-600" />
-                  <span className="font-medium text-gray-900">Emails Sent</span>
+                  <span className="font-medium">Emails Sent</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-muted-foreground">
                   {usageData.emailsSent.used.toLocaleString()} / {usageData.emailsSent.limit.toLocaleString()}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-orange-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${getUsagePercentage(usageData.emailsSent.used, usageData.emailsSent.limit)}%` }}
                 />
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {getUsagePercentage(usageData.emailsSent.used, usageData.emailsSent.limit).toFixed(1)}% used
                 </span>
               </div>
@@ -346,8 +346,8 @@ export default function Billing() {
 
       {/* Pricing Plans */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Available Plans</h2>
-        <p className="text-gray-600 mb-6">Choose the plan that best fits your needs. Upgrade or downgrade anytime.</p>
+        <h2 className="text-2xl font-bold mb-2">Available Plans</h2>
+        <p className="text-muted-foreground mb-6">Choose the plan that best fits your needs. Upgrade or downgrade anytime.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PLANS.map((plan) => (
@@ -367,11 +367,11 @@ export default function Billing() {
               )}
 
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl font-bold text-gray-900">{plan.displayName}</CardTitle>
+                <CardTitle className="text-2xl font-bold">{plan.displayName}</CardTitle>
                 <CardDescription className="text-sm">{plan.description}</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                  <span className="text-gray-600">/month</span>
+                  <span className="text-4xl font-bold">${plan.price}</span>
+                  <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
 
@@ -382,9 +382,9 @@ export default function Billing() {
                       {feature.included ? (
                         <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <X className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                       )}
-                      <span className={`text-sm ${feature.included ? 'text-gray-900' : 'text-gray-500'}`}>
+                      <span className={`text-sm ${feature.included ? '' : 'text-muted-foreground'}`}>
                         {feature.text}
                       </span>
                     </li>
@@ -424,26 +424,26 @@ export default function Billing() {
           {invoicesLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 mt-2">Loading invoices...</p>
+              <p className="text-muted-foreground mt-2">Loading invoices...</p>
             </div>
           ) : invoices && invoices.length > 0 ? (
             <div className="space-y-4">
               {invoices.map((invoice) => (
                 <div key={invoice.id} className="flex items-center justify-between border-b pb-4 last:border-0">
                   <div className="flex items-center gap-4">
-                    <CreditCard className="h-8 w-8 text-gray-400" />
+                    <CreditCard className="h-8 w-8 text-muted-foreground" />
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium">
                         {formatDate(new Date(invoice.created * 1000))}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         Invoice #{invoice.number || 'N/A'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium">
                         {formatCurrency(invoice.amount_paid / 100)}
                       </p>
                       <Badge variant={invoice.status === 'paid' ? 'success' : 'warning'}>
@@ -463,9 +463,9 @@ export default function Billing() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">No invoices yet</p>
-              <p className="text-sm text-gray-500 mt-1">Your invoices will appear here once you subscribe to a plan</p>
+              <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">No invoices yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Your invoices will appear here once you subscribe to a plan</p>
             </div>
           )}
         </CardContent>
