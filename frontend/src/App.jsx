@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
@@ -33,6 +33,11 @@ function PrivateRoute({ children }) {
   }
 
   return user ? children : <Navigate to="/login" />;
+}
+
+function AgentRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/app/agents/${id}`} replace />;
 }
 
 function App() {
@@ -73,6 +78,20 @@ function App() {
 
       {/* Redirect old paths to new /app paths */}
       <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+      <Route path="/agents" element={<Navigate to="/app/agents" replace />} />
+      <Route path="/agents/:id" element={<AgentRedirect />} />
+      <Route path="/ai-agents" element={<Navigate to="/app/ai-agents" replace />} />
+      <Route path="/calls" element={<Navigate to="/app/calls" replace />} />
+      <Route path="/leads" element={<Navigate to="/app/leads" replace />} />
+      <Route path="/campaigns" element={<Navigate to="/app/campaigns" replace />} />
+      <Route path="/deals" element={<Navigate to="/app/deals" replace />} />
+      <Route path="/tasks" element={<Navigate to="/app/tasks" replace />} />
+      <Route path="/workflows" element={<Navigate to="/app/workflows" replace />} />
+      <Route path="/billing" element={<Navigate to="/app/billing" replace />} />
+      <Route path="/integrations" element={<Navigate to="/app/integrations" replace />} />
+      <Route path="/calendar" element={<Navigate to="/app/calendar" replace />} />
+      <Route path="/invoices" element={<Navigate to="/app/invoices" replace />} />
+      <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
     </Routes>
   );
 }
