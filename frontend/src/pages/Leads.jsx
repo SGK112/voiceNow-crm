@@ -16,7 +16,7 @@ export default function Leads() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCallOpen, setIsCallOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
-  const [selectedAgent, setSelectedAgent] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState('none');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', value: 0 });
   const queryClient = useQueryClient();
 
@@ -46,7 +46,7 @@ export default function Leads() {
       queryClient.invalidateQueries(['calls']);
       setIsCallOpen(false);
       setSelectedLead(null);
-      setSelectedAgent('');
+      setSelectedAgent('none');
       alert('Call initiated successfully!');
     },
     onError: (error) => {
@@ -89,7 +89,7 @@ export default function Leads() {
   };
 
   const handleInitiateCall = () => {
-    if (!selectedAgent) {
+    if (!selectedAgent || selectedAgent === 'none') {
       alert('Please select an agent');
       return;
     }
@@ -253,6 +253,7 @@ export default function Leads() {
                   <SelectValue placeholder="Choose an agent" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Select an agent</SelectItem>
                   {agents.map((agent) => (
                     <SelectItem key={agent._id} value={agent._id}>
                       {agent.name} ({agent.type})
@@ -269,7 +270,7 @@ export default function Leads() {
             <Button
               onClick={handleInitiateCall}
               className="w-full"
-              disabled={callMutation.isPending || !selectedAgent}
+              disabled={callMutation.isPending || !selectedAgent || selectedAgent === 'none'}
             >
               {callMutation.isPending ? 'Initiating Call...' : 'Initiate Call'}
             </Button>
