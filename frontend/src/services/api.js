@@ -137,4 +137,18 @@ export const settingsApi = {
   removeTeamMember: (id) => api.delete(`/settings/team-members/${id}`),
 };
 
+export const aiAgentApi = {
+  getAIAgents: () => api.get('/ai-agents'),
+  getAIAgentById: (id) => api.get(`/ai-agents/${id}`),
+  createAIAgent: (data) => api.post('/ai-agents/create', data),
+  updateAIAgent: (id, data) => api.patch(`/ai-agents/${id}`, data),
+  deleteAIAgent: (id) => api.delete(`/ai-agents/${id}`),
+  chatWithAgent: (id, messages) => api.post(`/ai-agents/${id}/chat`, { messages }),
+  deployAIAgent: (id) => api.post(`/ai-agents/${id}/deploy`),
+  pauseAIAgent: (id) => api.post(`/ai-agents/${id}/pause`),
+  testAIAgent: (id, testMessage) => api.post(`/ai-agents/${id}/test`, { testMessage }),
+  getAvailableModels: () => api.get('/ai-agents/helpers/models'),
+  getAIAgentTemplates: () => api.get('/ai-agents/helpers/templates'),
+};
+
 export default api;

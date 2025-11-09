@@ -7,6 +7,7 @@ import Pricing from './pages/Pricing';
 import Dashboard from './pages/Dashboard';
 import Agents from './pages/Agents';
 import AgentDetail from './pages/AgentDetail';
+import AIAgents from './pages/AIAgents';
 import Calls from './pages/Calls';
 import Leads from './pages/Leads';
 import Workflows from './pages/Workflows';
@@ -52,6 +53,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="agents" element={<Agents />} />
         <Route path="agents/:id" element={<AgentDetail />} />
+        <Route path="ai-agents" element={<AIAgents />} />
         <Route path="campaigns" element={<Campaigns />} />
         <Route path="campaigns/new" element={<CampaignNew />} />
         <Route path="calls" element={<Calls />} />

@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard },
-  { name: 'Agents', href: '/app/agents', icon: Phone },
+  { name: 'Voice Agents', href: '/app/agents', icon: Phone },
+  { name: 'AI Chat Agents', href: '/app/ai-agents', icon: Bot },
   { name: 'Campaigns', href: '/app/campaigns', icon: Target },
   { name: 'Calls', href: '/app/calls', icon: PhoneCall },
   { name: 'Leads', href: '/app/leads', icon: Users },
