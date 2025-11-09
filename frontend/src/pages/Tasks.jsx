@@ -39,8 +39,8 @@ export default function Tasks() {
     type: 'task',
     priority: 'medium',
     dueDate: '',
-    relatedContact: '',
-    relatedDeal: '',
+    relatedContact: 'none',
+    relatedDeal: 'none',
   });
   const queryClient = useQueryClient();
 
@@ -87,8 +87,8 @@ export default function Tasks() {
         type: 'task',
         priority: 'medium',
         dueDate: '',
-        relatedContact: '',
-        relatedDeal: '',
+        relatedContact: 'none',
+        relatedDeal: 'none',
       });
     },
   });
@@ -102,7 +102,12 @@ export default function Tasks() {
 
   const handleCreate = (e) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    const taskData = {
+      ...formData,
+      relatedContact: formData.relatedContact === 'none' ? undefined : formData.relatedContact,
+      relatedDeal: formData.relatedDeal === 'none' ? undefined : formData.relatedDeal,
+    };
+    createMutation.mutate(taskData);
   };
 
   const handleComplete = (taskId) => {
@@ -230,7 +235,7 @@ export default function Tasks() {
                       <SelectValue placeholder="Select contact" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {(leads || []).map((lead) => (
                         <SelectItem key={lead._id} value={lead._id}>
                           {lead.name}
@@ -250,7 +255,7 @@ export default function Tasks() {
                       <SelectValue placeholder="Select deal" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {(deals || []).map((deal) => (
                         <SelectItem key={deal._id} value={deal._id}>
                           {deal.title}
