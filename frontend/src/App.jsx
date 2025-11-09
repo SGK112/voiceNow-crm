@@ -14,6 +14,8 @@ import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 import Campaigns from './pages/Campaigns';
 import CampaignNew from './pages/CampaignNew';
+import Deals from './pages/Deals';
+import Tasks from './pages/Tasks';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -54,6 +56,8 @@ function App() {
         <Route path="campaigns/new" element={<CampaignNew />} />
         <Route path="calls" element={<Calls />} />
         <Route path="leads" element={<Leads />} />
+        <Route path="deals" element={<Deals />} />
+        <Route path="tasks" element={<Tasks />} />
         <Route path="workflows" element={<Workflows />} />
         <Route path="billing" element={<Billing />} />
         <Route path="settings" element={<Settings />} />
