@@ -20,14 +20,26 @@ export default function Leads() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', value: 0 });
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data: leads = [], isLoading } = useQuery({
     queryKey: ['leads'],
-    queryFn: () => leadApi.getLeads().then(res => res.data),
+    queryFn: async () => {
+      const res = await leadApi.getLeads();
+      // Handle multiple possible response formats
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.leads && Array.isArray(res.data.leads)) return res.data.leads;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
+    },
   });
 
-  const { data: agentsData } = useQuery({
+  const { data: agents = [] } = useQuery({
     queryKey: ['agents'],
-    queryFn: () => agentApi.getAgents().then(res => res.data),
+    queryFn: async () => {
+      const res = await agentApi.getAgents();
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
+    },
   });
 
   const createMutation = useMutation({
@@ -53,9 +65,6 @@ export default function Leads() {
       alert(error.response?.data?.message || 'Failed to initiate call');
     },
   });
-
-  const leads = data?.leads || [];
-  const agents = agentsData || [];
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -179,7 +188,7 @@ export default function Leads() {
           <CardTitle>All Leads</CardTitle>
         </CardHeader>
         <CardContent>
-          {leads.length > 0 ? (
+          {(leads || []).length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -195,7 +204,7 @@ export default function Leads() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.map((lead) => (
+                {(leads || []).map((lead) => (
                   <TableRow key={lead._id}>
                     <TableCell className="font-medium">{lead.name}</TableCell>
                     <TableCell>{lead.email}</TableCell>
@@ -254,7 +263,7 @@ export default function Leads() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Select an agent</SelectItem>
-                  {agents.map((agent) => (
+                  {(agents || []).map((agent) => (
                     <SelectItem key={agent._id} value={agent._id}>
                       {agent.name} ({agent.type})
                     </SelectItem>
@@ -262,7 +271,7 @@ export default function Leads() {
                 </SelectContent>
               </Select>
             </div>
-            {agents.length === 0 && (
+            {(agents || []).length === 0 && (
               <p className="text-sm text-amber-600">
                 No agents available. Please create an agent first in the Agents page.
               </p>
