@@ -17,6 +17,9 @@ import Campaigns from './pages/Campaigns';
 import CampaignNew from './pages/CampaignNew';
 import Deals from './pages/Deals';
 import Tasks from './pages/Tasks';
+import Integrations from './pages/Integrations';
+import Calendar from './pages/Calendar';
+import Invoices from './pages/Invoices';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -62,6 +65,9 @@ function App() {
         <Route path="tasks" element={<Tasks />} />
         <Route path="workflows" element={<Workflows />} />
         <Route path="billing" element={<Billing />} />
+        <Route path="integrations" element={<Integrations />} />
+        <Route path="calendar" element={<Calendar />} />
+        <Route path="invoices" element={<Invoices />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 

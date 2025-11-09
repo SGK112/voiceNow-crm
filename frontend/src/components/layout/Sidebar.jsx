@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -12,7 +12,10 @@ const navigation = [
   { name: 'Deals', href: '/app/deals', icon: TrendingUp },
   { name: 'Tasks', href: '/app/tasks', icon: CheckSquare },
   { name: 'Workflows', href: '/app/workflows', icon: Workflow },
+  { name: 'Calendar', href: '/app/calendar', icon: Calendar },
+  { name: 'Invoices', href: '/app/invoices', icon: FileText },
   { name: 'Billing', href: '/app/billing', icon: CreditCard },
+  { name: 'Integrations', href: '/app/integrations', icon: Plug },
   { name: 'Settings', href: '/app/settings', icon: Settings },
 ];
 
