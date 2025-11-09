@@ -319,9 +319,9 @@ export default function AIAgents() {
       {/* Create Agent Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-xl font-bold text-gray-900">
                 {selectedTemplate ? `Create from Template: ${selectedTemplate.name}` : 'Create AI Agent'}
               </h2>
               <button
@@ -337,12 +337,12 @@ export default function AIAgents() {
 
             <form onSubmit={handleCreateAgent} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Agent Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Customer Support Bot"
                   required
                 />
@@ -350,11 +350,11 @@ export default function AIAgents() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="chat">Chat</option>
                     <option value="email">Email</option>
@@ -363,7 +363,7 @@ export default function AIAgents() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Provider</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
                   <select
                     value={formData.provider}
                     onChange={(e) => {
@@ -375,7 +375,7 @@ export default function AIAgents() {
                         model: models[0]?.id || '',
                       });
                     }}
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
@@ -385,11 +385,11 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Model</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
                 <select
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {(availableModels[formData.provider] || []).map((model) => (
                     <option key={model.id} value={model.id}>
@@ -400,11 +400,11 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">System Prompt</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">System Prompt</label>
                 <textarea
                   value={formData.systemPrompt}
                   onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="6"
                   placeholder="You are a helpful customer support assistant..."
                   required
@@ -413,7 +413,7 @@ export default function AIAgents() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Temperature ({formData.configuration.temperature})
                   </label>
                   <input
@@ -436,7 +436,7 @@ export default function AIAgents() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Max Tokens</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
                   <input
                     type="number"
                     value={formData.configuration.maxTokens}
@@ -449,7 +449,7 @@ export default function AIAgents() {
                         },
                       })
                     }
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     min="100"
                     max="4000"
                   />
@@ -457,7 +457,7 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Capabilities</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Capabilities</label>
                 <div className="space-y-2">
                   <label className="flex items-center">
                     <input

@@ -42,9 +42,9 @@ export const authApi = {
 
 export const subscriptionApi = {
   getPlans: () => api.get('/subscription/plans'),
-  createSubscription: (planName) => api.post('/subscription/create', { planName }),
+  createSubscription: (data) => api.post('/subscription/create', data),
   cancelSubscription: () => api.post('/subscription/cancel'),
-  updateSubscription: (planName) => api.patch('/subscription/update', { planName }),
+  updateSubscription: (data) => api.patch('/subscription/update', data),
   getInvoices: () => api.get('/subscription/invoices'),
 };
 
