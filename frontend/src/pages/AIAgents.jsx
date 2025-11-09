@@ -176,36 +176,36 @@ export default function AIAgents() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI Chat Agents</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold">AI Chat Agents</h1>
+          <p className="text-muted-foreground">
             Create and manage multi-provider AI agents for customer support, sales, and more
           </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 font-medium"
         >
           + Create AI Agent
         </button>
       </div>
 
       {/* Templates Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Start Templates</h2>
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Quick Start Templates</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {templates.map((template) => (
             <div
               key={template.name}
-              className="border rounded-lg p-4 hover:shadow-lg cursor-pointer transition-all bg-white"
+              className="border rounded-lg p-4 hover:shadow-lg cursor-pointer transition-all bg-card"
               onClick={() => handleUseTemplate(template)}
             >
               <div className="text-3xl mb-2">{template.icon}</div>
-              <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
-              <p className="text-sm text-gray-600 mb-2">{template.description}</p>
-              <div className="flex items-center text-xs text-gray-500">
+              <h3 className="font-semibold mb-1">{template.name}</h3>
+              <p className="text-sm text-muted-foreground mb-2">{template.description}</p>
+              <div className="flex items-center text-xs text-muted-foreground">
                 <span className="mr-2">{getProviderIcon(template.provider)}</span>
                 <span>{template.model}</span>
               </div>
@@ -216,14 +216,14 @@ export default function AIAgents() {
 
       {/* Agents List */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Your AI Agents ({agents.length})</h2>
+        <h2 className="text-xl font-semibold mb-4">Your AI Agents ({agents.length})</h2>
         {agents.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <div className="text-center py-12 bg-muted/50 rounded-lg">
             <div className="text-4xl mb-4">🤖</div>
-            <p className="text-gray-600 mb-4">No AI agents yet</p>
+            <p className="text-muted-foreground mb-4">No AI agents yet</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium"
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 font-medium"
             >
               Create Your First AI Agent
             </button>
@@ -231,11 +231,11 @@ export default function AIAgents() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {agents.map((agent) => (
-              <div key={agent._id} className="border rounded-lg p-6 hover:shadow-lg transition-all bg-white">
+              <div key={agent._id} className="border rounded-lg p-6 hover:shadow-lg transition-all bg-card">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-900">{agent.name}</h3>
-                    <p className="text-sm text-gray-600 capitalize">{agent.type}</p>
+                    <h3 className="font-semibold text-lg">{agent.name}</h3>
+                    <p className="text-sm text-muted-foreground capitalize">{agent.type}</p>
                   </div>
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(
@@ -247,36 +247,36 @@ export default function AIAgents() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <div className="flex items-center text-sm text-muted-foreground mb-2">
                     <span className="mr-2">{getProviderIcon(agent.provider)}</span>
                     <span className="capitalize">{agent.provider}</span>
                     <span className="mx-2">•</span>
                     <span>{agent.model}</span>
                   </div>
-                  <p className="text-sm text-gray-700 line-clamp-2">{agent.systemPrompt}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{agent.systemPrompt}</p>
                 </div>
 
                 {agent.analytics && (
                   <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-                    <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold text-gray-900">
+                    <div className="bg-muted/50 p-2 rounded">
+                      <div className="text-lg font-semibold">
                         {agent.analytics.totalConversations || 0}
                       </div>
-                      <div className="text-xs text-gray-600">Conversations</div>
+                      <div className="text-xs text-muted-foreground">Conversations</div>
                     </div>
-                    <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold text-gray-900">
+                    <div className="bg-muted/50 p-2 rounded">
+                      <div className="text-lg font-semibold">
                         {agent.analytics.totalMessages || 0}
                       </div>
-                      <div className="text-xs text-gray-600">Messages</div>
+                      <div className="text-xs text-muted-foreground">Messages</div>
                     </div>
-                    <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-semibold text-gray-900">
+                    <div className="bg-muted/50 p-2 rounded">
+                      <div className="text-lg font-semibold">
                         {agent.analytics.averageResponseTime
                           ? `${agent.analytics.averageResponseTime}ms`
                           : 'N/A'}
                       </div>
-                      <div className="text-xs text-gray-600">Avg Time</div>
+                      <div className="text-xs text-muted-foreground">Avg Time</div>
                     </div>
                   </div>
                 )}
@@ -284,7 +284,7 @@ export default function AIAgents() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleTestAgent(agent)}
-                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 font-medium"
+                    className="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded text-sm hover:bg-primary/90 font-medium"
                   >
                     Test Chat
                   </button>
@@ -305,7 +305,7 @@ export default function AIAgents() {
                   )}
                   <button
                     onClick={() => handleDeleteAgent(agent._id)}
-                    className="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 font-medium"
+                    className="bg-destructive text-destructive-foreground px-3 py-2 rounded text-sm hover:bg-destructive/90 font-medium"
                   >
                     Delete
                   </button>
@@ -318,10 +318,10 @@ export default function AIAgents() {
 
       {/* Create Agent Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-background border rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">
                 {selectedTemplate ? `Create from Template: ${selectedTemplate.name}` : 'Create AI Agent'}
               </h2>
               <button
@@ -329,20 +329,20 @@ export default function AIAgents() {
                   setShowCreateModal(false);
                   setSelectedTemplate(null);
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-muted-foreground hover:text-foreground text-2xl"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreateAgent} className="space-y-4">
+            <form onSubmit={handleCreateAgent} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
+                <label className="block text-sm font-medium mb-2">Agent Name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="e.g., Customer Support Bot"
                   required
                 />
@@ -350,11 +350,11 @@ export default function AIAgents() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium mb-2">Type</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="chat">Chat</option>
                     <option value="email">Email</option>
@@ -363,7 +363,7 @@ export default function AIAgents() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+                  <label className="block text-sm font-medium mb-2">Provider</label>
                   <select
                     value={formData.provider}
                     onChange={(e) => {
@@ -375,7 +375,7 @@ export default function AIAgents() {
                         model: models[0]?.id || '',
                       });
                     }}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
@@ -385,11 +385,11 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                <label className="block text-sm font-medium mb-2">Model</label>
                 <select
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   {(availableModels[formData.provider] || []).map((model) => (
                     <option key={model.id} value={model.id}>
@@ -400,11 +400,11 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">System Prompt</label>
+                <label className="block text-sm font-medium mb-2">System Prompt</label>
                 <textarea
                   value={formData.systemPrompt}
                   onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   rows="6"
                   placeholder="You are a helpful customer support assistant..."
                   required
@@ -413,7 +413,7 @@ export default function AIAgents() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium mb-2">
                     Temperature ({formData.configuration.temperature})
                   </label>
                   <input
@@ -436,7 +436,7 @@ export default function AIAgents() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
+                  <label className="block text-sm font-medium mb-2">Max Tokens</label>
                   <input
                     type="number"
                     value={formData.configuration.maxTokens}
@@ -449,7 +449,7 @@ export default function AIAgents() {
                         },
                       })
                     }
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border rounded-md px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                     min="100"
                     max="4000"
                   />
@@ -457,9 +457,9 @@ export default function AIAgents() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Capabilities</label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
+                <label className="block text-sm font-medium mb-3">Capabilities</label>
+                <div className="space-y-3">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.capabilities.webSearch}
@@ -472,11 +472,11 @@ export default function AIAgents() {
                           },
                         })
                       }
-                      className="mr-2"
+                      className="mr-3"
                     />
-                    <span className="text-sm text-gray-700">Web Search</span>
+                    <span className="text-sm">Web Search</span>
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.capabilities.functionCalling}
@@ -489,11 +489,11 @@ export default function AIAgents() {
                           },
                         })
                       }
-                      className="mr-2"
+                      className="mr-3"
                     />
-                    <span className="text-sm text-gray-700">Function Calling</span>
+                    <span className="text-sm">Function Calling</span>
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.capabilities.fileAnalysis}
@@ -506,17 +506,17 @@ export default function AIAgents() {
                           },
                         })
                       }
-                      className="mr-2"
+                      className="mr-3"
                     />
-                    <span className="text-sm text-gray-700">File Analysis</span>
+                    <span className="text-sm">File Analysis</span>
                   </label>
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
+                  className="flex-1 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 font-medium"
                 >
                   Create AI Agent
                 </button>
@@ -526,7 +526,7 @@ export default function AIAgents() {
                     setShowCreateModal(false);
                     setSelectedTemplate(null);
                   }}
-                  className="px-4 py-2 border rounded hover:bg-gray-50 text-gray-700 font-medium"
+                  className="px-6 py-2 border rounded-md hover:bg-muted/50 font-medium"
                 >
                   Cancel
                 </button>
@@ -538,21 +538,21 @@ export default function AIAgents() {
 
       {/* Chat Test Modal */}
       {showChatModal && selectedAgent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full h-[600px] flex flex-col shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-background border rounded-lg p-6 max-w-2xl w-full h-[600px] flex flex-col shadow-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Test Chat: {selectedAgent.name}</h2>
+              <h2 className="text-xl font-bold">Test Chat: {selectedAgent.name}</h2>
               <button
                 onClick={() => setShowChatModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-muted-foreground hover:text-foreground text-2xl"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto border rounded p-4 mb-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto border rounded-lg p-4 mb-4 bg-muted/30">
               {chatMessages.length === 0 ? (
-                <div className="text-center text-gray-500 py-12">
+                <div className="text-center text-muted-foreground py-12">
                   <div className="text-4xl mb-2">💬</div>
                   <p>Start a conversation with your AI agent</p>
                 </div>
@@ -566,8 +566,8 @@ export default function AIAgents() {
                       <div
                         className={`max-w-[80%] rounded-lg px-4 py-2 ${
                           msg.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white border text-gray-800'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-card border'
                         }`}
                       >
                         <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -576,15 +576,15 @@ export default function AIAgents() {
                   ))}
                   {chatLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-white border rounded-lg px-4 py-2">
+                      <div className="bg-card border rounded-lg px-4 py-2">
                         <div className="flex space-x-2">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                           <div
-                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
                             style={{ animationDelay: '0.2s' }}
                           ></div>
                           <div
-                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
                             style={{ animationDelay: '0.4s' }}
                           ></div>
                         </div>
@@ -600,14 +600,14 @@ export default function AIAgents() {
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 border rounded px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 border rounded-md px-4 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Type your message..."
                 disabled={chatLoading}
               />
               <button
                 type="submit"
                 disabled={chatLoading || !chatInput.trim()}
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-300 font-medium"
+                className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 Send
               </button>
