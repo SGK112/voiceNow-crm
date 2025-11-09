@@ -73,17 +73,26 @@ class ElevenLabsService {
     }
   }
 
-  async initiateCall(agentId, phoneNumber, agentPhoneNumberId, callbackUrl) {
+  async initiateCall(agentId, phoneNumber, agentPhoneNumberId, callbackUrl, dynamicVariables = {}) {
     try {
+      const recipientData = {
+        phone_number: phoneNumber
+      };
+
+      // Add dynamic variables for personalized conversations
+      // These become available to the agent during the call
+      if (Object.keys(dynamicVariables).length > 0) {
+        // ElevenLabs supports these dynamic variables in the agent prompt
+        Object.assign(recipientData, dynamicVariables);
+      }
+
       const response = await this.client.post('/convai/batch-calling/submit', {
-        call_name: `CRM Call - ${phoneNumber} - ${Date.now()}`,
+        call_name: dynamicVariables.lead_name
+          ? `Call to ${dynamicVariables.lead_name}`
+          : `CRM Call - ${phoneNumber} - ${Date.now()}`,
         agent_id: agentId,
         agent_phone_number_id: agentPhoneNumberId,
-        recipients: [
-          {
-            phone_number: phoneNumber
-          }
-        ]
+        recipients: [recipientData]
       });
       return response.data;
     } catch (error) {

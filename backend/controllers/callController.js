@@ -119,8 +119,42 @@ export const initiateCall = async (req, res) => {
       lead = await Lead.findOne({ _id: leadId, userId: req.user._id });
     }
 
+    // Build dynamic variables for personalized conversation
+    const dynamicVariables = {};
+
+    if (lead) {
+      // Standard lead variables
+      dynamicVariables.lead_name = lead.name;
+      dynamicVariables.lead_email = lead.email;
+      dynamicVariables.lead_phone = lead.phone;
+      dynamicVariables.lead_status = lead.status;
+      dynamicVariables.lead_source = lead.source;
+
+      // Additional context
+      if (lead.qualified) dynamicVariables.qualified = 'yes';
+      if (lead.qualificationScore) dynamicVariables.qualification_score = lead.qualificationScore.toString();
+      if (lead.value) dynamicVariables.estimated_value = `$${lead.value}`;
+      if (lead.assignedTo) dynamicVariables.assigned_to = lead.assignedTo;
+
+      // Custom fields (if any)
+      if (lead.customFields && lead.customFields.size > 0) {
+        lead.customFields.forEach((value, key) => {
+          // Convert custom field names to snake_case for consistency
+          const varName = key.toLowerCase().replace(/\s+/g, '_');
+          dynamicVariables[varName] = value;
+        });
+      }
+    } else {
+      // No lead record - use phone number as identifier
+      dynamicVariables.lead_name = phoneNumber;
+      dynamicVariables.lead_phone = phoneNumber;
+    }
+
+    // Add user/company context
+    dynamicVariables.company_name = user.companyName || user.name || 'our company';
+    dynamicVariables.agent_type = agent.type;
+
     // Make the call using PLATFORM credentials
-    // TODO: Make phone number ID configurable per agent type
     const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID || 'phnum_1801k7xb68cefjv89rv10f90qykv';
 
     let callData;
@@ -129,7 +163,8 @@ export const initiateCall = async (req, res) => {
         agent.elevenLabsAgentId,
         phoneNumber,
         agentPhoneNumberId,
-        `${process.env.API_URL || 'http://localhost:5000'}/api/webhooks/elevenlabs/call-completed`
+        `${process.env.API_URL || 'http://localhost:5000'}/api/webhooks/elevenlabs/call-completed`,
+        dynamicVariables
       );
     } catch (error) {
       console.error('Failed to initiate call with ElevenLabs:', error.message);
