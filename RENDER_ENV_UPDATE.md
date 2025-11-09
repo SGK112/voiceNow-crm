@@ -14,12 +14,15 @@ Click on "Environment" in the left sidebar, then add/update these variables:
 
 ```bash
 ELEVENLABS_API_KEY=sk_cd3bed51d94fdfaf8ae2b7b3815c9cdde05ca3e7b0b807e0
+ELEVENLABS_PHONE_NUMBER_ID=phnum_1801k7xb68cefjv89rv10f90qykv
 ELEVENLABS_LEAD_GEN_AGENT_ID=agent_1001k9h9ms30fe7ay0w462av0y9v
 ELEVENLABS_BOOKING_AGENT_ID=agent_8801k9h9mv3zempsy3aa5njzwst3
 ELEVENLABS_COLLECTIONS_AGENT_ID=agent_2101k9h9mwedez1rf2e182pdvnsq
 ELEVENLABS_PROMO_AGENT_ID=agent_1801k9h9mxmveytv8a0psq4z756y
 ELEVENLABS_SUPPORT_AGENT_ID=agent_6001k9h9myv9f3w8322g06wf8b1e
 ```
+
+**NEW:** `ELEVENLABS_PHONE_NUMBER_ID` is required for the batch calling API to work.
 
 ## Step 3: Save and Deploy
 
