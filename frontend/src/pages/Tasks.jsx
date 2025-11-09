@@ -44,25 +44,36 @@ export default function Tasks() {
   });
   const queryClient = useQueryClient();
 
-  // Fixed: Added default empty array to prevent .map() error on undefined
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks, isLoading } = useQuery({
     queryKey: ['tasks', filterStatus],
-    queryFn: () => taskApi.getTasks(filterStatus ? { status: filterStatus } : {}).then(res => res.data),
+    queryFn: async () => {
+      const res = await taskApi.getTasks(filterStatus ? { status: filterStatus } : {});
+      return res.data || [];
+    },
   });
 
   const { data: stats } = useQuery({
     queryKey: ['tasks', 'stats'],
-    queryFn: () => taskApi.getStats().then(res => res.data),
+    queryFn: async () => {
+      const res = await taskApi.getStats();
+      return res.data;
+    },
   });
 
   const { data: leads } = useQuery({
     queryKey: ['leads'],
-    queryFn: () => leadApi.getLeads().then(res => res.data),
+    queryFn: async () => {
+      const res = await leadApi.getLeads();
+      return res.data || [];
+    },
   });
 
   const { data: deals } = useQuery({
     queryKey: ['deals'],
-    queryFn: () => dealApi.getDeals().then(res => res.data),
+    queryFn: async () => {
+      const res = await dealApi.getDeals();
+      return res.data || [];
+    },
   });
 
   const createMutation = useMutation({
@@ -220,7 +231,7 @@ export default function Tasks() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">None</SelectItem>
-                      {leads?.map((lead) => (
+                      {leads && leads.map((lead) => (
                         <SelectItem key={lead._id} value={lead._id}>
                           {lead.name}
                         </SelectItem>
@@ -240,7 +251,7 @@ export default function Tasks() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">None</SelectItem>
-                      {deals?.map((deal) => (
+                      {deals && deals.map((deal) => (
                         <SelectItem key={deal._id} value={deal._id}>
                           {deal.title}
                         </SelectItem>
@@ -331,53 +342,54 @@ export default function Tasks() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tasks?.map((task) => (
-                <TableRow key={task._id} className={isOverdue(task) ? 'bg-red-50' : ''}>
-                  <TableCell className="font-medium">
-                    {task.title}
-                    {isOverdue(task) && (
-                      <Badge className="ml-2 bg-red-500">Overdue</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>{TASK_TYPES.find(t => t.value === task.type)?.label}</TableCell>
-                  <TableCell>
-                    <Badge className={getPriorityColor(task.priority)}>
-                      {task.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(task.status)}>
-                      {task.status.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {task.dueDate ? formatDateTime(task.dueDate) : 'No due date'}
-                  </TableCell>
-                  <TableCell>
-                    {task.relatedContact?.name && (
-                      <div className="text-sm">{task.relatedContact.name}</div>
-                    )}
-                    {task.relatedDeal?.title && (
-                      <div className="text-xs text-muted-foreground">{task.relatedDeal.title}</div>
-                    )}
-                    {!task.relatedContact && !task.relatedDeal && 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    {task.status !== 'completed' && task.status !== 'cancelled' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleComplete(task._id)}
-                        disabled={updateMutation.isPending}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Complete
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {(!tasks || tasks.length === 0) && (
+              {tasks && tasks.length > 0 ? (
+                tasks.map((task) => (
+                  <TableRow key={task._id} className={isOverdue(task) ? 'bg-red-50' : ''}>
+                    <TableCell className="font-medium">
+                      {task.title}
+                      {isOverdue(task) && (
+                        <Badge className="ml-2 bg-red-500">Overdue</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>{TASK_TYPES.find(t => t.value === task.type)?.label}</TableCell>
+                    <TableCell>
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(task.status)}>
+                        {task.status.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {task.dueDate ? formatDateTime(task.dueDate) : 'No due date'}
+                    </TableCell>
+                    <TableCell>
+                      {task.relatedContact?.name && (
+                        <div className="text-sm">{task.relatedContact.name}</div>
+                      )}
+                      {task.relatedDeal?.title && (
+                        <div className="text-xs text-muted-foreground">{task.relatedDeal.title}</div>
+                      )}
+                      {!task.relatedContact && !task.relatedDeal && 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      {task.status !== 'completed' && task.status !== 'cancelled' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleComplete(task._id)}
+                          disabled={updateMutation.isPending}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Complete
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted-foreground">
                     No tasks yet. Create your first task to get started.

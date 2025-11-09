@@ -33,20 +33,28 @@ export default function Deals() {
   });
   const queryClient = useQueryClient();
 
-  // Fixed: Added default empty array to prevent .map() error on undefined
-  const { data: deals = [], isLoading } = useQuery({
+  const { data: deals, isLoading } = useQuery({
     queryKey: ['deals'],
-    queryFn: () => dealApi.getDeals().then(res => res.data),
+    queryFn: async () => {
+      const res = await dealApi.getDeals();
+      return res.data || [];
+    },
   });
 
   const { data: leads } = useQuery({
     queryKey: ['leads'],
-    queryFn: () => leadApi.getLeads().then(res => res.data),
+    queryFn: async () => {
+      const res = await leadApi.getLeads();
+      return res.data || [];
+    },
   });
 
   const { data: summary } = useQuery({
     queryKey: ['deals', 'summary'],
-    queryFn: () => dealApi.getPipelineSummary().then(res => res.data),
+    queryFn: async () => {
+      const res = await dealApi.getPipelineSummary();
+      return res.data;
+    },
   });
 
   const createMutation = useMutation({
@@ -129,7 +137,7 @@ export default function Deals() {
                     <SelectValue placeholder="Select a contact" />
                   </SelectTrigger>
                   <SelectContent>
-                    {leads?.map((lead) => (
+                    {leads && leads.map((lead) => (
                       <SelectItem key={lead._id} value={lead._id}>
                         {lead.name} ({lead.email})
                       </SelectItem>
@@ -262,45 +270,46 @@ export default function Deals() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {deals?.map((deal) => (
-                <TableRow key={deal._id}>
-                  <TableCell className="font-medium">{deal.title}</TableCell>
-                  <TableCell>{deal.contact?.name || 'N/A'}</TableCell>
-                  <TableCell>{formatCurrency(deal.value)}</TableCell>
-                  <TableCell>
-                    <Badge className={getStageColor(deal.stage)}>
-                      {STAGES.find(s => s.value === deal.stage)?.label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getPriorityColor(deal.priority)}>
-                      {deal.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{deal.probability}%</TableCell>
-                  <TableCell>
-                    {deal.expectedCloseDate ? formatDateTime(deal.expectedCloseDate).split(',')[0] : 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={deal.stage}
-                      onValueChange={(value) => handleStageChange(deal._id, value)}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STAGES.map((stage) => (
-                          <SelectItem key={stage.value} value={stage.value}>
-                            {stage.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {(!deals || deals.length === 0) && (
+              {deals && deals.length > 0 ? (
+                deals.map((deal) => (
+                  <TableRow key={deal._id}>
+                    <TableCell className="font-medium">{deal.title}</TableCell>
+                    <TableCell>{deal.contact?.name || 'N/A'}</TableCell>
+                    <TableCell>{formatCurrency(deal.value)}</TableCell>
+                    <TableCell>
+                      <Badge className={getStageColor(deal.stage)}>
+                        {STAGES.find(s => s.value === deal.stage)?.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getPriorityColor(deal.priority)}>
+                        {deal.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{deal.probability}%</TableCell>
+                    <TableCell>
+                      {deal.expectedCloseDate ? formatDateTime(deal.expectedCloseDate).split(',')[0] : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={deal.stage}
+                        onValueChange={(value) => handleStageChange(deal._id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STAGES.map((stage) => (
+                            <SelectItem key={stage.value} value={stage.value}>
+                              {stage.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center text-muted-foreground">
                     No deals yet. Create your first deal to get started.
