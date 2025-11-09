@@ -76,7 +76,10 @@ export default function AIAgents() {
       provider: template.provider,
       model: template.model,
       systemPrompt: template.systemPrompt,
-      configuration: template.configuration,
+      configuration: template.configuration || {
+        temperature: 0.7,
+        maxTokens: 1000,
+      },
       capabilities: template.capabilities || {
         webSearch: false,
         functionCalling: false,
