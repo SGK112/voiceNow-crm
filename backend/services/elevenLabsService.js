@@ -75,8 +75,9 @@ class ElevenLabsService {
 
   async initiateCall(agentId, phoneNumber, callbackUrl) {
     try {
-      const response = await this.client.post(`/convai/agents/${agentId}/call`, {
-        to: phoneNumber,
+      const response = await this.client.post(`/convai/agents/${agentId}/initiate`, {
+        agent_phone_number_id: null,
+        customer_phone_number: phoneNumber,
         webhook_url: callbackUrl
       });
       return response.data;
