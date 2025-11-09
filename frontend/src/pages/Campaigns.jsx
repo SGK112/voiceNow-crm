@@ -21,22 +21,22 @@ import {
 import { Plus, MoreVertical, Play, Pause, Eye, Trash2, Upload } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const campaignApi = {
-  getAll: () => axios.get(`${API_URL}/api/campaigns`, {
+  getAll: () => axios.get(`${API_URL}/campaigns`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }),
-  delete: (id) => axios.delete(`${API_URL}/api/campaigns/${id}`, {
+  delete: (id) => axios.delete(`${API_URL}/campaigns/${id}`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }),
-  start: (id) => axios.post(`${API_URL}/api/campaigns/${id}/start`, {}, {
+  start: (id) => axios.post(`${API_URL}/campaigns/${id}/start`, {}, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }),
-  pause: (id) => axios.post(`${API_URL}/api/campaigns/${id}/pause`, {}, {
+  pause: (id) => axios.post(`${API_URL}/campaigns/${id}/pause`, {}, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }),
-  resume: (id) => axios.post(`${API_URL}/api/campaigns/${id}/resume`, {}, {
+  resume: (id) => axios.post(`${API_URL}/campaigns/${id}/resume`, {}, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }),
 };
