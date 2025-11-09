@@ -25,7 +25,7 @@ export default function Deals() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    contact: '',
+    contact: 'none',
     value: 0,
     stage: 'lead',
     expectedCloseDate: '',
@@ -62,7 +62,7 @@ export default function Deals() {
     onSuccess: () => {
       queryClient.invalidateQueries(['deals']);
       setIsCreateOpen(false);
-      setFormData({ title: '', contact: '', value: 0, stage: 'lead', expectedCloseDate: '', priority: 'medium' });
+      setFormData({ title: '', contact: 'none', value: 0, stage: 'lead', expectedCloseDate: '', priority: 'medium' });
     },
   });
 
@@ -75,7 +75,11 @@ export default function Deals() {
 
   const handleCreate = (e) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    const dealData = {
+      ...formData,
+      contact: formData.contact === 'none' ? undefined : formData.contact,
+    };
+    createMutation.mutate(dealData);
   };
 
   const handleStageChange = (dealId, newStage) => {
@@ -137,6 +141,7 @@ export default function Deals() {
                     <SelectValue placeholder="Select a contact" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
                     {(leads || []).map((lead) => (
                       <SelectItem key={lead._id} value={lead._id}>
                         {lead.name} ({lead.email})
