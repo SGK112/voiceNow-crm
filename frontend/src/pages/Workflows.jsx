@@ -14,14 +14,20 @@ export default function Workflows() {
   const [selectedTemplate, setSelectedTemplate] = useState('save_lead');
   const queryClient = useQueryClient();
 
-  const { data: workflows } = useQuery({
+  const { data: workflows = [] } = useQuery({
     queryKey: ['workflows'],
-    queryFn: () => workflowApi.getWorkflows().then(res => res.data),
+    queryFn: async () => {
+      const res = await workflowApi.getWorkflows();
+      return Array.isArray(res.data) ? res.data : [];
+    },
   });
 
   const { data: templates } = useQuery({
     queryKey: ['workflow-templates'],
-    queryFn: () => workflowApi.getTemplates().then(res => res.data),
+    queryFn: async () => {
+      const res = await workflowApi.getTemplates();
+      return res.data;
+    },
   });
 
   const createMutation = useMutation({
@@ -86,7 +92,7 @@ export default function Workflows() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {workflows?.map((workflow) => (
+        {(workflows || []).map((workflow) => (
           <Card key={workflow._id}>
             <CardHeader>
               <div className="flex items-start justify-between">

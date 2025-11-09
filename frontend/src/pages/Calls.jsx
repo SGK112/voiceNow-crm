@@ -8,10 +8,13 @@ import { formatDuration, formatDateTime, formatPhoneNumber } from '@/lib/utils';
 export default function Calls() {
   const { data, isLoading } = useQuery({
     queryKey: ['calls'],
-    queryFn: () => callApi.getCalls().then(res => res.data),
+    queryFn: async () => {
+      const res = await callApi.getCalls();
+      return res.data;
+    },
   });
 
-  const calls = data?.calls || [];
+  const calls = data?.calls && Array.isArray(data.calls) ? data.calls : [];
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -54,7 +57,7 @@ export default function Calls() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {calls.map((call) => (
+                {(calls || []).map((call) => (
                   <TableRow key={call._id}>
                     <TableCell className="text-sm">
                       {formatDateTime(call.createdAt)}

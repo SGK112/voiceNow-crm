@@ -7,12 +7,18 @@ import { formatCurrency } from '@/lib/utils';
 export default function Dashboard() {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['metrics'],
-    queryFn: () => dashboardApi.getMetrics().then(res => res.data),
+    queryFn: async () => {
+      const res = await dashboardApi.getMetrics();
+      return res.data;
+    },
   });
 
-  const { data: callsToday } = useQuery({
+  const { data: callsToday = [] } = useQuery({
     queryKey: ['calls-today'],
-    queryFn: () => dashboardApi.getCallsToday().then(res => res.data),
+    queryFn: async () => {
+      const res = await dashboardApi.getCallsToday();
+      return Array.isArray(res.data) ? res.data : [];
+    },
   });
 
   if (isLoading) {
@@ -89,7 +95,7 @@ export default function Dashboard() {
         <CardContent>
           {callsToday && callsToday.length > 0 ? (
             <div className="space-y-4">
-              {callsToday.slice(0, 5).map((call) => (
+              {(callsToday || []).slice(0, 5).map((call) => (
                 <div key={call._id} className="flex items-center justify-between border-b pb-4 last:border-0">
                   <div>
                     <p className="font-medium">{call.callerName || call.callerPhone}</p>
