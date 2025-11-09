@@ -37,7 +37,9 @@ export default function Deals() {
     queryKey: ['deals'],
     queryFn: async () => {
       const res = await dealApi.getDeals();
-      return Array.isArray(res.data) ? res.data : [];
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
     },
   });
 
@@ -45,7 +47,10 @@ export default function Deals() {
     queryKey: ['leads'],
     queryFn: async () => {
       const res = await leadApi.getLeads();
-      return Array.isArray(res.data) ? res.data : [];
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.leads && Array.isArray(res.data.leads)) return res.data.leads;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
     },
   });
 

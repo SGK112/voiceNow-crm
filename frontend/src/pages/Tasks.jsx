@@ -48,7 +48,12 @@ export default function Tasks() {
     queryKey: ['tasks', filterStatus],
     queryFn: async () => {
       const res = await taskApi.getTasks(filterStatus && filterStatus !== 'all' ? { status: filterStatus } : {});
-      return Array.isArray(res.data) ? res.data : [];
+      // Backend returns array directly in res.data
+      if (Array.isArray(res.data)) return res.data;
+      // Fallback: check if it's wrapped in a data property
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      // Last resort: return empty array
+      return [];
     },
   });
 
@@ -64,7 +69,10 @@ export default function Tasks() {
     queryKey: ['leads'],
     queryFn: async () => {
       const res = await leadApi.getLeads();
-      return Array.isArray(res.data) ? res.data : [];
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.leads && Array.isArray(res.data.leads)) return res.data.leads;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
     },
   });
 
@@ -72,7 +80,9 @@ export default function Tasks() {
     queryKey: ['deals'],
     queryFn: async () => {
       const res = await dealApi.getDeals();
-      return Array.isArray(res.data) ? res.data : [];
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data?.data && Array.isArray(res.data.data)) return res.data.data;
+      return [];
     },
   });
 
