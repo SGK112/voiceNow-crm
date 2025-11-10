@@ -18,7 +18,7 @@ services:
     region: oregon
     plan: starter
     branch: main
-    buildCommand: npm install --prefix frontend && rm -rf frontend/dist frontend/node_modules/.vite && npm run build --prefix frontend && npm install --prefix backend
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
     startCommand: cd backend && npm start
     healthCheckPath: /api/health
 
