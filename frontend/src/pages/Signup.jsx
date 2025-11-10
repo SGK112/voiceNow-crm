@@ -23,7 +23,7 @@ export default function Signup() {
 
     try {
       await signup(email, password, company);
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create account');
     } finally {

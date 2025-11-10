@@ -23,7 +23,7 @@ export default function GoogleSignInButton({ onSuccess }) {
       if (onSuccess) {
         onSuccess(response.data);
       } else {
-        navigate('/dashboard');
+        navigate('/app/dashboard');
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
