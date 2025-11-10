@@ -85,7 +85,7 @@ const userSchema = new mongoose.Schema({
   }],
   userApiKeys: [{
     name: { type: String, required: true },
-    key: { type: String, required: true, unique: true, select: false },
+    key: { type: String, required: true, select: false },
     prefix: { type: String, required: true }, // First 8 chars for display
     scopes: [{
       type: String,

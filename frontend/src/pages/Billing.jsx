@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { subscriptionApi } from '@/services/api';
+import { subscriptionApi, billingApi } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,10 @@ import {
   Phone,
   Mail,
   Zap,
-  AlertCircle
+  AlertCircle,
+  DollarSign
 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const PLANS = [
   {
@@ -28,14 +30,13 @@ const PLANS = [
     description: 'Perfect for small businesses getting started',
     features: [
       { text: '200 voice minutes/month', included: true },
-      { text: '5,000 AI tokens/month', included: true },
-      { text: '500 SMS messages/month', included: true },
-      { text: '2,500 emails/month', included: true },
-      { text: '3 AI agents', included: true },
-      { text: '1 team member', included: true },
-      { text: 'Email support', included: true },
+      { text: '$0.60/min overage rate', included: true },
+      { text: '1 AI Voice Agent', included: true },
+      { text: 'Lead Capture & CRM', included: true },
+      { text: 'Email Notifications', included: true },
+      { text: 'Phone Number Included', included: true },
+      { text: 'Basic Analytics', included: true },
       { text: 'Advanced analytics', included: false },
-      { text: 'QuickBooks integration', included: false },
       { text: 'Priority support', included: false },
     ],
     popular: false,
@@ -46,16 +47,16 @@ const PLANS = [
     price: 299,
     description: 'For growing teams that need more power',
     features: [
-      { text: '500 voice minutes/month', included: true },
-      { text: '15,000 AI tokens/month', included: true },
-      { text: '2,000 SMS messages/month', included: true },
-      { text: '10,000 emails/month', included: true },
-      { text: '10 AI agents', included: true },
-      { text: '5 team members', included: true },
+      { text: '1,000 voice minutes/month', included: true },
+      { text: '$0.50/min overage rate', included: true },
+      { text: '5 AI Voice Agents', included: true },
+      { text: 'Advanced Lead Routing', included: true },
+      { text: 'SMS Integration', included: true },
+      { text: 'Workflow Automation', included: true },
       { text: 'Priority support', included: true },
       { text: 'Advanced analytics', included: true },
-      { text: 'QuickBooks integration', included: true },
-      { text: 'Custom branding', included: false },
+      { text: 'API Access', included: true },
+      { text: 'Custom Integrations', included: true },
     ],
     popular: true,
   },
@@ -65,16 +66,16 @@ const PLANS = [
     price: 799,
     description: 'For large organizations with custom needs',
     features: [
-      { text: '2,000 voice minutes/month', included: true },
-      { text: '50,000 AI tokens/month', included: true },
-      { text: '10,000 SMS messages/month', included: true },
-      { text: 'Unlimited emails', included: true },
-      { text: 'Unlimited AI agents', included: true },
-      { text: 'Unlimited team members', included: true },
+      { text: '5,000 voice minutes/month', included: true },
+      { text: '$0.40/min overage rate', included: true },
+      { text: 'Unlimited AI Voice Agents', included: true },
+      { text: 'White-label options', included: true },
+      { text: 'Dedicated Account Manager', included: true },
+      { text: 'Custom workflows & integrations', included: true },
       { text: 'Dedicated support & SLA', included: true },
       { text: 'Advanced analytics', included: true },
       { text: 'All integrations', included: true },
-      { text: 'White-label options', included: true },
+      { text: 'Custom contract terms', included: true },
     ],
     popular: false,
   },
@@ -88,6 +89,16 @@ export default function Billing() {
   const { data: invoices, isLoading: invoicesLoading } = useQuery({
     queryKey: ['invoices'],
     queryFn: () => subscriptionApi.getInvoices().then(res => res.data),
+  });
+
+  const { data: currentUsage, isLoading: usageLoading } = useQuery({
+    queryKey: ['currentUsage'],
+    queryFn: () => billingApi.getCurrentUsage().then(res => res.data),
+  });
+
+  const { data: planDetails } = useQuery({
+    queryKey: ['planDetails'],
+    queryFn: () => billingApi.getPlanDetails().then(res => res.data),
   });
 
   const createSubscriptionMutation = useMutation({
@@ -155,12 +166,28 @@ export default function Billing() {
     }
   };
 
-  // Mock usage data - in production, this would come from the API
-  const usageData = {
-    voiceMinutes: { used: 347, limit: 2000, unit: 'minutes' },
-    aiTokens: { used: 23450, limit: 50000, unit: 'tokens' },
-    smsMessages: { used: 1234, limit: 5000, unit: 'messages' },
-    emailsSent: { used: 8900, limit: 25000, unit: 'emails' },
+  // Real usage data from API with fallback to mock data for development
+  const usageData = currentUsage ? {
+    voiceMinutes: {
+      used: currentUsage.minutesUsed || 0,
+      limit: currentUsage.minutesIncluded || 50,
+      unit: 'minutes'
+    },
+    overageMinutes: currentUsage.overageMinutes || 0,
+    overageCharge: currentUsage.overageCharge || 0,
+    totalCalls: currentUsage.totalCalls || 0,
+    // Mock data for other metrics until they're implemented
+    aiTokens: { used: 0, limit: 10000, unit: 'tokens' },
+    smsMessages: { used: 0, limit: 1000, unit: 'messages' },
+    emailsSent: { used: 0, limit: 5000, unit: 'emails' },
+  } : {
+    voiceMinutes: { used: 0, limit: 50, unit: 'minutes' },
+    overageMinutes: 0,
+    overageCharge: 0,
+    totalCalls: 0,
+    aiTokens: { used: 0, limit: 10000, unit: 'tokens' },
+    smsMessages: { used: 0, limit: 1000, unit: 'messages' },
+    emailsSent: { used: 0, limit: 5000, unit: 'emails' },
   };
 
   const getUsagePercentage = (used, limit) => {
@@ -227,6 +254,17 @@ export default function Billing() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Overage Alert */}
+      {usageData.overageMinutes > 0 && (
+        <Alert variant="destructive">
+          <DollarSign className="h-4 w-4" />
+          <AlertDescription>
+            You've used {usageData.overageMinutes} minutes beyond your plan limit this month.
+            You'll be charged {formatCurrency(usageData.overageCharge)} for overages at the end of your billing cycle.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Usage Metrics */}
       <Card>

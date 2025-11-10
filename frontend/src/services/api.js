@@ -150,6 +150,14 @@ export const usageApi = {
   getUsageByMonth: (month) => api.get(`/usage/${month}`),
 };
 
+export const billingApi = {
+  getCurrentUsage: () => api.get('/billing/usage/current'),
+  getUsageHistory: (params) => api.get('/billing/usage/history', { params }),
+  getPlanDetails: () => api.get('/billing/plan'),
+  getUpcomingInvoice: () => api.get('/billing/invoice/upcoming'),
+  getInvoiceHistory: () => api.get('/billing/invoice/history'),
+};
+
 export const aiAgentApi = {
   getAIAgents: () => api.get('/ai-agents'),
   getAIAgentById: (id) => api.get(`/ai-agents/${id}`),

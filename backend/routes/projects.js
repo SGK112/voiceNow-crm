@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
+import { createUploadMiddleware } from '../utils/cloudinary.js';
 import {
   getProjects,
   getProject,
@@ -10,6 +11,7 @@ import {
   updateMaterial,
   deleteMaterial,
   addPhoto,
+  deletePhoto,
   addPermit,
   addInspection,
   addTeamMember,
@@ -41,8 +43,14 @@ router.post('/:id/materials', addMaterial);
 router.put('/:id/materials/:materialId', updateMaterial);
 router.delete('/:id/materials/:materialId', deleteMaterial);
 
-// Photos
-router.post('/:id/photos', addPhoto);
+// Photos - with Cloudinary upload middleware
+const uploadPhotos = createUploadMiddleware('projects/photos', {
+  maxSize: 10 * 1024 * 1024, // 10MB
+  maxFiles: 10,
+  allowedMimes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+});
+router.post('/:id/photos', uploadPhotos.array('photos', 10), addPhoto);
+router.delete('/:id/photos/:photoId', deletePhoto);
 
 // Permits
 router.post('/:id/permits', addPermit);

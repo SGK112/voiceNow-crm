@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import Lead from '../models/Lead.js';
 import Deal from '../models/Deal.js';
+import { deleteFile, extractPublicId } from '../utils/cloudinary.js';
 
 // Get all projects
 export const getProjects = async (req, res) => {
@@ -207,6 +208,7 @@ export const deleteMaterial = async (req, res) => {
 // Add photo
 export const addPhoto = async (req, res) => {
   try {
+    // SECURITY: Verify user owns this project
     const project = await Project.findOne({
       _id: req.params.id,
       userId: req.user._id
@@ -216,10 +218,73 @@ export const addPhoto = async (req, res) => {
       return res.status(404).json({ message: 'Project not found' });
     }
 
-    project.photos.push(req.body);
+    // Check if files were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+
+    // Add photos from Cloudinary upload
+    // Files are automatically organized in: voiceflow-crm/{userId}/projects/photos/
+    const photos = req.files.map(file => ({
+      type: req.body.type || 'during',
+      url: file.path, // Cloudinary URL
+      publicId: file.filename, // Cloudinary public_id
+      caption: req.body.caption || '',
+      uploadedBy: req.user.email,
+      takenAt: new Date()
+    }));
+
+    project.photos.push(...photos);
     await project.save();
 
-    res.json(project);
+    res.json({
+      message: `Successfully uploaded ${photos.length} photo(s)`,
+      photos: photos,
+      project: project
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete photo
+export const deletePhoto = async (req, res) => {
+  try {
+    // SECURITY: Verify user owns this project
+    const project = await Project.findOne({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const photo = project.photos.id(req.params.photoId);
+    if (!photo) {
+      return res.status(404).json({ message: 'Photo not found' });
+    }
+
+    // Delete from Cloudinary
+    // SECURITY: deleteFile function verifies the publicId belongs to the user
+    try {
+      const publicId = extractPublicId(photo.url) || photo.publicId;
+      if (publicId) {
+        await deleteFile(publicId, req.user._id.toString(), 'image');
+      }
+    } catch (cloudinaryError) {
+      console.error('Cloudinary deletion error:', cloudinaryError);
+      // Continue with database deletion even if Cloudinary deletion fails
+    }
+
+    // Remove from database
+    photo.remove();
+    await project.save();
+
+    res.json({
+      message: 'Photo deleted successfully',
+      project: project
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

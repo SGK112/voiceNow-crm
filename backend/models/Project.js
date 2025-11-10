@@ -105,6 +105,7 @@ const projectSchema = new mongoose.Schema({
       default: 'during'
     },
     url: { type: String, required: true },
+    publicId: String, // Cloudinary public_id for deletion
     caption: String,
     takenAt: { type: Date, default: Date.now },
     uploadedBy: String
