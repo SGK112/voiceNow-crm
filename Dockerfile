@@ -1,5 +1,6 @@
 # Dockerfile for VoiceFlow CRM
 # Works with monorepo structure
+# Last updated: 2025-11-10 - Force cache bust
 
 FROM node:18-alpine
 
