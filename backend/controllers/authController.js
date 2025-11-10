@@ -103,15 +103,30 @@ export const login = async (req, res) => {
 
 export const googleAuth = async (req, res) => {
   try {
-    const { credential } = req.body;
+    const { credential, tokenType } = req.body;
 
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
+    let googleId, email, name;
 
-    const payload = ticket.getPayload();
-    const { sub: googleId, email, name } = payload;
+    if (tokenType === 'access_token') {
+      // Handle access token from popup flow (useGoogleLogin)
+      const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${credential}` }
+      });
+      const userInfo = await response.json();
+      googleId = userInfo.id;
+      email = userInfo.email;
+      name = userInfo.name;
+    } else {
+      // Handle ID token from iframe flow (GoogleLogin)
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      const payload = ticket.getPayload();
+      googleId = payload.sub;
+      email = payload.email;
+      name = payload.name;
+    }
 
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
