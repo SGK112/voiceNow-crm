@@ -8,8 +8,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
 import './styles/index.css';
 
-// Google OAuth Client ID
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+// Google OAuth Client ID (public, not a secret)
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '710258787879-qmvg6o96r0k3pc6r47mutesavrhkttik.apps.googleusercontent.com';
 
 // Enable dark mode by default
 document.documentElement.classList.add('dark');
