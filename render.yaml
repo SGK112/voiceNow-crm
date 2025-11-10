@@ -1,6 +1,7 @@
 # Render Blueprint for VoiceFlow CRM
 # One-click deployment to Render
 # Documentation: https://render.com/docs/blueprint-spec
+# Force rebuild with clean cache
 #
 # IMPORTANT: After deployment, you MUST set these environment variables in Render Dashboard:
 # - MONGODB_URI (MongoDB Atlas connection string)
