@@ -1,19 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { GOOGLE_CLIENT_ID } from '@/config/oauth';
 
-// Google OAuth Sign-In Component using Google's official button
-// This loads the Google Sign-In script directly for maximum compatibility
+// Google OAuth Sign-In Component using official GSI button
 export default function GoogleSignInButton({ onSuccess }) {
   const navigate = useNavigate();
   const { googleLogin } = useAuth();
-  const buttonRef = useRef(null);
+  const buttonContainerRef = useRef(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || !buttonRef.current) {
-      console.error('Google Client ID not configured or button ref not available');
+    if (!GOOGLE_CLIENT_ID) {
+      console.error('Google Client ID not configured');
+      return;
+    }
+
+    // Check if script is already loaded
+    if (window.google?.accounts?.id) {
+      setIsScriptLoaded(true);
+      initializeGoogleSignIn();
       return;
     }
 
@@ -24,29 +31,10 @@ export default function GoogleSignInButton({ onSuccess }) {
     script.defer = true;
 
     script.onload = () => {
-      if (window.google) {
+      if (window.google?.accounts?.id) {
         console.log('Google GSI script loaded successfully');
-
-        // Initialize Google Sign-In
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-          ux_mode: 'popup',
-          context: 'signin',
-        });
-
-        // Render the button
-        window.google.accounts.id.renderButton(
-          buttonRef.current,
-          {
-            theme: 'outline',
-            size: 'large',
-            text: 'continue_with',
-            width: buttonRef.current.offsetWidth,
-          }
-        );
+        setIsScriptLoaded(true);
+        initializeGoogleSignIn();
       }
     };
 
@@ -58,16 +46,48 @@ export default function GoogleSignInButton({ onSuccess }) {
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup script on unmount
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      // Don't remove script on unmount to prevent reload issues
     };
   }, []);
+
+  const initializeGoogleSignIn = () => {
+    if (!window.google?.accounts?.id || !buttonContainerRef.current) {
+      return;
+    }
+
+    try {
+      // Initialize with callback
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+      });
+
+      // Render the button
+      window.google.accounts.id.renderButton(
+        buttonContainerRef.current,
+        {
+          theme: 'outline',
+          size: 'large',
+          text: 'continue_with',
+          width: buttonContainerRef.current.offsetWidth || 300,
+          type: 'standard',
+        }
+      );
+
+      console.log('Google Sign-In button rendered');
+    } catch (error) {
+      console.error('Failed to initialize Google Sign-In:', error);
+      toast.error('Failed to initialize Google Sign-In');
+    }
+  };
 
   const handleCredentialResponse = async (response) => {
     try {
       console.log('Google Sign-In response received');
+
+      if (!response.credential) {
+        throw new Error('No credential received from Google');
+      }
 
       // Use AuthContext's googleLogin with the credential JWT
       const userData = await googleLogin({
@@ -94,7 +114,7 @@ export default function GoogleSignInButton({ onSuccess }) {
 
   return (
     <div
-      ref={buttonRef}
+      ref={buttonContainerRef}
       className="w-full"
       style={{ minHeight: '44px' }}
     />
