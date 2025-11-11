@@ -33,6 +33,8 @@ export default function GoogleSignInButton({ onSuccess }) {
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
+          ux_mode: 'popup',
+          context: 'signin',
         });
 
         // Render the button
