@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -12,9 +11,11 @@ import { GOOGLE_CLIENT_ID } from './config/oauth';
 
 // CRITICAL DEBUG - Force console output
 const apiUrl = import.meta.env.VITE_API_URL || 'NOT SET';
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
 console.error('=== VOICEFLOW DEBUG ===');
 console.error('API URL:', apiUrl);
 console.error('Mode:', import.meta.env.MODE);
+console.error('Google Client ID:', googleClientId ? googleClientId.substring(0, 20) + '...' : 'NOT SET');
 console.error('=======================');
 
 const queryClient = new QueryClient({
@@ -37,17 +38,15 @@ try {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <ErrorBoundary>
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <BrowserRouter>
-            <QueryClientProvider client={queryClient}>
-              <ThemeProvider>
-                <AuthProvider>
-                  <App />
-                </AuthProvider>
-              </ThemeProvider>
-            </QueryClientProvider>
-          </BrowserRouter>
-        </GoogleOAuthProvider>
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <AuthProvider>
+                <App />
+              </AuthProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
       </ErrorBoundary>
     </React.StrictMode>
   );
