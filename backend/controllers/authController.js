@@ -107,7 +107,39 @@ export const googleAuth = async (req, res) => {
 
     let googleId, email, name;
 
-    if (tokenType === 'access_token') {
+    if (tokenType === 'authorization_code') {
+      // Handle authorization code from OAuth redirect flow
+      const { code, redirectUri } = req.body;
+
+      // Exchange authorization code for tokens
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          client_id: process.env.GOOGLE_CLIENT_ID,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code'
+        })
+      });
+
+      const tokens = await tokenResponse.json();
+
+      if (!tokens.id_token) {
+        return res.status(400).json({ message: 'Failed to get ID token from Google' });
+      }
+
+      // Verify the ID token
+      const ticket = await googleClient.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      const payload = ticket.getPayload();
+      googleId = payload.sub;
+      email = payload.email;
+      name = payload.name;
+    } else if (tokenType === 'access_token') {
       // Handle access token from popup flow (useGoogleLogin)
       const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: { Authorization: `Bearer ${credential}` }

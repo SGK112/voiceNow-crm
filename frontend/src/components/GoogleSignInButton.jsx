@@ -1,111 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
 import { GOOGLE_CLIENT_ID } from '@/config/oauth';
 
-// Google OAuth Sign-In Component using official GSI button
+// Google OAuth using standard OAuth 2.0 flow (not GSI)
+// This bypasses all GSI issues by using direct OAuth URLs
 export default function GoogleSignInButton({ onSuccess }) {
-  const navigate = useNavigate();
-  const { googleLogin } = useAuth();
-  const buttonContainerRef = useRef(null);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-
-  useEffect(() => {
+  const handleGoogleSignIn = () => {
     if (!GOOGLE_CLIENT_ID) {
       console.error('Google Client ID not configured');
       return;
     }
 
-    // Check if script is already loaded
-    if (window.google?.accounts?.id) {
-      setIsScriptLoaded(true);
-      initializeGoogleSignIn();
-      return;
-    }
+    // Get the current origin
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
-    // Load Google's GSI script
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
+    // Build OAuth URL
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.append('client_id', GOOGLE_CLIENT_ID);
+    authUrl.searchParams.append('redirect_uri', redirectUri);
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('scope', 'openid email profile');
+    authUrl.searchParams.append('access_type', 'online');
+    authUrl.searchParams.append('prompt', 'select_account');
 
-    script.onload = () => {
-      if (window.google?.accounts?.id) {
-        console.log('Google GSI script loaded successfully');
-        setIsScriptLoaded(true);
-        initializeGoogleSignIn();
-      }
-    };
-
-    script.onerror = () => {
-      console.error('Failed to load Google GSI script');
-      toast.error('Failed to load Google Sign-In');
-    };
-
-    document.head.appendChild(script);
-
-    return () => {
-      // Don't remove script on unmount to prevent reload issues
-    };
-  }, []);
-
-  const initializeGoogleSignIn = () => {
-    if (!window.google?.accounts?.id || !buttonContainerRef.current) {
-      return;
-    }
-
-    try {
-      // Initialize with callback
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse,
-      });
-
-      // Render the button
-      window.google.accounts.id.renderButton(
-        buttonContainerRef.current,
-        {
-          theme: 'outline',
-          size: 'large',
-          text: 'continue_with',
-          width: buttonContainerRef.current.offsetWidth || 300,
-          type: 'standard',
-        }
-      );
-
-      console.log('Google Sign-In button rendered');
-    } catch (error) {
-      console.error('Failed to initialize Google Sign-In:', error);
-      toast.error('Failed to initialize Google Sign-In');
-    }
-  };
-
-  const handleCredentialResponse = async (response) => {
-    try {
-      console.log('Google Sign-In response received');
-
-      if (!response.credential) {
-        throw new Error('No credential received from Google');
-      }
-
-      // Use AuthContext's googleLogin with the credential JWT
-      const userData = await googleLogin({
-        credential: response.credential,
-        tokenType: 'id_token'
-      });
-
-      toast.success('Successfully signed in with Google!');
-
-      if (onSuccess) {
-        onSuccess(userData);
-      } else {
-        navigate('/app/dashboard');
-      }
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      toast.error(error.response?.data?.message || 'Failed to sign in with Google');
-    }
+    // Redirect to Google OAuth
+    window.location.href = authUrl.toString();
   };
 
   if (!GOOGLE_CLIENT_ID) {
@@ -113,10 +31,16 @@ export default function GoogleSignInButton({ onSuccess }) {
   }
 
   return (
-    <div
-      ref={buttonContainerRef}
+    <Button
+      type="button"
+      variant="outline"
       className="w-full"
-      style={{ minHeight: '44px' }}
-    />
+      onClick={handleGoogleSignIn}
+    >
+      <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+        <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+      </svg>
+      Continue with Google
+    </Button>
   );
 }

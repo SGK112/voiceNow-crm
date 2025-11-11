@@ -25,6 +25,7 @@ import Invoices from './pages/Invoices';
 import Usage from './pages/Usage';
 import Projects from './pages/Projects';
 import Home from './pages/Home';
+import GoogleCallback from './pages/GoogleCallback';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
       <Route
         path="/app"
