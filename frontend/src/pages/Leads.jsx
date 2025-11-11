@@ -114,24 +114,26 @@ export default function Leads() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Leads</h1>
-          <p className="text-muted-foreground">Manage your sales leads</p>
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="text-center sm:text-left w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold">Leads</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Manage your sales leads</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
+        <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
+          <Button variant="outline" onClick={handleExport} className="flex-1 sm:flex-initial">
+            <Download className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">Export</span>
           </Button>
 
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Lead
+              <Button className="flex-1 sm:flex-initial">
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Add Lead</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -187,51 +189,53 @@ export default function Leads() {
         <CardHeader>
           <CardTitle>All Leads</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           {(leads || []).length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Qualified</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(leads || []).map((lead) => (
-                  <TableRow key={lead._id}>
-                    <TableCell className="font-medium">{lead.name}</TableCell>
-                    <TableCell>{lead.email}</TableCell>
-                    <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
-                    <TableCell className="capitalize">{lead.source.replace('_', ' ')}</TableCell>
-                    <TableCell>{formatCurrency(lead.value)}</TableCell>
-                    <TableCell>{getStatusBadge(lead.status)}</TableCell>
-                    <TableCell>
-                      <Badge variant={lead.qualified ? 'success' : 'secondary'}>
-                        {lead.qualified ? 'Yes' : 'No'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{formatDateTime(lead.createdAt)}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleCallLead(lead)}
-                      >
-                        <Phone className="h-4 w-4 mr-1" />
-                        Call
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[120px]">Name</TableHead>
+                    <TableHead className="min-w-[180px]">Email</TableHead>
+                    <TableHead className="min-w-[120px]">Phone</TableHead>
+                    <TableHead className="min-w-[100px]">Source</TableHead>
+                    <TableHead className="min-w-[100px]">Value</TableHead>
+                    <TableHead className="min-w-[100px]">Status</TableHead>
+                    <TableHead className="min-w-[100px]">Qualified</TableHead>
+                    <TableHead className="min-w-[140px]">Created</TableHead>
+                    <TableHead className="min-w-[100px]">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {(leads || []).map((lead) => (
+                    <TableRow key={lead._id}>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell className="text-sm">{lead.email}</TableCell>
+                      <TableCell className="text-sm">{formatPhoneNumber(lead.phone)}</TableCell>
+                      <TableCell className="capitalize text-sm">{lead.source.replace('_', ' ')}</TableCell>
+                      <TableCell>{formatCurrency(lead.value)}</TableCell>
+                      <TableCell>{getStatusBadge(lead.status)}</TableCell>
+                      <TableCell>
+                        <Badge variant={lead.qualified ? 'success' : 'secondary'}>
+                          {lead.qualified ? 'Yes' : 'No'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">{formatDateTime(lead.createdAt)}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCallLead(lead)}
+                        >
+                          <Phone className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Call</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <p className="text-center py-12 text-muted-foreground">No leads yet</p>
           )}

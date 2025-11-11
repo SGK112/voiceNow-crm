@@ -269,11 +269,11 @@ export default function Agents() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Voice Agents</h1>
-          <p className="text-muted-foreground">Manage your AI voice agents</p>
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="text-center sm:text-left w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold">Voice Agents</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Manage your AI voice agents</p>
         </div>
 
         <Dialog open={isCreateOpen} onOpenChange={(open) => {
@@ -281,7 +281,7 @@ export default function Agents() {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Create Agent
             </Button>
@@ -463,9 +463,9 @@ export default function Agents() {
       </div>
 
       {/* Agents Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {(agents || []).map((agent) => (
-          <Card key={agent._id} className="relative hover:shadow-lg transition-shadow">
+          <Card key={agent._id} className="relative hover:shadow-lg transition-shadow text-center sm:text-left">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
