@@ -111,6 +111,17 @@ export default function AIAgents() {
     }
   };
 
+  const handleToggleEnabled = async (agentId, currentEnabled) => {
+    try {
+      await aiAgentApi.updateAIAgent(agentId, { enabled: !currentEnabled });
+      loadData();
+      alert(`AI Agent ${!currentEnabled ? 'enabled' : 'disabled'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling agent enabled status:', error);
+      alert(error.response?.data?.message || 'Failed to toggle AI agent');
+    }
+  };
+
   const handleDeleteAgent = async (agentId) => {
     if (!confirm('Are you sure you want to delete this AI agent?')) return;
     try {
@@ -250,13 +261,33 @@ export default function AIAgents() {
                     <h3 className="font-semibold text-lg">{agent.name}</h3>
                     <p className="text-sm text-muted-foreground capitalize">{agent.type}</p>
                   </div>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(
-                      agent.deployment.status
-                    )}`}
-                  >
-                    {agent.deployment.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(
+                        agent.deployment.status
+                      )}`}
+                    >
+                      {agent.deployment.status}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {agent.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                      <button
+                        onClick={() => handleToggleEnabled(agent._id, agent.enabled)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                          agent.enabled ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                        title={agent.enabled ? 'Click to disable' : 'Click to enable'}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            agent.enabled ? 'translate-x-5' : 'translate-x-0.5'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mb-4">
