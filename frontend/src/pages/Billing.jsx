@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subscriptionApi, billingApi } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { loadStripe } from '@stripe/stripe-js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -81,6 +82,9 @@ const PLANS = [
   },
 ];
 
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 export default function Billing() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -103,7 +107,7 @@ export default function Billing() {
 
   const createSubscriptionMutation = useMutation({
     mutationFn: (planName) => subscriptionApi.createSubscription({ planName }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // Invalidate all relevant queries to refresh the UI
       queryClient.invalidateQueries(['user']);
       queryClient.invalidateQueries(['invoices']);
@@ -112,17 +116,24 @@ export default function Billing() {
 
       // Show success message
       if (data.data.clientSecret) {
-        // Payment required - would redirect to Stripe Checkout
-        alert('Stripe Checkout integration would open here. Client Secret: ' + data.data.clientSecret.substring(0, 20) + '...');
+        // Payment required - use Stripe Payment Element
+        const stripe = await stripePromise;
+        const { error } = await stripe.confirmPayment({
+          clientSecret: data.data.clientSecret,
+          confirmParams: {
+            return_url: window.location.origin + '/billing',
+          },
+        });
+
+        if (error) {
+          alert('Payment failed: ' + error.message);
+        }
       } else {
         // Trial subscription created successfully
         alert(`Subscription activated successfully! ${data.data.trialEnd ? 'Your trial ends on ' + new Date(data.data.trialEnd).toLocaleDateString() : ''}`);
+        setLoadingPlan(null);
+        setTimeout(() => window.location.reload(), 1000);
       }
-
-      setLoadingPlan(null);
-
-      // Force a page reload to ensure all UI updates
-      setTimeout(() => window.location.reload(), 1000);
     },
     onError: (error) => {
       alert('Error: ' + (error.response?.data?.message || 'Failed to create subscription'));
