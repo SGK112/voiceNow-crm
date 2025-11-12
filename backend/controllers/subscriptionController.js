@@ -32,9 +32,14 @@ export const createSubscription = async (req, res) => {
     user.subscriptionStatus = subscription.status;
     await user.save();
 
+    // For trial subscriptions, there's no payment intent
+    const clientSecret = subscription.latest_invoice?.payment_intent?.client_secret || null;
+
     res.json({
       subscriptionId: subscription.id,
-      clientSecret: subscription.latest_invoice.payment_intent.client_secret
+      clientSecret: clientSecret,
+      status: subscription.status,
+      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -19,19 +19,40 @@ class StripeService {
     }
   }
 
-  async createSubscription(customerId, priceId) {
+  async createSubscription(customerId, priceId, options = {}) {
     try {
-      const subscription = await stripe.subscriptions.create({
+      // Check if Stripe is in test mode
+      const isTestMode = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_');
+
+      const subscriptionData = {
         customer: customerId,
         items: [{ price: priceId }],
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
         expand: ['latest_invoice.payment_intent']
-      });
+      };
+
+      // In test mode, allow subscriptions without payment method using trial
+      if (isTestMode || options.useTrialForTesting) {
+        console.log('🧪 Test mode: Creating subscription with trial period');
+        subscriptionData.trial_period_days = options.trialDays || 14;
+        subscriptionData.payment_behavior = 'default_incomplete';
+        subscriptionData.payment_settings = {
+          save_default_payment_method: 'on_subscription'
+        };
+      } else {
+        // Production mode requires payment method
+        subscriptionData.payment_behavior = 'default_incomplete';
+        subscriptionData.payment_settings = {
+          save_default_payment_method: 'on_subscription'
+        };
+      }
+
+      const subscription = await stripe.subscriptions.create(subscriptionData);
+      console.log('✅ Subscription created:', subscription.id, 'Status:', subscription.status);
       return subscription;
     } catch (error) {
-      console.error('Stripe Error:', error);
-      throw new Error('Failed to create subscription');
+      console.error('❌ Stripe Subscription Error:', error.message);
+      console.error('Full error:', error);
+      throw new Error(`Failed to create subscription: ${error.message}`);
     }
   }
 

@@ -104,13 +104,25 @@ export default function Billing() {
   const createSubscriptionMutation = useMutation({
     mutationFn: (planName) => subscriptionApi.createSubscription({ planName }),
     onSuccess: (data) => {
-      // Redirect to Stripe Checkout
-      if (data.data.clientSecret) {
-        // In a real implementation, you would use Stripe.js to handle the payment
-        alert('Stripe Checkout integration would open here. Client Secret: ' + data.data.clientSecret.substring(0, 20) + '...');
-      }
+      // Invalidate all relevant queries to refresh the UI
       queryClient.invalidateQueries(['user']);
+      queryClient.invalidateQueries(['invoices']);
+      queryClient.invalidateQueries(['currentUsage']);
+      queryClient.invalidateQueries(['planDetails']);
+
+      // Show success message
+      if (data.data.clientSecret) {
+        // Payment required - would redirect to Stripe Checkout
+        alert('Stripe Checkout integration would open here. Client Secret: ' + data.data.clientSecret.substring(0, 20) + '...');
+      } else {
+        // Trial subscription created successfully
+        alert(`Subscription activated successfully! ${data.data.trialEnd ? 'Your trial ends on ' + new Date(data.data.trialEnd).toLocaleDateString() : ''}`);
+      }
+
       setLoadingPlan(null);
+
+      // Force a page reload to ensure all UI updates
+      setTimeout(() => window.location.reload(), 1000);
     },
     onError: (error) => {
       alert('Error: ' + (error.response?.data?.message || 'Failed to create subscription'));
