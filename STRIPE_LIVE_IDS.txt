@@ -1,0 +1,36 @@
+# STRIPE LIVE MODE CONFIGURATION
+# ================================
+
+## LIVE Price IDs (For Render Production)
+STRIPE_STARTER_PRICE_ID=price_1SRcUsHDbK8UKkrvtsFicLft
+STRIPE_PROFESSIONAL_PRICE_ID=price_1SRcUqHDbK8UKkrvZIk72OIk
+STRIPE_ENTERPRISE_PRICE_ID=price_1SRcUlHDbK8UKkrvGSJ5tIrp
+
+## Where to Update:
+
+### Render Dashboard
+1. Go to: https://dashboard.render.com
+2. Select: voiceflow-crm service
+3. Go to: Environment tab
+4. Update these variables with the LIVE price IDs above
+
+### Render also needs LIVE Stripe keys:
+STRIPE_SECRET_KEY=sk_live_YOUR_LIVE_SECRET_KEY_HERE
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_51Rr3YyHDbK8UKkrvbyxTOIvyaWrJgMbhbiRmeysHzDOAEzpjnEUCKRPArMpGeOPCT9GdWtJhbvwzPO8OUixFdRe600b9zYzxYT
+
+## Local Development (Keep TEST mode)
+Your local backend/.env should stay with TEST mode:
+- STRIPE_SECRET_KEY=sk_test_51Rr3YyHDbK8UKkrv...
+- STRIPE_STARTER_PRICE_ID=price_1SRcSBHDbK8UKkrvlunSAt2f
+- STRIPE_PROFESSIONAL_PRICE_ID=price_1SRcTAHDbK8UKkrvehtLOtkH
+- STRIPE_ENTERPRISE_PRICE_ID=price_1SRcU2HDbK8UKkrv7IIMIOQp
+
+## Summary:
+- Local (.env): Use TEST keys + TEST price IDs ✅ Already correct
+- Render (Production): Use LIVE keys + LIVE price IDs ⚠️ Needs update
+
+## Product Details:
+All active in LIVE mode:
+- Starter: $149/month (prod_TOPJ9HMKLxUr21)
+- Professional: $299/month (prod_TOPJ6orNoZ2pLp)
+- Enterprise: $799/month (prod_TOPJ5kw8ViQp2A)
