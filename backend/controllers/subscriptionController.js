@@ -74,6 +74,29 @@ export const updateSubscription = async (req, res) => {
       return res.status(400).json({ message: 'No active subscription' });
     }
 
+    // Check if subscription is incomplete - if so, cancel it and create a new one
+    if (user.subscriptionStatus === 'incomplete' || user.subscriptionStatus === 'incomplete_expired') {
+      console.log('Canceling incomplete subscription and creating a new one');
+      await stripeService.cancelSubscription(user.subscriptionId);
+
+      // Create new subscription
+      const priceId = stripeService.getPriceIdForPlan(planName);
+      const subscription = await stripeService.createSubscription(user.stripeCustomerId, priceId);
+
+      user.subscriptionId = subscription.id;
+      user.plan = planName;
+      user.subscriptionStatus = subscription.status;
+      await user.save();
+
+      return res.json({
+        subscriptionId: subscription.id,
+        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret || null,
+        status: subscription.status,
+        message: 'New subscription created'
+      });
+    }
+
+    // For active/trialing subscriptions, update normally
     const priceId = stripeService.getPriceIdForPlan(planName);
     await stripeService.updateSubscription(user.subscriptionId, priceId);
 
@@ -82,6 +105,7 @@ export const updateSubscription = async (req, res) => {
 
     res.json({ message: 'Subscription updated successfully' });
   } catch (error) {
+    console.error('Update subscription error:', error);
     res.status(500).json({ message: error.message });
   }
 };
