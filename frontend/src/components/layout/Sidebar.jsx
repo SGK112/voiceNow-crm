@@ -67,20 +67,20 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
         {/* Header */}
         <div className={cn(
           'border-b border-border flex items-center justify-between transition-all duration-300 relative',
-          isCollapsed ? 'p-4' : 'p-6'
+          isCollapsed ? 'p-3 lg:p-4' : 'p-3 lg:p-6'
         )}>
           <div className={cn(
             'overflow-hidden transition-all duration-300',
             isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'
           )}>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-amber-400 bg-clip-text text-transparent whitespace-nowrap">
-              🚀 Remodely.ai
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-500 to-amber-400 bg-clip-text text-transparent whitespace-nowrap flex items-center gap-1">
+              <span className="text-base sm:text-xl lg:text-2xl">🚀</span> Remodely.ai
             </h1>
-            <p className="text-sm text-muted-foreground whitespace-nowrap">VoiceFlow CRM</p>
+            <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">VoiceFlow CRM</p>
           </div>
 
           {isCollapsed && (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-amber-400 flex items-center justify-center text-white font-bold text-xl">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-r from-blue-500 to-amber-400 flex items-center justify-center font-bold text-base sm:text-xl">
               🚀
             </div>
           )}
@@ -101,9 +101,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           {/* Mobile Close Button */}
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+            className="lg:hidden p-1.5 hover:bg-accent rounded-lg transition-colors flex-shrink-0"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
 
