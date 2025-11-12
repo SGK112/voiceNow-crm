@@ -52,6 +52,9 @@ import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 const app = express();
 
+// Trust proxy - required for Render deployment
+app.set('trust proxy', 1);
+
 connectDB();
 connectRedis();
 
