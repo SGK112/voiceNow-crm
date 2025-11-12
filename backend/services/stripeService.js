@@ -30,8 +30,8 @@ class StripeService {
         expand: ['latest_invoice.payment_intent']
       };
 
-      // In test mode, allow subscriptions without payment method using trial
-      if (isTestMode || options.useTrialForTesting) {
+      // Disabled trial mode for testing payment flow
+      if (false) {
         console.log('🧪 Test mode: Creating subscription with trial period');
         subscriptionData.trial_period_days = options.trialDays || 14;
         subscriptionData.payment_behavior = 'default_incomplete';
@@ -39,7 +39,8 @@ class StripeService {
           save_default_payment_method: 'on_subscription'
         };
       } else {
-        // Production mode requires payment method
+        // Require payment method for all subscriptions
+        console.log('💳 Payment required: Creating subscription without trial');
         subscriptionData.payment_behavior = 'default_incomplete';
         subscriptionData.payment_settings = {
           save_default_payment_method: 'on_subscription'

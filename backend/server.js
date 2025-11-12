@@ -6,8 +6,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load environment variables FIRST, before any other imports
-// Load from parent directory (.env in project root)
-dotenv.config({ path: join(__dirname, '../.env') });
+// In production (Render), env vars are injected by the platform
+// In development, load from .env file in project root
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: join(__dirname, '../.env') });
+}
 
 // Validate environment variables
 import { validateEnvironment, getEnvSummary } from './utils/validateEnv.js';
