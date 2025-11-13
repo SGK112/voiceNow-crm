@@ -1274,6 +1274,144 @@
             color: #64748b;
         }
 
+        /* Call Mode */
+        .call-mode-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        .call-mode-container.active {
+            display: flex;
+        }
+
+        .call-mode-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .call-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .call-mode-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .call-description {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .phone-setup-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .phone-setup-notice p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .phone-setup-notice strong {
+            color: #664d03;
+        }
+
+        .phone-setup-notice code {
+            font-size: 12px;
+            color: #0f172a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .call-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 24px 48px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+            margin-bottom: 24px;
+        }
+
+        .call-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .call-button-icon {
+            font-size: 32px;
+        }
+
+        .call-button-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .call-button-number {
+            font-size: 18px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .call-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .call-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
         /* Chat Input */
         .chat-input-container {
             padding: 16px;
@@ -2007,9 +2145,10 @@
             <button class="hybrid-chat-close" id="chatClose" aria-label="Close">×</button>
         </div>
 
-        <!-- Mode Toggle - Voice disabled -->
+        <!-- Mode Toggle -->
         <div class="mode-toggle">
             <button class="mode-btn active" id="chatModeBtn">💬 Chat with AI</button>
+            <button class="mode-btn" id="callModeBtn">📞 Call AI Agent</button>
         </div>
 
         <!-- Chat Mode -->
@@ -2022,9 +2161,42 @@
             </div>
         </div>
 
-        <!-- Voice Mode - Disabled -->
-        <div class="voice-mode-container" id="voiceModeContainer" style="display: none !important;">
-            <!-- Voice feature temporarily disabled -->
+        <!-- Call Mode -->
+        <div class="call-mode-container" id="callModeContainer" style="display: none;">
+            <div class="call-mode-content">
+                <div class="call-icon">📞</div>
+                <h3>Talk to Our AI Agent</h3>
+                <p class="call-description">Click the button below to call our AI agent directly. Works on all devices!</p>
+
+                <!-- Phone number will be configured after Twilio setup -->
+                <div class="phone-setup-notice" id="phoneSetupNotice">
+                    <p><strong>⚙️ Setup Required</strong></p>
+                    <p>Follow the instructions in <code>TWILIO_ELEVENLABS_SETUP.md</code> to configure your phone number.</p>
+                    <p style="margin-top: 12px; font-size: 14px;">Once configured, update the phone number below:</p>
+                    <code style="display: block; margin-top: 8px; padding: 8px; background: #f1f5f9; border-radius: 4px;">const PHONE_NUMBER = '+1234567890'; // Update this</code>
+                </div>
+
+                <a href="tel:+1234567890" class="call-button" id="callButton" style="display: none;">
+                    <span class="call-button-icon">📱</span>
+                    <span class="call-button-text">Call Now</span>
+                    <span class="call-button-number" id="callButtonNumber">+1 (234) 567-890</span>
+                </a>
+
+                <div class="call-features">
+                    <div class="call-feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Works on iPhone & Android</span>
+                    </div>
+                    <div class="call-feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Natural voice conversation</span>
+                    </div>
+                    <div class="call-feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Instant connection</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Chat Input (hidden in voice mode) -->
@@ -2146,19 +2318,19 @@
         const widget = document.getElementById('hybridChatWidget');
         const closeBtn = document.getElementById('chatClose');
         const chatModeBtn = document.getElementById('chatModeBtn');
-        const voiceModeBtn = document.getElementById('voiceModeBtn');
+        const callModeBtn = document.getElementById('callModeBtn');
         const chatMessages = document.getElementById('chatMessages');
-        const voiceModeContainer = document.getElementById('voiceModeContainer');
+        const callModeContainer = document.getElementById('callModeContainer');
         const chatInputContainer = document.getElementById('chatInputContainer');
         const chatInput = document.getElementById('chatInput');
         const chatSendBtn = document.getElementById('chatSendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const voiceStatus = document.getElementById('voiceStatus');
-        const elevenLabsWidget = document.querySelector('elevenlabs-convai');
         const popupLabel = document.getElementById('chatPopupLabel');
 
+        // Phone number configuration (update after Twilio setup)
+        const PHONE_NUMBER = '+1234567890'; // UPDATE THIS with your Twilio number
+        const PHONE_CONFIGURED = false; // Set to true after configuring phone number
+
         let currentMode = 'chat';
-        let isVoiceActive = false;
         let popupTimeout;
 
         // Function to hide popup label with smooth fade-out
@@ -2210,24 +2382,13 @@
             widget.classList.remove('active');
             toggleBtn.classList.remove('hidden');
 
-            // Hide the ElevenLabs widget
-            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
-            if (elevenLabsWidget) {
-                elevenLabsWidget.classList.remove('voice-active');
-            }
-
-            // Stop voice if active
-            if (isVoiceActive) {
-                stopVoice();
-            }
-
             // Switch back to chat mode when closing
-            if (currentMode === 'voice') {
+            if (currentMode === 'call') {
                 currentMode = 'chat';
                 chatModeBtn.classList.add('active');
-                voiceModeBtn.classList.remove('active');
+                callModeBtn.classList.remove('active');
                 chatMessages.style.display = 'flex';
-                voiceModeContainer.classList.remove('active');
+                callModeContainer.classList.remove('active');
                 chatInputContainer.style.display = 'block';
             }
         });
@@ -2237,42 +2398,39 @@
             if (currentMode === 'chat') return;
             currentMode = 'chat';
             chatModeBtn.classList.add('active');
-            voiceModeBtn.classList.remove('active');
+            callModeBtn.classList.remove('active');
             chatMessages.style.display = 'flex';
-            voiceModeContainer.classList.remove('active');
+            callModeContainer.classList.remove('active');
             chatInputContainer.style.display = 'block';
-
-            // Hide the ElevenLabs widget
-            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
-            if (elevenLabsWidget) {
-                elevenLabsWidget.classList.remove('voice-active');
-            }
-
-            if (isVoiceActive) {
-                stopVoice();
-            }
         });
 
-        voiceModeBtn.addEventListener('click', function() {
-            if (currentMode === 'voice') return;
-            currentMode = 'voice';
-            voiceModeBtn.classList.add('active');
+        callModeBtn.addEventListener('click', function() {
+            if (currentMode === 'call') return;
+            currentMode = 'call';
+            callModeBtn.classList.add('active');
             chatModeBtn.classList.remove('active');
             chatMessages.style.display = 'none';
-            voiceModeContainer.classList.add('active');
+            callModeContainer.classList.add('active');
             chatInputContainer.style.display = 'none';
 
-            // Show the ElevenLabs widget
-            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
-            if (elevenLabsWidget) {
-                elevenLabsWidget.classList.add('voice-active');
-            }
+            // Configure call button visibility based on phone number setup
+            const phoneSetupNotice = document.getElementById('phoneSetupNotice');
+            const callButton = document.getElementById('callButton');
+            const callButtonNumber = document.getElementById('callButtonNumber');
 
-            // Check if widget is ready and show appropriate message
-            if (!widgetReady) {
-                voiceStatus.textContent = 'Voice is loading... Please wait.';
+            if (PHONE_CONFIGURED && PHONE_NUMBER !== '+1234567890') {
+                // Phone is configured - show call button
+                phoneSetupNotice.style.display = 'none';
+                callButton.style.display = 'flex';
+                callButton.href = 'tel:' + PHONE_NUMBER;
+
+                // Format phone number for display
+                const formatted = PHONE_NUMBER.replace(/(\+\d)(\d{3})(\d{3})(\d{4})/, '$1 ($2) $3-$4');
+                callButtonNumber.textContent = formatted;
             } else {
-                voiceStatus.textContent = 'Click the voice button in the bottom-right to start';
+                // Phone not configured - show setup instructions
+                phoneSetupNotice.style.display = 'block';
+                callButton.style.display = 'none';
             }
         });
 
