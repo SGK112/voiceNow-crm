@@ -478,6 +478,14 @@
             gap: 6px;
         }
 
+        .hero-notice span::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+        }
+
         /* Stats Section */
         .stats {
             padding: 50px 24px;
@@ -1212,66 +1220,116 @@
         }
 
         .voice-button {
-            width: 140px;
-            height: 140px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border: 4px solid rgba(255, 255, 255, 0.2);
+            border: none;
             color: #fff;
-            font-size: 56px;
+            font-size: 72px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+            margin-bottom: 24px;
         }
 
-        .voice-button::before {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6) border-box;
-            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.3s;
+        .voice-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 14px 50px rgba(59, 130, 246, 0.5);
         }
 
-        .voice-button:hover {
-            transform: scale(1.08);
-            box-shadow: 0 14px 40px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        .voice-button:disabled {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
-        .voice-button:hover::before {
-            opacity: 1;
+        .voice-button.ready {
+            animation: pulse-ready 2s ease-in-out infinite;
         }
 
-        .voice-button.listening {
+        .voice-button.active {
             animation: voice-pulse 1.5s ease-in-out infinite;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        @keyframes pulse-ready {
+            0%, 100% {
+                box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(59, 130, 246, 0.6), 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
         }
 
         @keyframes voice-pulse {
             0%, 100% {
                 transform: scale(1);
-                box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
             }
             50% {
-                transform: scale(1.12);
-                box-shadow: 0 16px 45px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                transform: scale(1.08);
+                box-shadow: 0 16px 50px rgba(16, 185, 129, 0.6);
             }
         }
 
         .voice-status {
-            margin-top: 24px;
-            font-size: 16px;
-            font-weight: 600;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .voice-status-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .voice-status-text {
+            font-size: 14px;
             color: #64748b;
+            line-height: 1.6;
+        }
+
+        .voice-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .voice-status-badge.loading {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .voice-status-badge.ready {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .voice-status-badge.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .voice-status-badge.active {
+            background: #dcfce7;
+            color: #16a34a;
+            animation: pulse-badge 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         /* Call Mode */
@@ -1802,9 +1860,9 @@
                     <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
                 </div>
                 <p class="hero-notice">
-                    <span>✓ 14-day free trial</span>
-                    <span>✓ No credit card required</span>
-                    <span>✓ Visual workflow builder</span>
+                    <span><span style="color: #3b82f6; font-weight: 800;">✓</span> 14-day free trial</span>
+                    <span><span style="color: #3b82f6; font-weight: 800;">✓</span> No credit card required</span>
+                    <span><span style="color: #3b82f6; font-weight: 800;">✓</span> Visual workflow builder</span>
                 </p>
             </div>
             <div class="hero-visual">
@@ -2163,16 +2221,22 @@
 
         <!-- Voice Mode -->
         <div class="voice-mode-container" id="voiceModeContainer">
-            <div style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom: 16px; color: #0f172a;">🎙️ Voice AI Agent</h3>
-                <p style="color: #64748b; margin-bottom: 20px;">Ready to talk with our AI agent!</p>
-
-                <!-- Widget status indicator -->
-                <div id="widgetStatus" style="margin: 20px 0; padding: 12px; background: #f1f5f9; border-radius: 8px; font-size: 14px;">
-                    <span style="color: #64748b;">⏳ Loading voice AI...</span>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <!-- Status Text (Above Button) -->
+                <div class="voice-status" style="margin-bottom: 40px; text-align: center;">
+                    <div class="voice-status-title" id="voiceStatusTitle">Initializing...</div>
+                    <div class="voice-status-text" id="voiceStatusText">Please wait while we connect to the voice AI agent</div>
                 </div>
 
-                <p style="font-size: 13px; color: #94a3b8; margin-top: 16px;">Look for the microphone button in the bottom-right corner →</p>
+                <!-- Voice Button (Centered) -->
+                <button id="voiceButton" class="voice-button" disabled>
+                    🎙️
+                </button>
+
+                <!-- Status Badge (Below Button) -->
+                <div id="voiceStatusBadge" class="voice-status-badge loading" style="margin-top: 24px;">
+                    ⏳ Loading Voice AI...
+                </div>
             </div>
         </div>
 
@@ -2398,7 +2462,7 @@
             voiceModeContainer.classList.add('active');
             chatInputContainer.style.display = 'none';
 
-            // Show ElevenLabs widget
+            // Keep ElevenLabs widget visible but hidden (we control it via our button)
             const elevenLabsWidget = document.querySelector('elevenlabs-convai');
             if (elevenLabsWidget) {
                 elevenLabsWidget.classList.add('voice-active');
@@ -2493,8 +2557,9 @@
 
                 const data = await response.json();
 
+                // Use API response or fallback
                 const aiResponse = data.response || data.fallbackResponse ||
-                    "Thanks for your interest! Our team would love to help you learn more about VoiceFlow CRM. Please visit our pricing page or contact support@remodely.ai";
+                    "Thanks for your interest! Our team would love to help you learn more about VoiceFlow CRM. We have flexible plans starting at $149/month with a 14-day free trial. Please email help.remodely@gmail.com for personalized assistance!";
 
                 const suggestions = data.suggestions || [];
 
@@ -2513,13 +2578,23 @@
 
             } catch (error) {
                 console.error('Chat error:', error);
-                const fallbackResponse = "I apologize, but I'm having trouble connecting right now. VoiceFlow CRM offers AI voice agents and automation starting at $149/month with a 14-day free trial. Please email support@remodely.ai for assistance!";
+
+                // Better error handling with user-friendly messages
+                let fallbackResponse = "I apologize, but I'm having trouble responding right now. ";
+
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    fallbackResponse += "It seems there's a connection issue. Please check your internet connection and try again.";
+                } else {
+                    fallbackResponse += "VoiceFlow CRM offers AI voice agents and automation starting at $149/month with a 14-day free trial. ";
+                    fallbackResponse += "For immediate assistance, please email help.remodely@gmail.com or fill out our contact form!";
+                }
+
                 const fallbackSuggestions = [
                     "Show me pricing plans",
                     "Start my free trial",
                     "Tell me how it works"
                 ];
-                addMessage(fallbackResponse, false, fallbackSuggestions);
+                addMessage(fallbackResponse, false, fallbackSuggestions, true);
                 conversationHistory.push({ text: fallbackResponse, isUser: false });
             } finally {
                 // Re-enable input
@@ -2536,139 +2611,82 @@
             }
         });
 
-        // Voice functionality using ElevenLabs
-        voiceBtn.addEventListener('click', function() {
-            if (!isVoiceActive) {
-                startVoice();
-            } else {
-                stopVoice();
-            }
-        });
-
-        function startVoice() {
-            console.log('User clicked voice button - attempting to start conversation');
-
-            // Get fresh reference to widget
-            const widget = document.querySelector('elevenlabs-convai');
-
-            // Check if widget is ready
-            if (!widget) {
-                console.error('Widget element not found in DOM');
-                voiceStatus.textContent = 'Voice not ready. Please refresh.';
-                return;
-            }
-
-            // Update UI state
-            isVoiceActive = true;
-            voiceBtn.classList.add('listening');
-            voiceStatus.textContent = 'Connecting...';
-
-            try {
-                // Try to access the shadow DOM and click the widget's internal button
-                const shadowRoot = widget.shadowRoot;
-                if (shadowRoot) {
-                    const widgetButton = shadowRoot.querySelector('button');
-                    if (widgetButton) {
-                        console.log('Found widget button in shadow DOM, triggering click...');
-                        widgetButton.click();
-                        voiceStatus.textContent = 'Voice activated! Speak now.';
-                        console.log('✓ Widget activated successfully');
-                        return;
-                    } else {
-                        console.log('No button found in shadow DOM, trying alt selectors...');
-                        const anyButton = shadowRoot.querySelector('[role="button"], .widget-button, button');
-                        if (anyButton) {
-                            anyButton.click();
-                            voiceStatus.textContent = 'Voice activated! Speak now.';
-                            console.log('✓ Alt button clicked');
-                            return;
-                        }
-                    }
-                }
-
-                // Fallback: Try clicking the widget element itself
-                console.log('Trying to click widget element directly...');
-                widget.click();
-                voiceStatus.textContent = 'Voice activated! Speak now.';
-                console.log('✓ Widget element clicked');
-
-            } catch (error) {
-                console.error('Error starting voice conversation:', error);
-                voiceStatus.textContent = 'Failed to start voice. Please refresh and try again.';
-                isVoiceActive = false;
-                voiceBtn.classList.remove('listening');
-                console.log('Troubleshooting: Make sure agent is public and agent ID is correct');
-            }
-        }
-
-        function stopVoice() {
-            console.log('Stopping voice conversation...');
-
-            // Get fresh reference to widget
-            const widget = document.querySelector('elevenlabs-convai');
-
-            // Update UI state first
-            isVoiceActive = false;
-            voiceBtn.classList.remove('listening');
-            voiceStatus.textContent = 'Click to start talking';
-
-            // Stop the ElevenLabs conversation
-            if (widget && widget.endConversation && typeof widget.endConversation === 'function') {
-                try {
-                    widget.endConversation();
-                    console.log('✓ Conversation ended successfully');
-                } catch (error) {
-                    console.error('Error stopping voice conversation:', error);
-                }
-            } else {
-                console.warn('Widget endConversation method not available (conversation may have already ended)');
-            }
-        }
-
-        // Listen for ElevenLabs widget events
-        function setupElevenLabsListeners() {
-            const widget = document.querySelector('elevenlabs-convai');
-            if (!widget) return;
-
-            // Listen for conversation state changes
-            widget.addEventListener('conversationstart', function() {
-                console.log('ElevenLabs conversation started');
-                isVoiceActive = true;
-                voiceBtn.classList.add('listening');
-                voiceStatus.textContent = 'Listening... Speak now!';
-            });
-
-            widget.addEventListener('conversationend', function() {
-                console.log('ElevenLabs conversation ended');
-                isVoiceActive = false;
-                voiceBtn.classList.remove('listening');
-                voiceStatus.textContent = 'Click to start talking';
-            });
-
-            widget.addEventListener('error', function(e) {
-                console.error('ElevenLabs error:', e);
-                isVoiceActive = false;
-                voiceBtn.classList.remove('listening');
-                voiceStatus.textContent = 'Error - Click to retry';
-            });
-
-            widget.addEventListener('message', function(e) {
-                console.log('ElevenLabs message:', e.detail);
-                if (e.detail && e.detail.type === 'agent-response') {
-                    voiceStatus.textContent = 'Agent speaking...';
-                } else if (e.detail && e.detail.type === 'user-speaking') {
-                    voiceStatus.textContent = 'Listening...';
-                }
-            });
-        }
+        // Voice functionality handled by ElevenLabs widget
+        // Widget shows/hides when user clicks Voice AI tab
 
         // Wait for ElevenLabs widget to be ready
         let widgetReady = false;
         let checkAttempts = 0;
         const maxAttempts = 20; // 10 seconds total
 
+        // Get voice UI elements
+        const voiceButton = document.getElementById('voiceButton');
+        const voiceStatusBadge = document.getElementById('voiceStatusBadge');
+        const voiceStatusTitle = document.getElementById('voiceStatusTitle');
+        const voiceStatusText = document.getElementById('voiceStatusText');
+        let elevenLabsButton = null;
+        let isVoiceActive = false;
+
+        function updateVoiceStatus(status) {
+            switch(status) {
+                case 'loading':
+                    voiceStatusBadge.className = 'voice-status-badge loading';
+                    voiceStatusBadge.textContent = '⏳ Loading Voice AI...';
+                    voiceButton.disabled = true;
+                    voiceButton.classList.remove('ready', 'active');
+                    voiceStatusTitle.textContent = 'Initializing...';
+                    voiceStatusText.textContent = 'Please wait while we connect to the voice AI agent';
+                    break;
+                case 'ready':
+                    voiceStatusBadge.className = 'voice-status-badge ready';
+                    voiceStatusBadge.innerHTML = '<span style="color: #3b82f6; font-weight: 800;">✓</span> Ready to Talk';
+                    voiceButton.disabled = false;
+                    voiceButton.classList.add('ready');
+                    voiceButton.classList.remove('active');
+                    voiceStatusTitle.textContent = 'Voice AI Ready';
+                    voiceStatusText.textContent = 'Click the microphone to start talking with our AI agent';
+                    break;
+                case 'active':
+                    voiceStatusBadge.className = 'voice-status-badge active';
+                    voiceStatusBadge.textContent = '🎙️ Listening...';
+                    voiceButton.classList.add('active');
+                    voiceButton.classList.remove('ready');
+                    voiceStatusTitle.textContent = 'Voice Chat Active';
+                    voiceStatusText.textContent = 'AI is listening and responding. Click microphone to stop.';
+                    break;
+                case 'error':
+                    voiceStatusBadge.className = 'voice-status-badge error';
+                    voiceStatusBadge.textContent = '⚠️ Connection Failed';
+                    voiceButton.disabled = true;
+                    voiceButton.classList.remove('ready', 'active');
+                    voiceStatusTitle.textContent = 'Unable to Connect';
+                    voiceStatusText.textContent = 'Voice AI is unavailable. Please try chat mode or refresh the page.';
+                    break;
+            }
+        }
+
+        // Handle voice button click - toggle listening
+        voiceButton.addEventListener('click', () => {
+            if (elevenLabsButton) {
+                if (!isVoiceActive) {
+                    // Start listening
+                    elevenLabsButton.click();
+                    isVoiceActive = true;
+                    voiceButton.innerHTML = '⏹️'; // Stop icon
+                    updateVoiceStatus('active');
+                } else {
+                    // Stop listening - click the button again to close the widget
+                    elevenLabsButton.click();
+                    isVoiceActive = false;
+                    voiceButton.innerHTML = '🎙️'; // Microphone icon
+                    updateVoiceStatus('ready');
+                }
+            }
+        });
+
         function initializeElevenLabs() {
             console.log('Starting ElevenLabs widget initialization...');
+            updateVoiceStatus('loading');
 
             const checkWidget = setInterval(() => {
                 checkAttempts++;
@@ -2684,7 +2702,10 @@
                             console.log('✓ ElevenLabs widget fully loaded with shadow DOM!');
                             console.log('🎙️ Voice chat is now available!');
                             widgetReady = true;
+                            elevenLabsButton = button;
                             clearInterval(checkWidget);
+
+                            updateVoiceStatus('ready');
                             return;
                         } else {
                             console.log('Shadow DOM found but button not ready yet...');
@@ -2703,6 +2724,8 @@
                         console.error('⚠️ ElevenLabs widget failed to load after 10 seconds');
                         console.log('Please check: 1) Agent ID is correct, 2) Agent is public, 3) Internet connection');
                         console.log('4) Script loaded from: https://elevenlabs.io/convai-widget/index.js');
+
+                        updateVoiceStatus('error');
                     }
                 }
             }, 500);

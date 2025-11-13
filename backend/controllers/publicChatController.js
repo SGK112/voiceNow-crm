@@ -272,10 +272,13 @@ RESPONSE INSTRUCTIONS FOR THIS INTENT:
       fallbackResponse += "Our VoiceFlow CRM platform offers AI voice agents, workflow automation, and CRM features starting at $149/month with a 14-day free trial. Would you like to start your trial?";
     }
 
-    res.status(500).json({
-      error: 'Failed to get AI response',
-      fallbackResponse,
-      suggestions: generateFollowUps(intent, req.body.conversationHistory || [])
+    // Return 200 status with fallback response (graceful degradation)
+    // This prevents console errors while still providing helpful responses to users
+    res.status(200).json({
+      response: fallbackResponse,
+      suggestions: generateFollowUps(intent, req.body.conversationHistory || []),
+      usingFallback: true, // Flag to indicate AI is unavailable
+      intent
     });
   }
 };
@@ -348,78 +351,89 @@ export const contactSales = async (req, res) => {
       other: 'Other'
     };
 
-    const emailSubject = `🚀 New Contact Sales Request - ${interestLabels[interest] || interest}`;
+    const emailSubject = `New Sales Inquiry: ${interestLabels[interest] || interest} - ${name}`;
 
     const emailHtml = `
       <!DOCTYPE html>
       <html>
       <head>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; }
-          .header h1 { margin: 0; font-size: 24px; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .field { margin-bottom: 20px; }
-          .field-label { font-weight: bold; color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
-          .field-value { background: white; padding: 12px 16px; border-radius: 8px; border-left: 3px solid #3b82f6; }
-          .message-box { background: white; padding: 16px; border-radius: 8px; border-left: 3px solid #3b82f6; white-space: pre-wrap; }
-          .badge { display: inline-block; padding: 4px 12px; background: #3b82f6; color: white; border-radius: 20px; font-size: 12px; font-weight: 600; }
-          .footer { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 12px; color: #64748b; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1f2937; margin: 0; padding: 0; background-color: #f9fafb; }
+          .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 40px 30px; text-align: center; }
+          .header h1 { margin: 0 0 8px 0; font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
+          .header p { margin: 0; font-size: 15px; opacity: 0.95; font-weight: 400; }
+          .content { padding: 40px 30px; }
+          .priority-badge { display: inline-block; padding: 8px 16px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 24px; border: 1px solid #fde68a; }
+          .section { margin-bottom: 28px; }
+          .section-title { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+          .field-value { background: #f9fafb; padding: 14px 18px; border-radius: 8px; font-size: 15px; color: #111827; border-left: 4px solid #3b82f6; }
+          .field-value a { color: #2563eb; text-decoration: none; font-weight: 500; }
+          .field-value a:hover { text-decoration: underline; }
+          .message-box { background: #f9fafb; padding: 18px; border-radius: 8px; font-size: 15px; color: #374151; white-space: pre-wrap; border-left: 4px solid #3b82f6; line-height: 1.7; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+          .info-item { background: #f9fafb; padding: 14px; border-radius: 8px; border: 1px solid #e5e7eb; }
+          .info-item-label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
+          .info-item-value { font-size: 14px; color: #111827; font-weight: 500; }
+          .footer { background: #f9fafb; padding: 24px 30px; border-top: 1px solid #e5e7eb; }
+          .footer-text { font-size: 13px; color: #6b7280; margin: 8px 0; }
+          .footer-text strong { color: #374151; font-weight: 600; }
+          .cta-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px; border-radius: 8px; margin-top: 24px; text-align: center; border: 1px solid #bfdbfe; }
+          .cta-text { margin: 0 0 12px 0; font-size: 14px; color: #1e40af; font-weight: 500; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1>🎉 New Sales Contact Request</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Someone is interested in VoiceFlow CRM!</p>
+            <h1>New Sales Inquiry Received</h1>
+            <p>A prospective customer has reached out via your website</p>
           </div>
           <div class="content">
-            <div class="field">
-              <div class="field-label">Interest Type</div>
+            <div class="priority-badge">⚡ ${interestLabels[interest] || interest}</div>
+
+            <div class="section">
+              <div class="section-title">Prospect Information</div>
               <div class="field-value">
-                <span class="badge">${interestLabels[interest] || interest}</span>
+                <strong>${name}</strong>${company ? ` • ${company}` : ''}
               </div>
             </div>
 
-            <div class="field">
-              <div class="field-label">Contact Name</div>
-              <div class="field-value">${name}</div>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-item-label">Email Address</div>
+                <div class="info-item-value"><a href="mailto:${email}">${email}</a></div>
+              </div>
+              ${phone ? `
+              <div class="info-item">
+                <div class="info-item-label">Phone Number</div>
+                <div class="info-item-value"><a href="tel:${phone}">${phone}</a></div>
+              </div>
+              ` : ''}
             </div>
 
-            <div class="field">
-              <div class="field-label">Email Address</div>
-              <div class="field-value"><a href="mailto:${email}">${email}</a></div>
-            </div>
-
-            ${phone ? `
-            <div class="field">
-              <div class="field-label">Phone Number</div>
-              <div class="field-value"><a href="tel:${phone}">${phone}</a></div>
-            </div>
-            ` : ''}
-
-            ${company ? `
-            <div class="field">
-              <div class="field-label">Company</div>
-              <div class="field-value">${company}</div>
-            </div>
-            ` : ''}
-
-            <div class="field">
-              <div class="field-label">Message</div>
+            <div class="section" style="margin-top: 28px;">
+              <div class="section-title">Inquiry Message</div>
               <div class="message-box">${message}</div>
             </div>
 
-            <div class="field">
-              <div class="field-label">Source</div>
-              <div class="field-value">${source || 'Unknown'}</div>
+            <div class="cta-section">
+              <p class="cta-text">Recommended Response Time: Within 24 hours</p>
+              <p style="margin: 0; font-size: 13px; color: #1e40af;">
+                ${phone ? `📞 Call: <a href="tel:${phone}" style="color: #1e40af; font-weight: 600;">${phone}</a> or ` : ''}
+                ✉️ Email: <a href="mailto:${email}" style="color: #1e40af; font-weight: 600;">${email}</a>
+              </p>
             </div>
-
-            <div class="footer">
-              <p><strong>⏰ Received:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET</p>
-              <p><strong>🎯 Quick Action:</strong> Reply directly to ${email} or call ${phone || 'N/A'}</p>
-            </div>
+          </div>
+          <div class="footer">
+            <p class="footer-text"><strong>Received:</strong> ${new Date().toLocaleString('en-US', {
+              timeZone: 'America/New_York',
+              dateStyle: 'full',
+              timeStyle: 'short'
+            })} ET</p>
+            <p class="footer-text"><strong>Lead Source:</strong> ${source || 'Website Contact Form'}</p>
+            <p class="footer-text" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px;">
+              This inquiry was automatically captured by VoiceFlow CRM
+            </p>
           </div>
         </div>
       </body>
@@ -427,19 +441,33 @@ export const contactSales = async (req, res) => {
     `;
 
     const emailText = `
-New Contact Sales Request
+NEW SALES INQUIRY RECEIVED
+${'-'.repeat(50)}
 
-Interest: ${interestLabels[interest] || interest}
+INQUIRY TYPE: ${interestLabels[interest] || interest}
+
+PROSPECT INFORMATION:
 Name: ${name}
+${company ? `Company: ${company}` : ''}
 Email: ${email}
-Phone: ${phone || 'Not provided'}
-Company: ${company || 'Not provided'}
+${phone ? `Phone: ${phone}` : ''}
 
-Message:
+INQUIRY MESSAGE:
 ${message}
 
-Source: ${source || 'Unknown'}
-Received: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET
+DETAILS:
+Received: ${new Date().toLocaleString('en-US', {
+  timeZone: 'America/New_York',
+  dateStyle: 'full',
+  timeStyle: 'short'
+})} ET
+Lead Source: ${source || 'Website Contact Form'}
+
+RECOMMENDED ACTION: Respond within 24 hours
+${phone ? `Call: ${phone} or ` : ''}Email: ${email}
+
+${'-'.repeat(50)}
+This inquiry was automatically captured by VoiceFlow CRM
     `;
 
     // Send email to sales team (help.remodely@gmail.com)
@@ -453,53 +481,109 @@ Received: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
     console.log(`✉️ Contact sales form submitted by ${name} (${email}) - Interest: ${interest}`);
 
     // Send confirmation email to user
-    const confirmationSubject = '✅ Thank you for contacting VoiceFlow CRM';
+    const confirmationSubject = 'Thank you for contacting VoiceFlow CRM';
     const confirmationHtml = `
       <!DOCTYPE html>
       <html>
       <head>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
-          .header h1 { margin: 0; font-size: 28px; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .success-icon { font-size: 64px; text-align: center; margin-bottom: 20px; }
-          .message { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-          .cta-button { display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 10px 0; }
-          .footer { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1f2937; margin: 0; padding: 0; background-color: #f9fafb; }
+          .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 40px 30px; text-align: center; }
+          .header h1 { margin: 0 0 8px 0; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+          .header p { margin: 0; font-size: 15px; opacity: 0.95; font-weight: 400; }
+          .content { padding: 40px 30px; }
+          .success-icon { text-align: center; margin-bottom: 24px; }
+          .success-icon svg { width: 64px; height: 64px; }
+          .message { margin-bottom: 24px; }
+          .message p { font-size: 15px; color: #374151; line-height: 1.7; margin: 0 0 16px 0; }
+          .message h2 { font-size: 18px; color: #111827; margin: 0 0 12px 0; font-weight: 600; }
+          .details-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 24px 0; }
+          .detail-row { display: flex; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-size: 13px; color: #6b7280; font-weight: 600; min-width: 120px; }
+          .detail-value { font-size: 14px; color: #111827; font-weight: 500; }
+          .cta-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; border-radius: 8px; padding: 24px; text-align: center; margin: 24px 0; }
+          .cta-button { display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; transition: transform 0.2s; }
+          .cta-button:hover { transform: translateY(-1px); }
+          .footer { background: #f9fafb; padding: 24px 30px; border-top: 1px solid #e5e7eb; text-align: center; }
+          .footer-text { font-size: 13px; color: #6b7280; margin: 8px 0; }
+          .footer-text a { color: #2563eb; text-decoration: none; font-weight: 500; }
+          .footer-text a:hover { text-decoration: underline; }
+          .divider { height: 1px; background: #e5e7eb; margin: 24px 0; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1>Message Received!</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">We'll be in touch soon</p>
+            <h1>We've Received Your Inquiry</h1>
+            <p>Thank you for reaching out to VoiceFlow CRM</p>
           </div>
           <div class="content">
-            <div class="success-icon">✅</div>
+            <div class="success-icon">
+              <svg fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
 
             <div class="message">
-              <p>Hi ${name},</p>
-              <p>Thank you for your interest in VoiceFlow CRM! We've received your message about <strong>${interestLabels[interest] || interest}</strong> and our sales team will reach out to you within 24 hours.</p>
-              <p>In the meantime, feel free to explore our platform:</p>
-              <div style="text-align: center;">
-                <a href="https://voiceflowcrm.com" class="cta-button">Visit Our Website</a>
+              <p>Dear ${name},</p>
+              <p>Thank you for your interest in VoiceFlow CRM. We have successfully received your inquiry regarding <strong>${interestLabels[interest] || interest}</strong>.</p>
+              <p>Our sales team is reviewing your request and will contact you within the next 24 hours to discuss how we can best serve your needs.</p>
+            </div>
+
+            <div class="details-box">
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; color: #374151;">Your Inquiry Summary</h2>
+              <div class="detail-row">
+                <div class="detail-label">Interest Type:</div>
+                <div class="detail-value">${interestLabels[interest] || interest}</div>
+              </div>
+              ${company ? `
+              <div class="detail-row">
+                <div class="detail-label">Company:</div>
+                <div class="detail-value">${company}</div>
+              </div>
+              ` : ''}
+              <div class="detail-row">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value">${email}</div>
+              </div>
+              ${phone ? `
+              <div class="detail-row">
+                <div class="detail-label">Phone:</div>
+                <div class="detail-value">${phone}</div>
+              </div>
+              ` : ''}
+              <div class="detail-row">
+                <div class="detail-label">Submitted:</div>
+                <div class="detail-value">${new Date().toLocaleString('en-US', {
+                  timeZone: 'America/New_York',
+                  dateStyle: 'medium',
+                  timeStyle: 'short'
+                })} ET</div>
               </div>
             </div>
 
-            <div class="message">
-              <h3 style="margin-top: 0;">📋 Your Request Details:</h3>
-              <p><strong>Interest:</strong> ${interestLabels[interest] || interest}</p>
-              ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
-              <p><strong>Email:</strong> ${email}</p>
-              ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
+            <div class="cta-section">
+              <p style="margin: 0 0 16px 0; font-size: 14px; color: #1e40af; font-weight: 500;">
+                While you wait, explore what VoiceFlow CRM can do for your business
+              </p>
+              <a href="https://voiceflowcrm.com" class="cta-button">Learn More About VoiceFlow CRM</a>
             </div>
 
-            <div class="footer">
-              <p>Need immediate assistance? Email us at <a href="mailto:help.remodely@gmail.com">help.remodely@gmail.com</a></p>
-              <p>© 2025 VoiceFlow CRM by Remodely. All rights reserved.</p>
+            <div class="divider"></div>
+
+            <div class="message">
+              <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                <strong style="color: #374151;">Questions in the meantime?</strong><br>
+                Feel free to reach out directly at <a href="mailto:help.remodely@gmail.com" style="color: #2563eb; text-decoration: none; font-weight: 500;">help.remodely@gmail.com</a>
+              </p>
             </div>
+          </div>
+          <div class="footer">
+            <p class="footer-text" style="font-weight: 600; color: #374151; margin-bottom: 4px;">VoiceFlow CRM</p>
+            <p class="footer-text">AI-Powered Voice Communication Platform</p>
+            <p class="footer-text" style="margin-top: 16px;">© 2025 VoiceFlow CRM by Remodely. All rights reserved.</p>
           </div>
         </div>
       </body>
