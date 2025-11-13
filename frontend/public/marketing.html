@@ -1351,9 +1351,14 @@
             transform: translateY(-1px);
         }
 
-        /* Hide ElevenLabs widget */
+        /* Hide default ElevenLabs widget button but keep functionality */
         elevenlabs-convai {
-            display: none !important;
+            position: fixed !important;
+            bottom: -1000px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            width: 1px !important;
+            height: 1px !important;
         }
 
         /* Responsive */
@@ -1438,6 +1443,185 @@
                 right: 0;
                 border-radius: 0;
             }
+        }
+
+        /* Contact Form Modal */
+        .contact-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .contact-modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-modal {
+            background: white;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .contact-modal-header {
+            padding: 32px 32px 24px 32px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        .contact-modal-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .contact-modal-header p {
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        .contact-modal-body {
+            padding: 32px;
+        }
+
+        .contact-form-group {
+            margin-bottom: 24px;
+        }
+
+        .contact-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .contact-form-group label .required {
+            color: #ef4444;
+        }
+
+        .contact-form-group input,
+        .contact-form-group textarea,
+        .contact-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #0f172a;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .contact-form-group input:focus,
+        .contact-form-group textarea:focus,
+        .contact-form-group select:focus {
+            outline: none;
+            background: white;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .contact-form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .contact-modal-footer {
+            padding: 24px 32px 32px 32px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .contact-form-btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .contact-form-btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .contact-form-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .contact-form-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .contact-form-btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .contact-form-btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .contact-form-success {
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .contact-form-success-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .contact-form-success h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .contact-form-success p {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -1718,6 +1902,76 @@
         </div>
     </section>
 
+    <!-- Contact Form Modal -->
+    <div class="contact-modal-overlay" id="contactModalOverlay">
+        <div class="contact-modal" id="contactModal">
+            <div id="contactFormContainer">
+                <div class="contact-modal-header">
+                    <h2>Contact Sales</h2>
+                    <p>Fill out the form below and our team will get back to you within 24 hours.</p>
+                </div>
+                <div class="contact-modal-body">
+                    <form id="contactForm">
+                        <div class="contact-form-group">
+                            <label for="contactName">
+                                Full Name <span class="required">*</span>
+                            </label>
+                            <input type="text" id="contactName" name="name" placeholder="John Smith" required>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactEmail">
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <input type="email" id="contactEmail" name="email" placeholder="john@company.com" required>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactPhone">
+                                Phone Number
+                            </label>
+                            <input type="tel" id="contactPhone" name="phone" placeholder="+1 (555) 000-0000">
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactCompany">
+                                Company Name
+                            </label>
+                            <input type="text" id="contactCompany" name="company" placeholder="ACME Corp">
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactInterest">
+                                What are you interested in? <span class="required">*</span>
+                            </label>
+                            <select id="contactInterest" name="interest" required>
+                                <option value="">Select an option...</option>
+                                <option value="enterprise">Enterprise Plan</option>
+                                <option value="demo">Schedule a Demo</option>
+                                <option value="custom">Custom Integration</option>
+                                <option value="migration">Migration Support</option>
+                                <option value="partnership">Partnership Opportunities</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactMessage">
+                                Message <span class="required">*</span>
+                            </label>
+                            <textarea id="contactMessage" name="message" placeholder="Tell us about your needs..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="contact-modal-footer">
+                    <button type="button" class="contact-form-btn contact-form-btn-secondary" id="contactFormCancel">Cancel</button>
+                    <button type="submit" class="contact-form-btn contact-form-btn-primary" id="contactFormSubmit">Send Message</button>
+                </div>
+            </div>
+            <div id="contactFormSuccess" class="contact-form-success" style="display: none;">
+                <div class="contact-form-success-icon">✅</div>
+                <h3>Message Sent!</h3>
+                <p>Thank you for your interest. Our sales team will reach out to you within 24 hours.</p>
+                <button type="button" class="contact-form-btn contact-form-btn-primary" id="contactFormClose">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <p>© 2025 VoiceFlow CRM. All rights reserved.</p>
@@ -1783,13 +2037,113 @@
     <!-- Hidden ElevenLabs Widget for Voice -->
     <!-- Note: Agent must be set to "public" in ElevenLabs dashboard for widget to work -->
     <elevenlabs-convai
-        agent-id="agent_9701k9xptd0kfr383djx5zk7300x"
-        style="display: none;">
+        agent-id="agent_9701k9xptd0kfr383djx5zk7300x">
     </elevenlabs-convai>
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 
     <!-- Hybrid Widget Script -->
     <script>
+        // Contact Form Modal Logic
+        const contactModalOverlay = document.getElementById('contactModalOverlay');
+        const contactModal = document.getElementById('contactModal');
+        const contactForm = document.getElementById('contactForm');
+        const contactFormSubmit = document.getElementById('contactFormSubmit');
+        const contactFormCancel = document.getElementById('contactFormCancel');
+        const contactFormClose = document.getElementById('contactFormClose');
+        const contactFormContainer = document.getElementById('contactFormContainer');
+        const contactFormSuccess = document.getElementById('contactFormSuccess');
+
+        // Get all Contact Sales buttons
+        const contactSalesButtons = document.querySelectorAll('a[href*="Contact Sales"], a[href="mailto:support@voiceflowcrm.ai"]');
+
+        // Open modal when Contact Sales buttons are clicked
+        contactSalesButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                openContactModal();
+            });
+        });
+
+        function openContactModal() {
+            contactModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            contactForm.reset();
+            contactFormContainer.style.display = 'block';
+            contactFormSuccess.style.display = 'none';
+        }
+
+        function closeContactModal() {
+            contactModalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        contactModalOverlay.addEventListener('click', (e) => {
+            if (e.target === contactModalOverlay) {
+                closeContactModal();
+            }
+        });
+
+        // Close modal on cancel
+        contactFormCancel.addEventListener('click', closeContactModal);
+        contactFormClose.addEventListener('click', closeContactModal);
+
+        // Handle form submission
+        contactFormSubmit.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Validate form
+            if (!contactForm.checkValidity()) {
+                contactForm.reportValidity();
+                return;
+            }
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                company: document.getElementById('contactCompany').value,
+                interest: document.getElementById('contactInterest').value,
+                message: document.getElementById('contactMessage').value,
+                source: 'website_contact_form'
+            };
+
+            // Disable submit button
+            contactFormSubmit.disabled = true;
+            contactFormSubmit.textContent = 'Sending...';
+
+            try {
+                // Send to backend API
+                const response = await fetch('/api/public/contact-sales', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    contactFormContainer.style.display = 'none';
+                    contactFormSuccess.style.display = 'block';
+                } else {
+                    throw new Error(data.message || 'Failed to send message');
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                alert('Sorry, there was an error sending your message. Please try again or email us directly at help.remodely@gmail.com');
+            } finally {
+                // Re-enable submit button
+                contactFormSubmit.disabled = false;
+                contactFormSubmit.textContent = 'Send Message';
+            }
+        });
+
+        // Chat widget variables
         const toggleBtn = document.getElementById('aiChatToggle');
         const widget = document.getElementById('hybridChatWidget');
         const closeBtn = document.getElementById('chatClose');
@@ -1857,8 +2211,20 @@
         closeBtn.addEventListener('click', function() {
             widget.classList.remove('active');
             toggleBtn.classList.remove('hidden');
+
+            // Stop voice if active
             if (isVoiceActive) {
                 stopVoice();
+            }
+
+            // Switch back to chat mode when closing
+            if (currentMode === 'voice') {
+                currentMode = 'chat';
+                chatModeBtn.classList.add('active');
+                voiceModeBtn.classList.remove('active');
+                chatMessages.style.display = 'flex';
+                voiceModeContainer.classList.remove('active');
+                chatInputContainer.style.display = 'block';
             }
         });
 
@@ -1884,10 +2250,17 @@
             chatMessages.style.display = 'none';
             voiceModeContainer.classList.add('active');
             chatInputContainer.style.display = 'none';
+
+            // Check if widget is ready and show appropriate message
+            if (!widgetReady) {
+                voiceStatus.textContent = 'Voice is loading... Please wait.';
+            } else {
+                voiceStatus.textContent = 'Click to start talking';
+            }
         });
 
         // Chat functionality
-        function addMessage(text, isUser = false, suggestions = null) {
+        function addMessage(text, isUser = false, suggestions = null, showContactForm = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${isUser ? 'user' : ''}`;
 
@@ -1901,6 +2274,20 @@
 
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(content);
+
+            // Add contact form button if requested
+            if (showContactForm && !isUser) {
+                const contactButton = document.createElement('button');
+                contactButton.className = 'contact-form-btn contact-form-btn-primary';
+                contactButton.style.marginTop = '12px';
+                contactButton.textContent = '📝 Fill Out Contact Form';
+                contactButton.onclick = () => {
+                    openContactModal();
+                    // Pre-fill the interest to "demo" since they were chatting
+                    document.getElementById('contactInterest').value = 'demo';
+                };
+                content.appendChild(contactButton);
+            }
 
             // Add suggestion chips if provided
             if (suggestions && suggestions.length > 0 && !isUser) {
@@ -1970,7 +2357,12 @@
                     console.log('User intent detected:', data.intent);
                 }
 
-                addMessage(aiResponse, false, suggestions);
+                // Check if user wants to talk to sales or be contacted
+                const showContactForm = message.toLowerCase().match(/contact|talk to|speak with|call me|reach out|get in touch|sales|demo|enterprise/) ||
+                                      data.intent === 'support' ||
+                                      conversationHistory.length >= 6; // Show after 6+ messages
+
+                addMessage(aiResponse, false, suggestions, showContactForm);
                 conversationHistory.push({ text: aiResponse, isUser: false });
 
             } catch (error) {
@@ -2008,23 +2400,183 @@
         });
 
         function startVoice() {
+            console.log('User clicked voice button - attempting to start conversation');
+
+            // Get fresh reference to widget
+            const widget = document.querySelector('elevenlabs-convai');
+
+            // Check if widget is ready
+            if (!widget) {
+                console.error('Widget element not found in DOM');
+                voiceStatus.textContent = 'Voice not ready. Please refresh.';
+                return;
+            }
+
+            // Update UI state
             isVoiceActive = true;
             voiceBtn.classList.add('listening');
-            voiceStatus.textContent = 'Listening...';
+            voiceStatus.textContent = 'Connecting...';
 
-            // Trigger ElevenLabs widget by clicking it
-            if (elevenLabsWidget) {
-                elevenLabsWidget.click();
+            try {
+                // Try to access the shadow DOM and click the widget's internal button
+                const shadowRoot = widget.shadowRoot;
+                if (shadowRoot) {
+                    const widgetButton = shadowRoot.querySelector('button');
+                    if (widgetButton) {
+                        console.log('Found widget button in shadow DOM, triggering click...');
+                        widgetButton.click();
+                        voiceStatus.textContent = 'Voice activated! Speak now.';
+                        console.log('✓ Widget activated successfully');
+                        return;
+                    } else {
+                        console.log('No button found in shadow DOM, trying alt selectors...');
+                        const anyButton = shadowRoot.querySelector('[role="button"], .widget-button, button');
+                        if (anyButton) {
+                            anyButton.click();
+                            voiceStatus.textContent = 'Voice activated! Speak now.';
+                            console.log('✓ Alt button clicked');
+                            return;
+                        }
+                    }
+                }
+
+                // Fallback: Try clicking the widget element itself
+                console.log('Trying to click widget element directly...');
+                widget.click();
+                voiceStatus.textContent = 'Voice activated! Speak now.';
+                console.log('✓ Widget element clicked');
+
+            } catch (error) {
+                console.error('Error starting voice conversation:', error);
+                voiceStatus.textContent = 'Failed to start voice. Please refresh and try again.';
+                isVoiceActive = false;
+                voiceBtn.classList.remove('listening');
+                console.log('Troubleshooting: Make sure agent is public and agent ID is correct');
             }
         }
 
         function stopVoice() {
+            console.log('Stopping voice conversation...');
+
+            // Get fresh reference to widget
+            const widget = document.querySelector('elevenlabs-convai');
+
+            // Update UI state first
             isVoiceActive = false;
             voiceBtn.classList.remove('listening');
             voiceStatus.textContent = 'Click to start talking';
 
-            // The widget handles stopping automatically when conversation ends
+            // Stop the ElevenLabs conversation
+            if (widget && widget.endConversation && typeof widget.endConversation === 'function') {
+                try {
+                    widget.endConversation();
+                    console.log('✓ Conversation ended successfully');
+                } catch (error) {
+                    console.error('Error stopping voice conversation:', error);
+                }
+            } else {
+                console.warn('Widget endConversation method not available (conversation may have already ended)');
+            }
         }
+
+        // Listen for ElevenLabs widget events
+        function setupElevenLabsListeners() {
+            const widget = document.querySelector('elevenlabs-convai');
+            if (!widget) return;
+
+            // Listen for conversation state changes
+            widget.addEventListener('conversationstart', function() {
+                console.log('ElevenLabs conversation started');
+                isVoiceActive = true;
+                voiceBtn.classList.add('listening');
+                voiceStatus.textContent = 'Listening... Speak now!';
+            });
+
+            widget.addEventListener('conversationend', function() {
+                console.log('ElevenLabs conversation ended');
+                isVoiceActive = false;
+                voiceBtn.classList.remove('listening');
+                voiceStatus.textContent = 'Click to start talking';
+            });
+
+            widget.addEventListener('error', function(e) {
+                console.error('ElevenLabs error:', e);
+                isVoiceActive = false;
+                voiceBtn.classList.remove('listening');
+                voiceStatus.textContent = 'Error - Click to retry';
+            });
+
+            widget.addEventListener('message', function(e) {
+                console.log('ElevenLabs message:', e.detail);
+                if (e.detail && e.detail.type === 'agent-response') {
+                    voiceStatus.textContent = 'Agent speaking...';
+                } else if (e.detail && e.detail.type === 'user-speaking') {
+                    voiceStatus.textContent = 'Listening...';
+                }
+            });
+        }
+
+        // Wait for ElevenLabs widget to be ready
+        let widgetReady = false;
+        let checkAttempts = 0;
+        const maxAttempts = 20; // 10 seconds total
+
+        function initializeElevenLabs() {
+            console.log('Starting ElevenLabs widget initialization...');
+
+            const checkWidget = setInterval(() => {
+                checkAttempts++;
+                const widget = document.querySelector('elevenlabs-convai');
+
+                if (widget) {
+                    console.log(`Attempt ${checkAttempts}: Widget element found...`);
+
+                    // Check if shadow DOM is ready (this is key for web components)
+                    if (widget.shadowRoot) {
+                        const button = widget.shadowRoot.querySelector('button');
+                        if (button) {
+                            console.log('✓ ElevenLabs widget fully loaded with shadow DOM!');
+                            console.log('🎙️ Voice chat is now available!');
+                            widgetReady = true;
+                            clearInterval(checkWidget);
+                            return;
+                        } else {
+                            console.log('Shadow DOM found but button not ready yet...');
+                        }
+                    } else {
+                        console.log('Shadow DOM not yet initialized...');
+                    }
+                } else {
+                    console.log(`Attempt ${checkAttempts}: Widget element not found yet...`);
+                }
+
+                // Stop after max attempts
+                if (checkAttempts >= maxAttempts) {
+                    clearInterval(checkWidget);
+                    if (!widgetReady) {
+                        console.error('⚠️ ElevenLabs widget failed to load after 10 seconds');
+                        console.log('Please check: 1) Agent ID is correct, 2) Agent is public, 3) Internet connection');
+                        console.log('4) Script loaded from: https://elevenlabs.io/convai-widget/index.js');
+                    }
+                }
+            }, 500);
+        }
+
+        // Initialize ElevenLabs - try immediately and on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeElevenLabs);
+        } else {
+            initializeElevenLabs();
+        }
+
+        // Also try on full window load as backup
+        window.addEventListener('load', () => {
+            if (!widgetReady) {
+                console.log('Retrying widget initialization on window load...');
+                checkAttempts = 0;
+                initializeElevenLabs();
+            }
+        });
     </script>
 </body>
 </html>

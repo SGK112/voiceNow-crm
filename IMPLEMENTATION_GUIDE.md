@@ -1,670 +1,431 @@
-# VoiceFlow CRM - Implementation Guide
+# VoiceFlow CRM Implementation Guide
 
-This guide covers implementing Google OAuth, pricing configuration, and personalization features.
+## Overview
 
----
+This guide provides a structured approach to understanding and extending the VoiceFlow CRM voice agent and workflow implementation.
 
-## 1. Google OAuth Integration for Calendar
+## Getting Started (5 minutes)
 
-### Overview
-Allow users to connect their Google Calendar to automatically sync appointments and events.
+1. Read: `/AGENT_WORKFLOW_QUICK_REFERENCE.md`
+2. Skim: `/VOICEFLOW_AGENT_WORKFLOW_OVERVIEW.md` (Executive Summary & Architecture sections)
+3. Start exploring: Pick a use case from below
 
-### Setup Steps
+## Documentation Map
 
-#### A. Get Google OAuth Credentials
+```
+Project Root
+├── AGENT_WORKFLOW_QUICK_REFERENCE.md      <- START HERE
+├── VOICEFLOW_AGENT_WORKFLOW_OVERVIEW.md   <- Deep reference
+├── DYNAMIC_VARIABLES.md                   <- Variable usage guide
+├── WORKFLOW_SYSTEM_PLAN.md                <- Workflow details
+├── AI_AGENTS.md                           <- AI capabilities
+│
+└── backend/
+    ├── models/
+    │   ├── VoiceAgent.js                  <- Voice agent schema
+    │   ├── AIAgent.js                     <- AI agent schema
+    │   ├── Workflow.js                    <- Workflow schema
+    │   ├── Lead.js                        <- Lead with customFields
+    │   ├── CallLog.js                     <- Call records
+    │   ├── User.js                        <- User account
+    │   └── Project.js                     <- Deal tracking
+    │
+    ├── controllers/
+    │   ├── agentController.js             <- Voice agent logic
+    │   ├── aiAgentController.js           <- AI agent logic
+    │   ├── callController.js              <- IMPORTANT: Dynamic vars (lines 122-186)
+    │   ├── workflowController.js          <- Workflow management
+    │   └── leadController.js              <- Lead CRUD
+    │
+    ├── routes/
+    │   ├── agents.js                      <- Voice agent endpoints
+    │   ├── aiAgents.js                    <- AI agent endpoints
+    │   ├── calls.js                       <- Call endpoints
+    │   ├── workflows.js                   <- Workflow endpoints
+    │   └── leads.js                       <- Lead endpoints
+    │
+    ├── services/
+    │   ├── elevenLabsService.js           <- ElevenLabs API (batch calling)
+    │   ├── aiAgentService.js              <- Multi-provider LLM
+    │   ├── workflowEngine.js              <- Workflow trigger & execution
+    │   ├── workflowExecutor.js            <- Action execution
+    │   ├── aiService.js                   <- AI utilities
+    │   ├── twilio Service.js              <- SMS sending
+    │   ├── emailService.js                <- Email sending
+    │   └── stripeService.js               <- Billing
+    │
+    ├── middleware/
+    │   └── auth.js                        <- JWT & subscription checks
+    │
+    └── webhooks/
+        └── elevenlabs/                    <- Call completion webhooks
+```
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project or select existing
-3. Enable **Google Calendar API**:
-   - Navigate to "APIs & Services" > "Library"
-   - Search for "Google Calendar API"
-   - Click "Enable"
+## Use Case Guides
 
-4. Create OAuth 2.0 Credentials:
-   - Go to "APIs & Services" > "Credentials"
-   - Click "Create Credentials" > "OAuth client ID"
-   - Application type: "Web application"
-   - Authorized JavaScript origins: `https://voiceflow-crm.onrender.com`
-   - Authorized redirect URIs: `https://voiceflow-crm.onrender.com/api/auth/google/callback`
-   - Save the **Client ID** and **Client Secret**
+### UC1: I want to create a voice agent
 
-#### B. Backend Implementation
+**Files to read (in order)**:
+1. `/backend/models/VoiceAgent.js` - Understand data structure
+2. `/backend/controllers/agentController.js` - Understand createAgent()
+3. `/backend/services/elevenLabsService.js` - Understand ElevenLabs integration
+4. `/frontend/src/pages/Agents.jsx` - See how UI works
 
-**Location**: `/backend/services/googleCalendarService.js`
+**Key code paths**:
+- Voice agent creation → ElevenLabs API (lines 100-117 in agentController.js)
+- Voice selection → Default to "Sarah" (line 94)
+- Templates → getAgentTemplates() returns 6 pre-built types
 
+**Next steps**:
+- Define agent script with {{variables}}
+- Select voice from ElevenLabs list
+- Test with sample lead
+
+### UC2: I want to add dynamic variables
+
+**Files to modify**:
+1. `/backend/controllers/callController.js` (lines 122-151)
+   - Add variable to dynamicVariables object
+   - Ensure safe stringification
+
+2. `/DYNAMIC_VARIABLES.md`
+   - Document new variable
+   - Add usage example
+
+3. `/frontend/src/pages/AgentDetail.jsx` (lines 43-51)
+   - Add to DYNAMIC_VARIABLES array (optional, for UI reference)
+
+**Example: Add estimated timeline**:
 ```javascript
-import { google } from 'googleapis';
-
-class GoogleCalendarService {
-  constructor() {
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.BACKEND_URL}/api/auth/google/callback`
-    );
-  }
-
-  // Generate auth URL
-  getAuthUrl() {
-    return this.oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: [
-        'https://www.googleapis.com/auth/calendar',
-        'https://www.googleapis.com/auth/calendar.events'
-      ],
-      prompt: 'consent'
-    });
-  }
-
-  // Exchange code for tokens
-  async getTokens(code) {
-    const { tokens } = await this.oauth2Client.getToken(code);
-    this.oauth2Client.setCredentials(tokens);
-    return tokens;
-  }
-
-  // List calendar events
-  async listEvents(accessToken, refreshToken) {
-    this.oauth2Client.setCredentials({
-      access_token: accessToken,
-      refresh_token: refreshToken
-    });
-
-    const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
-
-    const response = await calendar.events.list({
-      calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 50,
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
-
-    return response.data.items;
-  }
-
-  // Create calendar event
-  async createEvent(accessToken, refreshToken, eventData) {
-    this.oauth2Client.setCredentials({
-      access_token: accessToken,
-      refresh_token: refreshToken
-    });
-
-    const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
-
-    const event = {
-      summary: eventData.title,
-      description: eventData.description,
-      start: {
-        dateTime: eventData.startTime,
-        timeZone: eventData.timezone || 'America/New_York',
-      },
-      end: {
-        dateTime: eventData.endTime,
-        timeZone: eventData.timezone || 'America/New_York',
-      },
-      attendees: eventData.attendees || [],
-    };
-
-    const response = await calendar.events.insert({
-      calendarId: 'primary',
-      resource: event,
-    });
-
-    return response.data;
-  }
+// In callController.js, after line 136:
+if (lead.estimatedTimeline) {
+  dynamicVariables.estimated_timeline = lead.estimatedTimeline;
 }
 
-export default new GoogleCalendarService();
+// In agent script:
+"Your estimated timeline: {{estimated_timeline}}"
 ```
 
-**Location**: `/backend/routes/calendar.js`
+### UC3: I want to understand call personalization
+
+**Key locations**:
+1. Call initiation: `/api/calls/initiate` (POST)
+2. Backend handler: `/backend/controllers/callController.js`
+   - Lines 122-186: Variable building & replacement
+   - Lines 174-183: Regex replacement logic
+3. ElevenLabs service: `/backend/services/elevenLabsService.js`
+   - Lines 81-148: initiateCall() with personalizedScript
+
+**Flow**:
+```
+User calls Lead → API receives leadId
+  ↓
+Fetch lead data with customFields
+  ↓
+Build dynamicVariables object
+  ↓
+Replace {{variable}} in script & first message
+  ↓
+Send to ElevenLabs with conversation_config_override
+  ↓
+Call is made with personalized content
+```
+
+### UC4: I want to create a workflow
+
+**Files to read**:
+1. `/backend/models/Workflow.js` - Understand workflow structure
+2. `/backend/services/workflowEngine.js` - Understand trigger/execution
+3. `/frontend/src/pages/Workflows.jsx` - See UI
+
+**Key code**:
+- Triggers: 8 types (call_completed, lead_created, etc.)
+- Actions: 15+ types (send_sms, create_lead, etc.)
+- Execution: Sequential with conditions/loops
+- Variables: Supports {{variable}} substitution
+
+**Example workflow**:
+1. Trigger: call_completed
+2. Condition: callStatus === 'completed' AND agent.type === 'lead_gen'
+3. Action 1: create_lead (from captured data)
+4. Action 2: send_email (to assigned sales rep)
+5. Action 3: create_task (follow-up reminder)
+
+### UC5: I want to create an AI agent
+
+**Files to read**:
+1. `/backend/models/AIAgent.js` - Complete schema
+2. `/backend/controllers/aiAgentController.js` - Controller logic
+3. `/backend/services/aiAgentService.js` - Multi-provider LLM
+
+**Key features**:
+- Multiple providers: OpenAI, Anthropic, Google
+- Knowledge base support (RAG)
+- Tool/function calling
+- Deployment & testing
+- Analytics tracking
+
+**Example: Create Claude agent**:
+```javascript
+{
+  name: "Customer Support Claude",
+  type: "chat",
+  provider: "anthropic",
+  model: "claude-3-opus-20240229",
+  systemPrompt: "You are a helpful customer support representative...",
+  configuration: { temperature: 0.7, maxTokens: 2000 },
+  capabilities: { functionCalling: true, webSearch: false }
+}
+```
+
+### UC6: I want to add a new workflow trigger
+
+**Files to modify**:
+1. `/backend/models/Workflow.js` (line 19-23)
+   - Add trigger type to enum
+
+2. `/backend/services/workflowEngine.js`
+   - Add condition checking logic
+   - Add trigger handler
+
+3. `/backend/controllers/workflowController.js`
+   - Add to templates (if applicable)
+
+4. Document in `/WORKFLOW_SYSTEM_PLAN.md`
+
+### UC7: I want to understand call data
+
+**Files to read**:
+1. `/backend/models/CallLog.js` - Call record schema
+2. `/backend/models/Lead.js` - Lead with customFields
+3. `/backend/controllers/callController.js` (lines 122-186) - Variable extraction
+
+**Key data captured**:
+- Call duration, status, transcript
+- Captured lead data (appointment_booked, etc.)
+- Cost tracking
+- Sentiment analysis
+- Recording URL
+
+**Data flow**:
+```
+Call initiated → ElevenLabs executes call → Webhook callback
+  ↓
+Update CallLog with transcript, duration, status
+  ↓
+Trigger workflows based on call_completed trigger
+  ↓
+Extract leadsCapured data for next steps
+```
+
+## Architecture Deep Dives
+
+### Voice Agent Pipeline
+
+```
+Voice Agent Created
+  ├─ name, script, voiceId
+  ├─ elevenLabsAgentId (from ElevenLabs)
+  └─ Store in DB with userId
+
+Call Initiated
+  ├─ Fetch lead data
+  ├─ Build dynamic variables
+  ├─ Replace {{variable}} in script
+  ├─ Send to ElevenLabs batch calling
+  └─ Create CallLog record
+
+Call Executed
+  ├─ ElevenLabs handles conversation
+  ├─ Captures transcript & data
+  └─ Sends webhook callback
+
+Post-Call
+  ├─ Update CallLog with results
+  ├─ Trigger workflows
+  ├─ Update lead/deal if applicable
+  └─ Charge user account
+```
+
+### Workflow Execution Pipeline
+
+```
+Trigger Event Occurs
+  ├─ call_completed, lead_created, etc.
+  └─ Carry context (lead, call, agent data)
+
+Find Matching Workflows
+  ├─ Match trigger type
+  └─ Check enabled flag
+
+Check Trigger Conditions
+  ├─ agentTypes, callStatus, sentiment, etc.
+  └─ Custom field conditions
+
+Execute Actions (Sequential)
+  ├─ For each action in workflow.actions
+  ├─ Substitute {{variables}}
+  ├─ Execute action (send_sms, create_lead, etc.)
+  ├─ Handle conditions/loops
+  └─ Log results
+
+Track Execution
+  ├─ Update workflow.execution metrics
+  ├─ Log errors
+  └─ Update lastRunStatus
+```
+
+### Dynamic Variable Flow
+
+```
+Lead Record
+  ├─ name, email, phone
+  ├─ status, source
+  ├─ qualificationScore, value
+  └─ customFields (Map)
+      ├─ "Property Type" → {{property_type}}
+      ├─ "Price Range" → {{price_range}}
+      └─ "Timeline" → {{timeline}}
+
+Call Initiation
+  ├─ Read lead data
+  ├─ Extract to dynamicVariables
+  ├─ Replace in agent script
+  └─ Replace in firstMessage
+
+Agent Receives
+  ├─ Personalized script with real values
+  └─ Personalized first message with real values
+```
+
+## Common Patterns
+
+### Pattern 1: Subscription Limits
 
 ```javascript
-import express from 'express';
-import googleCalendarService from '../services/googleCalendarService.js';
-import User from '../models/User.js';
-import { protect } from '../middleware/auth.js';
-
-const router = express.Router();
-
-// Get Google OAuth URL
-router.get('/connect/google', protect, (req, res) => {
-  const authUrl = googleCalendarService.getAuthUrl();
-  res.json({ authUrl });
-});
-
-// OAuth callback
-router.get('/auth/google/callback', async (req, res) => {
-  try {
-    const { code } = req.query;
-    const tokens = await googleCalendarService.getTokens(code);
-
-    // Store tokens in user's record
-    const userId = req.session.userId; // or from JWT
-    await User.findByIdAndUpdate(userId, {
-      googleCalendar: {
-        connected: true,
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        expiryDate: tokens.expiry_date
-      }
-    });
-
-    res.redirect('/app/integrations?success=true');
-  } catch (error) {
-    res.redirect('/app/integrations?error=true');
-  }
-});
-
-// Get calendar events
-router.get('/events', protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (!user.googleCalendar?.connected) {
-      return res.status(400).json({ message: 'Google Calendar not connected' });
-    }
-
-    const events = await googleCalendarService.listEvents(
-      user.googleCalendar.accessToken,
-      user.googleCalendar.refreshToken
-    );
-
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Create calendar event
-router.post('/events', protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (!user.googleCalendar?.connected) {
-      return res.status(400).json({ message: 'Google Calendar not connected' });
-    }
-
-    const event = await googleCalendarService.createEvent(
-      user.googleCalendar.accessToken,
-      user.googleCalendar.refreshToken,
-      req.body
-    );
-
-    res.json(event);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-export default router;
+// Before allowing agent creation
+const maxAgents = planLimits[user.plan] || 1;
+if (agentCount >= maxAgents) {
+  return error: "Plan limit reached"
+}
 ```
 
-**Add to `/backend/server.js`**:
-```javascript
-import calendarRoutes from './routes/calendar.js';
-app.use('/api/calendar', calendarRoutes);
-```
-
-**Environment Variables** (`.env`):
-```
-GOOGLE_CLIENT_ID=your_client_id_here
-GOOGLE_CLIENT_SECRET=your_client_secret_here
-```
-
-#### C. Frontend Implementation
-
-The Integrations page already has a Google Calendar integration card. Update it to connect:
+### Pattern 2: User Isolation
 
 ```javascript
-// In frontend/src/pages/Integrations.jsx
-const handleConnectGoogleCalendar = async () => {
-  try {
-    const res = await fetch('/api/calendar/connect/google');
-    const { authUrl } = await res.json();
-    window.location.href = authUrl; // Redirect to Google OAuth
-  } catch (error) {
-    alert('Failed to connect Google Calendar');
-  }
-};
+// All queries filter by userId
+const agent = await VoiceAgent.findOne({
+  _id: agentId,
+  userId: req.user._id  // REQUIRED
+})
 ```
+
+### Pattern 3: Variable Substitution
+
+```javascript
+Object.keys(dynamicVariables).forEach(key => {
+  const placeholder = new RegExp(`\\{\\{${escapeRegex(key)}\\}\\}`, 'g');
+  script = script.replace(placeholder, safeStringify(dynamicVariables[key]));
+});
+```
+
+### Pattern 4: Workflow Conditional Execution
+
+```javascript
+// Check conditions before executing
+if (this.checkTriggerConditions(workflow.trigger.conditions, context)) {
+  await this.executeWorkflow(workflow, context);
+}
+```
+
+## Testing Checklist
+
+### Voice Agent Testing
+- [ ] Agent created successfully
+- [ ] Agent appears in ElevenLabs dashboard
+- [ ] Can edit agent script and voice
+- [ ] Can view call history
+- [ ] Performance metrics populated
+
+### Dynamic Variable Testing
+- [ ] Create lead with custom fields
+- [ ] Initiate call to lead
+- [ ] Check server logs for variable substitution
+- [ ] Verify agent receives personalized script
+- [ ] Confirm custom fields converted to snake_case
+
+### Workflow Testing
+- [ ] Create workflow with trigger
+- [ ] Set up conditions
+- [ ] Configure actions
+- [ ] Trigger event occurs
+- [ ] Actions execute in sequence
+- [ ] Check workflow.execution.lastRunStatus
+
+### AI Agent Testing
+- [ ] Create agent with provider
+- [ ] Chat with agent
+- [ ] Send test message
+- [ ] Verify response format
+- [ ] Check token usage
+
+## Performance Optimization
+
+1. **Lead Queries**: Index by userId and status
+2. **Voice Lists**: Cache ElevenLabs voices (rarely changes)
+3. **Workflow Triggers**: Index by trigger.type
+4. **Custom Fields**: Don't store large objects in Map
+5. **API Calls**: Batch operations where possible
+
+## Security Checklist
+
+- [ ] All queries filter by userId
+- [ ] API credentials stored with `select: false`
+- [ ] JWT tokens validated on all endpoints
+- [ ] Webhook callbacks signature-verified (if applicable)
+- [ ] Rate limiting on call initiation
+- [ ] Subscription limits enforced
+- [ ] User data never shared between accounts
+
+## Extending the System
+
+### Add New Voice Agent Type
+1. Add to VoiceAgent schema
+2. Add to AGENT_TYPES frontend constant
+3. Create template in agentController.js
+4. Document in AGENT_WORKFLOW_QUICK_REFERENCE.md
+
+### Add New AI Provider
+1. Add to AIAgent schema provider enum
+2. Implement in aiAgentService.js
+3. Add routes and templates
+4. Document in AI_AGENTS.md
+
+### Add New Workflow Action
+1. Add to Workflow schema action.type enum
+2. Implement executor in workflowEngine.js
+3. Add template in controller
+4. Document in WORKFLOW_SYSTEM_PLAN.md
+
+## Quick Reference Links
+
+- Models: `/backend/models/`
+- Controllers: `/backend/controllers/`
+- Services: `/backend/services/`
+- Routes: `/backend/routes/`
+- Frontend: `/frontend/src/pages/`
+- Documentation: `/DYNAMIC_VARIABLES.md`, `/WORKFLOW_SYSTEM_PLAN.md`, etc.
+
+## Support Resources
+
+1. Check existing documentation first
+2. Look for similar implementations
+3. Review error messages in server logs
+4. Check database records directly
+5. Add console.log() in key functions for debugging
 
 ---
 
-## 2. Pricing Configuration System
+**Start here**: Read `/AGENT_WORKFLOW_QUICK_REFERENCE.md`
 
-### Overview
-Allow users to configure pricing for their services, including price lists, profit margins, and tax rates.
-
-### Database Schema
-
-**Location**: `/backend/models/PricingConfig.js`
-
-```javascript
-import mongoose from 'mongoose';
-
-const pricingItemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: String,
-  basePrice: { type: Number, required: true },
-  unit: { type: String, default: 'each' }, // each, hour, month, etc.
-  category: String,
-  taxable: { type: Boolean, default: true }
-});
-
-const pricingConfigSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-
-  // Price Lists
-  priceList: [pricingItemSchema],
-
-  // Margins & Markup
-  defaultMargin: { type: Number, default: 20 }, // Percentage
-  defaultMarkup: { type: Number, default: 25 }, // Percentage
-
-  // Tax Configuration
-  taxRates: [{
-    name: String, // e.g., "Sales Tax", "VAT"
-    rate: Number, // Percentage
-    region: String,
-    default: Boolean
-  }],
-
-  // Discount Templates
-  discounts: [{
-    name: String,
-    type: { type: String, enum: ['percentage', 'fixed'] },
-    value: Number,
-    conditions: String
-  }],
-
-  // Payment Terms
-  paymentTerms: [{
-    name: String,
-    days: Number,
-    description: String
-  }],
-
-  currency: { type: String, default: 'USD' },
-  currencySymbol: { type: String, default: '$' }
-}, {
-  timestamps: true
-});
-
-export default mongoose.model('PricingConfig', pricingConfigSchema);
-```
-
-### Backend API
-
-**Location**: `/backend/controllers/pricingController.js`
-
-```javascript
-import PricingConfig from '../models/PricingConfig.js';
-
-// Get pricing configuration
-export const getPricingConfig = async (req, res) => {
-  try {
-    let config = await PricingConfig.findOne({ userId: req.user._id });
-
-    if (!config) {
-      // Create default configuration
-      config = await PricingConfig.create({
-        userId: req.user._id,
-        priceList: [],
-        taxRates: [{ name: 'Sales Tax', rate: 8.5, region: 'Default', default: true }],
-        paymentTerms: [
-          { name: 'Net 30', days: 30, description: 'Payment due in 30 days' },
-          { name: 'Net 15', days: 15, description: 'Payment due in 15 days' },
-          { name: 'Due on Receipt', days: 0, description: 'Payment due immediately' }
-        ]
-      });
-    }
-
-    res.json(config);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Update pricing configuration
-export const updatePricingConfig = async (req, res) => {
-  try {
-    const config = await PricingConfig.findOneAndUpdate(
-      { userId: req.user._id },
-      req.body,
-      { new: true, upsert: true }
-    );
-
-    res.json(config);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Add price list item
-export const addPriceListItem = async (req, res) => {
-  try {
-    const config = await PricingConfig.findOne({ userId: req.user._id });
-    config.priceList.push(req.body);
-    await config.save();
-
-    res.json(config);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Delete price list item
-export const deletePriceListItem = async (req, res) => {
-  try {
-    const config = await PricingConfig.findOne({ userId: req.user._id });
-    config.priceList.id(req.params.itemId).remove();
-    await config.save();
-
-    res.json(config);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-```
-
-**Location**: `/backend/routes/pricing.js`
-
-```javascript
-import express from 'express';
-import {
-  getPricingConfig,
-  updatePricingConfig,
-  addPriceListItem,
-  deletePriceListItem
-} from '../controllers/pricingController.js';
-import { protect } from '../middleware/auth.js';
-
-const router = express.Router();
-
-router.get('/', protect, getPricingConfig);
-router.put('/', protect, updatePricingConfig);
-router.post('/items', protect, addPriceListItem);
-router.delete('/items/:itemId', protect, deletePriceListItem);
-
-export default router;
-```
-
-**Add to `/backend/server.js`**:
-```javascript
-import pricingRoutes from './routes/pricing.js';
-app.use('/api/pricing', pricingRoutes);
-```
-
-### Frontend UI (Settings Page)
-
-Create a new settings section for pricing configuration in `/frontend/src/pages/Settings.jsx`:
-
-```javascript
-// Add pricing configuration tab
-<Tabs defaultValue="general">
-  <TabsList>
-    <TabsTrigger value="general">General</TabsTrigger>
-    <TabsTrigger value="pricing">Pricing & Invoicing</TabsTrigger>
-  </TabsList>
-
-  <TabsContent value="pricing">
-    <Card>
-      <CardHeader>
-        <CardTitle>Price List</CardTitle>
-        <CardDescription>Manage your service and product pricing</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {/* Price list table */}
-        {/* Add/Edit/Delete buttons */}
-      </CardContent>
-    </Card>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>Margins & Markup</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Default Profit Margin (%)</Label>
-            <Input type="number" placeholder="20" />
-          </div>
-          <div>
-            <Label>Default Markup (%)</Label>
-            <Input type="number" placeholder="25" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>Tax Rates</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Tax rates configuration */}
-      </CardContent>
-    </Card>
-  </TabsContent>
-</Tabs>
-```
-
----
-
-## 3. Personalization & Branding
-
-### Database Schema
-
-**Location**: `/backend/models/BrandSettings.js`
-
-```javascript
-import mongoose from 'mongoose';
-
-const brandSettingsSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-
-  // Company Branding
-  companyName: String,
-  logo: String, // URL to logo
-  primaryColor: { type: String, default: '#3B82F6' },
-  secondaryColor: { type: String, default: '#10B981' },
-  accentColor: { type: String, default: '#F59E0B' },
-
-  // Contact Information
-  email: String,
-  phone: String,
-  website: String,
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zip: String,
-    country: String
-  },
-
-  // Invoice/Document Branding
-  invoicePrefix: { type: String, default: 'INV' },
-  estimatePrefix: { type: String, default: 'EST' },
-  invoiceFooter: String,
-  termsAndConditions: String,
-
-  // Email Signatures
-  emailSignature: String,
-
-  // Social Media
-  socialMedia: {
-    linkedin: String,
-    twitter: String,
-    facebook: String
-  }
-}, {
-  timestamps: true
-});
-
-export default mongoose.model('BrandSettings', brandSettingsSchema);
-```
-
-### Backend API
-
-**Location**: `/backend/controllers/brandingController.js`
-
-```javascript
-import BrandSettings from '../models/BrandSettings.js';
-
-export const getBrandSettings = async (req, res) => {
-  try {
-    let settings = await BrandSettings.findOne({ userId: req.user._id });
-
-    if (!settings) {
-      settings = await BrandSettings.create({ userId: req.user._id });
-    }
-
-    res.json(settings);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const updateBrandSettings = async (req, res) => {
-  try {
-    const settings = await BrandSettings.findOneAndUpdate(
-      { userId: req.user._id },
-      req.body,
-      { new: true, upsert: true }
-    );
-
-    res.json(settings);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const uploadLogo = async (req, res) => {
-  try {
-    // Handle file upload (use multer or similar)
-    const logoUrl = `/uploads/logos/${req.file.filename}`;
-
-    const settings = await BrandSettings.findOneAndUpdate(
-      { userId: req.user._id },
-      { logo: logoUrl },
-      { new: true, upsert: true }
-    );
-
-    res.json(settings);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-```
-
-### Frontend Implementation
-
-Add to Settings page:
-
-```javascript
-<TabsContent value="branding">
-  <Card>
-    <CardHeader>
-      <CardTitle>Company Branding</CardTitle>
-      <CardDescription>Customize your company's appearance</CardDescription>
-    </CardHeader>
-    <CardContent className="space-y-6">
-      {/* Logo Upload */}
-      <div>
-        <Label>Company Logo</Label>
-        <div className="mt-2">
-          <input type="file" accept="image/*" />
-        </div>
-      </div>
-
-      {/* Company Name */}
-      <div>
-        <Label>Company Name</Label>
-        <Input placeholder="Your Company Name" />
-      </div>
-
-      {/* Color Scheme */}
-      <div>
-        <Label>Brand Colors</Label>
-        <div className="grid grid-cols-3 gap-4 mt-2">
-          <div>
-            <Label className="text-sm">Primary</Label>
-            <Input type="color" defaultValue="#3B82F6" />
-          </div>
-          <div>
-            <Label className="text-sm">Secondary</Label>
-            <Input type="color" defaultValue="#10B981" />
-          </div>
-          <div>
-            <Label className="text-sm">Accent</Label>
-            <Input type="color" defaultValue="#F59E0B" />
-          </div>
-        </div>
-      </div>
-
-      {/* Contact Info */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Email</Label>
-          <Input type="email" placeholder="contact@company.com" />
-        </div>
-        <div>
-          <Label>Phone</Label>
-          <Input placeholder="+1 (555) 123-4567" />
-        </div>
-      </div>
-
-      {/* Save Button */}
-      <Button>Save Branding Settings</Button>
-    </CardContent>
-  </Card>
-</TabsContent>
-```
-
----
-
-## Summary of API Endpoints
-
-```
-# Calendar
-GET    /api/calendar/connect/google      - Get OAuth URL
-GET    /api/calendar/auth/google/callback - OAuth callback
-GET    /api/calendar/events               - List calendar events
-POST   /api/calendar/events               - Create calendar event
-
-# Pricing
-GET    /api/pricing                       - Get pricing config
-PUT    /api/pricing                       - Update pricing config
-POST   /api/pricing/items                 - Add price list item
-DELETE /api/pricing/items/:itemId         - Delete price list item
-
-# Branding
-GET    /api/branding                      - Get brand settings
-PUT    /api/branding                      - Update brand settings
-POST   /api/branding/logo                 - Upload logo
-```
-
-## Installation Commands
-
-```bash
-# Install required packages
-cd backend
-npm install googleapis
-npm install multer  # For file uploads
-
-# Run migrations (if needed)
-# The models will auto-create collections in MongoDB
-```
-
----
-
-## Next Steps
-
-1. **Google OAuth**: Set up credentials in Google Cloud Console
-2. **Pricing**: Implement the pricing configuration UI in Settings page
-3. **Branding**: Add branding tab to Settings page
-4. **Test**: Test each integration thoroughly before deploying
-
-The Integrations page already has placeholders for these features - just need to wire up the backend APIs!
+**Then explore**: Pick a use case and follow the files listed in that section.

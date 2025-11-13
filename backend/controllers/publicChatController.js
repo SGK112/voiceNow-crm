@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import jwt from 'jsonwebtoken';
+import emailService from '../services/emailService.js';
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
@@ -311,6 +312,222 @@ export const getElevenLabsToken = async (req, res) => {
     console.error('ElevenLabs token generation error:', error);
     res.status(500).json({
       error: 'Failed to generate authentication token'
+    });
+  }
+};
+
+// Handle contact sales form submissions
+export const contactSales = async (req, res) => {
+  try {
+    const { name, email, phone, company, interest, message, source } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !interest || !message) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        message: 'Please fill in all required fields (name, email, interest, and message).'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: 'Invalid email',
+        message: 'Please provide a valid email address.'
+      });
+    }
+
+    // Prepare email content
+    const interestLabels = {
+      enterprise: 'Enterprise Plan',
+      demo: 'Schedule a Demo',
+      custom: 'Custom Integration',
+      migration: 'Migration Support',
+      partnership: 'Partnership Opportunities',
+      other: 'Other'
+    };
+
+    const emailSubject = `🚀 New Contact Sales Request - ${interestLabels[interest] || interest}`;
+
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; }
+          .header h1 { margin: 0; font-size: 24px; }
+          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+          .field { margin-bottom: 20px; }
+          .field-label { font-weight: bold; color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+          .field-value { background: white; padding: 12px 16px; border-radius: 8px; border-left: 3px solid #3b82f6; }
+          .message-box { background: white; padding: 16px; border-radius: 8px; border-left: 3px solid #3b82f6; white-space: pre-wrap; }
+          .badge { display: inline-block; padding: 4px 12px; background: #3b82f6; color: white; border-radius: 20px; font-size: 12px; font-weight: 600; }
+          .footer { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 12px; color: #64748b; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 New Sales Contact Request</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Someone is interested in VoiceFlow CRM!</p>
+          </div>
+          <div class="content">
+            <div class="field">
+              <div class="field-label">Interest Type</div>
+              <div class="field-value">
+                <span class="badge">${interestLabels[interest] || interest}</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Contact Name</div>
+              <div class="field-value">${name}</div>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Email Address</div>
+              <div class="field-value"><a href="mailto:${email}">${email}</a></div>
+            </div>
+
+            ${phone ? `
+            <div class="field">
+              <div class="field-label">Phone Number</div>
+              <div class="field-value"><a href="tel:${phone}">${phone}</a></div>
+            </div>
+            ` : ''}
+
+            ${company ? `
+            <div class="field">
+              <div class="field-label">Company</div>
+              <div class="field-value">${company}</div>
+            </div>
+            ` : ''}
+
+            <div class="field">
+              <div class="field-label">Message</div>
+              <div class="message-box">${message}</div>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Source</div>
+              <div class="field-value">${source || 'Unknown'}</div>
+            </div>
+
+            <div class="footer">
+              <p><strong>⏰ Received:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET</p>
+              <p><strong>🎯 Quick Action:</strong> Reply directly to ${email} or call ${phone || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const emailText = `
+New Contact Sales Request
+
+Interest: ${interestLabels[interest] || interest}
+Name: ${name}
+Email: ${email}
+Phone: ${phone || 'Not provided'}
+Company: ${company || 'Not provided'}
+
+Message:
+${message}
+
+Source: ${source || 'Unknown'}
+Received: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET
+    `;
+
+    // Send email to sales team (help.remodely@gmail.com)
+    await emailService.sendEmail({
+      to: 'help.remodely@gmail.com',
+      subject: emailSubject,
+      text: emailText,
+      html: emailHtml
+    });
+
+    console.log(`✉️ Contact sales form submitted by ${name} (${email}) - Interest: ${interest}`);
+
+    // Send confirmation email to user
+    const confirmationSubject = '✅ Thank you for contacting VoiceFlow CRM';
+    const confirmationHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+          .success-icon { font-size: 64px; text-align: center; margin-bottom: 20px; }
+          .message { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+          .cta-button { display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 10px 0; }
+          .footer { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Message Received!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">We'll be in touch soon</p>
+          </div>
+          <div class="content">
+            <div class="success-icon">✅</div>
+
+            <div class="message">
+              <p>Hi ${name},</p>
+              <p>Thank you for your interest in VoiceFlow CRM! We've received your message about <strong>${interestLabels[interest] || interest}</strong> and our sales team will reach out to you within 24 hours.</p>
+              <p>In the meantime, feel free to explore our platform:</p>
+              <div style="text-align: center;">
+                <a href="https://voiceflowcrm.com" class="cta-button">Visit Our Website</a>
+              </div>
+            </div>
+
+            <div class="message">
+              <h3 style="margin-top: 0;">📋 Your Request Details:</h3>
+              <p><strong>Interest:</strong> ${interestLabels[interest] || interest}</p>
+              ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
+              <p><strong>Email:</strong> ${email}</p>
+              ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
+            </div>
+
+            <div class="footer">
+              <p>Need immediate assistance? Email us at <a href="mailto:help.remodely@gmail.com">help.remodely@gmail.com</a></p>
+              <p>© 2025 VoiceFlow CRM by Remodely. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Send confirmation to user (don't fail if this errors)
+    try {
+      await emailService.sendEmail({
+        to: email,
+        subject: confirmationSubject,
+        html: confirmationHtml
+      });
+    } catch (confirmError) {
+      console.error('Failed to send confirmation email:', confirmError);
+      // Don't throw - main email was sent successfully
+    }
+
+    res.json({
+      success: true,
+      message: 'Thank you for contacting us! Our team will reach out to you within 24 hours.'
+    });
+
+  } catch (error) {
+    console.error('Contact sales form error:', error);
+    res.status(500).json({
+      error: 'Failed to submit contact form',
+      message: 'Sorry, there was an error processing your request. Please try again or email us directly at help.remodely@gmail.com'
     });
   }
 };

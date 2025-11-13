@@ -13,7 +13,32 @@ const voiceAgentSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['lead_gen', 'booking', 'collections', 'promo', 'support', 'custom'],
+    enum: [
+      'lead_gen',
+      'booking',
+      'collections',
+      'promo',
+      'support',
+      'custom',
+      // Construction-specific types
+      'plumber',
+      'carpenter',
+      'electrician',
+      'drywall_tech',
+      'handyman',
+      'estimator',
+      'fabricator',
+      'general_contractor',
+      'hvac_tech',
+      'roofer',
+      'painter',
+      'flooring_specialist',
+      // Business operations
+      'supplier_rep',
+      'order_placement',
+      'inventory_check',
+      'quote_request'
+    ],
     required: true,
     default: 'custom'
   },

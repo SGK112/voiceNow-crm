@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { agentApi, callApi } from '@/services/api';
+import { agentApi, callApi, leadApi } from '@/services/api';
+import { DynamicVariablePicker } from '@/components/DynamicVariablePicker';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +26,9 @@ import {
   Zap,
   ChevronDown,
   ChevronUp,
-  Download
+  Download,
+  Info,
+  AlertCircle
 } from 'lucide-react';
 
 // Mock ElevenLabs voices data - in production, this would come from ElevenLabs API
@@ -58,6 +62,7 @@ export default function AgentDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
+  const [testLeadId, setTestLeadId] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [editedAgent, setEditedAgent] = useState(null);
   const [expandedCallId, setExpandedCallId] = useState(null);
@@ -66,6 +71,11 @@ export default function AgentDetail() {
     queryKey: ['agent', id],
     queryFn: () => agentApi.getAgentById(id).then(res => res.data),
     enabled: !!id
+  });
+
+  const { data: leads } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => leadApi.getLeads().then(res => res.data.leads || []),
   });
 
   // Handle agent data when it loads
@@ -77,7 +87,8 @@ export default function AgentDetail() {
           temperature: 0.8,
           maxDuration: 300,
           language: 'en'
-        }
+        },
+        enabled: agent.enabled ?? false
       };
       setEditedAgent(agentWithDefaults);
       const voice = ELEVENLABS_VOICES.find(v => v.id === agent.voiceId);
@@ -99,6 +110,7 @@ export default function AgentDetail() {
     mutationFn: (data) => agentApi.updateAgent(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['agent', id]);
+      queryClient.invalidateQueries(['agents']);
       setIsEditing(false);
       alert('Agent updated successfully!');
     },
@@ -108,10 +120,17 @@ export default function AgentDetail() {
   });
 
   const testCallMutation = useMutation({
-    mutationFn: (phoneNumber) => callApi.initiateCall({ agentId: id, phoneNumber }),
+    mutationFn: ({ phoneNumber, leadId }) => {
+      const payload = { agentId: id, phoneNumber };
+      if (leadId) payload.leadId = leadId;
+      return callApi.initiateCall(payload);
+    },
     onSuccess: () => {
-      alert('Test call initiated! Check your phone.');
+      queryClient.invalidateQueries(['agent-calls', id]);
+      queryClient.invalidateQueries(['agent-performance', id]);
+      alert('Test call initiated! Check your phone. The call uses personalized data from your CRM.');
       setTestPhoneNumber('');
+      setTestLeadId('');
     },
     onError: (error) => {
       alert('Error: ' + (error.response?.data?.message || 'Failed to initiate test call'));
@@ -119,10 +138,21 @@ export default function AgentDetail() {
   });
 
   const handleSave = () => {
+    if (!editedAgent.name || !editedAgent.script) {
+      alert('Please fill in all required fields (name and script)');
+      return;
+    }
+
     updateAgentMutation.mutate({
-      ...editedAgent,
+      name: editedAgent.name,
+      type: editedAgent.type,
+      script: editedAgent.script,
+      firstMessage: editedAgent.firstMessage,
+      phoneNumber: editedAgent.phoneNumber,
+      enabled: editedAgent.enabled,
       voiceId: selectedVoice?.id,
       voiceName: selectedVoice?.name,
+      configuration: editedAgent.configuration,
     });
   };
 
@@ -131,7 +161,7 @@ export default function AgentDetail() {
       alert('Please enter a phone number');
       return;
     }
-    testCallMutation.mutate(testPhoneNumber);
+    testCallMutation.mutate({ phoneNumber: testPhoneNumber, leadId: testLeadId });
   };
 
   const handleVoicePreview = async () => {
@@ -284,6 +314,16 @@ export default function AgentDetail() {
         </div>
       </div>
 
+      {/* Dynamic Variables Info Alert */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Smart Variable Injection:</strong> This system automatically injects customer data into your agent's script before each call.
+          Variables like <code className="bg-muted px-1 py-0.5 rounded text-xs">{'{{lead_name}}'}</code> are replaced with real data from your CRM,
+          ensuring every conversation is personalized without relying on ElevenLabs to handle variables.
+        </AlertDescription>
+      </Alert>
+
       {/* Performance Metrics */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -375,12 +415,34 @@ export default function AgentDetail() {
                     disabled={!isEditing}
                     className="w-full border border-input rounded px-3 py-2 text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
                   >
-                    <option value="lead_gen">Lead Generation</option>
-                    <option value="booking">Booking</option>
-                    <option value="collections">Collections</option>
-                    <option value="promo">Promotional</option>
-                    <option value="support">Support</option>
-                    <option value="custom">Custom</option>
+                    <optgroup label="General">
+                      <option value="lead_gen">Lead Generation</option>
+                      <option value="booking">Booking</option>
+                      <option value="collections">Collections</option>
+                      <option value="promo">Promotional</option>
+                      <option value="support">Support</option>
+                      <option value="custom">Custom</option>
+                    </optgroup>
+                    <optgroup label="Construction Trades">
+                      <option value="plumber">Plumber</option>
+                      <option value="carpenter">Carpenter</option>
+                      <option value="electrician">Electrician</option>
+                      <option value="drywall_tech">Drywall Tech</option>
+                      <option value="handyman">Handyman</option>
+                      <option value="estimator">Estimator</option>
+                      <option value="fabricator">Fabricator</option>
+                      <option value="general_contractor">General Contractor</option>
+                      <option value="hvac_tech">HVAC Tech</option>
+                      <option value="roofer">Roofer</option>
+                      <option value="painter">Painter</option>
+                      <option value="flooring_specialist">Flooring Specialist</option>
+                    </optgroup>
+                    <optgroup label="Business Operations">
+                      <option value="supplier_rep">Supplier Rep Caller</option>
+                      <option value="order_placement">Order Placement</option>
+                      <option value="inventory_check">Inventory Check</option>
+                      <option value="quote_request">Quote Request</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
@@ -389,10 +451,10 @@ export default function AgentDetail() {
                 <label className="block text-sm font-medium text-muted-foreground mb-1">First Message</label>
                 <input
                   type="text"
-                  value={editedAgent.firstMessage}
+                  value={editedAgent.firstMessage || ''}
                   onChange={(e) => setEditedAgent({ ...editedAgent, firstMessage: e.target.value })}
                   disabled={!isEditing}
-                  placeholder="Hello! How can I help you today?"
+                  placeholder="Hi {{lead_name}}! This is calling from {{company_name}}. How are you?"
                   className="w-full border border-input rounded px-3 py-2 text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
                 />
               </div>
@@ -505,49 +567,53 @@ export default function AgentDetail() {
                 System Prompt & Script
               </CardTitle>
               <CardDescription>
-                Define how your agent should behave and what it should say
+                Define how your agent should behave and what it should say. Variables are auto-injected with real customer data.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium text-muted-foreground">
-                    Agent Script / Instructions
+                    Agent Script / Instructions *
                   </label>
-                  <span className="text-xs text-muted-foreground">
-                    {(editedAgent.script || '').length} characters
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {isEditing && <DynamicVariablePicker onSelect={insertVariable} />}
+                    <span className="text-xs text-muted-foreground">
+                      {(editedAgent.script || '').length} characters
+                    </span>
+                  </div>
                 </div>
                 <textarea
                   id="script-textarea"
                   value={editedAgent.script || ''}
                   onChange={(e) => setEditedAgent({ ...editedAgent, script: e.target.value })}
                   disabled={!isEditing}
-                  rows={10}
-                  placeholder="Enter the script or instructions for your voice agent..."
+                  rows={12}
+                  placeholder="You are a professional assistant for {{company_name}}.
+
+CUSTOMER INFORMATION:
+- Name: {{lead_name}}
+- Phone: {{lead_phone}}
+- Email: {{lead_email}}
+
+YOUR GOAL: [Define the goal here]
+
+CONVERSATION FLOW:
+1. Greet them warmly
+2. [Add your steps here]
+
+Use {{variables}} for personalization - they're replaced automatically before each call!"
                   className="w-full border border-input rounded px-3 py-2 text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-muted font-mono text-sm"
                 />
               </div>
 
-              {isEditing && (
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Dynamic Variables
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {DYNAMIC_VARIABLES.map((item) => (
-                      <button
-                        key={item.var}
-                        onClick={() => insertVariable(item.var)}
-                        className="text-left p-2 border border-border rounded hover:bg-accent hover:border-primary/50 transition-colors"
-                      >
-                        <code className="text-xs font-mono text-blue-600">{item.var}</code>
-                        <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  <strong>How it works:</strong> Variables like <code className="bg-muted px-1 rounded">{'{{lead_name}}'}</code> are automatically
+                  replaced with real data from your CRM before each call. You don't need to configure anything - just use the variables in your script!
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
         </div>
@@ -561,19 +627,40 @@ export default function AgentDetail() {
                 <Phone className="h-5 w-5" />
                 Test Call
               </CardTitle>
-              <CardDescription>Make a test call to verify your agent</CardDescription>
+              <CardDescription>Make a test call to verify your agent with personalized data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1">
-                  Phone Number
+                  Select Lead (Optional)
+                </label>
+                <select
+                  value={testLeadId}
+                  onChange={(e) => setTestLeadId(e.target.value)}
+                  className="w-full border border-input rounded px-3 py-2 text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
+                >
+                  <option value="">No lead (use phone number only)</option>
+                  {leads?.map((lead) => (
+                    <option key={lead._id} value={lead._id}>
+                      {lead.name} - {lead.phone}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select a lead to use their data for variable personalization
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
                   value={testPhoneNumber}
                   onChange={(e) => setTestPhoneNumber(e.target.value)}
                   placeholder="+1234567890"
-                  className="w-full border border-input rounded px-3 py-2 text-white dark:text-white placeholder:text-muted-foreground disabled:text-muted-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
+                  className="w-full border border-input rounded px-3 py-2 text-foreground placeholder:text-muted-foreground disabled:text-muted-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
                 />
               </div>
               <Button
@@ -585,7 +672,7 @@ export default function AgentDetail() {
                 {testCallMutation.isPending ? 'Initiating...' : 'Make Test Call'}
               </Button>
               <p className="text-xs text-muted-foreground">
-                This will place a real call to the number above using your current agent configuration.
+                This will place a real call using your current agent configuration with personalized customer data from the selected lead (if any).
               </p>
             </CardContent>
           </Card>
