@@ -1354,11 +1354,15 @@
         /* Hide default ElevenLabs widget button but keep functionality */
         elevenlabs-convai {
             position: fixed !important;
-            bottom: -1000px !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            width: 1px !important;
-            height: 1px !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 9999 !important;
+            display: none !important; /* Hidden by default */
+        }
+
+        /* Show ElevenLabs widget when voice mode is active */
+        elevenlabs-convai.voice-active {
+            display: block !important;
         }
 
         /* Responsive */
@@ -2212,6 +2216,12 @@
             widget.classList.remove('active');
             toggleBtn.classList.remove('hidden');
 
+            // Hide the ElevenLabs widget
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.remove('voice-active');
+            }
+
             // Stop voice if active
             if (isVoiceActive) {
                 stopVoice();
@@ -2237,6 +2247,13 @@
             chatMessages.style.display = 'flex';
             voiceModeContainer.classList.remove('active');
             chatInputContainer.style.display = 'block';
+
+            // Hide the ElevenLabs widget
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.remove('voice-active');
+            }
+
             if (isVoiceActive) {
                 stopVoice();
             }
@@ -2251,11 +2268,17 @@
             voiceModeContainer.classList.add('active');
             chatInputContainer.style.display = 'none';
 
+            // Show the ElevenLabs widget
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.add('voice-active');
+            }
+
             // Check if widget is ready and show appropriate message
             if (!widgetReady) {
                 voiceStatus.textContent = 'Voice is loading... Please wait.';
             } else {
-                voiceStatus.textContent = 'Click to start talking';
+                voiceStatus.textContent = 'Click the voice button in the bottom-right to start';
             }
         });
 
