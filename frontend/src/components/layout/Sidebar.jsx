@@ -73,15 +73,15 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             'overflow-hidden transition-all duration-300 flex flex-col items-center lg:items-start w-full',
             isCollapsed ? 'w-0 opacity-0' : 'opacity-100'
           )}>
-            <h1 className="text-xl sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-500 to-amber-400 bg-clip-text text-transparent whitespace-nowrap flex items-center gap-2">
-              <span className="text-2xl sm:text-xl lg:text-2xl">🚀</span> Remodely.ai
+            <h1 className="text-xl sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent whitespace-nowrap flex items-center gap-2">
+              <span className="text-2xl sm:text-xl lg:text-2xl">🎙️</span> Remodely.ai
             </h1>
             <p className="text-sm sm:text-sm text-muted-foreground whitespace-nowrap mt-0.5">VoiceFlow CRM</p>
           </div>
 
           {isCollapsed && (
-            <div className="w-10 h-10 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-r from-blue-500 to-amber-400 flex items-center justify-center font-bold text-xl sm:text-xl">
-              🚀
+            <div className="w-10 h-10 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center font-bold text-xl sm:text-xl">
+              🎙️
             </div>
           )}
 

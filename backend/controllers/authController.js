@@ -104,12 +104,14 @@ export const login = async (req, res) => {
 export const googleAuth = async (req, res) => {
   try {
     const { credential, tokenType } = req.body;
+    console.log('🔐 Google Auth Request:', { tokenType, hasCredential: !!credential, hasCode: !!req.body.code });
 
     let googleId, email, name;
 
     if (tokenType === 'authorization_code') {
       // Handle authorization code from OAuth redirect flow
       const { code, redirectUri } = req.body;
+      console.log('📝 Authorization code flow:', { hasCode: !!code, redirectUri });
 
       // Exchange authorization code for tokens
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -125,9 +127,19 @@ export const googleAuth = async (req, res) => {
       });
 
       const tokens = await tokenResponse.json();
+      console.log('🎫 Token exchange response:', {
+        hasIdToken: !!tokens.id_token,
+        hasAccessToken: !!tokens.access_token,
+        error: tokens.error,
+        errorDescription: tokens.error_description
+      });
 
       if (!tokens.id_token) {
-        return res.status(400).json({ message: 'Failed to get ID token from Google' });
+        console.error('❌ No ID token received:', tokens);
+        return res.status(400).json({
+          message: 'Failed to get ID token from Google',
+          details: tokens.error_description || 'No additional details'
+        });
       }
 
       // Verify the ID token
@@ -195,6 +207,7 @@ export const googleAuth = async (req, res) => {
 
     const token = generateToken(user._id);
 
+    console.log('✅ Google Auth successful:', { email: user.email, userId: user._id });
     res.json({
       _id: user._id,
       email: user.email,
@@ -204,8 +217,15 @@ export const googleAuth = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Google Auth Error:', error);
-    res.status(500).json({ message: 'Google authentication failed' });
+    console.error('❌ Google Auth Error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+    });
+    res.status(500).json({
+      message: 'Google authentication failed',
+      error: error.message
+    });
   }
 };
 

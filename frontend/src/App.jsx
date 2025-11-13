@@ -24,8 +24,10 @@ import Calendar from './pages/Calendar';
 import Invoices from './pages/Invoices';
 import Usage from './pages/Usage';
 import Projects from './pages/Projects';
+import ProjectNew from './pages/ProjectNew';
 import Home from './pages/Home';
 import GoogleCallback from './pages/GoogleCallback';
+import IntegrationCallback from './pages/IntegrationCallback';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -57,6 +59,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/auth/google/callback" element={<GoogleCallback />} />
+      <Route path="/auth/integration/callback" element={<IntegrationCallback />} />
 
       <Route
         path="/app"
@@ -81,6 +84,7 @@ function App() {
         <Route path="billing" element={<Billing />} />
         <Route path="usage" element={<Usage />} />
         <Route path="projects" element={<Projects />} />
+        <Route path="projects/new" element={<ProjectNew />} />
         <Route path="integrations" element={<Integrations />} />
         <Route path="calendar" element={<Calendar />} />
         <Route path="invoices" element={<Invoices />} />

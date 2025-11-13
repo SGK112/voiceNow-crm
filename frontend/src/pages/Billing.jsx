@@ -414,7 +414,7 @@ export default function Billing() {
           {PLANS.map((plan) => (
             <Card
               key={plan.name}
-              className={`relative ${plan.popular ? 'border-2 border-blue-500 shadow-lg' : ''} ${user?.plan === plan.name ? 'bg-blue-50' : ''}`}
+              className={`relative ${plan.popular ? 'border-2 border-blue-500 dark:border-blue-600 shadow-lg' : ''} ${user?.plan === plan.name ? 'bg-blue-50 dark:bg-blue-950/30' : ''}`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">

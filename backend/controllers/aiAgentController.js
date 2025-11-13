@@ -1,6 +1,7 @@
 import AIAgent from '../models/AIAgent.js';
 import User from '../models/User.js';
 import aiAgentService from '../services/aiAgentService.js';
+import ragService from '../services/ragService.js';
 
 /**
  * Get all AI agents for the authenticated user
@@ -223,20 +224,49 @@ export const chatWithAgent = async (req, res) => {
     // Check if user has enough tokens (implement token checking here)
     // TODO: Check user's token balance before proceeding
 
+    // Enhance prompt with RAG context if knowledge base is enabled
+    let enhancedAgent = agent;
+    let contextsUsed = [];
+
+    if (agent.knowledgeBase?.enabled) {
+      const lastUserMessage = messages[messages.length - 1];
+      if (lastUserMessage && lastUserMessage.role === 'user') {
+        const enhancementResult = await ragService.enhancePromptWithContext(
+          req.user._id,
+          agent.systemPrompt,
+          lastUserMessage.content,
+          {
+            contextLimit: 3,
+            threshold: 0.7
+          }
+        );
+
+        // Create enhanced agent with new system prompt
+        enhancedAgent = {
+          ...agent.toObject(),
+          systemPrompt: enhancementResult.enhancedPrompt
+        };
+        contextsUsed = enhancementResult.contextsUsed;
+      }
+    }
+
     // Handle streaming vs non-streaming
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      await aiAgentService.streamChat(agent, messages, (chunk) => {
+      await aiAgentService.streamChat(enhancedAgent, messages, (chunk) => {
         res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
       });
 
       res.write('data: [DONE]\n\n');
       res.end();
     } else {
-      const result = await aiAgentService.chat(agent, messages);
+      const result = await aiAgentService.chat(enhancedAgent, messages);
+
+      // Add context information to response
+      result.contextsUsed = contextsUsed;
 
       // Update analytics
       agent.analytics.totalMessages += 1;

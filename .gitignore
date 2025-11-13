@@ -60,3 +60,9 @@ temp/
 *.pem
 *.key
 .env.*.local
+
+# CRITICAL: Never commit these files!
+backend/.env
+frontend/.env
+.env
+**/.env

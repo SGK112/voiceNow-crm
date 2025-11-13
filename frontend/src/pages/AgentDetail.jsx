@@ -480,8 +480,8 @@ export default function AgentDetail() {
                       } ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center flex-shrink-0">
-                          <span className="text-primary-foreground font-bold text-sm">{voice.name[0]}</span>
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-sm">{voice.name[0]}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="font-medium text-foreground text-sm">{voice.name}</h5>

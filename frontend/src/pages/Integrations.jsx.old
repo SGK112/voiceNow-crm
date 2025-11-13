@@ -1,0 +1,455 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Alert } from '@/components/ui/alert';
+import {
+  Mail,
+  Calendar,
+  DollarSign,
+  Phone,
+  MessageSquare,
+  FileText,
+  Check,
+  AlertCircle,
+  HelpCircle,
+  ArrowRight,
+  Sparkles
+} from 'lucide-react';
+
+const AVAILABLE_INTEGRATIONS = [
+  {
+    id: 'gmail',
+    name: 'Email',
+    tagline: 'Send emails to leads',
+    description: 'Send follow-up emails, estimates, and invoices to your customers automatically',
+    icon: Mail,
+    color: 'blue',
+    benefits: [
+      'Automatic follow-up emails after calls',
+      'Send estimates and invoices',
+      'Keep customers updated on job status'
+    ],
+    setupTime: '2 minutes',
+    difficulty: 'Easy',
+    popular: true
+  },
+  {
+    id: 'google-calendar',
+    name: 'Calendar',
+    tagline: 'Book appointments automatically',
+    description: 'Let your AI agent schedule appointments directly in your Google Calendar',
+    icon: Calendar,
+    color: 'green',
+    benefits: [
+      'Customers can book appointments 24/7',
+      'No double-booking',
+      'Automatic reminders sent to you and customers'
+    ],
+    setupTime: '3 minutes',
+    difficulty: 'Easy',
+    popular: true
+  },
+  {
+    id: 'quickbooks',
+    name: 'QuickBooks',
+    tagline: 'Sync invoices & payments',
+    description: 'Keep your invoicing and payments in sync with QuickBooks',
+    icon: DollarSign,
+    color: 'yellow',
+    benefits: [
+      'Create invoices automatically',
+      'Track which customers paid',
+      'See your revenue in real-time'
+    ],
+    setupTime: '5 minutes',
+    difficulty: 'Medium',
+    popular: false
+  },
+  {
+    id: 'sms',
+    name: 'Text Messages',
+    tagline: 'Send appointment reminders',
+    description: 'Send text message reminders and updates to your customers',
+    icon: MessageSquare,
+    color: 'purple',
+    benefits: [
+      'Reminder texts before appointments',
+      'Updates about job status',
+      'Reduce no-shows'
+    ],
+    setupTime: '2 minutes',
+    difficulty: 'Easy',
+    popular: true
+  }
+];
+
+export default function Integrations() {
+  const queryClient = useQueryClient();
+  const [selectedIntegration, setSelectedIntegration] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
+
+  // Mock data - replace with actual API calls
+  const { data: integrations = [] } = useQuery({
+    queryKey: ['integrations'],
+    queryFn: () => Promise.resolve([
+      { id: 'gmail', status: 'connected', connectedAt: new Date().toISOString() }
+    ]),
+  });
+
+  const isConnected = (integrationId) => {
+    return integrations.some(i => i.id === integrationId && i.status === 'connected');
+  };
+
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty) {
+      case 'Easy': return 'text-green-600 bg-green-50 dark:bg-green-950/30';
+      case 'Medium': return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30';
+      case 'Hard': return 'text-red-600 bg-red-50 dark:bg-red-950/30';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-950/30';
+    }
+  };
+
+  const getColorGradient = (color) => {
+    switch (color) {
+      case 'blue': return 'bg-gradient-to-br from-blue-500 to-blue-600';
+      case 'green': return 'bg-gradient-to-br from-green-500 to-green-600';
+      case 'yellow': return 'bg-gradient-to-br from-yellow-500 to-yellow-600';
+      case 'purple': return 'bg-gradient-to-br from-purple-500 to-purple-600';
+      default: return 'bg-gradient-to-br from-gray-500 to-gray-600';
+    }
+  };
+
+  return (
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Connect Your Apps</h1>
+        <p className="text-lg text-muted-foreground">
+          Connect the tools you already use to make your AI voice agent even more powerful
+        </p>
+      </div>
+
+      {/* Help Banner */}
+      {showHelp && (
+        <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <div className="ml-2">
+            <p className="font-semibold text-blue-900 dark:text-blue-100">Need help getting started?</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+              These connections let your AI agent do more work for you automatically. Start with Email and Calendar -
+              they're the easiest and most useful for contractors.
+            </p>
+          </div>
+        </Alert>
+      )}
+
+      {/* Popular First */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold">Recommended for You</h2>
+            <p className="text-sm text-muted-foreground">Most contractors start with these</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowHelp(!showHelp)}
+            className="gap-2"
+          >
+            <HelpCircle className="h-4 w-4" />
+            {showHelp ? 'Hide' : 'Show'} Help
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {AVAILABLE_INTEGRATIONS.filter(i => i.popular).map((integration) => {
+            const Icon = integration.icon;
+            const connected = isConnected(integration.id);
+
+            return (
+              <Card key={integration.id} className={`relative ${connected ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20' : ''}`}>
+                {connected && (
+                  <div className="absolute -top-3 -right-3">
+                    <div className="bg-green-600 rounded-full p-2">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                )}
+
+                <CardHeader>
+                  <div className="flex items-start gap-4">
+                    <div className={`h-16 w-16 rounded-xl ${getColorGradient(integration.color)} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CardTitle className="text-xl">{integration.name}</CardTitle>
+                        {connected && <Badge className="bg-green-600">Connected</Badge>}
+                      </div>
+                      <p className="text-sm font-semibold text-primary mb-2">{integration.tagline}</p>
+                      <CardDescription className="text-base">{integration.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  {/* Setup Info */}
+                  <div className="flex items-center gap-4 pb-3 border-b">
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(integration.difficulty)}`}>
+                      {integration.difficulty} Setup
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      ⏱️ {integration.setupTime}
+                    </div>
+                  </div>
+
+                  {/* Benefits */}
+                  <div>
+                    <p className="text-sm font-semibold mb-3">What this does for you:</p>
+                    <ul className="space-y-2">
+                      {integration.benefits.map((benefit, idx) => (
+                        <li key={idx} className="text-sm flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Action Button */}
+                  <Button
+                    onClick={() => setSelectedIntegration(integration)}
+                    variant={connected ? 'outline' : 'default'}
+                    size="lg"
+                    className="w-full text-base"
+                    disabled={connected}
+                  >
+                    {connected ? (
+                      <>
+                        <Check className="h-5 w-5 mr-2" />
+                        Already Connected
+                      </>
+                    ) : (
+                      <>
+                        Connect {integration.name}
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* More Integrations */}
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Additional Connections</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {AVAILABLE_INTEGRATIONS.filter(i => !i.popular).map((integration) => {
+            const Icon = integration.icon;
+            const connected = isConnected(integration.id);
+
+            return (
+              <Card key={integration.id} className={connected ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20' : ''}>
+                <CardHeader>
+                  <div className="flex items-start gap-4">
+                    <div className={`h-14 w-14 rounded-xl ${getColorGradient(integration.color)} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className="h-7 w-7 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CardTitle>{integration.name}</CardTitle>
+                        {connected && <Badge className="bg-green-600">Connected</Badge>}
+                      </div>
+                      <p className="text-sm font-medium text-primary mb-1">{integration.tagline}</p>
+                      <CardDescription>{integration.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <span className={`px-2 py-1 rounded ${getDifficultyColor(integration.difficulty)} text-xs font-medium`}>
+                      {integration.difficulty}
+                    </span>
+                    <span>⏱️ {integration.setupTime}</span>
+                  </div>
+
+                  <Button
+                    onClick={() => setSelectedIntegration(integration)}
+                    variant={connected ? 'outline' : 'default'}
+                    className="w-full"
+                    disabled={connected}
+                  >
+                    {connected ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        Connect {integration.name}
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Why Connect Section */}
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            Why Connect These Apps?
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Save Time
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Your AI agent can automatically send emails, book appointments, and create invoices
+                while you focus on the actual work.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Never Miss a Lead
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Instant follow-ups and automated scheduling mean you'll capture more customers
+                even when you're on a job site.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Get Paid Faster
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Automatically send invoices and reminders so you get paid on time, every time.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Look Professional
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Quick responses and organized communication make you stand out from competitors.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Help Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5" />
+            Need Help?
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Don't worry if you're not tech-savvy - we'll guide you through every step. Most connections
+            take just a few minutes and we provide video tutorials for each one.
+          </p>
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm">
+              Watch Setup Videos
+            </Button>
+            <Button variant="outline" size="sm">
+              Contact Support
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Setup Modal would go here */}
+      {selectedIntegration && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`h-12 w-12 rounded-lg ${getColorGradient(selectedIntegration.color)} flex items-center justify-center`}>
+                    <selectedIntegration.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle>Connect {selectedIntegration.name}</CardTitle>
+                    <CardDescription>{selectedIntegration.setupTime} setup</CardDescription>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedIntegration(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+                <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <div className="ml-2">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    We'll walk you through this step-by-step
+                  </p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                    This usually takes about {selectedIntegration.setupTime}. You can always come back later if you need to.
+                  </p>
+                </div>
+              </Alert>
+
+              <div>
+                <h3 className="font-semibold mb-3">What you'll get:</h3>
+                <ul className="space-y-2">
+                  {selectedIntegration.benefits.map((benefit, idx) => (
+                    <li key={idx} className="text-sm flex items-start gap-2">
+                      <Check className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t">
+                <p className="text-sm font-medium">
+                  Setup instructions and connection form would appear here based on the selected integration.
+                </p>
+                <div className="flex gap-3">
+                  <Button size="lg" className="flex-1">
+                    Start Setup
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setSelectedIntegration(null)}
+                  >
+                    Maybe Later
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}

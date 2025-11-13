@@ -302,7 +302,7 @@ export default function Leads() {
             {/* Lead Information Card */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Lead Information</Label>
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900 rounded-lg">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold text-lg text-foreground">{selectedLead?.name}</p>

@@ -359,7 +359,7 @@ export default function Tasks() {
             <TableBody>
               {(tasks || []).length > 0 ? (
                 (tasks || []).map((task) => (
-                  <TableRow key={task._id} className={isOverdue(task) ? 'bg-red-50' : ''}>
+                  <TableRow key={task._id} className={isOverdue(task) ? 'bg-red-50 dark:bg-red-950/30' : ''}>
                     <TableCell className="font-medium">
                       {task.title}
                       {isOverdue(task) && (

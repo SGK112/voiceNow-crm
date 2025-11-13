@@ -169,6 +169,13 @@ const aiAgentSchema = new mongoose.Schema({
   enabled: {
     type: Boolean,
     default: false
+  },
+  archived: {
+    type: Boolean,
+    default: false
+  },
+  archivedAt: {
+    type: Date
   }
 }, {
   timestamps: true
@@ -176,6 +183,7 @@ const aiAgentSchema = new mongoose.Schema({
 
 // Indexes
 aiAgentSchema.index({ userId: 1, enabled: 1 });
+aiAgentSchema.index({ userId: 1, archived: 1 });
 aiAgentSchema.index({ 'deployment.apiKey': 1 });
 aiAgentSchema.index({ provider: 1, model: 1 });
 

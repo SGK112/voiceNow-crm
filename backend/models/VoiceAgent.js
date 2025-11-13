@@ -77,10 +77,18 @@ const voiceAgentSchema = new mongoose.Schema({
     conversionRate: { type: Number, default: 0 }
   }
 }, {
+  archived: {
+    type: Boolean,
+    default: false
+  },
+  archivedAt: {
+    type: Date
+  },
   timestamps: true
 });
 
 voiceAgentSchema.index({ userId: 1, type: 1 });
+voiceAgentSchema.index({ userId: 1, archived: 1 });
 
 const VoiceAgent = mongoose.model('VoiceAgent', voiceAgentSchema);
 

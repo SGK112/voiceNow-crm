@@ -1,8 +1,336 @@
-# Remodely.ai Integration Strategy
+# Remodely.ai Integration & Workflow Strategy
 
 ## Executive Summary
 
-This document outlines the integration strategy for Remodely.ai VoiceFlow CRM, including API architecture, third-party integrations, and white-label capabilities.
+**Mission**: Make it super easy for users to create workflows AND super easy for them to pay us.
+
+This document outlines:
+1. **Visual Workflow Builder** - Drag-and-drop automation with pre-configured nodes
+2. **OAuth Integration Hub** - 1-click connections to popular services
+3. **Monetization Strategy** - Clear pricing tiers optimized for conversion
+4. **API Architecture** - Technical implementation for partners and developers
+
+---
+
+## 🎯 PART 1: User-Facing Workflow System
+
+### The Problem We're Solving
+
+Current workflow tools are too complex:
+- Users need to understand webhooks, API keys, JSON
+- Too many empty fields and configuration options
+- No guidance on what to build
+- Hidden costs and confusing pricing
+
+### Our Solution: Pre-Configured Workflow Templates
+
+Users start with **working templates**, not blank canvases:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│           "Lead Capture & Qualification"                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  [Form Submit] ──→ [AI Qualify] ──→ [Add to Sheets]        │
+│        ↓                               ↓                     │
+│  [Slack Notify] ←─── [Hot Lead?] ←─── [Send SMS]          │
+│                                                              │
+│  Status: ✅ Active  |  Runs: 1,247  |  Success: 98.3%      │
+│                                                              │
+│  [▶ Test Now]  [⚙ Edit]  [📊 Analytics]  [⏸ Pause]        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Features**:
+- ✅ Pre-configured nodes (no empty fields!)
+- ✅ Visual flow (see what will happen)
+- ✅ 1-click OAuth (no API keys to copy)
+- ✅ Real-time testing (run workflows instantly)
+- ✅ Usage analytics (see what's working)
+
+### Visual Workflow Builder
+
+#### Node Types
+
+```
+TRIGGERS (When should this run?)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🟢 New Lead         When someone fills out a form
+🟢 New Email        When you receive an email
+🟢 Schedule         Every day/week/month at specific time
+🟢 Webhook          When external app sends data
+🟢 Manual           When you click "Run Now"
+
+AI AGENTS (Let AI handle it)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔵 Qualify Lead     Score and categorize leads
+🔵 Draft Email      Generate personalized email
+🔵 Extract Info     Pull data from text/emails
+🔵 Classify         Sort into categories
+🔵 Summarize        Create brief summary
+
+ACTIONS (Do something)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🟡 Send Email       Gmail, Outlook (OAuth)
+🟡 Send SMS         Twilio (already configured)
+🟡 Make Call        Voice agent call
+🟡 Create Lead      Add to CRM
+🟡 Update Sheet     Google Sheets row
+
+INTEGRATIONS (Connect your tools)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🟣 Google Sheets    Read/write spreadsheets
+🟣 Slack            Post messages, notifications
+🟣 HubSpot          Sync CRM data
+🟣 Calendar         Schedule appointments
+🟣 Zapier           5,000+ apps via webhooks
+
+LOGIC (Control flow)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🟠 If/Else          Branch based on conditions
+🟠 Delay            Wait before next step
+🟠 Filter           Only continue if criteria met
+🟠 Loop             Repeat for each item
+```
+
+### Pre-Built Templates (Launch with These)
+
+#### 1. **Lead Capture & Qualification** 🔥 Most Popular
+```
+Trigger: New form submission (webhook)
+↓
+AI Agent: Qualify lead (hot/warm/cold)
+↓
+If HOT → Slack notify sales team
+If WARM → Add to Google Sheets + Schedule follow-up
+If COLD → Add to email nurture campaign
+```
+
+#### 2. **Customer Support Automation**
+```
+Trigger: New email to support@
+↓
+AI Agent: Classify urgency (urgent/normal/low)
+↓
+If URGENT → SMS to on-call person
+Create ticket in HubSpot
+AI Agent: Draft response email
+↓
+Send email to customer
+```
+
+#### 3. **Appointment Booking**
+```
+Trigger: "Book a meeting" email
+↓
+AI Agent: Extract preferred dates/times
+↓
+Check Google Calendar availability
+↓
+Create calendar event
+↓
+Send confirmation SMS + email
+```
+
+#### 4. **E-commerce Order Follow-Up**
+```
+Trigger: New Shopify order (via Zapier)
+↓
+AI Agent: Generate thank you message
+↓
+Send thank you email
+↓
+Delay 7 days
+↓
+AI Agent: Generate review request
+↓
+Send SMS asking for review
+```
+
+#### 5. **Sales Pipeline Automation**
+```
+Trigger: Lead status changed to "Demo Scheduled"
+↓
+Create HubSpot deal
+↓
+Add to Google Sheet "Active Pipeline"
+↓
+Slack notify: "New demo with [Company]"
+↓
+Schedule reminder SMS 1 hour before demo
+```
+
+### OAuth Integration Hub
+
+#### One-Click Connection Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               Connected Integrations                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ✅ Google (Sheets, Gmail, Calendar)                        │
+│      Connected as: user@gmail.com                           │
+│      [Disconnect]  [Manage Permissions]                     │
+│                                                              │
+│  ✅ Slack                                                    │
+│      Workspace: Your Team                                    │
+│      [Disconnect]  [Change Workspace]                       │
+│                                                              │
+│  ❌ HubSpot (Not connected)                                 │
+│      [Connect HubSpot] ← Single click!                      │
+│                                                              │
+│  ❌ Salesforce (Not connected)                              │
+│      [Connect Salesforce]                                    │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Implementation**:
+```javascript
+// Frontend: Single button component
+<OAuthConnectButton
+  service="google"
+  scopes={['sheets', 'gmail', 'calendar']}
+  onSuccess={() => toast.success('Google connected!')}
+/>
+
+// Backend handles everything:
+// 1. Redirect to OAuth provider
+// 2. Exchange code for tokens
+// 3. Encrypt and store tokens
+// 4. Auto-refresh when expired
+```
+
+**Supported Services** (10-15 to start):
+- ✅ Google (Sheets, Gmail, Calendar, Drive)
+- ✅ Slack (Channels, Messages)
+- ✅ Microsoft (Outlook, Teams, OneDrive)
+- ✅ HubSpot (CRM, Contacts, Deals)
+- ✅ Salesforce (Leads, Opportunities)
+- ✅ Shopify (Orders, Customers)
+- ✅ Mailchimp (Lists, Campaigns)
+- ✅ Zoom (Meetings)
+- ✅ Calendly (Events)
+- ✅ Stripe (already integrated)
+
+### Monetization Strategy 💰
+
+#### Pricing Tiers (Optimized for Conversion)
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                       FREE TIER                              ║
+╠══════════════════════════════════════════════════════════════╣
+║  • 1 AI agent                                                ║
+║  • 100 workflow executions/month                             ║
+║  • 3 integrations (Google, Stripe, Twilio)                   ║
+║  • Basic templates only                                      ║
+║  • Community support                                         ║
+║                                                              ║
+║  💰 $0/month                                                 ║
+║  [Start Free] ← No credit card required                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════╗
+║                     PRO TIER ⭐ Most Popular                 ║
+╠══════════════════════════════════════════════════════════════╣
+║  • 10 AI agents                                              ║
+║  • 2,000 workflow executions/month                           ║
+║  • 15 integrations (all OAuth services)                      ║
+║  • All templates + custom workflows                          ║
+║  • Knowledge base (500MB)                                    ║
+║  • Priority support                                          ║
+║  • Custom branding                                           ║
+║                                                              ║
+║  💰 $49/month or $470/year (save $118)                       ║
+║  [Upgrade to Pro] ← 1-click upgrade                         ║
+╚══════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════╗
+║                   ENTERPRISE TIER 🚀                         ║
+╠══════════════════════════════════════════════════════════════╣
+║  • Unlimited AI agents                                       ║
+║  • Unlimited workflow executions                             ║
+║  • All integrations + Zapier bridge                          ║
+║  • Unlimited knowledge base                                  ║
+║  • White-label solution                                      ║
+║  • Dedicated account manager                                 ║
+║  • SLA & 24/7 support                                        ║
+║  • SSO & advanced security                                   ║
+║                                                              ║
+║  💰 $299/month or custom pricing                             ║
+║  [Contact Sales]                                             ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+#### Pay-As-You-Go Add-Ons
+
+Don't want to upgrade? Buy more as needed:
+
+| Add-On | Price | What You Get |
+|--------|-------|--------------|
+| **Workflow Pack** | $10/mo | +1,000 executions |
+| **AI Agent Pack** | $15/mo | +5 agents |
+| **Storage Pack** | $5/mo | +1GB knowledge base |
+| **Integration Pack** | $20/mo | +10 OAuth services |
+| **Zapier Bridge** | $30/mo | Access 5,000+ apps |
+
+#### Frictionless Upgrade Flow
+
+```
+Scenario: User hits workflow execution limit
+
+┌─────────────────────────────────────────────────────────────┐
+│  🚫 Workflow Paused                                          │
+│                                                              │
+│  You've used all 100 free workflow executions this month.   │
+│                                                              │
+│  Your workflows are paused until:                           │
+│  • Next billing cycle (resets Jan 1)                        │
+│  • OR upgrade now to resume immediately                     │
+│                                                              │
+│  [Upgrade to Pro - $49/mo] ← Resume all workflows          │
+│  [Buy 1,000 more - $10]    ← One-time boost                │
+│  [Wait until Jan 1]        ← Stay on free                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Features**:
+- ✅ Stripe already integrated
+- ✅ 1-click upgrades (no forms to fill)
+- ✅ Automatic pro-rated billing
+- ✅ No credit card for free tier
+- ✅ Usage meters show limit approaching
+- ✅ Annual plans get 20% discount
+
+#### Revenue Projections
+
+```
+Conservative (1,000 users):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+600 Free      × $0    = $0
+300 Pro       × $49   = $14,700/mo
+80 Enterprise × $299  = $23,920/mo
+20 Add-ons    × $15   = $300/mo
+──────────────────────────────────────────────────────────
+MRR: $38,920  |  ARR: $467,040
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Optimistic (5,000 users):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3,000 Free      × $0    = $0
+1,500 Pro       × $49   = $73,500/mo
+400 Enterprise  × $299  = $119,600/mo
+100 Add-ons     × $20   = $2,000/mo
+──────────────────────────────────────────────────────────
+MRR: $195,100  |  ARR: $2,341,200
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+## 🔧 PART 2: Technical Implementation (API & Architecture)
 
 ## 1. Core API Structure
 

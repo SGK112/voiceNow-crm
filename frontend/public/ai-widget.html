@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remodely.ai Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        /* Widget Container */
+        .ai-widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+        }
+
+        /* Professional Floating Button */
+        .ai-widget-button {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: #fff;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.1);
+            }
+        }
+
+        .ai-widget-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+            animation: none;
+        }
+
+        .ai-widget-button.hidden {
+            display: none;
+        }
+
+        .ai-widget-badge {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        /* Chat Window */
+        .ai-chat-window {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 400px;
+            height: 600px;
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-chat-window.active {
+            display: flex;
+        }
+
+        /* Header */
+        .ai-chat-header {
+            background: #000;
+            color: #fff;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-chat-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .ai-mode-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ai-mode-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-mode-btn.active {
+            background: #fff;
+            color: #000;
+        }
+
+        .ai-close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .ai-close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Chat Messages Area */
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .ai-message.user {
+            background: #000;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message.assistant {
+            background: #fff;
+            color: #000;
+            border: 1px solid #e5e7eb;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-message.system {
+            background: #f3f4f6;
+            color: #6b7280;
+            align-self: center;
+            font-size: 12px;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        /* Voice Mode */
+        .ai-voice-mode {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            gap: 24px;
+        }
+
+        .ai-voice-mode.active {
+            display: flex;
+        }
+
+        .ai-voice-visualizer {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ai-voice-visualizer:hover {
+            transform: scale(1.05);
+        }
+
+        .ai-voice-visualizer.listening {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }
+        }
+
+        .ai-voice-icon {
+            font-size: 48px;
+        }
+
+        .ai-voice-status {
+            text-align: center;
+        }
+
+        .ai-voice-status h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .ai-voice-status p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .ai-voice-transcript {
+            width: 100%;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            min-height: 60px;
+            font-size: 14px;
+            color: #374151;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Chat Input */
+        .ai-chat-input-container {
+            padding: 16px;
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 8px;
+        }
+
+        .ai-chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .ai-chat-input:focus {
+            border-color: #000;
+        }
+
+        .ai-send-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .ai-send-btn:hover {
+            opacity: 0.8;
+        }
+
+        .ai-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .ai-chat-window {
+                width: 100%;
+                height: 100vh;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+
+            .ai-widget-button {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ai-widget">
+        <!-- Floating Button -->
+        <button class="ai-widget-button" id="aiWidgetButton">
+            🎙️
+        </button>
+
+        <!-- Chat Window -->
+        <div class="ai-chat-window" id="aiChatWindow">
+            <!-- Header -->
+            <div class="ai-chat-header">
+                <h3>AI ASSISTANT</h3>
+                <div class="ai-header-actions">
+                    <div class="ai-mode-toggle">
+                        <button class="ai-mode-btn active" id="chatModeBtn">💬 Chat</button>
+                        <button class="ai-mode-btn" id="voiceModeBtn">🎙️ Voice</button>
+                    </div>
+                    <button class="ai-close-btn" id="aiCloseBtn">×</button>
+                </div>
+            </div>
+
+            <!-- Chat Mode -->
+            <div class="ai-chat-messages" id="chatMessages">
+                <div class="ai-message system">
+                    Welcome! Ask me anything about Remodely.ai
+                </div>
+            </div>
+
+            <!-- Voice Mode -->
+            <div class="ai-voice-mode" id="voiceMode">
+                <div class="ai-voice-visualizer" id="voiceVisualizer">
+                    <div class="ai-voice-icon">🎙️</div>
+                </div>
+                <div class="ai-voice-status">
+                    <h4 id="voiceStatus">Click to Talk</h4>
+                    <p id="voiceSubstatus">Voice conversation with AI</p>
+                </div>
+                <div class="ai-voice-transcript" id="voiceTranscript">
+                    Transcript will appear here...
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="ai-chat-input-container" id="chatInputContainer">
+                <input
+                    type="text"
+                    class="ai-chat-input"
+                    id="chatInput"
+                    placeholder="Type your message..."
+                >
+                <button class="ai-send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const AGENT_ID = 'agent_9701k9xptd0kfr383djx5zk7300x';
+        const API_BASE = 'https://api.elevenlabs.io';
+
+        // DOM Elements
+        const widgetButton = document.getElementById('aiWidgetButton');
+        const chatWindow = document.getElementById('aiChatWindow');
+        const closeBtn = document.getElementById('aiCloseBtn');
+        const chatModeBtn = document.getElementById('chatModeBtn');
+        const voiceModeBtn = document.getElementById('voiceModeBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const voiceMode = document.getElementById('voiceMode');
+        const chatInputContainer = document.getElementById('chatInputContainer');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceVisualizer = document.getElementById('voiceVisualizer');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceSubstatus = document.getElementById('voiceSubstatus');
+        const voiceTranscript = document.getElementById('voiceTranscript');
+
+        let currentMode = 'chat'; // 'chat' or 'voice'
+        let conversationHistory = [];
+
+        // Open/Close Widget
+        widgetButton.addEventListener('click', () => {
+            widgetButton.classList.add('hidden');
+            chatWindow.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            widgetButton.classList.remove('hidden');
+            chatWindow.classList.remove('active');
+        });
+
+        // Mode Toggle
+        chatModeBtn.addEventListener('click', () => {
+            currentMode = 'chat';
+            chatModeBtn.classList.add('active');
+            voiceModeBtn.classList.remove('active');
+            chatMessages.style.display = 'flex';
+            voiceMode.classList.remove('active');
+            chatInputContainer.style.display = 'flex';
+        });
+
+        voiceModeBtn.addEventListener('click', () => {
+            currentMode = 'voice';
+            voiceModeBtn.classList.add('active');
+            chatModeBtn.classList.remove('active');
+            chatMessages.style.display = 'none';
+            voiceMode.classList.add('active');
+            chatInputContainer.style.display = 'none';
+            initVoiceMode();
+        });
+
+        // Chat Mode Functions
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${role}`;
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (role !== 'system') {
+                conversationHistory.push({ role, content });
+            }
+        }
+
+        async function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            chatInput.value = '';
+            sendBtn.disabled = true;
+
+            try {
+                // Simulate AI response (replace with actual ElevenLabs API call)
+                const response = await fetchAIResponse(message);
+                addMessage('assistant', response);
+            } catch (error) {
+                addMessage('system', 'Sorry, something went wrong. Please try again.');
+                console.error('Chat error:', error);
+            } finally {
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        async function fetchAIResponse(message) {
+            // TODO: Implement actual ElevenLabs Conversational AI API call
+            // For now, return a placeholder
+            return "I'm the Remodely.ai assistant! I can help you learn about our AI voice agents, pricing, and features. What would you like to know?";
+        }
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendChatMessage);
+
+        // Voice Mode Functions
+        let isListening = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function initVoiceMode() {
+            voiceStatus.textContent = 'Click to Talk';
+            voiceSubstatus.textContent = 'Voice conversation with AI';
+            voiceTranscript.textContent = 'Transcript will appear here...';
+        }
+
+        voiceVisualizer.addEventListener('click', toggleVoiceListening);
+
+        async function toggleVoiceListening() {
+            if (!isListening) {
+                await startListening();
+            } else {
+                await stopListening();
+            }
+        }
+
+        async function startListening() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener('stop', async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await processVoiceInput(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                });
+
+                mediaRecorder.start();
+                isListening = true;
+                voiceVisualizer.classList.add('listening');
+                voiceStatus.textContent = 'Listening...';
+                voiceSubstatus.textContent = 'Click again to stop';
+            } catch (error) {
+                console.error('Microphone error:', error);
+                voiceTranscript.textContent = 'Error: Could not access microphone. Please grant permission.';
+            }
+        }
+
+        async function stopListening() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                isListening = false;
+                voiceVisualizer.classList.remove('listening');
+                voiceStatus.textContent = 'Processing...';
+                voiceSubstatus.textContent = 'Getting AI response';
+            }
+        }
+
+        async function processVoiceInput(audioBlob) {
+            try {
+                // TODO: Implement actual ElevenLabs Conversational AI voice processing
+                // This would involve:
+                // 1. Speech-to-text transcription
+                // 2. Send to ElevenLabs Conversational AI
+                // 3. Get text response
+                // 4. Play audio response
+
+                voiceTranscript.textContent = 'User: [Voice input detected]\n\nAI: I heard you! Voice processing will be implemented with ElevenLabs Conversational AI API.';
+                voiceStatus.textContent = 'Click to Talk';
+                voiceSubstatus.textContent = 'Voice conversation with AI';
+            } catch (error) {
+                console.error('Voice processing error:', error);
+                voiceTranscript.textContent = 'Error processing voice input. Please try again.';
+                voiceStatus.textContent = 'Click to Talk';
+                voiceSubstatus.textContent = 'Voice conversation with AI';
+            }
+        }
+
+        // Close when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!chatWindow.contains(event.target) &&
+                !widgetButton.contains(event.target) &&
+                chatWindow.classList.contains('active')) {
+                widgetButton.classList.remove('hidden');
+                chatWindow.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

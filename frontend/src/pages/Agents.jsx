@@ -425,7 +425,7 @@ export default function Agents() {
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                             <span className="text-white font-bold">{voice.name[0]}</span>
                           </div>
                           <div className="flex-1">
@@ -524,34 +524,34 @@ export default function Agents() {
                 {/* Performance Stats */}
                 <div className="space-y-3 mb-4">
                   {/* Total Calls */}
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-blue-600" />
+                      <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       <span className="text-sm font-medium text-muted-foreground">Total Calls</span>
                     </div>
-                    <span className="font-bold text-blue-600">{agent.performance?.totalCalls || 0}</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400">{agent.performance?.totalCalls || 0}</span>
                   </div>
 
                   {/* Success Rate */}
                   <div className={`flex items-center justify-between p-2 rounded-lg ${
-                    isHighPerformer ? 'bg-green-50' : 'bg-muted/50'
+                    isHighPerformer ? 'bg-green-50 dark:bg-green-950/30' : 'bg-muted/50'
                   }`}>
                     <div className="flex items-center gap-2">
-                      <TrendingUp className={`h-4 w-4 ${isHighPerformer ? 'text-green-600' : 'text-muted-foreground'}`} />
+                      <TrendingUp className={`h-4 w-4 ${isHighPerformer ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`} />
                       <span className="text-sm font-medium text-muted-foreground">Success Rate</span>
                     </div>
-                    <span className={`font-bold ${isHighPerformer ? 'text-green-600' : 'text-muted-foreground'}`}>
+                    <span className={`font-bold ${isHighPerformer ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                       {successRate.toFixed(1)}%
                     </span>
                   </div>
 
                   {/* Leads Generated */}
-                  <div className="flex items-center justify-between p-2 bg-purple-50 rounded-lg">
+                  <div className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-purple-600" />
+                      <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       <span className="text-sm font-medium text-muted-foreground">Leads</span>
                     </div>
-                    <span className="font-bold text-purple-600">{agent.performance?.leadsGenerated || 0}</span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400">{agent.performance?.leadsGenerated || 0}</span>
                   </div>
                 </div>
 
@@ -559,7 +559,7 @@ export default function Agents() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
                   onClick={() => navigate(`/app/agents/${agent._id}`)}
                 >
                   <BarChart className="h-4 w-4 mr-2" />
