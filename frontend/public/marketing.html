@@ -570,6 +570,58 @@
             font-size: 14px;
         }
 
+        /* AI Assistant Widget */
+        .ai-assistant-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border: none;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .ai-assistant-trigger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+        }
+
+        .ai-assistant-trigger.active {
+            background: #ef4444;
+        }
+
+        .ai-assistant-container {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 400px;
+            height: 600px;
+            z-index: 998;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-assistant-container.active {
+            transform: translateX(0);
+        }
+
+        /* Hide default widget positioning */
+        elevenlabs-convai {
+            position: static !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .navbar-container {
@@ -622,6 +674,16 @@
             }
             .cta-section p {
                 font-size: 18px;
+            }
+            .ai-assistant-container {
+                width: 100%;
+                height: 100%;
+            }
+            .ai-assistant-trigger {
+                width: 56px;
+                height: 56px;
+                bottom: 20px;
+                right: 20px;
             }
         }
     </style>
@@ -846,8 +908,47 @@
         <p>© 2025 Remodely.ai. All rights reserved.</p>
     </footer>
 
-    <!-- Remodely.ai Interactive Assistant - Try our AI now! -->
+    <!-- AI Assistant Toggle Button -->
+    <button class="ai-assistant-trigger" id="aiAssistantTrigger" aria-label="Toggle AI Assistant">
+        💬
+    </button>
+
+    <!-- AI Assistant Widget Container -->
+    <div class="ai-assistant-container" id="aiAssistantContainer">
+        <elevenlabs-convai agent-id="agent_9801k9vcqzcsen3tnjefzwvy0yp9"></elevenlabs-convai>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
-    <elevenlabs-convai agent-id="agent_9801k9vcqzcsen3tnjefzwvy0yp9"></elevenlabs-convai>
+    <script>
+        // Toggle AI Assistant
+        const trigger = document.getElementById('aiAssistantTrigger');
+        const container = document.getElementById('aiAssistantContainer');
+
+        trigger.addEventListener('click', function() {
+            const isActive = container.classList.contains('active');
+
+            if (isActive) {
+                // Close
+                container.classList.remove('active');
+                trigger.classList.remove('active');
+                trigger.textContent = '💬';
+            } else {
+                // Open
+                container.classList.add('active');
+                trigger.classList.add('active');
+                trigger.textContent = '✕';
+            }
+        });
+
+        // Close when clicking outside (optional)
+        document.addEventListener('click', function(event) {
+            if (!container.contains(event.target) && event.target !== trigger && container.classList.contains('active')) {
+                container.classList.remove('active');
+                trigger.classList.remove('active');
+                trigger.textContent = '💬';
+            }
+        });
+    </script>
 </body>
 </html>
