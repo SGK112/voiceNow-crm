@@ -1883,6 +1883,19 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* Voice status message styles */
+        .voice-status-message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #86efac;
+        }
+
+        .voice-status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+        }
     </style>
 </head>
 <body>
@@ -2281,22 +2294,43 @@
 
         <!-- Voice Mode -->
         <div class="voice-mode-container" id="voiceModeContainer">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                <!-- Status Text (Above Button) -->
-                <div class="voice-status" style="margin-bottom: 40px; text-align: center;">
-                    <div class="voice-status-title" id="voiceStatusTitle">Initializing...</div>
-                    <div class="voice-status-text" id="voiceStatusText">Please wait while we connect to the voice AI agent</div>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px 20px;">
+                <!-- Status Text -->
+                <div class="voice-status" style="margin-bottom: 40px; text-align: center; max-width: 400px;">
+                    <div class="voice-status-title" id="voiceStatusTitle">Get a Live Voice Demo</div>
+                    <div class="voice-status-text" id="voiceStatusText" style="font-size: 15px; line-height: 1.6;">
+                        Enter your phone number and we'll call you right now with a live AI agent demo!
+                    </div>
                 </div>
 
-                <!-- Voice Button (Centered) -->
-                <button id="voiceButton" class="voice-button" disabled>
-                    🎙️
-                </button>
-
-                <!-- Status Badge (Below Button) -->
-                <div id="voiceStatusBadge" class="voice-status-badge loading" style="margin-top: 24px;">
-                    ⏳ Loading Voice AI...
+                <!-- Phone Input Form -->
+                <div id="phoneInputForm" style="width: 100%; max-width: 400px;">
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <input
+                            type="tel"
+                            id="demoPhoneInput"
+                            placeholder="Enter your phone number"
+                            style="flex: 1; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; outline: none; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='#3b82f6'"
+                            onblur="this.style.borderColor='#e5e7eb'"
+                        />
+                        <button
+                            id="requestCallBtn"
+                            class="voice-button"
+                            style="padding: 14px 24px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; white-space: nowrap;"
+                        >
+                            📞 Call Me
+                        </button>
+                    </div>
+                    <p style="font-size: 13px; color: #64748b; text-align: center; margin: 0;">
+                        <span style="color: #3b82f6; font-weight: 800;">✓</span> Works on any phone &nbsp;•&nbsp;
+                        <span style="color: #3b82f6; font-weight: 800;">✓</span> No app needed &nbsp;•&nbsp;
+                        <span style="color: #3b82f6; font-weight: 800;">✓</span> Instant callback
+                    </p>
                 </div>
+
+                <!-- Status Message (Hidden initially) -->
+                <div id="voiceStatusMessage" style="display: none; margin-top: 24px; padding: 16px 24px; border-radius: 12px; text-align: center; font-weight: 500;"></div>
             </div>
         </div>
 
@@ -2712,184 +2746,73 @@
             }
         });
 
-        // Voice functionality handled by ElevenLabs widget
-        // Widget shows/hides when user clicks Voice AI tab
+        // Voice demo via phone call
+        const requestCallBtn = document.getElementById('requestCallBtn');
+        const demoPhoneInput = document.getElementById('demoPhoneInput');
+        const voiceStatusMessage = document.getElementById('voiceStatusMessage');
 
-        // Wait for ElevenLabs widget to be ready
-        let widgetReady = false;
-        let checkAttempts = 0;
-        const maxAttempts = 20; // 10 seconds total
+        // Handle phone call request
+        requestCallBtn.addEventListener('click', async () => {
+            const phoneNumber = demoPhoneInput.value.trim();
 
-        // Get voice UI elements
-        const voiceButton = document.getElementById('voiceButton');
-        const voiceStatusBadge = document.getElementById('voiceStatusBadge');
-        const voiceStatusTitle = document.getElementById('voiceStatusTitle');
-        const voiceStatusText = document.getElementById('voiceStatusText');
-        let elevenLabsButton = null;
-        let isVoiceActive = false;
-
-        function updateVoiceStatus(status) {
-            switch(status) {
-                case 'loading':
-                    voiceStatusBadge.className = 'voice-status-badge loading';
-                    voiceStatusBadge.textContent = '⏳ Loading Voice AI...';
-                    voiceButton.disabled = true;
-                    voiceButton.classList.remove('ready', 'active');
-                    voiceStatusTitle.textContent = 'Initializing...';
-                    voiceStatusText.textContent = 'Please wait while we connect to the voice AI agent';
-                    break;
-                case 'ready':
-                    voiceStatusBadge.className = 'voice-status-badge ready';
-                    voiceStatusBadge.innerHTML = '<span style="color: #3b82f6; font-weight: 800;">✓</span> Ready to Talk';
-                    voiceButton.disabled = false;
-                    voiceButton.classList.add('ready');
-                    voiceButton.classList.remove('active');
-                    voiceStatusTitle.textContent = 'Voice AI Ready';
-                    voiceStatusText.textContent = 'Click the microphone to start talking with our AI agent';
-                    break;
-                case 'active':
-                    voiceStatusBadge.className = 'voice-status-badge active';
-                    voiceStatusBadge.textContent = '🎙️ Listening...';
-                    voiceButton.classList.add('active');
-                    voiceButton.classList.remove('ready');
-                    voiceStatusTitle.textContent = 'Voice Chat Active';
-                    voiceStatusText.textContent = 'AI is listening and responding. Click microphone to stop.';
-                    break;
-                case 'error':
-                    voiceStatusBadge.className = 'voice-status-badge error';
-                    voiceStatusBadge.textContent = '⚠️ Connection Failed';
-                    voiceButton.disabled = true;
-                    voiceButton.classList.remove('ready', 'active');
-                    voiceStatusTitle.textContent = 'Unable to Connect';
-                    voiceStatusText.textContent = 'Voice AI is unavailable. Please try chat mode or refresh the page.';
-                    break;
+            // Basic validation
+            if (!phoneNumber) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter your phone number';
+                return;
             }
-        }
 
-        // Handle voice button click - toggle listening
-        voiceButton.addEventListener('click', async () => {
-            console.log('Voice button clicked, elevenLabsButton:', elevenLabsButton);
+            // Validate phone number format (basic check)
+            const digitsOnly = phoneNumber.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid phone number';
+                return;
+            }
 
-            if (elevenLabsButton) {
-                if (!isVoiceActive) {
-                    // Check microphone permission on mobile
-                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                        try {
-                            console.log('Requesting microphone permission...');
-                            await navigator.mediaDevices.getUserMedia({ audio: true });
-                            console.log('Microphone permission granted');
-                        } catch (err) {
-                            console.error('Microphone permission denied:', err);
-                            alert('Please allow microphone access to use voice chat. Check your browser settings.');
-                            return;
-                        }
-                    }
+            // Show loading state
+            requestCallBtn.disabled = true;
+            requestCallBtn.textContent = '📞 Calling...';
+            voiceStatusMessage.style.display = 'block';
+            voiceStatusMessage.className = 'voice-status-message';
+            voiceStatusMessage.textContent = '⏳ Initiating call...';
 
-                    // Start listening
-                    console.log('Starting voice chat...');
-                    elevenLabsButton.click();
-                    isVoiceActive = true;
-                    voiceButton.innerHTML = '⏹️'; // Stop icon
-                    updateVoiceStatus('active');
+            try {
+                const response = await fetch('/api/public/voice-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    voiceStatusMessage.className = 'voice-status-message success';
+                    voiceStatusMessage.textContent = '✅ Call initiated! You should receive a call shortly from our AI agent.';
+                    demoPhoneInput.value = '';
                 } else {
-                    // Stop listening - click the button again to close the widget
-                    console.log('Stopping voice chat...');
-                    elevenLabsButton.click();
-                    isVoiceActive = false;
-                    voiceButton.innerHTML = '🎙️'; // Microphone icon
-                    updateVoiceStatus('ready');
+                    throw new Error(data.message || 'Failed to initiate call');
                 }
-            } else {
-                console.error('ElevenLabs button not found!');
-                updateVoiceStatus('error');
+            } catch (error) {
+                console.error('Voice demo error:', error);
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ ' + (error.message || 'Failed to initiate call. Please try again.');
+            } finally {
+                requestCallBtn.disabled = false;
+                requestCallBtn.textContent = '📞 Call Me';
             }
         });
 
-        function initializeElevenLabs() {
-            console.log('Starting ElevenLabs widget initialization...');
-            console.log('User Agent:', navigator.userAgent);
-            console.log('Is Mobile Safari:', /iPhone|iPad|iPod/.test(navigator.userAgent));
-
-            updateVoiceStatus('loading');
-
-            const checkWidget = setInterval(() => {
-                checkAttempts++;
-                const widget = document.querySelector('elevenlabs-convai');
-
-                if (widget) {
-                    console.log(`Attempt ${checkAttempts}: Widget element found...`);
-                    console.log('Widget:', widget);
-                    console.log('Widget shadowRoot:', widget.shadowRoot);
-
-                    // Check if shadow DOM is ready (this is key for web components)
-                    if (widget.shadowRoot) {
-                        const button = widget.shadowRoot.querySelector('button');
-                        console.log('Button in shadow DOM:', button);
-
-                        if (button) {
-                            console.log('✓ ElevenLabs widget fully loaded with shadow DOM!');
-                            console.log('🎙️ Voice chat is now available!');
-                            widgetReady = true;
-                            elevenLabsButton = button;
-                            clearInterval(checkWidget);
-
-                            updateVoiceStatus('ready');
-
-                            // On mobile, show a helpful tip
-                            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                                console.log('📱 Mobile device detected - user may need to grant microphone permission');
-                            }
-
-                            return;
-                        } else {
-                            console.log('Shadow DOM found but button not ready yet...');
-                        }
-                    } else {
-                        console.log('Shadow DOM not yet initialized...');
-                    }
-                } else {
-                    console.log(`Attempt ${checkAttempts}: Widget element not found yet...`);
-                }
-
-                // Stop after max attempts
-                if (checkAttempts >= maxAttempts) {
-                    clearInterval(checkWidget);
-                    if (!widgetReady) {
-                        console.error('⚠️ ElevenLabs widget failed to load after 10 seconds');
-                        console.log('Please check: 1) Agent ID is correct, 2) Agent is public, 3) Internet connection');
-                        console.log('4) Script loaded from: https://elevenlabs.io/convai-widget/index.js');
-                        console.log('5) Mobile Safari may have restrictions on voice widgets');
-
-                        // Show error with helpful message for mobile users
-                        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                            voiceStatusText.textContent = 'Voice AI may not work on iOS Safari. Please try the text chat or use a desktop browser.';
-                        }
-
-                        updateVoiceStatus('error');
-                    }
-                }
-            }, 500);
-        }
-
-        // Initialize ElevenLabs - try immediately and on load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeElevenLabs);
-        } else {
-            initializeElevenLabs();
-        }
-
-        // Also try on full window load as backup
-        window.addEventListener('load', () => {
-            if (!widgetReady) {
-                console.log('Retrying widget initialization on window load...');
-                checkAttempts = 0;
-                initializeElevenLabs();
+        // Allow Enter key to submit
+        demoPhoneInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                requestCallBtn.click();
             }
         });
     </script>
-
-    <!-- ElevenLabs Conversational AI Widget -->
-    <elevenlabs-convai agent-id="agent_9701k9xptd0kfr383djx5zk7300x"></elevenlabs-convai>
-    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 </body>
 </html>
