@@ -638,8 +638,9 @@ export const requestVoiceDemo = async (req, res) => {
       formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
     }
 
-    // Use the lead gen agent for demo calls
-    const demoAgentId = process.env.ELEVENLABS_LEAD_GEN_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+    // Use the demo agent (the one from marketing page widget)
+    // Note: Using the fallback agent ID as the primary since ELEVENLABS_LEAD_GEN_AGENT_ID may not exist
+    const demoAgentId = 'agent_9701k9xptd0kfr383djx5zk7300x';
     const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
 
     if (!agentPhoneNumberId) {
