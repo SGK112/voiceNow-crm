@@ -2767,26 +2767,49 @@
         }
 
         // Handle voice button click - toggle listening
-        voiceButton.addEventListener('click', () => {
+        voiceButton.addEventListener('click', async () => {
+            console.log('Voice button clicked, elevenLabsButton:', elevenLabsButton);
+
             if (elevenLabsButton) {
                 if (!isVoiceActive) {
+                    // Check microphone permission on mobile
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        try {
+                            console.log('Requesting microphone permission...');
+                            await navigator.mediaDevices.getUserMedia({ audio: true });
+                            console.log('Microphone permission granted');
+                        } catch (err) {
+                            console.error('Microphone permission denied:', err);
+                            alert('Please allow microphone access to use voice chat. Check your browser settings.');
+                            return;
+                        }
+                    }
+
                     // Start listening
+                    console.log('Starting voice chat...');
                     elevenLabsButton.click();
                     isVoiceActive = true;
                     voiceButton.innerHTML = '⏹️'; // Stop icon
                     updateVoiceStatus('active');
                 } else {
                     // Stop listening - click the button again to close the widget
+                    console.log('Stopping voice chat...');
                     elevenLabsButton.click();
                     isVoiceActive = false;
                     voiceButton.innerHTML = '🎙️'; // Microphone icon
                     updateVoiceStatus('ready');
                 }
+            } else {
+                console.error('ElevenLabs button not found!');
+                updateVoiceStatus('error');
             }
         });
 
         function initializeElevenLabs() {
             console.log('Starting ElevenLabs widget initialization...');
+            console.log('User Agent:', navigator.userAgent);
+            console.log('Is Mobile Safari:', /iPhone|iPad|iPod/.test(navigator.userAgent));
+
             updateVoiceStatus('loading');
 
             const checkWidget = setInterval(() => {
@@ -2795,10 +2818,14 @@
 
                 if (widget) {
                     console.log(`Attempt ${checkAttempts}: Widget element found...`);
+                    console.log('Widget:', widget);
+                    console.log('Widget shadowRoot:', widget.shadowRoot);
 
                     // Check if shadow DOM is ready (this is key for web components)
                     if (widget.shadowRoot) {
                         const button = widget.shadowRoot.querySelector('button');
+                        console.log('Button in shadow DOM:', button);
+
                         if (button) {
                             console.log('✓ ElevenLabs widget fully loaded with shadow DOM!');
                             console.log('🎙️ Voice chat is now available!');
@@ -2807,6 +2834,12 @@
                             clearInterval(checkWidget);
 
                             updateVoiceStatus('ready');
+
+                            // On mobile, show a helpful tip
+                            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                                console.log('📱 Mobile device detected - user may need to grant microphone permission');
+                            }
+
                             return;
                         } else {
                             console.log('Shadow DOM found but button not ready yet...');
@@ -2825,6 +2858,12 @@
                         console.error('⚠️ ElevenLabs widget failed to load after 10 seconds');
                         console.log('Please check: 1) Agent ID is correct, 2) Agent is public, 3) Internet connection');
                         console.log('4) Script loaded from: https://elevenlabs.io/convai-widget/index.js');
+                        console.log('5) Mobile Safari may have restrictions on voice widgets');
+
+                        // Show error with helpful message for mobile users
+                        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                            voiceStatusText.textContent = 'Voice AI may not work on iOS Safari. Please try the text chat or use a desktop browser.';
+                        }
 
                         updateVoiceStatus('error');
                     }
