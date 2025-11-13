@@ -25,7 +25,9 @@ export const connectRedis = async () => {
           host,
           port,
           tls: true,
-          rejectUnauthorized: false
+          rejectUnauthorized: false,
+          connectTimeout: 5000, // 5 second timeout
+          reconnectStrategy: false // Don't auto-reconnect on failure
         }
       };
 
@@ -36,12 +38,27 @@ export const connectRedis = async () => {
     // Otherwise use REDIS_URL
     else if (process.env.REDIS_URL) {
       console.log('Connecting to Redis via URL');
-      redisConfig = { url: process.env.REDIS_URL };
+      redisConfig = {
+        url: process.env.REDIS_URL,
+        socket: {
+          connectTimeout: 5000, // 5 second timeout
+          reconnectStrategy: false // Don't auto-reconnect on failure
+        }
+      };
     }
 
     redisClient = createClient(redisConfig);
 
-    redisClient.on('error', (err) => console.log('Redis Client Error', err));
+    // Suppress repeated error messages - log once only
+    let errorLogged = false;
+    redisClient.on('error', (err) => {
+      if (!errorLogged) {
+        console.log('⚠️  Redis Client Error:', err.message);
+        console.log('Continuing without Redis (caching disabled)');
+        errorLogged = true;
+      }
+    });
+
     redisClient.on('connect', () => console.log('✅ Redis Connected'));
 
     await redisClient.connect();
