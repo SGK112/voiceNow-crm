@@ -1896,6 +1896,62 @@
             color: #991b1b;
             border: 2px solid #fca5a5;
         }
+
+        /* Voice demo form styles */
+        .demo-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .demo-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .demo-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .demo-submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .demo-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .demo-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .demo-submit-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -2294,43 +2350,55 @@
 
         <!-- Voice Mode -->
         <div class="voice-mode-container" id="voiceModeContainer">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px 20px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 30px 20px;">
                 <!-- Status Text -->
-                <div class="voice-status" style="margin-bottom: 40px; text-align: center; max-width: 400px;">
-                    <div class="voice-status-title" id="voiceStatusTitle">Get a Live Voice Demo</div>
-                    <div class="voice-status-text" id="voiceStatusText" style="font-size: 15px; line-height: 1.6;">
-                        Enter your phone number and we'll call you right now with a live AI agent demo!
+                <div class="voice-status" style="margin-bottom: 24px; text-align: center;">
+                    <div class="voice-status-title" id="voiceStatusTitle" style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+                        Get a Live Voice Demo
+                    </div>
+                    <div class="voice-status-text" id="voiceStatusText" style="font-size: 14px; line-height: 1.6; color: #64748b;">
+                        Experience our AI voice agent! Enter your details and we'll call you instantly.
                     </div>
                 </div>
 
-                <!-- Phone Input Form -->
-                <div id="phoneInputForm" style="width: 100%; max-width: 400px;">
-                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <!-- Demo Request Form -->
+                <div id="voiceDemoForm" style="width: 100%; max-width: 420px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <input
+                            type="text"
+                            id="demoNameInput"
+                            placeholder="Your Name"
+                            class="demo-input"
+                        />
+                        <input
+                            type="email"
+                            id="demoEmailInput"
+                            placeholder="Email Address (optional)"
+                            class="demo-input"
+                        />
                         <input
                             type="tel"
                             id="demoPhoneInput"
-                            placeholder="Enter your phone number"
-                            style="flex: 1; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; outline: none; transition: border-color 0.2s;"
-                            onfocus="this.style.borderColor='#3b82f6'"
-                            onblur="this.style.borderColor='#e5e7eb'"
+                            placeholder="Phone Number (e.g., +1 555-123-4567)"
+                            class="demo-input"
                         />
                         <button
                             id="requestCallBtn"
-                            class="voice-button"
-                            style="padding: 14px 24px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; white-space: nowrap;"
+                            class="demo-submit-btn"
                         >
-                            📞 Call Me
+                            <span id="btnIcon">📞</span>
+                            <span id="btnText">Call Me Now</span>
                         </button>
                     </div>
-                    <p style="font-size: 13px; color: #64748b; text-align: center; margin: 0;">
-                        <span style="color: #3b82f6; font-weight: 800;">✓</span> Works on any phone &nbsp;•&nbsp;
-                        <span style="color: #3b82f6; font-weight: 800;">✓</span> No app needed &nbsp;•&nbsp;
-                        <span style="color: #3b82f6; font-weight: 800;">✓</span> Instant callback
+                    <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 16px; line-height: 1.5;">
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> Instant callback &nbsp;
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> No app needed &nbsp;
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> Works on any phone
                     </p>
                 </div>
 
                 <!-- Status Message (Hidden initially) -->
-                <div id="voiceStatusMessage" style="display: none; margin-top: 24px; padding: 16px 24px; border-radius: 12px; text-align: center; font-weight: 500;"></div>
+                <div id="voiceStatusMessage" style="display: none; margin-top: 20px; padding: 14px 20px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; max-width: 420px; width: 100%;"></div>
             </div>
         </div>
 
@@ -2746,20 +2814,35 @@
             }
         });
 
-        // Voice demo via phone call
+        // Voice demo via phone call with user info collection
         const requestCallBtn = document.getElementById('requestCallBtn');
+        const demoNameInput = document.getElementById('demoNameInput');
+        const demoEmailInput = document.getElementById('demoEmailInput');
         const demoPhoneInput = document.getElementById('demoPhoneInput');
         const voiceStatusMessage = document.getElementById('voiceStatusMessage');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnText = document.getElementById('btnText');
 
         // Handle phone call request
         requestCallBtn.addEventListener('click', async () => {
+            const name = demoNameInput.value.trim();
+            const email = demoEmailInput.value.trim();
             const phoneNumber = demoPhoneInput.value.trim();
 
-            // Basic validation
+            // Validate required fields
+            if (!name) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter your name';
+                demoNameInput.focus();
+                return;
+            }
+
             if (!phoneNumber) {
                 voiceStatusMessage.style.display = 'block';
                 voiceStatusMessage.className = 'voice-status-message error';
                 voiceStatusMessage.textContent = '⚠️ Please enter your phone number';
+                demoPhoneInput.focus();
                 return;
             }
 
@@ -2768,16 +2851,27 @@
             if (digitsOnly.length < 10) {
                 voiceStatusMessage.style.display = 'block';
                 voiceStatusMessage.className = 'voice-status-message error';
-                voiceStatusMessage.textContent = '⚠️ Please enter a valid phone number';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid phone number (at least 10 digits)';
+                demoPhoneInput.focus();
+                return;
+            }
+
+            // Validate email if provided
+            if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid email address';
+                demoEmailInput.focus();
                 return;
             }
 
             // Show loading state
             requestCallBtn.disabled = true;
-            requestCallBtn.textContent = '📞 Calling...';
+            btnIcon.textContent = '⏳';
+            btnText.textContent = 'Calling...';
             voiceStatusMessage.style.display = 'block';
             voiceStatusMessage.className = 'voice-status-message';
-            voiceStatusMessage.textContent = '⏳ Initiating call...';
+            voiceStatusMessage.textContent = `⏳ Initiating call to ${name}...`;
 
             try {
                 const response = await fetch('/api/public/voice-demo', {
@@ -2785,14 +2879,22 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ phoneNumber })
+                    body: JSON.stringify({
+                        phoneNumber,
+                        name,
+                        email: email || undefined
+                    })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
                     voiceStatusMessage.className = 'voice-status-message success';
-                    voiceStatusMessage.textContent = '✅ Call initiated! You should receive a call shortly from our AI agent.';
+                    voiceStatusMessage.textContent = `✅ Success! Calling ${name} now. You should receive a call from our AI agent in a few seconds!`;
+
+                    // Clear form
+                    demoNameInput.value = '';
+                    demoEmailInput.value = '';
                     demoPhoneInput.value = '';
                 } else {
                     throw new Error(data.message || 'Failed to initiate call');
@@ -2803,15 +2905,18 @@
                 voiceStatusMessage.textContent = '⚠️ ' + (error.message || 'Failed to initiate call. Please try again.');
             } finally {
                 requestCallBtn.disabled = false;
-                requestCallBtn.textContent = '📞 Call Me';
+                btnIcon.textContent = '📞';
+                btnText.textContent = 'Call Me Now';
             }
         });
 
         // Allow Enter key to submit
-        demoPhoneInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                requestCallBtn.click();
-            }
+        [demoNameInput, demoEmailInput, demoPhoneInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    requestCallBtn.click();
+                }
+            });
         });
     </script>
 </body>

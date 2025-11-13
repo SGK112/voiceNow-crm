@@ -621,13 +621,13 @@ This inquiry was automatically captured by VoiceFlow CRM
 // Request a voice demo call using ElevenLabs batch calling
 export const requestVoiceDemo = async (req, res) => {
   try {
-    const { phoneNumber } = req.body;
+    const { phoneNumber, name, email } = req.body;
 
-    // Validate phone number
-    if (!phoneNumber) {
+    // Validate required fields
+    if (!phoneNumber || !name) {
       return res.status(400).json({
-        error: 'Phone number is required',
-        message: 'Please provide a valid phone number to receive the demo call.'
+        error: 'Phone number and name are required',
+        message: 'Please provide your name and phone number to receive the demo call.'
       });
     }
 
@@ -638,7 +638,7 @@ export const requestVoiceDemo = async (req, res) => {
       formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
     }
 
-    // Use the prebuilt support agent for demo (or whichever agent you want for demo)
+    // Use the lead gen agent for demo calls
     const demoAgentId = process.env.ELEVENLABS_LEAD_GEN_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
     const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
 
@@ -649,7 +649,19 @@ export const requestVoiceDemo = async (req, res) => {
       });
     }
 
-    console.log(`📞 Initiating ElevenLabs voice demo call to ${formattedNumber}`);
+    console.log(`📞 Initiating ElevenLabs voice demo call to ${name} at ${formattedNumber}`);
+
+    // Personalize the call with the user's name
+    const dynamicVariables = {
+      lead_name: name,
+      lead_phone: formattedNumber,
+      lead_email: email || '',
+      company_name: 'Remodely.ai',
+      demo_type: 'marketing_website_demo'
+    };
+
+    // Personalized first message
+    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo of our AI voice agent. I'm Sarah, and I'm here to show you how our voice AI can help automate your business communications. How are you doing today?`;
 
     // Initiate call using ElevenLabs batch calling (same as CRM does)
     const callData = await elevenLabsService.initiateCall(
@@ -657,12 +669,34 @@ export const requestVoiceDemo = async (req, res) => {
       formattedNumber,
       agentPhoneNumberId,
       null, // no webhook for public demo
-      {}, // no dynamic variables
+      dynamicVariables,
       null, // use agent's default script
-      null // use agent's default first message
+      personalizedFirstMessage
     );
 
     console.log(`✅ Voice demo call initiated:`, callData.id || callData.call_id);
+
+    // Send email notification to sales team if email provided
+    if (email) {
+      try {
+        await emailService.sendEmail({
+          to: process.env.SMTP_FROM_EMAIL,
+          subject: `New Voice Demo Request - ${name}`,
+          text: `New voice demo request received:\n\nName: ${name}\nEmail: ${email}\nPhone: ${formattedNumber}\nCall ID: ${callData.id || callData.call_id}\n\nDemo call initiated via ElevenLabs.`,
+          html: `
+            <h2>New Voice Demo Request</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${formattedNumber}</p>
+            <p><strong>Call ID:</strong> ${callData.id || callData.call_id}</p>
+            <p><em>Demo call initiated via ElevenLabs batch calling.</em></p>
+          `
+        });
+      } catch (emailError) {
+        console.error('Failed to send demo notification email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
 
     res.json({
       success: true,
