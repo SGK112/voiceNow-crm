@@ -1323,6 +1323,34 @@
             cursor: not-allowed;
         }
 
+        /* Suggestion chips */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+        }
+
+        .suggestion-chip {
+            padding: 8px 14px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .suggestion-chip:hover {
+            background: #e0e7ff;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
         /* Hide ElevenLabs widget */
         elevenlabs-convai {
             display: none !important;
@@ -1420,7 +1448,7 @@
             <a href="/" class="logo">
                 <span class="logo-icon">🎙️</span>
                 <div class="logo-text-container">
-                    <span class="logo-text">Remodely AI</span>
+                    <span class="logo-text">Remodely</span>
                     <span class="logo-subtitle">VoiceFlow CRM</span>
                 </div>
             </a>
@@ -1753,7 +1781,11 @@
     </div>
 
     <!-- Hidden ElevenLabs Widget for Voice -->
-    <elevenlabs-convai agent-id="agent_9701k9xptd0kfr383djx5zk7300x"></elevenlabs-convai>
+    <!-- Note: Agent must be set to "public" in ElevenLabs dashboard for widget to work -->
+    <elevenlabs-convai
+        agent-id="agent_9701k9xptd0kfr383djx5zk7300x"
+        style="display: none;">
+    </elevenlabs-convai>
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 
     <!-- Hybrid Widget Script -->
@@ -1855,7 +1887,7 @@
         });
 
         // Chat functionality
-        function addMessage(text, isUser = false) {
+        function addMessage(text, isUser = false, suggestions = null) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${isUser ? 'user' : ''}`;
 
@@ -1869,6 +1901,28 @@
 
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(content);
+
+            // Add suggestion chips if provided
+            if (suggestions && suggestions.length > 0 && !isUser) {
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.className = 'suggestion-chips';
+
+                suggestions.forEach(suggestion => {
+                    const chip = document.createElement('button');
+                    chip.className = 'suggestion-chip';
+                    chip.textContent = suggestion;
+                    chip.onclick = () => {
+                        chatInput.value = suggestion;
+                        chatInput.focus();
+                        // Optionally auto-send
+                        // sendMessage();
+                    };
+                    suggestionsDiv.appendChild(chip);
+                });
+
+                content.appendChild(suggestionsDiv);
+            }
+
             chatMessages.appendChild(messageDiv);
 
             // Scroll to bottom
@@ -1909,13 +1963,25 @@
                 const aiResponse = data.response || data.fallbackResponse ||
                     "Thanks for your interest! Our team would love to help you learn more about VoiceFlow CRM. Please visit our pricing page or contact support@remodely.ai";
 
-                addMessage(aiResponse);
+                const suggestions = data.suggestions || [];
+
+                // Log analytics data if available
+                if (data.intent) {
+                    console.log('User intent detected:', data.intent);
+                }
+
+                addMessage(aiResponse, false, suggestions);
                 conversationHistory.push({ text: aiResponse, isUser: false });
 
             } catch (error) {
                 console.error('Chat error:', error);
                 const fallbackResponse = "I apologize, but I'm having trouble connecting right now. VoiceFlow CRM offers AI voice agents and automation starting at $149/month with a 14-day free trial. Please email support@remodely.ai for assistance!";
-                addMessage(fallbackResponse);
+                const fallbackSuggestions = [
+                    "Show me pricing plans",
+                    "Start my free trial",
+                    "Tell me how it works"
+                ];
+                addMessage(fallbackResponse, false, fallbackSuggestions);
                 conversationHistory.push({ text: fallbackResponse, isUser: false });
             } finally {
                 // Re-enable input
@@ -1946,11 +2012,9 @@
             voiceBtn.classList.add('listening');
             voiceStatus.textContent = 'Listening...';
 
-            // Trigger ElevenLabs widget programmatically
+            // Trigger ElevenLabs widget by clicking it
             if (elevenLabsWidget) {
-                // Try to trigger the widget's start conversation
-                const event = new CustomEvent('elevenlabs-start');
-                elevenLabsWidget.dispatchEvent(event);
+                elevenLabsWidget.click();
             }
         }
 
@@ -1959,11 +2023,7 @@
             voiceBtn.classList.remove('listening');
             voiceStatus.textContent = 'Click to start talking';
 
-            // Stop ElevenLabs widget
-            if (elevenLabsWidget) {
-                const event = new CustomEvent('elevenlabs-stop');
-                elevenLabsWidget.dispatchEvent(event);
-            }
+            // The widget handles stopping automatically when conversation ends
         }
     </script>
 </body>
