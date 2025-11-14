@@ -523,7 +523,7 @@ export default function Business() {
                   <SelectValue placeholder="Select a contact" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {leads.map((lead) => (
                     <SelectItem key={lead._id} value={lead._id}>
                       {lead.name} ({lead.email})
