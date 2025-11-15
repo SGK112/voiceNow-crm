@@ -451,6 +451,123 @@
             margin: 0;
         }
 
+        /* Live indicator */
+        .live-indicator {
+            font-size: 9px;
+            font-weight: 700;
+            color: #ef4444;
+            animation: pulse-color 2s ease-in-out infinite;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse-color {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Active call card */
+        .call-active {
+            border: 2px solid #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .call-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            background: #10b981;
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+
+        .call-transcript {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8fafc;
+            border-radius: 4px;
+            border-left: 3px solid #10b981;
+        }
+
+        /* Workflow card */
+        .workflow-card {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .workflow-step.completed .step-text {
+            color: #059669;
+        }
+
+        .workflow-step.active .step-text {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .step-check {
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-loader {
+            width: 16px;
+            height: 16px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .step-text {
+            color: #6b7280;
+        }
+
         .hero-badge {
             display: inline-flex;
             align-items: center;
@@ -2132,47 +2249,75 @@
                         <div class="phone-notch"></div>
                         <div class="phone-content">
                             <div class="phone-header">
-                                🎙️ VoiceFlow CRM
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span>🎙️ VoiceFlow CRM</span>
+                                    <span class="live-indicator">● LIVE</span>
+                                </div>
                             </div>
                             <div class="phone-body">
+                                <!-- Active Call Card -->
+                                <div class="crm-card call-active">
+                                    <div class="call-status-bar">
+                                        <span class="pulse-dot"></span>
+                                        <span style="font-size: 11px; font-weight: 600;">AI Agent On Call</span>
+                                        <span style="font-size: 10px; opacity: 0.7;">0:42</span>
+                                    </div>
+                                    <div class="crm-card-header">
+                                        <div class="crm-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">🤖</div>
+                                        <div class="crm-info">
+                                            <p class="crm-name">Sarah - Lead Gen Agent</p>
+                                            <p class="crm-detail">📞 (555) 234-5678</p>
+                                        </div>
+                                    </div>
+                                    <div class="call-transcript">
+                                        <p style="font-size: 10px; opacity: 0.6; margin: 0 0 4px 0;">Live Transcript:</p>
+                                        <p style="font-size: 11px; margin: 0; line-height: 1.4;">"Hi! When are you looking to start your kitchen remodel?"</p>
+                                    </div>
+                                </div>
+
+                                <!-- Workflow Automation Card -->
+                                <div class="crm-card workflow-card">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                        <span style="font-size: 12px;">⚡</span>
+                                        <span style="font-size: 11px; font-weight: 600;">Workflow Running</span>
+                                    </div>
+                                    <div class="workflow-steps">
+                                        <div class="workflow-step completed">
+                                            <span class="step-check">✓</span>
+                                            <span class="step-text">Call answered</span>
+                                        </div>
+                                        <div class="workflow-step completed">
+                                            <span class="step-check">✓</span>
+                                            <span class="step-text">Lead qualified</span>
+                                        </div>
+                                        <div class="workflow-step active">
+                                            <span class="step-loader">↻</span>
+                                            <span class="step-text">Booking appointment...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Leads -->
                                 <div class="crm-card">
                                     <div class="crm-card-header">
                                         <div class="crm-avatar">JD</div>
                                         <div class="crm-info">
                                             <p class="crm-name">John Davis</p>
-                                            <p class="crm-detail">📞 Kitchen Remodel</p>
+                                            <p class="crm-detail">🏠 Kitchen Remodel · $45K</p>
                                         </div>
-                                        <span class="crm-badge badge-hot">Hot Lead</span>
+                                        <span class="crm-badge badge-hot">Hot</span>
                                     </div>
                                 </div>
-                                <div class="crm-card">
-                                    <div class="crm-card-header">
-                                        <div class="crm-avatar">SM</div>
-                                        <div class="crm-info">
-                                            <p class="crm-name">Sarah Miller</p>
-                                            <p class="crm-detail">🏠 Full Home Renovation</p>
-                                        </div>
-                                        <span class="crm-badge badge-new">New</span>
-                                    </div>
-                                </div>
-                                <div class="crm-card">
-                                    <div class="crm-card-header">
-                                        <div class="crm-avatar">RJ</div>
-                                        <div class="crm-info">
-                                            <p class="crm-name">Robert Johnson</p>
-                                            <p class="crm-detail">🛁 Bathroom Update</p>
-                                        </div>
-                                        <span class="crm-badge badge-active">Active</span>
-                                    </div>
-                                </div>
+
+                                <!-- Stats Dashboard -->
                                 <div class="stats-row">
                                     <div class="stat-box">
-                                        <p class="stat-value">47</p>
-                                        <p class="stat-label">Leads Today</p>
+                                        <p class="stat-value">23</p>
+                                        <p class="stat-label">Calls Today</p>
                                     </div>
                                     <div class="stat-box">
-                                        <p class="stat-value">12</p>
-                                        <p class="stat-label">Active Calls</p>
+                                        <p class="stat-value">89%</p>
+                                        <p class="stat-label">Qualified</p>
                                     </div>
                                 </div>
                             </div>
