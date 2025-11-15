@@ -2752,6 +2752,9 @@
 
         // Function to hide popup label with smooth fade-out
         function hidePopupLabel() {
+            // Check if popup label exists before trying to manipulate it
+            if (!popupLabel) return;
+
             // Start fade-out animation
             popupLabel.classList.add('hidden');
 
@@ -2766,26 +2769,30 @@
 
             // Completely remove from DOM after animation completes
             setTimeout(() => {
-                popupLabel.classList.add('hidden-complete');
+                if (popupLabel) {
+                    popupLabel.classList.add('hidden-complete');
+                }
             }, 300);
         }
 
-        // Show popup label after 3 seconds
-        setTimeout(() => {
-            popupLabel.style.display = 'block';
-
-            // Auto-hide after 10 seconds
-            popupTimeout = setTimeout(hidePopupLabel, 10000);
-
-            // Hide on scroll
-            window.addEventListener('scroll', hidePopupLabel, { once: true });
-
-            // Hide on tap/click anywhere (but don't interfere with other clicks)
+        // Show popup label after 3 seconds (only if element exists)
+        if (popupLabel) {
             setTimeout(() => {
-                window.addEventListener('touchstart', hidePopupLabel, { once: true });
-                document.addEventListener('click', hidePopupLabel, { once: true });
-            }, 100);
-        }, 3000);
+                popupLabel.style.display = 'block';
+
+                // Auto-hide after 10 seconds
+                popupTimeout = setTimeout(hidePopupLabel, 10000);
+
+                // Hide on scroll
+                window.addEventListener('scroll', hidePopupLabel, { once: true });
+
+                // Hide on tap/click anywhere (but don't interfere with other clicks)
+                setTimeout(() => {
+                    window.addEventListener('touchstart', hidePopupLabel, { once: true });
+                    document.addEventListener('click', hidePopupLabel, { once: true });
+                }, 100);
+            }, 3000);
+        }
 
         // Toggle widget open/close
         toggleBtn.addEventListener('click', function(e) {
