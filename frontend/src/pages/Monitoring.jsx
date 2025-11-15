@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Server, Database, Zap, AlertTriangle, CheckCircle, Clock, TrendingUp, Users, Globe, HardDrive, Cpu } from 'lucide-react';
-import api from '../utils/api';
+import api from '@/services/api';
 
 const Monitoring = () => {
   const [healthData, setHealthData] = useState(null);
