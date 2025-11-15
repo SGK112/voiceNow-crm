@@ -27,6 +27,7 @@ import IntegrationCallback from './pages/IntegrationCallback';
 import AgentLibrary from './pages/AgentLibrary';
 import AgentSetup from './pages/AgentSetup';
 import WorkflowMarketplace from './pages/WorkflowMarketplace';
+import Monitoring from './pages/Monitoring';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -87,6 +88,7 @@ function App() {
         <Route path="workflows/:id" element={<WorkflowStudio />} />
         <Route path="marketplace" element={<WorkflowMarketplace />} />
         <Route path="phone-numbers" element={<PhoneNumbers />} />
+        <Route path="monitoring" element={<Monitoring />} />
         <Route path="settings" element={<Settings />} />
 
         {/* Legacy redirects - redirect old pages to new unified pages */}

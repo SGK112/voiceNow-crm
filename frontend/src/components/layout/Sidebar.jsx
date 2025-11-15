@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Calls', href: '/app/conversations', icon: PhoneCall, tourId: 'calls' },
   { name: 'Workflows', href: '/app/workflows', icon: Workflow, tourId: 'workflows' },
   { name: 'Phone Numbers', href: '/app/phone-numbers', icon: Phone, tourId: 'phone-numbers' },
+  { name: 'Monitoring', href: '/app/monitoring', icon: Activity, tourId: 'monitoring' },
   { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings' },
 ];
 
