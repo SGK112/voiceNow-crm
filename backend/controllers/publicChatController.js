@@ -666,15 +666,15 @@ export const requestVoiceDemo = async (req, res) => {
       lead_name: name,
       lead_phone: formattedNumber,
       lead_email: email || '',
-      company_name: 'Remodely.ai',
+      company_name: 'Remodelee.ai',
       demo_type: 'marketing_website_demo'
     };
 
     // Personalized first message for the demo call
-    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodely dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
+    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
 
     // Personalized script that instructs the agent to use the customer's name
-    const personalizedScript = `You are a friendly AI voice agent for Remodely.ai, a voice AI automation platform for contractors.
+    const personalizedScript = `You are a friendly AI voice agent for Remodelee.ai, a voice AI automation platform for contractors.
 
 IMPORTANT: The customer's name is ${name}. Use their name naturally in conversation.
 
