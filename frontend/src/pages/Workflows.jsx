@@ -125,63 +125,79 @@ export default function WorkflowsNew() {
   };
 
   if (showN8n) {
+    const n8nUrl = getN8nUrl();
+
     return (
       <div className="h-screen flex flex-col">
         {/* n8n Header */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 md:px-6 py-4 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowN8n(false)}
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-100"
+              className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
             >
               ← Back to Workflows
             </button>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 dark:text-gray-100">
+            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {selectedWorkflow ? `Editing: ${selectedWorkflow.name}` : 'n8n Workflow Editor'}
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => window.open(getN8nUrl(), '_blank')}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-700"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Open in New Tab
-            </button>
-            <button
-              onClick={() => {
-                const iframe = document.getElementById('n8n-iframe');
-                if (iframe) iframe.src = iframe.src; // Reload iframe
-              }}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-700"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </button>
-          </div>
+          <button
+            onClick={() => window.open(n8nUrl, '_blank')}
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open in New Tab
+          </button>
         </div>
 
-        {/* n8n iframe */}
-        <div className="flex-1 bg-gray-100">
-          <iframe
-            id="n8n-iframe"
-            src={getN8nUrl()}
-            className="w-full h-full border-0"
-            title="n8n Workflow Editor"
-            allow="clipboard-read; clipboard-write"
-          />
+        {/* n8n iframe with fallback */}
+        <div className="flex-1 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4 md:p-8">
+          <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 border border-gray-200 dark:border-gray-700">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-full mb-4">
+                <ExternalLink className="w-8 h-8 text-yellow-600 dark:text-yellow-500" />
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Open n8n in a New Window
+              </h3>
+
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Due to security restrictions (X-Frame-Options), n8n cannot be embedded directly in the app.
+                Click the button below to open the workflow editor in a new tab.
+              </p>
+
+              <button
+                onClick={() => window.open(n8nUrl, '_blank', 'width=1400,height=900')}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <ExternalLink className="w-5 h-5" />
+                Open n8n Workflow Editor
+              </button>
+
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  <strong>n8n URL:</strong>
+                </p>
+                <code className="text-xs bg-gray-100 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 inline-block">
+                  {n8nUrl}
+                </code>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
               <WorkflowIcon className="w-8 h-8 text-blue-600" />
@@ -212,8 +228,8 @@ export default function WorkflowsNew() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Workflows</p>
@@ -225,31 +241,31 @@ export default function WorkflowsNew() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
               <p className="text-3xl font-bold text-green-600 mt-1">{stats.active}</p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
+            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Executions</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.executions}</p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
               <Zap className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
@@ -264,9 +280,9 @@ export default function WorkflowsNew() {
 
       {/* Workflows List */}
       {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 animate-pulse">
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 animate-pulse">
               <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
               <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
               <div className="h-4 bg-gray-200 rounded w-5/6"></div>
@@ -275,12 +291,12 @@ export default function WorkflowsNew() {
         </div>
       ) : workflows.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <WorkflowIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <WorkflowIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No workflows yet</h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6 px-4">
             Create your first workflow or browse the marketplace
           </p>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 flex-wrap px-4">
             <button
               onClick={() => openN8nEditor()}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -298,13 +314,13 @@ export default function WorkflowsNew() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {workflows.map(workflow => (
             <div
               key={workflow._id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
             >
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -420,21 +436,21 @@ export default function WorkflowsNew() {
       )}
 
       {/* Info Banner */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Zap className="w-6 h-6 text-blue-600" />
+      <div className="mt-6 md:mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 md:p-6">
+        <div className="flex items-start gap-3 md:gap-4">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <Zap className="w-6 h-6 text-blue-600 dark:text-blue-500" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-blue-900 mb-1">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
               Powered by n8n
             </h3>
-            <p className="text-blue-700 text-sm">
+            <p className="text-blue-700 dark:text-blue-300 text-sm">
               Create powerful automation workflows with 500+ integrations. Connect your tools, automate tasks, and build custom workflows without code.
             </p>
             <button
               onClick={() => openN8nEditor()}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
             >
               Open Workflow Editor →
             </button>
