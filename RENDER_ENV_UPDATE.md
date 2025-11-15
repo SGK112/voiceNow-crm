@@ -13,7 +13,7 @@ Your local `.env` file has been updated with the real ElevenLabs agent IDs, but 
 Click on "Environment" in the left sidebar, then add/update these variables:
 
 ```bash
-ELEVENLABS_API_KEY=sk_cd3bed51d94fdfaf8ae2b7b3815c9cdde05ca3e7b0b807e0
+ELEVENLABS_API_KEY=[your_elevenlabs_api_key]
 ELEVENLABS_PHONE_NUMBER_ID=phnum_1801k7xb68cefjv89rv10f90qykv
 ELEVENLABS_LEAD_GEN_AGENT_ID=agent_1001k9h9ms30fe7ay0w462av0y9v
 ELEVENLABS_BOOKING_AGENT_ID=agent_8801k9h9mv3zempsy3aa5njzwst3

@@ -19,7 +19,7 @@ VITE_GOOGLE_CLIENT_ID=710258787879-qmvg6o96r0k3pc6r47mutesavrhkttik.apps.googleu
 VITE_API_URL=/api
 
 # ElevenLabs API Key (Frontend) - for agent detail page
-VITE_ELEVENLABS_API_KEY=sk_1344310506c0295d7fd9fefe6def547548c5477a333c2788
+VITE_ELEVENLABS_API_KEY=[your_elevenlabs_api_key]
 ```
 
 ## How to Add to Render
