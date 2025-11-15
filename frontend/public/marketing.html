@@ -266,6 +266,24 @@
             .phone-mockup.auto-hide {
                 animation: slide-out-up 0.8s ease-in 3s forwards;
             }
+
+            /* Smooth transition for hero content moving up */
+            .hero-wrapper {
+                transition: all 0.8s ease-in-out;
+            }
+
+            .hero-visual {
+                transition: all 0.8s ease-in-out;
+                overflow: hidden;
+            }
+
+            /* When phone slides out, collapse the visual container */
+            .hero-visual.collapsed {
+                max-height: 0;
+                margin: 0;
+                padding: 0;
+                opacity: 0;
+            }
         }
 
         .phone-screen {
@@ -3056,10 +3074,18 @@
         // Auto-hide phone mockup on mobile after 3 seconds
         window.addEventListener('DOMContentLoaded', () => {
             const phoneMockup = document.querySelector('.phone-mockup');
+            const heroVisual = document.querySelector('.hero-visual');
 
             // Check if we're on mobile (max-width: 768px)
             if (phoneMockup && window.innerWidth <= 768) {
                 phoneMockup.classList.add('auto-hide');
+
+                // After phone slides out, collapse the container to bring content up
+                setTimeout(() => {
+                    if (heroVisual) {
+                        heroVisual.classList.add('collapsed');
+                    }
+                }, 3800); // 3s delay + 0.8s animation = 3.8s
             }
 
             // Re-check on window resize
@@ -3067,8 +3093,17 @@
                 if (phoneMockup) {
                     if (window.innerWidth <= 768) {
                         phoneMockup.classList.add('auto-hide');
+                        // Collapse after animation on resize to mobile
+                        setTimeout(() => {
+                            if (heroVisual) {
+                                heroVisual.classList.add('collapsed');
+                            }
+                        }, 3800);
                     } else {
                         phoneMockup.classList.remove('auto-hide');
+                        if (heroVisual) {
+                            heroVisual.classList.remove('collapsed');
+                        }
                     }
                 }
             });
