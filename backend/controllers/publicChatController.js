@@ -670,18 +670,18 @@ export const requestVoiceDemo = async (req, res) => {
       demo_type: 'marketing_website_demo'
     };
 
-    // Personalized first message with the actual customer name (not variable syntax)
-    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
-
-    // Personalized script that instructs the agent to use the customer's name
+    // Personalized script with explicit opening - batch calling doesn't support first_message override
     const personalizedScript = `You are a friendly AI voice agent for Remodelee.ai, a voice AI automation platform for contractors.
 
-IMPORTANT: The customer's name is ${name}. Use their name naturally throughout the conversation - never say "hey there" or generic greetings.
+**CRITICAL OPENING:**
+When this call connects, you MUST say EXACTLY:
+"Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?"
 
-**CRITICAL CONVERSATION RULES:**
+**IMPORTANT RULES:**
+- The customer's name is ${name}. Use their name naturally throughout the conversation
+- NEVER say "hey there" or generic greetings - always use their actual name
 - WAIT for the person to completely finish speaking before responding
 - If someone pauses or says "um"/"uh", be patient - don't interrupt
-- Use ${name}'s name naturally when appropriate
 - Keep responses brief (2-3 sentences) unless asked for more details
 - Be warm and conversational, not robotic
 - If interrupted, acknowledge politely: "No problem, go ahead!"
@@ -709,7 +709,8 @@ IMPORTANT: The customer's name is ${name}. Use their name naturally throughout t
 
 Be conversational and enthusiastic! This is ${name}'s first experience with voice AI.`;
 
-    // Initiate call using ElevenLabs batch calling (same as CRM does)
+    // Initiate call using ElevenLabs batch calling
+    // Note: conversation_config_override doesn't work with batch calling, so we only send the script
     const callData = await getElevenLabsService().initiateCall(
       demoAgentId,
       formattedNumber,
@@ -717,7 +718,7 @@ Be conversational and enthusiastic! This is ${name}'s first experience with voic
       null, // no webhook for public demo
       dynamicVariables,
       personalizedScript, // send personalized script with customer name
-      personalizedFirstMessage
+      null // don't send first_message - it doesn't work with batch calling
     );
 
     console.log(`✅ Voice demo call initiated:`, callData.id || callData.call_id);
