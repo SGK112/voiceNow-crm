@@ -29,6 +29,7 @@ import connectDB from './config/database.js';
 import { connectRedis } from './config/redis.js';
 import errorHandler from './middleware/errorHandler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import { apiMonitoring, errorTracking } from './middleware/monitoring.js';
 
 import authRoutes from './routes/auth.js';
 import subscriptionRoutes from './routes/subscription.js';
@@ -63,6 +64,7 @@ import quickbooksRoutes from './routes/quickbooks.js';
 import marketplaceRoutes from './routes/marketplace.js';
 import userIntegrationRoutes from './routes/userIntegrations.js';
 import phoneNumberRoutes from './routes/phoneNumbers.js';
+import monitoringRoutes from './routes/monitoring.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 const app = express();
@@ -98,15 +100,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(mongoSanitize());
+app.use(apiMonitoring); // Track API requests and response times
 
-// Health check endpoints (both /health and /api/health for compatibility)
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Monitoring and health check routes
+app.use('/api/monitoring', monitoringRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/subscription', subscriptionRoutes);
@@ -158,6 +155,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Error tracking middleware (must come before error handler)
+app.use(errorTracking);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
