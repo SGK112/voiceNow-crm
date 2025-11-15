@@ -92,15 +92,20 @@ class ElevenLabsService {
         personalizedScript = personalizedScript.substring(0, MAX_SCRIPT_LENGTH) + '...';
       }
 
+      // Build conversation initiation client data with dynamic variables
+      const conversationInitiationClientData = {};
+
+      if (Object.keys(dynamicVariables).length > 0) {
+        conversationInitiationClientData.dynamic_variables = dynamicVariables;
+      }
+
       const recipientData = {
         phone_number: phoneNumber
       };
 
-      // Add dynamic variables for personalized conversations
-      // ElevenLabs supports custom variables in batch calling via the recipient object
-      // These will be available as {{variable_name}} in the agent's prompt
-      if (Object.keys(dynamicVariables).length > 0) {
-        recipientData.variables = dynamicVariables;
+      // Add conversation_initiation_client_data to recipient if we have variables
+      if (Object.keys(conversationInitiationClientData).length > 0) {
+        recipientData.conversation_initiation_client_data = conversationInitiationClientData;
       }
 
       const requestBody = {
