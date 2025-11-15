@@ -241,49 +241,16 @@
             animation: float-phone 6s ease-in-out infinite;
         }
 
+        /* Subtle phone float animation - professional look */
         @keyframes float-phone {
-            0%, 100% { transform: translateY(0px) rotate(-2deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
-        /* Mobile phone slide-out animation */
-        @keyframes slide-out-up {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-120%) scale(0.9);
-                opacity: 0;
-            }
-        }
-
-        .phone-mockup.slide-out {
-            animation: slide-out-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        /* Only apply auto slide-out on mobile */
+        /* Simplified mobile design - no slide-out */
         @media (max-width: 768px) {
-            .phone-mockup.auto-hide {
-                animation: slide-out-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) 2s forwards;
-            }
-
-            /* Smooth transition for hero content moving up */
-            .hero-wrapper {
-                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .hero-visual {
-                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-                overflow: hidden;
-            }
-
-            /* When phone slides out, collapse the visual container */
-            .hero-visual.collapsed {
-                max-height: 0;
-                margin: 0;
-                padding: 0;
-                opacity: 0;
+            .phone-mockup {
+                animation: none; /* Disable floating on mobile for cleaner look */
             }
         }
 
@@ -1703,21 +1670,24 @@
                 font-size: 13px;
             }
             .hero {
-                padding: 120px 20px 80px;
+                padding: 120px 20px 60px;
             }
             .hero-wrapper {
                 grid-template-columns: 1fr;
-                gap: 40px;
+                gap: 32px;
             }
             .hero-content {
                 text-align: center;
             }
             .hero-visual {
                 order: -1;
+                max-height: 400px;
+                overflow: hidden;
             }
             .phone-mockup {
-                width: 280px;
-                height: 570px;
+                width: 240px;
+                height: 490px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             }
             .hero h1 {
                 font-size: 40px;
@@ -3182,43 +3152,7 @@
             });
         });
 
-        // Auto-hide phone mockup on mobile after 3 seconds
-        window.addEventListener('DOMContentLoaded', () => {
-            const phoneMockup = document.querySelector('.phone-mockup');
-            const heroVisual = document.querySelector('.hero-visual');
-
-            // Check if we're on mobile (max-width: 768px)
-            if (phoneMockup && window.innerWidth <= 768) {
-                phoneMockup.classList.add('auto-hide');
-
-                // After phone slides out, collapse the container to bring content up
-                setTimeout(() => {
-                    if (heroVisual) {
-                        heroVisual.classList.add('collapsed');
-                    }
-                }, 2500); // 2s delay + 0.5s animation = 2.5s
-            }
-
-            // Re-check on window resize
-            window.addEventListener('resize', () => {
-                if (phoneMockup) {
-                    if (window.innerWidth <= 768) {
-                        phoneMockup.classList.add('auto-hide');
-                        // Collapse after animation on resize to mobile
-                        setTimeout(() => {
-                            if (heroVisual) {
-                                heroVisual.classList.add('collapsed');
-                            }
-                        }, 2500);
-                    } else {
-                        phoneMockup.classList.remove('auto-hide');
-                        if (heroVisual) {
-                            heroVisual.classList.remove('collapsed');
-                        }
-                    }
-                }
-            });
-        });
+        // Professional hero - phone mockup stays visible on all devices
     </script>
 
     <!-- Success Modal -->
