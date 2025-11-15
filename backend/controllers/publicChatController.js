@@ -670,20 +670,20 @@ export const requestVoiceDemo = async (req, res) => {
       demo_type: 'marketing_website_demo'
     };
 
-    // Personalized first message for the demo call
-    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
+    // Personalized first message for the demo call using ElevenLabs variable syntax
+    const personalizedFirstMessage = `Hi {{customer_name}}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
 
     // Personalized script that instructs the agent to use the customer's name
     const personalizedScript = `You are a friendly AI voice agent for Remodelee.ai, a voice AI automation platform for contractors.
 
 CRITICAL FIRST MESSAGE INSTRUCTION:
 You MUST start the conversation by saying EXACTLY this:
-"Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?"
+"Hi {{customer_name}}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?"
 
-IMPORTANT: The customer's name is ${name}. Always use their name - never say "hey there" or generic greetings.
+IMPORTANT: The customer's name is {{customer_name}}. Always use their name - never say "hey there" or generic greetings.
 
 Your role:
-- You just called ${name} because they requested a demo from our website
+- You just called {{customer_name}} because they requested a demo from our website
 - Give them a quick 60-90 second demo of how you work
 - Show them you're intelligent, helpful, and natural
 - Ask about their business and what tasks they'd like to automate
