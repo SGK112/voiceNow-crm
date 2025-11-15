@@ -29,16 +29,17 @@ export const getWorkflowById = async (req, res) => {
 
 export const createWorkflow = async (req, res) => {
   try {
-    const { name, type, description, workflowJson, triggerConditions } = req.body;
+    const { name, type, description, workflowJson, n8nWorkflow, triggerConditions } = req.body;
 
     if (!type) {
       return res.status(400).json({ message: 'Workflow type is required' });
     }
 
-    let finalWorkflowJson = workflowJson;
+    // Accept either workflowJson or n8nWorkflow (visual builder uses n8nWorkflow)
+    let finalWorkflowJson = n8nWorkflow || workflowJson;
     let finalName = name;
 
-    if (!workflowJson && type) {
+    if (!finalWorkflowJson && type) {
       const templates = getN8nService().getPrebuiltWorkflowTemplates();
       const template = templates[type];
       if (template) {
@@ -60,11 +61,6 @@ export const createWorkflow = async (req, res) => {
       triggerConditions: triggerConditions || {}
     });
 
-    // Note: We don't create individual workflows in n8n cloud for each user.
-    // Instead, we store the workflow configuration in our DB and use master n8n workflows
-    // that are triggered by our backend with user-specific data.
-    // This allows proper multi-tenant isolation and credential management.
-
     res.status(201).json(workflow);
   } catch (error) {
     console.error('Create workflow error:', error);
@@ -80,11 +76,12 @@ export const updateWorkflow = async (req, res) => {
       return res.status(404).json({ message: 'Workflow not found' });
     }
 
-    const { name, description, workflowJson, triggerConditions, enabled } = req.body;
+    const { name, description, workflowJson, n8nWorkflow, triggerConditions, enabled } = req.body;
 
     if (name) workflow.name = name;
     if (description) workflow.description = description;
-    if (workflowJson) workflow.workflowJson = workflowJson;
+    // Accept either workflowJson or n8nWorkflow
+    if (n8nWorkflow || workflowJson) workflow.workflowJson = n8nWorkflow || workflowJson;
     if (triggerConditions) workflow.triggerConditions = triggerConditions;
     if (enabled !== undefined) workflow.enabled = enabled;
 

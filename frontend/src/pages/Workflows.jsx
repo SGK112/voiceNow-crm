@@ -208,20 +208,28 @@ export default function WorkflowsNew() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <button
               onClick={() => navigate('/app/marketplace')}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
             >
               <ShoppingBag className="w-4 h-4" />
-              Browse Marketplace
+              <span className="hidden sm:inline">Marketplace</span>
+            </button>
+            <button
+              onClick={() => navigate('/app/workflow-builder')}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              <Zap className="w-4 h-4" />
+              Visual Builder
             </button>
             <button
               onClick={() => openN8nEditor()}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-sm"
             >
-              <Plus className="w-4 h-4" />
-              Create Workflow
+              <ExternalLink className="w-4 h-4" />
+              <span className="hidden sm:inline">Advanced (n8n)</span>
+              <span className="sm:hidden">n8n</span>
             </button>
           </div>
         </div>
@@ -298,18 +306,18 @@ export default function WorkflowsNew() {
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap px-4">
             <button
-              onClick={() => openN8nEditor()}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              onClick={() => navigate('/app/workflow-builder')}
+              className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
             >
-              <Plus className="w-4 h-4" />
-              Create Workflow
+              <Zap className="w-5 h-5" />
+              Build Your First Workflow
             </button>
             <button
               onClick={() => navigate('/app/marketplace')}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-700"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <ShoppingBag className="w-4 h-4" />
-              Browse Marketplace
+              Browse Templates
             </button>
           </div>
         </div>
