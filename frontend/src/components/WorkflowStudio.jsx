@@ -766,7 +766,7 @@ function WorkflowStudioContent() {
         </div>
 
       {/* React Flow Canvas */}
-      <div className="flex-1" onDrop={onDrop} onDragOver={onDragOver}>
+      <div className="flex-1" style={{ height: '100%', width: '100%' }} onDrop={onDrop} onDragOver={onDragOver}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -780,7 +780,6 @@ function WorkflowStudioContent() {
           deleteKeyCode="Delete"
           multiSelectionKeyCode="Shift"
           selectNodesOnDrag={false}
-          edgesReconnectable={true}
           defaultEdgeOptions={{
             type: 'smoothstep',
             animated: true,

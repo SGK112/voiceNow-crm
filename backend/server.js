@@ -65,6 +65,7 @@ import marketplaceRoutes from './routes/marketplace.js';
 import userIntegrationRoutes from './routes/userIntegrations.js';
 import phoneNumberRoutes from './routes/phoneNumbers.js';
 import monitoringRoutes from './routes/monitoring.js';
+import smsToCallRoutes from './routes/sms-to-call.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 const app = express();
@@ -138,6 +139,7 @@ app.use('/api/quickbooks', quickbooksRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/user-integrations', userIntegrationRoutes);
 app.use('/api/phone-numbers', phoneNumberRoutes);
+app.use('/api/sms-to-call', smsToCallRoutes);
 
 app.use('/api', apiLimiter);
 

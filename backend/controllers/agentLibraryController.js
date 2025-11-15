@@ -2,11 +2,13 @@ import UserAgent from '../models/UserAgent.js';
 import Integration from '../models/Integration.js';
 import agentTemplates from '../config/agentTemplates.js';
 import specialtyAgentTemplates from '../config/specialtyAgentTemplates.js';
+import voiceflowDemoAgent from '../config/demoAgentTemplate.js';
 
 // Merge all agent templates
 const allAgentTemplates = {
   ...agentTemplates,
-  ...specialtyAgentTemplates
+  ...specialtyAgentTemplates,
+  'voiceflow-demo': voiceflowDemoAgent
 };
 
 /**

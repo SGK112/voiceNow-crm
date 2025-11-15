@@ -43,6 +43,17 @@ export const sendSignupLinkAction = async (req, res) => {
   }
 };
 
+// Helper function to extract email from transcript
+const extractEmailFromTranscript = (transcript) => {
+  if (!transcript) return null;
+
+  // Email regex pattern
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+  const emails = transcript.match(emailRegex);
+
+  return emails ? emails[0] : null;
+};
+
 // Handle post-call follow-up (SMS + Email)
 export const handlePostCallFollowUp = async (req, res) => {
   try {
@@ -56,11 +67,19 @@ export const handlePostCallFollowUp = async (req, res) => {
     } = req.body;
 
     console.log(`📞 Post-call follow-up triggered for conversation ${conversation_id}`);
+    console.log(`📝 Transcript:`, transcript);
+    console.log(`📊 Metadata:`, metadata);
 
     // Extract customer info from metadata
     const customerName = metadata?.customer_name || metadata?.lead_name || 'there';
-    const customerPhone = metadata?.lead_phone;
-    const customerEmail = metadata?.lead_email;
+    const customerPhone = metadata?.customer_phone || metadata?.lead_phone;
+    let customerEmail = metadata?.customer_email || metadata?.lead_email;
+
+    // Try to extract email from transcript if not in metadata
+    if (!customerEmail && transcript) {
+      customerEmail = extractEmailFromTranscript(transcript);
+      console.log(`📧 Email extracted from transcript: ${customerEmail}`);
+    }
 
     // Send follow-up SMS if phone number available
     if (customerPhone) {
@@ -77,12 +96,9 @@ export const handlePostCallFollowUp = async (req, res) => {
     // Send follow-up email if email available
     if (customerEmail) {
       try {
-        // Also notify sales team (help.remodely@gmail.com)
-        const recipients = [customerEmail, 'help.remodely@gmail.com'];
-
+        // Send customer confirmation email
         await emailService.sendEmail({
           to: customerEmail,
-          cc: 'help.remodely@gmail.com',
           subject: 'Thanks for Trying VoiceFlow CRM! 🤖',
           text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceFlow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceFlow CRM (no credit card needed):\nwww.remodely.ai/signup\n\n💡 What You'll Get with VoiceFlow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe Remodelee AI Team`,
           html: `
@@ -151,7 +167,75 @@ export const handlePostCallFollowUp = async (req, res) => {
             </html>
           `
         });
-        console.log(`✅ Post-call email sent to ${customerEmail}`);
+        console.log(`✅ Post-call confirmation email sent to ${customerEmail}`);
+
+        // Send lead alert to business
+        try {
+          const transcriptSnippet = transcript ? transcript.substring(0, 500) : 'No transcript available';
+
+          await emailService.sendEmail({
+            to: 'help.remodely@gmail.com',
+            subject: `🎯 New Demo Lead: ${customerName || 'Unknown'} ${customerPhone ? `(${customerPhone})` : ''}`,
+            text: `New demo call completed!\n\nLead Information:\n- Name: ${customerName || 'Not provided'}\n- Phone: ${customerPhone || 'Not provided'}\n- Email: ${customerEmail}\n- Conversation ID: ${conversation_id}\n\nConversation Snippet:\n${transcriptSnippet}\n\nNext Steps:\n- Follow up with the lead\n- Check if they signed up for trial\n- Provide personalized assistance\n\nView full conversation in CRM dashboard.`,
+            html: `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+              </head>
+              <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px 20px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px;">🎯 New Demo Lead!</h1>
+                  </div>
+
+                  <div style="padding: 30px;">
+                    <h2 style="margin: 0 0 20px 0; color: #0f172a;">Lead Information</h2>
+
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #475569;">Name:</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: #0f172a;">${customerName || 'Not provided'}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #475569;">Phone:</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: #0f172a;">${customerPhone || 'Not provided'}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #475569;">Email:</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: #0f172a;">${customerEmail}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #475569;">Conversation ID:</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-family: monospace; font-size: 12px;">${conversation_id}</td>
+                      </tr>
+                    </table>
+
+                    <div style="background-color: #f8fafc; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #10b981;">
+                      <h3 style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px;">📝 Conversation Snippet</h3>
+                      <p style="margin: 0; font-size: 14px; color: #475569; font-family: monospace; white-space: pre-wrap;">${transcriptSnippet}</p>
+                    </div>
+
+                    <div style="background-color: #eff6ff; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                      <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">✅ Next Steps</h3>
+                      <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #475569;">
+                        <li style="margin-bottom: 8px;">Follow up with the lead within 24 hours</li>
+                        <li style="margin-bottom: 8px;">Check if they signed up for trial</li>
+                        <li style="margin-bottom: 8px;">Provide personalized assistance</li>
+                        <li>View full conversation in CRM dashboard</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </body>
+              </html>
+            `
+          });
+          console.log(`✅ Lead alert email sent to business`);
+        } catch (alertError) {
+          console.error('Failed to send lead alert email:', alertError);
+        }
+
       } catch (emailError) {
         console.error('Failed to send post-call email:', emailError);
       }

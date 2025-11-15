@@ -327,7 +327,7 @@ export const getElevenLabsToken = async (req, res) => {
 
     res.json({
       token,
-      agentId: 'agent_9701k9xptd0kfr383djx5zk7300x'
+      agentId: process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9301k802kktwfbhrbe9bam7f1spe'
     });
 
   } catch (error) {
@@ -656,8 +656,8 @@ export const requestVoiceDemo = async (req, res) => {
     }
 
     // Use the demo agent (the one from marketing page widget)
-    // Note: Using the fallback agent ID as the primary since ELEVENLABS_LEAD_GEN_AGENT_ID may not exist
-    const demoAgentId = 'agent_9701k9xptd0kfr383djx5zk7300x';
+    // Note: Using the environment variable to match the phone number configuration
+    const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9301k802kktwfbhrbe9bam7f1spe';
     const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
 
     if (!agentPhoneNumberId) {

@@ -3,8 +3,10 @@ import CallLog from '../models/CallLog.js';
 import VoiceAgent from '../models/VoiceAgent.js';
 import Campaign from '../models/Campaign.js';
 import TwilioService from '../services/twilioService.js';
+import ElevenLabsService from '../services/elevenLabsService.js';
 
 const twilioService = new TwilioService();
+const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
 // Handle incoming Twilio voice calls
 export const handleTwilioVoice = async (req, res) => {
@@ -285,9 +287,9 @@ export const handleTwilioSms = async (req, res) => {
     if (wantsCall) {
       console.log('   🎯 Customer requested a call - initiating voice demo');
 
-      // Trigger ElevenLabs voice call
+      // Trigger ElevenLabs voice call (same agent as marketing page)
       try {
-        const demoAgentId = 'agent_9701k9xptd0kfr383djx5zk7300x';
+        const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9301k802kktwfbhrbe9bam7f1spe';
         const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
         const webhookUrl = process.env.WEBHOOK_URL || 'https://f66af302a875.ngrok-free.app';
 
@@ -311,60 +313,23 @@ export const handleTwilioSms = async (req, res) => {
           trigger_source: 'sms_request'
         };
 
-        // Call ElevenLabs API to initiate outbound call
-        const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
-        const callResponse = await fetch('https://api.elevenlabs.io/v1/convai/conversation/start_session', {
-          method: 'POST',
-          headers: {
-            'xi-api-key': elevenLabsApiKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            agent_id: demoAgentId,
-            agent_phone_number_id: agentPhoneNumberId,
-            customer_phone_number: From,
-            conversational_config_override: {
-              agent: {
-                prompt: {
-                  prompt: `You are a friendly AI assistant from Remodelee AI calling ${customerName}. They just texted asking for a call about VoiceFlow CRM.
+        // Call ElevenLabs API - use agent's default configuration
+        const callData = await elevenLabsService.initiateCall(
+          demoAgentId,
+          From,
+          agentPhoneNumberId,
+          `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
+          dynamicVariables,
+          null,  // Use agent's default prompt (configured at agent level)
+          null   // Use agent's default first message
+        );
 
-**YOUR GOAL:** Have a natural conversation about how VoiceFlow CRM can help their business.
-
-**OPENING:**
-"Hi ${customerName}! This is the AI assistant from Remodelee AI. You just texted asking for a call - I'm here to tell you about VoiceFlow CRM! Is now a good time?"
-
-**KEY POINTS:**
-- VoiceFlow CRM = AI voice agents for contractors that never miss calls
-- 24/7 coverage, handles appointment booking & lead qualification
-- FREE 14-day trial (no credit card needed)
-- $299/month after trial - pays for itself with 1 extra job
-
-**CONVERSATIONAL FLOW:**
-1. Confirm it's a good time to talk
-2. Ask what brought them to text us
-3. Explain how VoiceFlow CRM can help based on their needs
-4. Offer to send signup link via MMS with image (use send_signup_link tool)
-5. Answer questions naturally
-
-**IF THEY ASK FOR THE LINK:**
-Get their number and use the send_signup_link tool to send MMS with professional image.
-
-Be warm, natural, and helpful. Keep it under 2 minutes unless they have questions.`
-                }
-              }
-            },
-            webhook_url: `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`
-          })
-        });
-
-        if (callResponse.ok) {
-          const callData = await callResponse.json();
-          console.log(`✅ Voice call initiated: ${callData.conversation_id || 'ID pending'}`);
+        if (callData) {
+          console.log(`✅ Voice call initiated: ${callData.id || callData.call_id || 'ID pending'}`);
 
           response.message('Perfect! My AI voice agent is calling you right now to discuss VoiceFlow CRM. Answer and chat! 📞');
         } else {
-          const errorData = await callResponse.text();
-          console.error(`❌ Failed to initiate call: ${errorData}`);
+          console.error(`❌ Failed to initiate call`);
           response.message('I\'d love to call you! Text "DEMO" and I\'ll get you connected, or visit remodely.ai/signup to start your free trial!');
         }
 
