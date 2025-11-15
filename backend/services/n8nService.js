@@ -61,7 +61,7 @@ class N8nService {
         apiKey: this.apiKey ? 'SET' : 'NOT SET',
         workflowName: workflow.name
       });
-      const response = await this.client.post('/workflows', workflow);
+      const response = await this.client.post('/api/v1/workflows', workflow);
       return response.data;
     } catch (error) {
       console.error('N8N API Error Details:', {
@@ -79,7 +79,7 @@ class N8nService {
 
   async updateWorkflow(workflowId, workflow) {
     try {
-      const response = await this.client.patch(`/workflows/${workflowId}`, workflow);
+      const response = await this.client.patch(`/api/v1/workflows/${workflowId}`, workflow);
       return response.data;
     } catch (error) {
       console.error('N8N API Error:', error.response?.data || error.message);
@@ -89,7 +89,7 @@ class N8nService {
 
   async deleteWorkflow(workflowId) {
     try {
-      await this.client.delete(`/workflows/${workflowId}`);
+      await this.client.delete(`/api/v1/workflows/${workflowId}`);
       return true;
     } catch (error) {
       console.error('N8N API Error:', error.response?.data || error.message);
@@ -99,7 +99,7 @@ class N8nService {
 
   async activateWorkflow(workflowId) {
     try {
-      const response = await this.client.patch(`/workflows/${workflowId}/activate`);
+      const response = await this.client.patch(`/api/v1/workflows/${workflowId}/activate`);
       return response.data;
     } catch (error) {
       console.error('N8N API Error:', error.response?.data || error.message);
@@ -109,7 +109,7 @@ class N8nService {
 
   async deactivateWorkflow(workflowId) {
     try {
-      const response = await this.client.patch(`/workflows/${workflowId}/deactivate`);
+      const response = await this.client.patch(`/api/v1/workflows/${workflowId}/deactivate`);
       return response.data;
     } catch (error) {
       console.error('N8N API Error:', error.response?.data || error.message);
