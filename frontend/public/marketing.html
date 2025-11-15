@@ -248,33 +248,33 @@
 
         /* Mobile phone slide-out animation */
         @keyframes slide-out-up {
-            from {
-                transform: translateY(0);
+            0% {
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
-            to {
-                transform: translateY(-150%);
+            100% {
+                transform: translateY(-120%) scale(0.9);
                 opacity: 0;
             }
         }
 
         .phone-mockup.slide-out {
-            animation: slide-out-up 0.8s ease-in forwards;
+            animation: slide-out-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         /* Only apply auto slide-out on mobile */
         @media (max-width: 768px) {
             .phone-mockup.auto-hide {
-                animation: slide-out-up 0.8s ease-in 3s forwards;
+                animation: slide-out-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) 2s forwards;
             }
 
             /* Smooth transition for hero content moving up */
             .hero-wrapper {
-                transition: all 0.8s ease-in-out;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .hero-visual {
-                transition: all 0.8s ease-in-out;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
                 overflow: hidden;
             }
 
@@ -1087,6 +1087,25 @@
             pointer-events: all;
         }
 
+        @media (max-width: 640px) {
+            .hybrid-chat-widget {
+                bottom: 0;
+                right: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .ai-chat-toggle {
+                bottom: 20px;
+                right: 20px;
+                width: 56px;
+                height: 56px;
+            }
+        }
+
         /* Widget Header - Professional Design */
         .hybrid-chat-header {
             background: #3b82f6;
@@ -1141,18 +1160,31 @@
             border: none;
             color: #fff;
             cursor: pointer;
-            font-size: 18px;
-            width: 28px;
-            height: 28px;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            transition: all 0.2s;
             border-radius: 6px;
+            font-weight: 300;
         }
 
         .hybrid-chat-close:hover {
             background: rgba(255, 255, 255, 0.25);
+        }
+
+        .hybrid-chat-close:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 640px) {
+            .hybrid-chat-close {
+                width: 44px;
+                height: 44px;
+                font-size: 24px;
+            }
         }
 
         /* Mode Toggle */
@@ -1773,21 +1805,74 @@
             animation: slideUp 0.3s ease-out;
         }
 
+        @media (max-width: 640px) {
+            .contact-modal {
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 16px;
+            }
+
+            .contact-modal-header {
+                padding: 20px;
+            }
+
+            .contact-modal-body {
+                padding: 20px;
+            }
+
+            .contact-modal-footer {
+                padding: 20px;
+            }
+
+            .modal-close-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
         .contact-modal-header {
-            padding: 32px 32px 24px 32px;
+            padding: 24px 24px 20px 24px;
             border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
         }
 
         .contact-modal-header h2 {
-            font-size: 28px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 700;
             color: #0f172a;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .contact-modal-header p {
-            font-size: 15px;
+            font-size: 14px;
             color: #64748b;
+        }
+
+        .modal-close-btn {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.95);
         }
 
         .contact-modal-body {
@@ -2393,8 +2478,16 @@
         <div class="contact-modal" id="contactModal">
             <div id="contactFormContainer">
                 <div class="contact-modal-header">
-                    <h2>Contact Sales</h2>
-                    <p>Fill out the form below and our team will get back to you within 24 hours.</p>
+                    <div>
+                        <h2>Contact Sales</h2>
+                        <p>Fill out the form below and our team will get back to you within 24 hours.</p>
+                    </div>
+                    <button type="button" id="contactFormClose" class="modal-close-btn" aria-label="Close">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div class="contact-modal-body">
                     <form id="contactForm">
@@ -3108,7 +3201,7 @@
                     if (heroVisual) {
                         heroVisual.classList.add('collapsed');
                     }
-                }, 3800); // 3s delay + 0.8s animation = 3.8s
+                }, 2500); // 2s delay + 0.5s animation = 2.5s
             }
 
             // Re-check on window resize
@@ -3121,7 +3214,7 @@
                             if (heroVisual) {
                                 heroVisual.classList.add('collapsed');
                             }
-                        }, 3800);
+                        }, 2500);
                     } else {
                         phoneMockup.classList.remove('auto-hide');
                         if (heroVisual) {
