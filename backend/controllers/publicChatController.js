@@ -661,8 +661,8 @@ export const requestVoiceDemo = async (req, res) => {
       demo_type: 'marketing_website_demo'
     };
 
-    // Personalized first message - clarify that Sarah is the AI agent's name
-    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. My name is Sarah, and I'm an AI voice agent from Remodely dot A I. I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
+    // Personalized first message for the demo call
+    const personalizedFirstMessage = `Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodely dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?`;
 
     // Initiate call using ElevenLabs batch calling (same as CRM does)
     const callData = await elevenLabsService.initiateCall(
@@ -677,9 +677,92 @@ export const requestVoiceDemo = async (req, res) => {
 
     console.log(`✅ Voice demo call initiated:`, callData.id || callData.call_id);
 
-    // Send email notification to sales team if email provided
+    // Send email confirmation to customer if email provided
     if (email) {
       try {
+        // Send confirmation to customer
+        await emailService.sendEmail({
+          to: email,
+          subject: `Your Remodely.ai Voice AI Demo is Calling You Now! 📞`,
+          text: `Hi ${name}!\n\nThank you for requesting a demo of Remodely.ai!\n\nOur AI voice assistant is calling you right now at ${formattedNumber}. You should receive a call within 5-10 seconds.\n\nDuring the demo, our AI will:\n• Introduce herself and explain what Remodely.ai can do\n• Answer your questions about voice AI automation\n• Show you how businesses save 70-80% on staffing costs\n• Explain our pricing and free trial options\n\nWhat to Expect:\n✓ The call will be from an AI voice agent (ultra-realistic!)\n✓ Feel free to ask any questions about pricing, features, or setup\n✓ The demo takes about 3-5 minutes\n✓ No obligation - just a friendly introduction to our platform\n\nWant to Learn More?\nVisit our website: https://remodely.ai\nStart your free trial: https://remodely.ai/signup\nContact our team: help.remodely@gmail.com\n\nBest regards,\nThe Remodely.ai Team\n\nP.S. If you don't receive the call, please check that ${formattedNumber} is correct and try again!`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Your Remodely.ai Demo is Calling You Now!</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">📞 Your Demo is Calling You Now!</h1>
+                </div>
+
+                <!-- Content -->
+                <div style="padding: 40px 30px;">
+                  <p style="font-size: 18px; color: #0f172a; margin: 0 0 20px 0;">Hi ${name}! 👋</p>
+
+                  <p style="font-size: 16px; color: #475569; line-height: 1.6; margin: 0 0 20px 0;">
+                    Thank you for requesting a demo of <strong>Remodely.ai</strong>!
+                  </p>
+
+                  <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 16px; color: #1e40af; font-weight: 600;">
+                      🎙️ Our AI voice assistant is calling you right now at <strong>${formattedNumber}</strong>
+                    </p>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #3b82f6;">
+                      You should receive a call within 5-10 seconds!
+                    </p>
+                  </div>
+
+                  <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">During the demo, our AI will:</h3>
+                  <ul style="color: #475569; font-size: 15px; line-height: 1.8; padding-left: 20px;">
+                    <li>Introduce herself and explain what Remodely.ai can do</li>
+                    <li>Answer your questions about voice AI automation</li>
+                    <li>Show you how businesses save 70-80% on staffing costs</li>
+                    <li>Explain our pricing and free trial options</li>
+                  </ul>
+
+                  <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">What to Expect:</h3>
+                  <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p style="margin: 0 0 10px 0; color: #059669; font-size: 15px;">✓ The call will be from an AI voice agent (ultra-realistic!)</p>
+                    <p style="margin: 0 0 10px 0; color: #059669; font-size: 15px;">✓ Feel free to ask any questions about pricing, features, or setup</p>
+                    <p style="margin: 0 0 10px 0; color: #059669; font-size: 15px;">✓ The demo takes about 3-5 minutes</p>
+                    <p style="margin: 0; color: #059669; font-size: 15px;">✓ No obligation - just a friendly introduction to our platform</p>
+                  </div>
+
+                  <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">Want to Learn More?</h3>
+                  <div style="margin: 20px 0;">
+                    <a href="https://remodely.ai" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Visit Our Website</a>
+                    <a href="https://remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Start Free Trial</a>
+                  </div>
+
+                  <p style="font-size: 15px; color: #64748b; margin: 30px 0 10px 0;">
+                    Best regards,<br>
+                    <strong style="color: #0f172a;">The Remodely.ai Team</strong>
+                  </p>
+
+                  <p style="font-size: 13px; color: #94a3b8; margin: 20px 0 0 0; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <em>P.S. If you don't receive the call, please check that ${formattedNumber} is correct and try again!</em>
+                  </p>
+                </div>
+
+                <!-- Footer -->
+                <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0; color: #64748b; font-size: 13px;">
+                    Need help? Contact us at <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">help.remodely@gmail.com</a>
+                  </p>
+                </div>
+              </div>
+            </body>
+            </html>
+          `
+        });
+        console.log(`✅ Confirmation email sent to customer: ${email}`);
+
+        // Also send notification to sales team
         await emailService.sendEmail({
           to: process.env.SMTP_FROM_EMAIL,
           subject: `New Voice Demo Request - ${name}`,
@@ -693,8 +776,9 @@ export const requestVoiceDemo = async (req, res) => {
             <p><em>Demo call initiated via ElevenLabs batch calling.</em></p>
           `
         });
+        console.log(`✅ Notification email sent to sales team`);
       } catch (emailError) {
-        console.error('Failed to send demo notification email:', emailError);
+        console.error('Failed to send demo emails:', emailError);
         // Don't fail the request if email fails
       }
     }
