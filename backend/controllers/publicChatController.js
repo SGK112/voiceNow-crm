@@ -660,9 +660,12 @@ export const requestVoiceDemo = async (req, res) => {
 
     console.log(`📞 Initiating ElevenLabs voice demo call to ${name} at ${formattedNumber}`);
 
+    // Extract first name only (more natural than full name)
+    const firstName = name.trim().split(' ')[0];
+
     // Personalize the call with the user's name
     const dynamicVariables = {
-      customer_name: name,
+      customer_name: firstName,
       lead_name: name,
       lead_phone: formattedNumber,
       lead_email: email || '',
@@ -670,16 +673,17 @@ export const requestVoiceDemo = async (req, res) => {
       demo_type: 'marketing_website_demo'
     };
 
-    // Personalized script with explicit opening - batch calling doesn't support first_message override
+    // Personalized script - only use first name for natural conversation
     const personalizedScript = `You are a friendly AI voice agent for Remodelee.ai, a voice AI automation platform for contractors.
 
 **CRITICAL OPENING:**
 When this call connects, you MUST say EXACTLY:
-"Hi ${name}! Thanks for requesting a demo. I'm an AI voice agent from Remodelee dot A I, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?"
+"Hi, is this ${firstName}? Great! Thanks for requesting a demo. I'm an AI voice agent from Remodelee AI, and I'm here to show you how voice AI like me can help automate your business communications. How are you doing today?"
 
 **IMPORTANT RULES:**
-- The customer's name is ${name}. Use their name naturally throughout the conversation
-- NEVER say "hey there" or generic greetings - always use their actual name
+- The customer's first name is ${firstName}. Use it naturally but sparingly - don't overuse it
+- After the opening, only use their name once or twice in the entire conversation
+- NEVER say "hey there" or generic greetings
 - WAIT for the person to completely finish speaking before responding
 - If someone pauses or says "um"/"uh", be patient - don't interrupt
 - Keep responses brief (2-3 sentences) unless asked for more details
@@ -687,7 +691,7 @@ When this call connects, you MUST say EXACTLY:
 - If interrupted, acknowledge politely: "No problem, go ahead!"
 
 **Your role in this demo call:**
-- You just called ${name} because they requested a demo from our website
+- You just called ${firstName} because they requested a demo from our website
 - Give them a quick 60-90 second demo of how you work
 - Show them you're intelligent, helpful, and natural
 - Ask about their business and what tasks they'd like to automate
