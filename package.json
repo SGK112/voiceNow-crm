@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",
+    "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
@@ -38,6 +39,7 @@
     "googleapis": "^165.0.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.12.26",
     "mammoth": "^1.11.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",

@@ -77,7 +77,10 @@ import phoneNumberRoutes from './routes/phoneNumbers.js';
 import monitoringRoutes from './routes/monitoring.js';
 import smsToCallRoutes from './routes/sms-to-call.js';
 import helpDeskRoutes from './routes/helpDesk.js';
+import n8nSyncRoutes from './routes/n8n-sync.js';
+import aiModelsRoutes from './routes/ai-models.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
+import { requestIdMiddleware } from './middleware/security.js';
 
 const app = express();
 
@@ -112,6 +115,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(mongoSanitize());
+app.use(requestIdMiddleware); // Add request ID tracking for security
 app.use(apiMonitoring); // Track API requests and response times
 
 // Monitoring and health check routes
@@ -162,6 +166,8 @@ app.use('/api/user-integrations', userIntegrationRoutes);
 app.use('/api/phone-numbers', phoneNumberRoutes);
 app.use('/api/sms-to-call', smsToCallRoutes);
 app.use('/api/help-desk', helpDeskRoutes);
+app.use('/api/n8n-sync', n8nSyncRoutes);
+app.use('/api/ai-models', aiModelsRoutes);
 
 app.use('/api', apiLimiter);
 
