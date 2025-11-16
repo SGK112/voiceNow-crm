@@ -8,7 +8,10 @@ import {
   slackAuthStart,
   slackAuthCallback,
   getValidAccessToken,
-  testIntegration
+  testIntegration,
+  getPlatformStatus,
+  getPlatformDetails,
+  testPlatformIntegration
 } from '../controllers/integrationController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -16,6 +19,11 @@ const router = express.Router();
 
 // All routes require authentication
 router.use(protect);
+
+// Platform integrations status (ElevenLabs, n8n, Twilio, etc.)
+router.get('/platform/status', getPlatformStatus);
+router.get('/platform/:provider', getPlatformDetails);
+router.post('/platform/:provider/test', testPlatformIntegration);
 
 // Integration management
 router.get('/', getIntegrations);

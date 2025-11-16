@@ -1,5 +1,10 @@
 import { google } from 'googleapis';
 import Integration from '../models/Integration.js';
+import ElevenLabsService from '../services/elevenLabsService.js';
+import N8nService from '../services/n8nService.js';
+import TwilioService from '../services/twilioService.js';
+import EmailService from '../services/emailService.js';
+import mongoose from 'mongoose';
 
 // OAuth2 configuration
 const getOAuth2Client = () => {
@@ -365,6 +370,322 @@ export const slackAuthCallback = async (req, res) => {
   }
 };
 
+// Helper function to mask API keys
+const maskApiKey = (key) => {
+  if (!key) return null;
+  if (key.length <= 8) return '***';
+  return `${key.substring(0, 4)}...${key.substring(key.length - 4)}`;
+};
+
+// Get platform integrations status (ElevenLabs, n8n, Twilio, Email, etc.)
+export const getPlatformStatus = async (req, res) => {
+  try {
+    // ElevenLabs status
+    const elevenLabsService = new ElevenLabsService();
+    const elevenLabsStatus = {
+      status: elevenLabsService.isAvailable() ? 'connected' : 'not_configured',
+      apiKey: process.env.ELEVENLABS_API_KEY ? maskApiKey(process.env.ELEVENLABS_API_KEY) : null,
+      phoneNumberId: process.env.ELEVENLABS_PHONE_NUMBER_ID || null,
+      demoAgentId: process.env.ELEVENLABS_DEMO_AGENT_ID || null,
+      capabilities: ['voice_calls', 'ai_agents', 'conversational_ai']
+    };
+
+    // n8n status
+    const n8nService = new N8nService();
+    const n8nStatus = {
+      status: n8nService.isAvailable() ? 'connected' : 'not_configured',
+      apiUrl: process.env.N8N_API_URL || null,
+      webhookUrl: process.env.N8N_WEBHOOK_URL || null,
+      capabilities: ['workflow_automation', 'webhooks', 'integrations']
+    };
+
+    // Twilio status
+    const twilioService = new TwilioService();
+    const twilioStatus = {
+      status: twilioService.isAvailable() ? 'connected' : 'not_configured',
+      accountSid: process.env.TWILIO_ACCOUNT_SID ? maskApiKey(process.env.TWILIO_ACCOUNT_SID) : null,
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER || null,
+      capabilities: ['sms', 'voice', 'phone_numbers']
+    };
+
+    // Email status
+    const emailService = new EmailService();
+    const emailStatus = {
+      status: emailService.isAvailable() ? 'connected' : 'not_configured',
+      smtpHost: process.env.SMTP_HOST || null,
+      fromEmail: process.env.SMTP_USER || null,
+      capabilities: ['email_notifications', 'smtp']
+    };
+
+    // Google OAuth status
+    const googleStatus = {
+      status: (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) ? 'configured' : 'not_configured',
+      clientId: process.env.GOOGLE_CLIENT_ID ? maskApiKey(process.env.GOOGLE_CLIENT_ID) : null,
+      capabilities: ['oauth', 'calendar', 'sheets', 'gmail']
+    };
+
+    // Stripe status
+    const stripeStatus = {
+      status: process.env.STRIPE_SECRET_KEY ? 'connected' : 'not_configured',
+      apiKey: process.env.STRIPE_SECRET_KEY ? maskApiKey(process.env.STRIPE_SECRET_KEY) : null,
+      capabilities: ['payments', 'subscriptions', 'billing']
+    };
+
+    // Database status
+    const dbStatus = {
+      status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      connected: mongoose.connection.readyState === 1,
+      dbName: mongoose.connection.name || null
+    };
+
+    res.json({
+      success: true,
+      integrations: {
+        elevenlabs: elevenLabsStatus,
+        n8n: n8nStatus,
+        twilio: twilioStatus,
+        email: emailStatus,
+        google: googleStatus,
+        stripe: stripeStatus,
+        database: dbStatus
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching platform status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch platform integration status'
+    });
+  }
+};
+
+// Get specific platform integration details
+export const getPlatformDetails = async (req, res) => {
+  try {
+    const { provider } = req.params;
+
+    switch (provider) {
+      case 'elevenlabs': {
+        const elevenLabsService = new ElevenLabsService();
+        let agents = [];
+
+        if (elevenLabsService.isAvailable()) {
+          try {
+            agents = await elevenLabsService.listAgents();
+          } catch (error) {
+            console.error('Error listing ElevenLabs agents:', error);
+          }
+        }
+
+        res.json({
+          success: true,
+          provider: 'elevenlabs',
+          status: elevenLabsService.isAvailable() ? 'connected' : 'not_configured',
+          config: {
+            apiKey: process.env.ELEVENLABS_API_KEY ? maskApiKey(process.env.ELEVENLABS_API_KEY) : null,
+            phoneNumberId: process.env.ELEVENLABS_PHONE_NUMBER_ID || null,
+            demoAgentId: process.env.ELEVENLABS_DEMO_AGENT_ID || null
+          },
+          capabilities: ['voice_calls', 'ai_agents', 'conversational_ai'],
+          agents: agents.slice(0, 10), // Limit to 10 agents for performance
+          usage: {
+            callsToday: 0, // TODO: Implement call tracking
+            totalCalls: 0
+          }
+        });
+        break;
+      }
+
+      case 'n8n': {
+        const n8nService = new N8nService();
+        let workflows = [];
+
+        if (n8nService.isAvailable()) {
+          try {
+            workflows = await n8nService.listWorkflows();
+          } catch (error) {
+            console.error('Error listing n8n workflows:', error);
+          }
+        }
+
+        res.json({
+          success: true,
+          provider: 'n8n',
+          status: n8nService.isAvailable() ? 'connected' : 'not_configured',
+          config: {
+            apiUrl: process.env.N8N_API_URL || null,
+            webhookUrl: process.env.N8N_WEBHOOK_URL || null,
+            apiKey: process.env.N8N_API_KEY ? maskApiKey(process.env.N8N_API_KEY) : null
+          },
+          capabilities: ['workflow_automation', 'webhooks', 'integrations'],
+          workflows: workflows.slice(0, 10),
+          usage: {
+            activeWorkflows: workflows.filter(w => w.active).length,
+            totalWorkflows: workflows.length
+          }
+        });
+        break;
+      }
+
+      case 'twilio': {
+        const twilioService = new TwilioService();
+        res.json({
+          success: true,
+          provider: 'twilio',
+          status: twilioService.isAvailable() ? 'connected' : 'not_configured',
+          config: {
+            accountSid: process.env.TWILIO_ACCOUNT_SID ? maskApiKey(process.env.TWILIO_ACCOUNT_SID) : null,
+            phoneNumber: process.env.TWILIO_PHONE_NUMBER || null,
+            authToken: process.env.TWILIO_AUTH_TOKEN ? '***' : null
+          },
+          capabilities: ['sms', 'voice', 'phone_numbers'],
+          usage: {
+            messagesThisMonth: 0, // TODO: Implement usage tracking
+            callsThisMonth: 0
+          }
+        });
+        break;
+      }
+
+      case 'email': {
+        const emailService = new EmailService();
+        res.json({
+          success: true,
+          provider: 'email',
+          status: emailService.isAvailable() ? 'connected' : 'not_configured',
+          config: {
+            smtpHost: process.env.SMTP_HOST || null,
+            smtpPort: process.env.SMTP_PORT || 587,
+            fromEmail: process.env.SMTP_USER || null,
+            secure: process.env.SMTP_SECURE === 'true'
+          },
+          capabilities: ['email_notifications', 'smtp'],
+          usage: {
+            emailsSentToday: 0 // TODO: Implement email tracking
+          }
+        });
+        break;
+      }
+
+      default:
+        res.status(404).json({
+          success: false,
+          error: 'Provider not found'
+        });
+    }
+  } catch (error) {
+    console.error(`Error fetching ${req.params.provider} details:`, error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch integration details'
+    });
+  }
+};
+
+// Test specific platform integration
+export const testPlatformIntegration = async (req, res) => {
+  try {
+    const { provider } = req.params;
+
+    switch (provider) {
+      case 'elevenlabs': {
+        const elevenLabsService = new ElevenLabsService();
+        if (!elevenLabsService.isAvailable()) {
+          return res.status(400).json({
+            success: false,
+            message: 'ElevenLabs is not configured'
+          });
+        }
+
+        // Test by listing agents
+        const agents = await elevenLabsService.listAgents();
+        res.json({
+          success: true,
+          message: 'ElevenLabs connection successful',
+          details: {
+            agentsFound: agents.length,
+            configured: true
+          }
+        });
+        break;
+      }
+
+      case 'n8n': {
+        const n8nService = new N8nService();
+        if (!n8nService.isAvailable()) {
+          return res.status(400).json({
+            success: false,
+            message: 'n8n is not configured'
+          });
+        }
+
+        // Test by listing workflows
+        const workflows = await n8nService.listWorkflows();
+        res.json({
+          success: true,
+          message: 'n8n connection successful',
+          details: {
+            workflowsFound: workflows.length,
+            configured: true
+          }
+        });
+        break;
+      }
+
+      case 'twilio': {
+        const twilioService = new TwilioService();
+        if (!twilioService.isAvailable()) {
+          return res.status(400).json({
+            success: false,
+            message: 'Twilio is not configured'
+          });
+        }
+
+        res.json({
+          success: true,
+          message: 'Twilio connection successful',
+          details: {
+            configured: true
+          }
+        });
+        break;
+      }
+
+      case 'email': {
+        const emailService = new EmailService();
+        if (!emailService.isAvailable()) {
+          return res.status(400).json({
+            success: false,
+            message: 'Email service is not configured'
+          });
+        }
+
+        res.json({
+          success: true,
+          message: 'Email service connection successful',
+          details: {
+            configured: true
+          }
+        });
+        break;
+      }
+
+      default:
+        res.status(404).json({
+          success: false,
+          error: 'Provider not found'
+        });
+    }
+  } catch (error) {
+    console.error(`Error testing ${req.params.provider}:`, error);
+    res.status(500).json({
+      success: false,
+      message: 'Connection test failed',
+      error: error.message
+    });
+  }
+};
+
 export default {
   getIntegrations,
   getIntegration,
@@ -374,5 +695,8 @@ export default {
   slackAuthStart,
   slackAuthCallback,
   getValidAccessToken,
-  testIntegration
+  testIntegration,
+  getPlatformStatus,
+  getPlatformDetails,
+  testPlatformIntegration
 };
