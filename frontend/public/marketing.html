@@ -2375,6 +2375,121 @@
         </div>
     </section>
 
+    <!-- Visual Workflow Builder Section -->
+    <section class="workflow-builder-section" id="workflow-builder">
+        <div class="workflow-container">
+            <div class="section-title">
+                <h2>Visual No-Code Workflow Builder</h2>
+                <p>Design powerful automation workflows with our intuitive drag-and-drop interface—no coding required.</p>
+            </div>
+
+            <div class="workflow-builder-demo">
+                <div class="workflow-canvas-preview">
+                    <div class="workflow-node trigger-node" style="left: 50px; top: 100px;">
+                        <div class="node-icon">🎯</div>
+                        <div class="node-label">Webhook Trigger</div>
+                        <div class="node-connector"></div>
+                    </div>
+                    <div class="workflow-connection" style="left: 140px; top: 125px; width: 60px;"></div>
+
+                    <div class="workflow-node action-node" style="left: 200px; top: 100px;">
+                        <div class="node-icon">🔍</div>
+                        <div class="node-label">Spam Detection</div>
+                        <div class="node-connector"></div>
+                    </div>
+                    <div class="workflow-connection" style="left: 290px; top: 125px; width: 60px;"></div>
+
+                    <div class="workflow-node condition-node" style="left: 350px; top: 100px;">
+                        <div class="node-icon">⚡</div>
+                        <div class="node-label">Route Lead</div>
+                        <div class="node-connector" style="top: 40px; left: 50%;"></div>
+                        <div class="node-connector" style="top: 40px; left: 50%; transform: translateX(-50%) rotate(45deg);"></div>
+                    </div>
+
+                    <div class="workflow-connection vertical" style="left: 395px; top: 150px; height: 50px;"></div>
+                    <div class="workflow-connection diagonal" style="left: 395px; top: 150px; width: 70px; height: 70px;"></div>
+
+                    <div class="workflow-node action-node" style="left: 350px; top: 210px;">
+                        <div class="node-icon">📧</div>
+                        <div class="node-label">Send Email</div>
+                        <div class="node-connector"></div>
+                    </div>
+
+                    <div class="workflow-node action-node" style="left: 460px; top: 210px;">
+                        <div class="node-icon">📞</div>
+                        <div class="node-label">AI Voice Call</div>
+                        <div class="node-connector"></div>
+                    </div>
+
+                    <div class="workflow-connection" style="left: 395px; top: 260px; width: 60px;"></div>
+                    <div class="workflow-connection" style="left: 505px; top: 260px; width: 60px;"></div>
+
+                    <div class="workflow-node integration-node" style="left: 350px; top: 310px;">
+                        <div class="node-icon">📊</div>
+                        <div class="node-label">Google Sheets</div>
+                    </div>
+
+                    <div class="workflow-node integration-node" style="left: 460px; top: 310px;">
+                        <div class="node-icon">💾</div>
+                        <div class="node-label">Save to CRM</div>
+                    </div>
+
+                    <div class="workflow-pulse" style="left: 50px; top: 100px;"></div>
+                </div>
+
+                <div class="workflow-features-list">
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Drag & Drop Interface</h4>
+                            <p>Build complex workflows visually—no code needed</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Pre-Built Templates</h4>
+                            <p>Start with proven templates for lead generation, follow-ups, and more</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Smart Integrations</h4>
+                            <p>Connect ElevenLabs, Google Sheets, Email, SMS, and 100+ apps</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Real-Time Testing</h4>
+                            <p>Test workflows instantly and see results as they happen</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Conditional Logic</h4>
+                            <p>Route leads based on custom rules, scores, and behaviors</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Custom Code Nodes</h4>
+                            <p>Add JavaScript for advanced logic when needed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workflow-cta">
+                <a href="/login" class="btn btn-primary">Try Workflow Builder →</a>
+                <p class="workflow-cta-note">No credit card required • 14-day free trial</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Pricing Section -->
     <section class="pricing" id="pricing">
         <div class="section-title">
@@ -2556,6 +2671,18 @@
         <div class="mode-toggle">
             <button class="mode-btn active" id="chatModeBtn">Chat</button>
             <button class="mode-btn" id="voiceModeBtn">Call Me</button>
+        </div>
+
+        <!-- Human Agent Support Banner -->
+        <div class="human-agent-banner" id="humanAgentBanner" style="display: none;">
+            <div class="banner-content">
+                <div class="banner-icon">👨‍💼</div>
+                <div class="banner-text">
+                    <strong>Need extra help?</strong>
+                    <p>Connect with our support team</p>
+                </div>
+            </div>
+            <button class="banner-btn" id="requestHumanBtn">Talk to Human</button>
         </div>
 
         <!-- Chat Mode -->
@@ -3156,6 +3283,188 @@
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     requestCallBtn.click();
+                }
+            });
+        });
+
+        // ===== HUMAN AGENT SUPPORT SYSTEM =====
+        const humanAgentBanner = document.getElementById('humanAgentBanner');
+        const requestHumanBtn = document.getElementById('requestHumanBtn');
+
+        // Show banner after 3 messages or if AI can't help
+        let messageCount = 0;
+        const originalAddMessage = addMessage;
+
+        addMessage = function(message, isUser, suggestions, showContact) {
+            originalAddMessage(message, isUser, suggestions, showContact);
+
+            if (isUser) {
+                messageCount++;
+
+                // Show human support banner after 3 user messages
+                if (messageCount >= 3 && humanAgentBanner.style.display === 'none') {
+                    humanAgentBanner.style.display = 'flex';
+                }
+
+                // Also show if user seems frustrated or needs help
+                const frustrationKeywords = ['help', 'human', 'agent', 'person', 'support', 'speak', 'talk', 'frustrated', 'confused', 'don\'t understand'];
+                if (frustrationKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
+                    humanAgentBanner.style.display = 'flex';
+                }
+            }
+        };
+
+        // Handle human agent request
+        requestHumanBtn.addEventListener('click', async () => {
+            // Hide banner
+            humanAgentBanner.style.display = 'none';
+
+            // Create help desk form modal
+            const modalHTML = `
+                <div class="modal-overlay" id="humanAgentModal" style="z-index: 10001;">
+                    <div class="modal-content" style="max-width: 520px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Connect with Our Support Team</h3>
+                            <button class="modal-close" id="closeHumanAgentModal" style="background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; color: #64748b;">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color: #64748b; margin-bottom: 20px;">Fill out the form below and our team will get back to you shortly. For urgent matters, we typically respond within 1-2 hours.</p>
+
+                            <div class="form-group">
+                                <label class="form-label">Your Name *</label>
+                                <input type="text" class="form-input" id="humanAgentName" placeholder="John Smith" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" class="form-input" id="humanAgentEmail" placeholder="john@company.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">How can we help you? *</label>
+                                <textarea class="form-input" id="humanAgentMessage" placeholder="Please describe your question or issue..." rows="4" required style="resize: vertical; min-height: 100px;"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Urgency</label>
+                                <select class="form-input" id="humanAgentUrgency">
+                                    <option value="normal">Normal (4-6 hours)</option>
+                                    <option value="high">High Priority (2-4 hours)</option>
+                                    <option value="urgent">Urgent (1-2 hours)</option>
+                                </select>
+                            </div>
+
+                            <div id="humanAgentError" style="display: none; padding: 12px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 14px; margin-top: 12px;"></div>
+
+                            <div id="humanAgentSuccess" style="display: none; padding: 12px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 8px; color: #065f46; font-size: 14px; margin-top: 12px;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-modern btn-modern-secondary" id="cancelHumanAgent">Cancel</button>
+                            <button class="btn-modern btn-modern-primary" id="submitHumanAgent">
+                                <span id="submitHumanAgentText">Submit Request</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            const modal = document.getElementById('humanAgentModal');
+            const closeBtn = document.getElementById('closeHumanAgentModal');
+            const cancelBtn = document.getElementById('cancelHumanAgent');
+            const submitBtn = document.getElementById('submitHumanAgent');
+            const errorDiv = document.getElementById('humanAgentError');
+            const successDiv = document.getElementById('humanAgentSuccess');
+
+            // Close modal function
+            const closeModal = () => {
+                modal.style.animation = 'fadeOut 0.2s ease-out';
+                setTimeout(() => modal.remove(), 200);
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Handle form submission
+            submitBtn.addEventListener('click', async () => {
+                const name = document.getElementById('humanAgentName').value.trim();
+                const email = document.getElementById('humanAgentEmail').value.trim();
+                const message = document.getElementById('humanAgentMessage').value.trim();
+                const urgency = document.getElementById('humanAgentUrgency').value;
+
+                // Validate
+                if (!name || !email || !message) {
+                    errorDiv.textContent = 'Please fill in all required fields.';
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                    return;
+                }
+
+                if (!email.includes('@')) {
+                    errorDiv.textContent = 'Please enter a valid email address.';
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                    return;
+                }
+
+                // Show loading
+                submitBtn.disabled = true;
+                document.getElementById('submitHumanAgentText').textContent = 'Submitting...';
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                try {
+                    // Format conversation history for email
+                    const formattedHistory = conversationHistory.slice(-6).map(msg => ({
+                        role: msg.isUser ? 'user' : 'assistant',
+                        content: msg.text
+                    }));
+
+                    const response = await fetch('/api/help-desk/request', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userName: name,
+                            userEmail: email,
+                            userMessage: message,
+                            conversationHistory: formattedHistory,
+                            urgency: urgency,
+                            category: 'chat_support'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        successDiv.innerHTML = `
+                            <strong>✓ Request Submitted!</strong><br>
+                            Thank you, ${name}! Our team will contact you at ${email} within ${data.estimatedResponseTime || '4-6 hours'}.
+                        `;
+                        successDiv.style.display = 'block';
+                        errorDiv.style.display = 'none';
+
+                        // Close modal after 3 seconds
+                        setTimeout(() => {
+                            closeModal();
+
+                            // Add confirmation message to chat
+                            addMessage('✅ Your support request has been submitted successfully! Our team will reach out to you soon.', false);
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Failed to submit request');
+                    }
+                } catch (error) {
+                    console.error('Help desk error:', error);
+                    errorDiv.textContent = 'Failed to submit request. Please email help.remodely@gmail.com directly.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    document.getElementById('submitHumanAgentText').textContent = 'Submit Request';
                 }
             });
         });

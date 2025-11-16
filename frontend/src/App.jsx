@@ -9,6 +9,7 @@ import Pricing from './pages/Pricing';
 import Dashboard from './pages/Dashboard';
 import AgentsUnified from './pages/AgentsUnified';
 import AgentDetail from './pages/AgentDetail';
+import VoiceFlowBuilder from './components/VoiceFlowBuilder';
 import Conversations from './pages/Conversations';
 import Leads from './pages/Leads';
 import Business from './pages/Business';
@@ -71,9 +72,12 @@ function App() {
         <Route index element={<Navigate to="/app/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
 
-        {/* Unified Agents page */}
-        <Route path="agents" element={<AgentsUnified />} />
+        {/* VoiceFlow Builder - Build, Test, Deploy AI Voice Agents */}
+        <Route path="agents" element={<VoiceFlowBuilder />} />
         <Route path="agents/:id" element={<AgentDetail />} />
+
+        {/* Legacy CRM-style agent management (available at /app/agent-library for power users) */}
+        <Route path="agent-library-crm" element={<AgentsUnified />} />
         <Route path="agent-library/setup/:templateId" element={<AgentSetup />} />
 
         {/* Main Pages */}

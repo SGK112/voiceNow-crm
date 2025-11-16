@@ -401,6 +401,203 @@ class EmailService {
   }
 
   /**
+   * Send help desk notification for human agent support
+   */
+  async sendHelpDeskNotification({
+    userName,
+    userEmail,
+    userMessage,
+    conversationHistory = [],
+    urgency = 'normal',
+    category = 'general'
+  }) {
+    const urgencyColors = {
+      low: '#10b981',
+      normal: '#3b82f6',
+      high: '#f59e0b',
+      urgent: '#ef4444'
+    };
+
+    const urgencyLabels = {
+      low: 'Low Priority',
+      normal: 'Normal',
+      high: 'High Priority',
+      urgent: 'URGENT'
+    };
+
+    const subject = `[${urgencyLabels[urgency]}] Help Desk Request from ${userName || userEmail}`;
+
+    const conversationHtml = conversationHistory.length > 0
+      ? `
+        <div class="info-box">
+          <strong>Recent Conversation:</strong><br><br>
+          ${conversationHistory.map(msg => `
+            <div style="margin: 10px 0; padding: 10px; background: ${msg.role === 'user' ? '#eff6ff' : '#f8fafc'}; border-radius: 6px;">
+              <strong>${msg.role === 'user' ? '👤 Customer' : '🤖 AI'}:</strong><br>
+              ${msg.content}
+            </div>
+          `).join('')}
+        </div>
+      `
+      : '';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 700px; margin: 0 auto; padding: 20px; background: #ffffff; }
+          .header {
+            background: linear-gradient(135deg, ${urgencyColors[urgency]} 0%, ${urgencyColors[urgency]}dd 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          .content {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            border: 1px solid #e5e7eb;
+          }
+          .info-box {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid ${urgencyColors[urgency]};
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          }
+          .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: ${urgencyColors[urgency]}20;
+            color: ${urgencyColors[urgency]};
+            margin: 5px 5px 5px 0;
+          }
+          .action-buttons {
+            margin-top: 25px;
+            text-align: center;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: ${urgencyColors[urgency]};
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
+          .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 13px;
+          }
+          .timestamp {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🆘 Help Desk Request</h1>
+            <p style="margin: 5px 0 0 0; opacity: 0.95; font-size: 15px;">${urgencyLabels[urgency]} Support Needed</p>
+          </div>
+          <div class="content">
+            <div style="margin-bottom: 20px;">
+              <span class="badge">Category: ${category.toUpperCase()}</span>
+              <span class="badge">Urgency: ${urgencyLabels[urgency]}</span>
+            </div>
+
+            <div class="info-box">
+              <strong>👤 Customer Information:</strong><br>
+              <strong>Name:</strong> ${userName || 'Not provided'}<br>
+              <strong>Email:</strong> ${userEmail || 'Not provided'}<br>
+              <div class="timestamp">Request received: ${new Date().toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</div>
+            </div>
+
+            <div class="info-box">
+              <strong>💬 Customer Message:</strong><br><br>
+              <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; font-size: 15px; line-height: 1.6;">
+                ${userMessage}
+              </div>
+            </div>
+
+            ${conversationHtml}
+
+            <div class="action-buttons">
+              <a href="mailto:${userEmail}" class="button">📧 Reply to Customer</a>
+              <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/app/support" class="button" style="background: #6b7280;">🎫 View in Dashboard</a>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background: #fef3c7; border-radius: 6px; border-left: 4px solid #f59e0b;">
+              <strong>⚡ Action Required:</strong> A customer is requesting human support. Please respond as soon as possible to maintain our service quality.
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>VoiceFlow CRM Help Desk</strong></p>
+            <p>This is an automated notification from your VoiceFlow CRM system.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      HELP DESK REQUEST - ${urgencyLabels[urgency]}
+
+      Customer Information:
+      - Name: ${userName || 'Not provided'}
+      - Email: ${userEmail || 'Not provided'}
+      - Category: ${category}
+      - Time: ${new Date().toLocaleString()}
+
+      Customer Message:
+      ${userMessage}
+
+      ${conversationHistory.length > 0 ? `
+      Recent Conversation:
+      ${conversationHistory.map(msg => `${msg.role === 'user' ? 'Customer' : 'AI'}: ${msg.content}`).join('\n\n')}
+      ` : ''}
+
+      Action Required: Please respond to the customer as soon as possible.
+
+      Reply to: ${userEmail}
+    `;
+
+    // Send to help desk email
+    const helpDeskEmail = process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com';
+
+    return this.sendEmail({
+      to: helpDeskEmail,
+      subject,
+      html,
+      text
+    });
+  }
+
+  /**
    * Verify email service connection
    */
   async verifyConnection() {
