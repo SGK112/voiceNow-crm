@@ -2914,6 +2914,11 @@
                     // Show success message
                     contactFormContainer.style.display = 'none';
                     contactFormSuccess.style.display = 'block';
+
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        closeContactModal();
+                    }, 3000);
                 } else {
                     throw new Error(data.message || 'Failed to send message');
                 }
