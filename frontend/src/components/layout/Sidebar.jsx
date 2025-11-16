@@ -1,21 +1,29 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
+// Core sections - Voice Workflow CRM focused navigation
 const navigation = [
-  { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard' },
-  { name: 'AI Agents', href: '/app/agents', icon: Bot, tourId: 'agents' },
-  { name: 'Leads', href: '/app/leads', icon: Users, tourId: 'leads' },
-  { name: 'Business', href: '/app/business', icon: Briefcase, tourId: 'business' },
-  { name: 'Messages', href: '/app/messages', icon: MessageSquare, tourId: 'messages' },
-  { name: 'Tasks', href: '/app/tasks', icon: CheckSquare, tourId: 'tasks' },
-  { name: 'Campaigns', href: '/app/campaigns', icon: Target, tourId: 'campaigns' },
-  { name: 'Calls', href: '/app/conversations', icon: PhoneCall, tourId: 'calls' },
-  { name: 'Workflows', href: '/app/workflows', icon: Workflow, tourId: 'workflows' },
-  { name: 'Phone Numbers', href: '/app/phone-numbers', icon: Phone, tourId: 'phone-numbers' },
-  { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings' },
+  { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
+  { name: 'Voice Agents', href: '/app/agents', icon: Bot, tourId: 'agents', description: 'AI Voice Agent Builder' },
+  { name: 'Workflows', href: '/app/workflows', icon: Workflow, tourId: 'workflows', description: 'Visual Workflow Automation' },
+  { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
+  { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Templates & Integrations' },
+  { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings', description: 'Integrations & Configuration' },
 ];
+
+// Legacy routes for backwards compatibility (redirects handled in routes)
+const legacyNavigationMap = {
+  '/app/dashboard': '/app/crm',
+  '/app/leads': '/app/crm',
+  '/app/business': '/app/crm',
+  '/app/messages': '/app/crm',
+  '/app/tasks': '/app/crm',
+  '/app/campaigns': '/app/crm',
+  '/app/conversations': '/app/agents',
+  '/app/phone-numbers': '/app/settings',
+};
 
 export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
   const location = useLocation();

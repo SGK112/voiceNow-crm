@@ -55,6 +55,8 @@ export const dashboardApi = {
   getMetrics: () => api.get('/dashboard/metrics'),
   getCallsToday: () => api.get('/dashboard/calls-today'),
   getLeadsThisMonth: () => api.get('/dashboard/leads-this-month'),
+  getCallTrends: (days = 7) => api.get(`/dashboard/call-trends?days=${days}`),
+  getAgentPerformance: () => api.get('/dashboard/agent-performance'),
 };
 
 export const agentApi = {

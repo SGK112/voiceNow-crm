@@ -8,6 +8,7 @@ import {
   Phone,
   Users,
   TrendingUp,
+  TrendingDown,
   DollarSign,
   ArrowRight,
   PhoneCall,
@@ -16,7 +17,10 @@ import {
   Settings,
   PhoneIncoming,
   PhoneOutgoing,
-  Clock
+  Clock,
+  BarChart3,
+  Activity,
+  LayoutDashboard
 } from 'lucide-react';
 import { formatCurrency, formatDuration, formatPhoneNumber } from '@/lib/utils';
 import AIInsightsCard from '@/components/AIInsightsCard';
@@ -40,9 +44,25 @@ export default function Dashboard() {
     },
   });
 
+  const { data: callTrends = [] } = useQuery({
+    queryKey: ['call-trends'],
+    queryFn: async () => {
+      const res = await dashboardApi.getCallTrends(7);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+  });
+
+  const { data: agentPerformance = [] } = useQuery({
+    queryKey: ['agent-performance'],
+    queryFn: async () => {
+      const res = await dashboardApi.getAgentPerformance();
+      return Array.isArray(res.data) ? res.data : [];
+    },
+  });
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading dashboard...</p>
@@ -53,35 +73,55 @@ export default function Dashboard() {
 
   const quickActions = [
     { label: 'Deploy AI Agent', icon: Library, path: '/app/agents', color: 'bg-blue-500' },
-    { label: 'Add Lead', icon: UserPlus, path: '/app/leads', color: 'bg-green-500' },
-    { label: 'Conversations', icon: PhoneCall, path: '/app/conversations', color: 'bg-purple-500' },
-    { label: 'Workflows', icon: TrendingUp, path: '/app/workflows', color: 'bg-orange-500' },
+    { label: 'Add Lead', icon: UserPlus, path: '/app/crm', color: 'bg-green-500' },
+    { label: 'View Calls', icon: PhoneCall, path: '/app/crm', color: 'bg-purple-500' },
+    { label: 'Create Workflow', icon: TrendingUp, path: '/app/workflows', color: 'bg-orange-500' },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's what's happening today.</p>
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
+      {/* Top Toolbar - Workflow Builder Style */}
+      <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
+              <LayoutDashboard className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Dashboard</h1>
+              <p className="text-xs text-muted-foreground">Real-time analytics and insights</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {quickActions.map((action) => (
+            <Button
+              key={action.path}
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(action.path)}
+              className="hidden md:flex items-center gap-2"
+            >
+              <action.icon className="h-4 w-4" />
+              {action.label}
+            </Button>
+          ))}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => navigate('/app/settings')}
+            className="gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Actions - Mobile First */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {quickActions.map((action) => (
-          <Button
-            key={action.path}
-            variant="outline"
-            onClick={() => navigate(action.path)}
-            className="h-auto flex-col gap-2 p-4 hover:bg-accent"
-          >
-            <div className={`p-2 rounded-lg ${action.color} bg-opacity-10`}>
-              <action.icon className={`h-5 w-5 ${action.color.replace('bg-', 'text-')}`} />
-            </div>
-            <span className="text-sm font-medium">{action.label}</span>
-          </Button>
-        ))}
-      </div>
+      {/* Main Dashboard Content Area */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-[1600px] mx-auto space-y-6">
 
       {/* Key Metrics - Improved Mobile Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -118,9 +158,23 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{metrics?.thisMonth?.calls || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics?.calls?.successRate || 0}% success rate
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-muted-foreground">
+                {metrics?.calls?.successRate || 0}% success rate
+              </p>
+              {metrics?.thisMonth?.callsGrowth !== undefined && (
+                <div className={`flex items-center gap-0.5 text-xs font-medium ${
+                  metrics.thisMonth.callsGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {metrics.thisMonth.callsGrowth >= 0 ? (
+                    <TrendingUp className="h-3 w-3" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3" />
+                  )}
+                  <span>{Math.abs(metrics.thisMonth.callsGrowth)}%</span>
+                </div>
+              )}
+            </div>
             <Button
               variant="link"
               className="p-0 h-auto mt-2 text-xs"
@@ -141,9 +195,23 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{metrics?.thisMonth?.leads || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics?.leads?.qualified || 0} qualified • {metrics?.leads?.total || 0} total
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-muted-foreground">
+                {metrics?.leads?.qualified || 0} qualified • {metrics?.leads?.total || 0} total
+              </p>
+              {metrics?.thisMonth?.leadsGrowth !== undefined && (
+                <div className={`flex items-center gap-0.5 text-xs font-medium ${
+                  metrics.thisMonth.leadsGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {metrics.thisMonth.leadsGrowth >= 0 ? (
+                    <TrendingUp className="h-3 w-3" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3" />
+                  )}
+                  <span>{Math.abs(metrics.thisMonth.leadsGrowth)}%</span>
+                </div>
+              )}
+            </div>
             <Button
               variant="link"
               className="p-0 h-auto mt-2 text-xs"
@@ -182,6 +250,115 @@ export default function Dashboard() {
 
       {/* AI Insights */}
       <AIInsightsCard />
+
+      {/* Call Trends & Agent Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Call Trends Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Call Activity (Last 7 Days)</CardTitle>
+            <CardDescription>Daily call volume and success rate</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {callTrends && callTrends.length > 0 ? (
+              <div className="space-y-4">
+                {callTrends.map((day, index) => {
+                  const successRate = day.total > 0 ? ((day.successful / day.total) * 100).toFixed(0) : 0;
+                  const maxCalls = Math.max(...callTrends.map(d => d.total), 1);
+                  const barWidth = (day.total / maxCalls) * 100;
+
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground w-24">
+                          {new Date(day._id).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        </span>
+                        <div className="flex items-center gap-2 flex-1">
+                          <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full flex items-center justify-end px-2"
+                              style={{ width: `${barWidth}%` }}
+                            >
+                              {day.total > 0 && (
+                                <span className="text-xs font-medium text-white">{day.total}</span>
+                              )}
+                            </div>
+                          </div>
+                          <Badge variant={successRate >= 70 ? 'success' : successRate >= 50 ? 'default' : 'secondary'} className="w-14 justify-center">
+                            {successRate}%
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground opacity-50 mb-2" />
+                <p className="text-muted-foreground">No call data available</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Agent Performance */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Agent Performance</CardTitle>
+            <CardDescription>Top performing agents this month</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {agentPerformance && agentPerformance.length > 0 ? (
+              <div className="space-y-4">
+                {agentPerformance.slice(0, 5).map((agent, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="font-medium truncate">{agent.agentName || 'Unknown Agent'}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {agent.totalCalls} calls
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-muted rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              agent.successRate >= 80 ? 'bg-green-500' :
+                              agent.successRate >= 60 ? 'bg-blue-500' :
+                              'bg-yellow-500'
+                            }`}
+                            style={{ width: `${agent.successRate}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground w-12 text-right">
+                          {agent.successRate?.toFixed(0)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Activity className="h-12 w-12 mx-auto text-muted-foreground opacity-50 mb-2" />
+                <p className="text-muted-foreground">No agent data available</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => navigate('/app/agents')}
+                >
+                  Set up your agents
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Recent Activity - Two Column Layout on Desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -340,6 +517,8 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+        </div>
       </div>
     </div>
   );

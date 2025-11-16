@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMetrics, getCallsToday, getLeadsThisMonth } from '../controllers/dashboardController.js';
+import { getMetrics, getCallsToday, getLeadsThisMonth, getCallTrends, getAgentPerformance } from '../controllers/dashboardController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -7,5 +7,7 @@ const router = express.Router();
 router.get('/metrics', protect, getMetrics);
 router.get('/calls-today', protect, getCallsToday);
 router.get('/leads-this-month', protect, getLeadsThisMonth);
+router.get('/call-trends', protect, getCallTrends);
+router.get('/agent-performance', protect, getAgentPerformance);
 
 export default router;

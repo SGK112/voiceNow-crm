@@ -11,6 +11,8 @@ import AgentsUnified from './pages/AgentsUnified';
 import AgentDetail from './pages/AgentDetail';
 import VoiceFlowBuilder from './components/VoiceFlowBuilder';
 import Conversations from './pages/Conversations';
+import CRM from './pages/CRM';
+import Marketplace from './pages/Marketplace';
 import Leads from './pages/Leads';
 import Business from './pages/Business';
 import Messages from './pages/Messages';
@@ -69,40 +71,45 @@ function App() {
           </PrivateRoute>
         }
       >
+        {/* Redirect root /app to Dashboard */}
         <Route index element={<Navigate to="/app/dashboard" replace />} />
+
+        {/* Dashboard as main landing page */}
         <Route path="dashboard" element={<Dashboard />} />
 
-        {/* VoiceFlow Builder - Build, Test, Deploy AI Voice Agents */}
-        <Route path="agents" element={<VoiceFlowBuilder />} />
-        <Route path="agents/:id" element={<AgentDetail />} />
-
-        {/* Legacy CRM-style agent management (available at /app/agent-library for power users) */}
+        {/* Legacy CRM-style agent management (available for power users) */}
         <Route path="agent-library-crm" element={<AgentsUnified />} />
         <Route path="agent-library/setup/:templateId" element={<AgentSetup />} />
 
-        {/* Main Pages */}
+        {/* Core 5 Sections - Voice Workflow CRM */}
+        <Route path="agents" element={<VoiceFlowBuilder />} />
+        <Route path="agents/:id" element={<AgentDetail />} />
+        <Route path="workflows" element={<WorkflowStudio />} />
+        <Route path="workflows/:id" element={<WorkflowStudio />} />
+        <Route path="crm" element={<CRM />} />
+        <Route path="marketplace" element={<Marketplace />} />
+        <Route path="settings" element={<Settings />} />
+
+        {/* Legacy Pages (kept for backwards compatibility) */}
         <Route path="leads" element={<Leads />} />
+        <Route path="deals" element={<Deals />} />
         <Route path="business" element={<Business />} />
         <Route path="messages" element={<Messages />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="campaigns" element={<Campaigns />} />
         <Route path="conversations" element={<Conversations />} />
-        <Route path="workflows" element={<WorkflowStudio />} />
-        <Route path="workflows/:id" element={<WorkflowStudio />} />
-        <Route path="marketplace" element={<WorkflowMarketplace />} />
+        <Route path="workflow-marketplace" element={<WorkflowMarketplace />} />
         <Route path="phone-numbers" element={<PhoneNumbers />} />
-        <Route path="settings" element={<Settings />} />
 
-        {/* Legacy redirects - redirect old pages to new unified pages */}
+        {/* Legacy redirects - redirect old pages to new consolidated pages */}
         <Route path="agent-library" element={<Navigate to="/app/agents" replace />} />
         <Route path="my-agents" element={<Navigate to="/app/agents" replace />} />
         <Route path="ai-agents" element={<Navigate to="/app/agents" replace />} />
-        <Route path="calls" element={<Navigate to="/app/conversations" replace />} />
+        <Route path="calls" element={<Navigate to="/app/agents" replace />} />
         <Route path="billing" element={<Navigate to="/app/settings" replace />} />
         <Route path="usage" element={<Navigate to="/app/settings" replace />} />
-        <Route path="projects" element={<Navigate to="/app/business" replace />} />
-        <Route path="invoices" element={<Navigate to="/app/business" replace />} />
-        <Route path="deals" element={<Navigate to="/app/business" replace />} />
+        <Route path="projects" element={<Navigate to="/app/crm" replace />} />
+        <Route path="invoices" element={<Navigate to="/app/crm" replace />} />
         <Route path="workflow-builder" element={<Navigate to="/app/workflows" replace />} />
         <Route path="workflow-builder/:id" element={<Navigate to="/app/workflows/:id" replace />} />
       </Route>

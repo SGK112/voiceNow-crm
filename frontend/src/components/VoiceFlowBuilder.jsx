@@ -11,6 +11,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 
+// Create axios instance with auth
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 const VoiceFlowBuilder = () => {
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [agents, setAgents] = useState([]);
@@ -172,7 +185,7 @@ const VoiceFlowBuilder = () => {
 
   const loadAgents = async () => {
     try {
-      const response = await axios.get('/api/agent-management/list');
+      const response = await api.get('/agent-management/list');
       if (response.data.success) {
         setAgents(response.data.agents || []);
       }
@@ -182,16 +195,97 @@ const VoiceFlowBuilder = () => {
   };
 
   const createAgent = async () => {
+    if (!agentConfig.name || !agentConfig.prompt) {
+      alert('Please fill in agent name and prompt');
+      return;
+    }
+
     try {
-      const response = await axios.post('/api/agent-management/create', agentConfig);
+      const response = await api.post('/agent-management/create', agentConfig);
       if (response.data.success) {
         setSelectedAgent(response.data.agent);
         loadAgents();
-        alert('Agent created successfully!');
+        alert(`✅ Agent "${agentConfig.name}" created successfully!\n\nAgent ID: ${response.data.agent.agent_id}\n\nReady to make test calls!`);
+        setActiveTab('test'); // Auto-switch to test tab
       }
     } catch (error) {
       console.error('Error creating agent:', error);
-      alert('Failed to create agent');
+      alert(`Failed to create agent: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  // One-click create agent from template
+  const createAgentFromTemplate = async (template) => {
+    try {
+      const config = {
+        name: template.name,
+        voice_id: 'cjVigY5qzO86Huf0OWal', // Eric voice
+        language: 'en',
+        prompt: template.prompt,
+        first_message: `Hello! I'm your ${template.name.toLowerCase()}. How can I help you today?`,
+        model: 'gemini-2.5-flash'
+      };
+
+      const response = await api.post('/agent-management/create', config);
+      if (response.data.success) {
+        setSelectedAgent(response.data.agent);
+        setAgentConfig(config);
+        loadAgents();
+        alert(`✅ ${template.name} created! Agent ID: ${response.data.agent.agent_id}\n\nReady to make test calls!`);
+        setActiveTab('test'); // Switch to test tab automatically
+      }
+    } catch (error) {
+      console.error('Error creating agent from template:', error);
+      alert(`Failed to create ${template.name}: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  // Quick test call with just phone number
+  const quickTestCall = async (phoneNumber) => {
+    if (!selectedAgent) {
+      alert('Please create or select an agent first');
+      return;
+    }
+
+    if (!phoneNumber || !phoneNumber.trim()) {
+      alert('Please enter a phone number');
+      return;
+    }
+
+    try {
+      const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+1${phoneNumber.replace(/\D/g, '')}`;
+
+      const response = await api.post('/calls/test', {
+        agent_id: selectedAgent.agent_id,
+        phone_number: formattedNumber,
+        test_mode: true
+      });
+
+      if (response.data.success) {
+        alert(`📞 Test call initiated!\n\nCall ID: ${response.data.call_id}\n\nYou should receive a call shortly!`);
+      }
+    } catch (error) {
+      console.error('Error initiating quick test call:', error);
+      alert(`Failed to initiate call: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  const deployAgent = async () => {
+    if (!selectedAgent) {
+      alert('Please select an agent to deploy');
+      return;
+    }
+
+    try {
+      const response = await api.post(`/agent-management/${selectedAgent.agent_id}/deploy`);
+      if (response.data.success) {
+        alert(`Agent "${selectedAgent.name}" deployed successfully! You can now use it with phone numbers.`);
+        // Optionally open the ElevenLabs dashboard to configure phone numbers
+        window.open(elevenLabsPages.agentDetail(selectedAgent.agent_id), '_blank');
+      }
+    } catch (error) {
+      console.error('Error deploying agent:', error);
+      alert(`Failed to deploy agent: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -218,36 +312,65 @@ const VoiceFlowBuilder = () => {
       case 'configure':
         return (
           <div className="space-y-6">
-            {/* AI Assistant Prompt */}
+            {/* Quick Start Templates */}
             <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-xl p-6 text-white">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                  <Sparkles className="w-8 h-8" />
+                  <Zap className="w-8 h-8" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">Create Perfect Agents in Seconds</h3>
-                  <p className="text-white/90 text-sm mb-4">
-                    Let Claude AI help you build the perfect voice agent. Just describe what you need, and we'll generate a complete configuration tailored to your business.
+                  <h3 className="text-xl font-bold mb-2">Launch Your Agent in Seconds</h3>
+                  <p className="text-white/90 text-sm">
+                    Choose a template below and we'll create a fully-configured voice agent instantly. Ready to take calls right away!
                   </p>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => setShowAIAssistant(true)}
-                      className="bg-white text-purple-700 hover:bg-gray-100"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Try AI Assistant
-                    </Button>
-                    <Button
-                      onClick={() => {}}
-                      variant="outline"
-                      className="border-white/30 text-white hover:bg-white/10"
-                    >
-                      Manual Setup
-                    </Button>
-                  </div>
                 </div>
               </div>
+
+              {/* Template Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {agentTemplates.map((template, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => createAgentFromTemplate(template)}
+                    className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/20 transition-all text-left group"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="text-3xl">{template.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-white mb-1 flex items-center justify-between">
+                          {template.name}
+                          <Zap className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div className="text-xs text-white/80 line-clamp-2">
+                          {template.description}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* AI Assistant Option */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                      <Sparkles className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Need something custom?</h4>
+                      <p className="text-sm text-muted-foreground">Use our AI assistant to build a tailored agent</p>
+                    </div>
+                  </div>
+                  <Button onClick={() => setShowAIAssistant(true)} variant="outline">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    AI Assistant
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
@@ -331,6 +454,24 @@ const VoiceFlowBuilder = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 font-mono text-sm"
                     placeholder="Describe how your AI agent should behave, what it should do, and how it should respond..."
                   />
+                </div>
+
+                {/* Create Agent Button */}
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={createAgent}
+                    disabled={!agentConfig.name || !agentConfig.prompt}
+                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                    size="lg"
+                  >
+                    <Zap className="w-5 h-5 mr-2" />
+                    Create Agent
+                  </Button>
+                  {(!agentConfig.name || !agentConfig.prompt) && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      Fill in agent name and prompt to continue
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -426,35 +567,88 @@ const VoiceFlowBuilder = () => {
       case 'test':
         return (
           <div className="space-y-6">
+            {/* Quick Dial Card */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Test Your Voice Agent</CardTitle>
+                <CardTitle className="text-base">Quick Test Call</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Quick Test */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-8 rounded-lg text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4">
-                    <Phone className="w-8 h-8 text-white" />
+              <CardContent>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-6 rounded-lg">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+                      <Phone className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-1">Instant Test Call</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Enter your number and click call - that's it!
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Make a Test Call</h3>
-                  <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                    Test your voice agent by initiating a call to your phone number. Perfect for testing agent responses and voice quality.
-                  </p>
-                  <Button
-                    size="lg"
-                    onClick={() => setShowTestModal(true)}
-                    disabled={!selectedAgent}
-                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                  >
-                    <Phone className="w-5 h-5 mr-2" />
-                    Start Test Call
-                  </Button>
+
+                  {selectedAgent && (
+                    <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Bot className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">Active Agent:</span>
+                        <span className="text-muted-foreground">{selectedAgent.name}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const phone = e.target.phone.value;
+                    quickTestCall(phone);
+                    e.target.phone.value = '';
+                  }} className="space-y-3">
+                    <div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="480-255-5887"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-lg"
+                        disabled={!selectedAgent}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        US numbers only. We'll add +1 automatically.
+                      </p>
+                    </div>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={!selectedAgent}
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    >
+                      <Phone className="w-5 h-5 mr-2" />
+                      Call Me Now
+                    </Button>
+                  </form>
+
                   {!selectedAgent && (
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-3">
-                      Please create or select an agent first
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-3 text-center">
+                      Create an agent first to start testing
                     </p>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Advanced Options */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Advanced Test Options</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowTestModal(true)}
+                  disabled={!selectedAgent}
+                  className="w-full"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Configure Test Settings
+                </Button>
 
                 {/* Test Features */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -812,25 +1006,31 @@ const VoiceFlowBuilder = () => {
 
       setLoading(true);
       try {
-        // Simulate AI generation - in production, call your AI endpoint
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
         // Generate agent configuration based on description
         const generatedConfig = {
           name: `${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Agent`,
           voice_id: agentType === 'sales' ? 'pNInz6obpgDQGcFmaJgB' : 'cjVigY5qzO86Huf0OWal',
           language: 'en',
-          prompt: `You are a professional ${agentType} agent. ${description}`,
+          prompt: `You are a professional ${agentType} agent. ${description}\n\nBe helpful, professional, and focused on delivering value to the customer.`,
           first_message: `Hello! I'm your ${agentType} assistant. How can I help you today?`,
           model: 'gemini-2.5-flash'
         };
 
-        setAgentConfig(generatedConfig);
-        setShowAIAssistant(false);
-        alert('Agent configuration generated! Review and save your agent.');
+        // Actually create the agent via API
+        const response = await api.post('/agent-management/create', generatedConfig);
+
+        if (response.data.success) {
+          setSelectedAgent(response.data.agent);
+          setAgentConfig(generatedConfig);
+          loadAgents();
+          setShowAIAssistant(false);
+          alert(`Agent "${response.data.agent.name}" created successfully! Agent ID: ${response.data.agent.agent_id}`);
+        } else {
+          throw new Error(response.data.message || 'Failed to create agent');
+        }
       } catch (error) {
         console.error('Error generating agent:', error);
-        alert('Failed to generate agent. Please try again.');
+        alert(`Failed to create agent: ${error.response?.data?.message || error.message}`);
       } finally {
         setLoading(false);
       }
@@ -987,7 +1187,7 @@ const VoiceFlowBuilder = () => {
 
       setLoading(true);
       try {
-        const response = await axios.post('/api/calls/test', {
+        const response = await api.post('/calls/test', {
           agent_id: selectedAgent.agent_id,
           phone_number: phoneNumber,
           test_mode: testMode
@@ -1435,25 +1635,33 @@ const VoiceFlowBuilder = () => {
 
                 <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">My Agents</h3>
                 <div className="space-y-2">
-                  {agents.map((agent) => (
-                    <button
-                      key={agent.agent_id}
-                      onClick={() => setSelectedAgent(agent)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedAgent?.agent_id === agent.agent_id
-                          ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-600'
-                          : 'bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Phone className="w-4 h-4 text-blue-600" />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm truncate">{agent.name}</h4>
-                          <p className="text-xs text-muted-foreground">Created {new Date(agent.created_at).toLocaleDateString()}</p>
+                  {Array.isArray(agents) && agents.length > 0 ? (
+                    agents.map((agent) => (
+                      <button
+                        key={agent.agent_id}
+                        onClick={() => setSelectedAgent(agent)}
+                        className={`w-full text-left p-3 rounded-lg transition-colors ${
+                          selectedAgent?.agent_id === agent.agent_id
+                            ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-600'
+                            : 'bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-4 h-4 text-blue-600" />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{agent.name}</h4>
+                            <p className="text-xs text-muted-foreground">Created {new Date(agent.created_at).toLocaleDateString()}</p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      <Bot className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No agents yet</p>
+                      <p className="text-xs mt-1">Create one using a template above</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1531,7 +1739,7 @@ const VoiceFlowBuilder = () => {
                   </Button>
                   <Button
                     size="sm"
-                    onClick={() => selectedAgent && window.open(elevenLabsPages.agentDetail(selectedAgent.agent_id), '_blank')}
+                    onClick={deployAgent}
                     className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     disabled={!selectedAgent}
                   >
