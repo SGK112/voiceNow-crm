@@ -1,0 +1,3972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow CRM by Remodely.ai - AI Voice Workflows & Automation Platform</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="description" content="VoiceFlow CRM by Remodely.ai: Combine AI voice agents with n8n-style visual workflows. No-code automation, easy OAuth, call routing, and CRM integration in one powerful platform.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/marketing-enhanced-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #0f172a;
+            line-height: 1.6;
+            background: #ffffff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .navbar-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo:hover .logo-icon {
+            transform: scale(1.1) translateY(-3px);
+        }
+
+        .logo-icon {
+            font-size: 36px;
+            filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4));
+            animation: float 3s ease-in-out infinite;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .logo-text-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.15));
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6;
+            background: #f1f5f9;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 24px 120px;
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -300px;
+            left: -300px;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, rgba(59, 130, 246, 0.02) 40%, transparent 80%);
+            pointer-events: none;
+            animation: float-slow 20s ease-in-out infinite;
+            filter: blur(40px);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -300px;
+            right: -300px;
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.04) 0%, rgba(37, 99, 235, 0.01) 40%, transparent 80%);
+            pointer-events: none;
+            animation: float-slow 25s ease-in-out infinite reverse;
+            filter: blur(40px);
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        .hero-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-content {
+            text-align: left;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-visual {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            position: relative;
+            width: 320px;
+            height: 650px;
+            background: #1f2937;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.25);
+            animation: float-phone 6s ease-in-out infinite;
+        }
+
+        /* Subtle phone float animation - professional look */
+        @keyframes float-phone {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Simplified mobile design - no slide-out */
+        @media (max-width: 768px) {
+            .phone-mockup {
+                animation: none; /* Disable floating on mobile for cleaner look */
+            }
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1f2937;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 10;
+        }
+
+        .phone-content {
+            padding: 40px 0 0;
+            height: 100%;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        .phone-header {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phone-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .crm-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: slide-in 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .crm-card:nth-child(1) { animation-delay: 0.2s; }
+        .crm-card:nth-child(2) { animation-delay: 0.4s; }
+        .crm-card:nth-child(3) { animation-delay: 0.6s; }
+        .crm-card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .crm-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .crm-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .crm-info {
+            flex: 1;
+        }
+
+        .crm-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .crm-detail {
+            font-size: 10px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .crm-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-hot {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-new {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            animation: fade-in 1s ease-out 1s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fade-in {
+            to { opacity: 1; }
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Live indicator */
+        .live-indicator {
+            font-size: 9px;
+            font-weight: 700;
+            color: #ef4444;
+            animation: pulse-color 2s ease-in-out infinite;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse-color {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Active call card */
+        .call-active {
+            border: 2px solid #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .call-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            background: #10b981;
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+
+        .call-transcript {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8fafc;
+            border-radius: 4px;
+            border-left: 3px solid #10b981;
+        }
+
+        /* Workflow card */
+        .workflow-card {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .workflow-step.completed .step-text {
+            color: #059669;
+        }
+
+        .workflow-step.active .step-text {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .step-check {
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-loader {
+            width: 16px;
+            height: 16px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .step-text {
+            color: #6b7280;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: #0f172a;
+            margin-bottom: 28px;
+            letter-spacing: -0.03em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 21px;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            line-height: 1.7;
+            color: #475569;
+            margin-bottom: 36px;
+            font-weight: 400;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-bottom: 36px;
+            padding: 24px 0;
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hero-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .hero-feature-item svg {
+            color: #22c55e;
+            flex-shrink: 0;
+        }
+
+        .hero-notice {
+            font-size: 14px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hero-notice span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-notice span::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 50px 24px;
+            background: #ffffff;
+        }
+
+        .stats-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .stat-item h3 {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-clip: text;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-item p {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 24px;
+            background: #ffffff;
+        }
+
+        .features-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 72px;
+        }
+
+        .section-title h2 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 20px;
+            letter-spacing: -0.03em;
+        }
+
+        .section-title p {
+            font-size: 20px;
+            color: #64748b;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 24px;
+            background: #ffffff;
+        }
+
+        .how-it-works-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 40px;
+            margin-top: 64px;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+            padding: 32px 24px;
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .step-card p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 24px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+
+        .pricing-card {
+            background: #ffffff;
+            border: 2px solid rgba(15, 23, 42, 0.08);
+            border-radius: 24px;
+            padding: 48px 40px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: #3b82f6;
+            box-shadow: 0 12px 48px rgba(59, 130, 246, 0.15);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .pricing-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .pricing-price {
+            font-size: 56px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .pricing-price span {
+            font-size: 20px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .pricing-description {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 32px;
+            min-height: 44px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 32px 0;
+            padding: 32px 0;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            color: #475569;
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: #3b82f6;
+            font-weight: 800;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 24px;
+            background: #1e293b;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-section h2 {
+            font-size: 52px;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 24px;
+            letter-spacing: -0.03em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            color: #cbd5e1;
+            margin-bottom: 48px;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 48px 24px;
+            background: #ffffff;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            text-align: center;
+        }
+
+        .footer p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* AI Chat Toggle Button - Professional Design */
+        .ai-chat-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s ease;
+            z-index: 10001;
+            padding: 0;
+        }
+
+        .ai-chat-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+            background: #2563eb;
+        }
+
+        .ai-chat-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .ai-chat-toggle.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .ai-chat-toggle:not(.hidden) {
+            animation: fadeInScale 0.3s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        /* Chat Toggle Popup Label - Removed for cleaner look */
+        .chat-popup-label {
+            display: none;
+        }
+
+        /* Hybrid Chat Widget - Professional Design */
+        .hybrid-chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 400px;
+            height: 600px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease-out;
+        }
+
+        .hybrid-chat-widget.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        @media (max-width: 640px) {
+            .hybrid-chat-widget {
+                bottom: 0;
+                right: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .ai-chat-toggle {
+                bottom: 20px;
+                right: 20px;
+                width: 56px;
+                height: 56px;
+            }
+        }
+
+        /* Widget Header - Professional Design */
+        .hybrid-chat-header {
+            background: #3b82f6;
+            color: #fff;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .hybrid-chat-header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hybrid-chat-header h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .hybrid-chat-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border-radius: 6px;
+            font-weight: 300;
+        }
+
+        .hybrid-chat-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .hybrid-chat-close:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 640px) {
+            .hybrid-chat-close {
+                width: 44px;
+                height: 44px;
+                font-size: 24px;
+            }
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .mode-btn:hover {
+            background: #f8fafc;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 8px;
+            max-width: 85%;
+        }
+
+        .chat-message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-message.user .message-content {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-message.user .message-avatar {
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+        }
+
+        /* Thinking Bubbles Animation */
+        .thinking-indicator {
+            display: flex;
+            gap: 8px;
+            max-width: 85%;
+        }
+
+        .thinking-indicator .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .thinking-bubbles {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .thinking-bubble {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #64748b;
+            animation: thinking 1.4s ease-in-out infinite;
+        }
+
+        .thinking-bubble:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .thinking-bubble:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .thinking-bubble:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes thinking {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        /* Voice Mode */
+        .voice-mode-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .voice-mode-container.active {
+            display: flex;
+        }
+
+        .voice-button {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            color: #fff;
+            font-size: 72px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .voice-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 14px 50px rgba(59, 130, 246, 0.5);
+        }
+
+        .voice-button:disabled {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .voice-button.ready {
+            animation: pulse-ready 2s ease-in-out infinite;
+        }
+
+        .voice-button.active {
+            animation: voice-pulse 1.5s ease-in-out infinite;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        @keyframes pulse-ready {
+            0%, 100% {
+                box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(59, 130, 246, 0.6), 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @keyframes voice-pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 16px 50px rgba(16, 185, 129, 0.6);
+            }
+        }
+
+        .voice-status {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .voice-status-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .voice-status-text {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .voice-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .voice-status-badge.loading {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .voice-status-badge.ready {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .voice-status-badge.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .voice-status-badge.active {
+            background: #dcfce7;
+            color: #16a34a;
+            animation: pulse-badge 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Call Mode */
+        .call-mode-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        .call-mode-container.active {
+            display: flex;
+        }
+
+        .call-mode-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .call-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .call-mode-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .call-description {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .phone-setup-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .phone-setup-notice p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .phone-setup-notice strong {
+            color: #664d03;
+        }
+
+        .phone-setup-notice code {
+            font-size: 12px;
+            color: #0f172a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .call-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 24px 48px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+            margin-bottom: 24px;
+        }
+
+        .call-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .call-button-icon {
+            font-size: 32px;
+        }
+
+        .call-button-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .call-button-number {
+            font-size: 18px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .call-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .call-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .chat-send-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .chat-send-btn:disabled {
+            background: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        /* Suggestion chips - Professional */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 0;
+            margin-top: 12px;
+        }
+
+        .suggestion-chip {
+            padding: 8px 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .suggestion-chip:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .suggestion-chip:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Hide default ElevenLabs widget button but keep functionality */
+        elevenlabs-convai {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 9999 !important;
+            display: none !important; /* Hidden by default */
+        }
+
+        /* Show ElevenLabs widget when voice mode is active */
+        elevenlabs-convai.voice-active {
+            display: block !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-container {
+                padding: 12px 16px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .hero {
+                padding: 120px 20px 60px;
+            }
+            .hero-wrapper {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .hero-content {
+                text-align: center;
+            }
+            .hero-visual {
+                order: -1;
+                max-height: 400px;
+                overflow: hidden;
+            }
+            .phone-mockup {
+                width: 240px;
+                height: 490px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            }
+            .hero h1 {
+                font-size: 40px;
+            }
+            .hero p {
+                font-size: 18px;
+            }
+            .section-title h2 {
+                font-size: 36px;
+            }
+            .section-title p {
+                font-size: 18px;
+            }
+            .nav-menu {
+                gap: 8px;
+            }
+            .nav-link {
+                display: none;
+            }
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            .pricing-card.featured::before {
+                font-size: 11px;
+                padding: 5px 16px;
+                top: -14px;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-item h3 {
+                font-size: 32px;
+            }
+            .stat-item p {
+                font-size: 12px;
+            }
+            .cta-section h2 {
+                font-size: 36px;
+            }
+            .cta-section p {
+                font-size: 18px;
+            }
+            .ai-chat-toggle {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+            .hybrid-chat-widget {
+                width: 100%;
+                height: 100vh;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+            .chat-messages {
+                padding: 16px;
+                gap: 12px;
+            }
+            .chat-message {
+                max-width: 90%;
+            }
+            .message-content {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            .suggestion-chip {
+                padding: 10px 14px;
+                font-size: 13px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+            .contact-form-btn {
+                min-height: 44px;
+                padding: 12px 18px;
+            }
+        }
+
+        /* Contact Form Modal */
+        .contact-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10001; /* Higher than chat widget (10000) to appear on top */
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .contact-modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-modal {
+            background: white;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .contact-modal::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        @media (max-width: 640px) {
+            .contact-modal {
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 16px;
+            }
+
+            .contact-modal-header {
+                padding: 20px;
+            }
+
+            .contact-modal-body {
+                padding: 20px;
+            }
+
+            .contact-modal-footer {
+                padding: 20px;
+            }
+
+            .modal-close-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        .contact-modal-header {
+            padding: 24px 24px 20px 24px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .contact-modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .contact-modal-header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .modal-close-btn {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.95);
+        }
+
+        .contact-modal-body {
+            padding: 32px;
+        }
+
+        .contact-form-group {
+            margin-bottom: 24px;
+        }
+
+        .contact-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .contact-form-group label .required {
+            color: #ef4444;
+        }
+
+        .contact-form-group input,
+        .contact-form-group textarea,
+        .contact-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #0f172a;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .contact-form-group input:focus,
+        .contact-form-group textarea:focus,
+        .contact-form-group select:focus {
+            outline: none;
+            background: white;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .contact-form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .contact-modal-footer {
+            padding: 24px 32px 32px 32px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .contact-form-btn {
+            padding: 11px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .contact-form-btn-primary {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .contact-form-btn-primary:hover {
+            background: #4338ca;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .contact-form-btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .contact-form-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .contact-form-btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .contact-form-btn-secondary:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .contact-form-btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        .contact-form-success {
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .contact-form-success-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: #d1fae5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #059669;
+        }
+
+        .contact-form-success h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .contact-form-success p {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Calendar Booking Styles */
+        .calendar-booking-wrapper {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+        }
+
+        .calendar-info-section {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .meeting-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .meeting-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .meeting-detail-item svg {
+            flex-shrink: 0;
+        }
+
+        .calendar-widget-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-booking-wrapper {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .calendar-info-section {
+                padding: 20px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Voice status message styles */
+        .voice-status-message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #86efac;
+        }
+
+        .voice-status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+        }
+
+        /* Success Modal Overlay */
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .success-modal-overlay.show {
+            display: flex;
+        }
+
+        .success-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .success-message {
+            font-size: 18px;
+            color: #4b5563;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .success-submessage {
+            font-size: 15px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* Voice demo form styles */
+        .demo-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .demo-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .demo-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .demo-submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .demo-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .demo-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .demo-submit-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎙️</span>
+                <div class="logo-text-container">
+                    <span class="logo-text">Remodely</span>
+                    <span class="logo-subtitle">VoiceFlow CRM</span>
+                </div>
+            </a>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="/login" class="btn btn-secondary">Sign In</a>
+                <a href="/login" class="btn btn-primary">Get Started →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-wrapper">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Powered by ElevenLabs AI Voice Technology
+                </div>
+                <h1>AI Voice Agents That <span class="gradient-text">Work 24/7</span> for Your Business</h1>
+                <p class="hero-subtitle">Automate calls, qualify leads, and book appointments with intelligent voice AI. Build custom workflows without code and scale your operations instantly.</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="stat-number">50K+</div>
+                        <div class="stat-label">Calls Automated</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Answer Rate</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="stat-number">30s</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                </div>
+                <div class="cta-group">
+                    <a href="/login" class="btn btn-primary btn-large">
+                        <span>Start Free Trial</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                    <button class="btn btn-secondary btn-large" onclick="openCalendarModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Schedule Demo</span>
+                    </button>
+                </div>
+                <div class="hero-features">
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>14-day free trial</span>
+                    </div>
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Setup in 5 minutes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content">
+                            <div class="phone-header">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span>🎙️ VoiceFlow CRM</span>
+                                    <span class="live-indicator">● LIVE</span>
+                                </div>
+                            </div>
+                            <div class="phone-body">
+                                <!-- Active Call Card - Enhanced -->
+                                <div class="crm-card call-active">
+                                    <div class="call-status-bar">
+                                        <span class="pulse-dot"></span>
+                                        <span style="font-size: 11px; font-weight: 600;">AI Agent Active</span>
+                                        <span style="font-size: 10px; opacity: 0.7;">2:18</span>
+                                    </div>
+                                    <div class="crm-card-header">
+                                        <div class="crm-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">🤖</div>
+                                        <div class="crm-info">
+                                            <p class="crm-name">Marcus - General Contractor Agent</p>
+                                            <p class="crm-detail">📞 +1 (480) 555-2847</p>
+                                        </div>
+                                    </div>
+                                    <div class="call-transcript">
+                                        <p style="font-size: 10px; opacity: 0.6; margin: 0 0 6px 0;">🎯 Live Transcript:</p>
+                                        <p style="font-size: 11px; margin: 0 0 6px 0; line-height: 1.5; color: #059669;">"Perfect! I can get you scheduled for Friday at 2 PM. That works great, right?"</p>
+                                        <div style="display: flex; gap: 4px; margin-top: 6px;">
+                                            <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;">HOT LEAD</span>
+                                            <span style="background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;">READY TO BOOK</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Workflow Automation Card - Enhanced -->
+                                <div class="crm-card workflow-card">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                                        <span style="font-size: 13px;">⚡</span>
+                                        <span style="font-size: 11px; font-weight: 700; color: #3b82f6;">Auto-Workflow Active</span>
+                                    </div>
+                                    <div class="workflow-steps">
+                                        <div class="workflow-step completed">
+                                            <span class="step-check">✓</span>
+                                            <span class="step-text">Answered in 2 rings</span>
+                                        </div>
+                                        <div class="workflow-step completed">
+                                            <span class="step-check">✓</span>
+                                            <span class="step-text">Lead qualified ($50K job)</span>
+                                        </div>
+                                        <div class="workflow-step active">
+                                            <span class="step-loader">↻</span>
+                                            <span class="step-text">Syncing to calendar...</span>
+                                        </div>
+                                        <div class="workflow-step">
+                                            <span class="step-number">4</span>
+                                            <span class="step-text">Send confirmation email</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Activity - Enhanced -->
+                                <div class="crm-card">
+                                    <div class="crm-card-header">
+                                        <div class="crm-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">JD</div>
+                                        <div class="crm-info">
+                                            <p class="crm-name">John Davis</p>
+                                            <p class="crm-detail">🏠 Kitchen Remodel · $45K</p>
+                                        </div>
+                                        <span class="crm-badge badge-hot">Hot</span>
+                                    </div>
+                                </div>
+
+                                <!-- Stats Dashboard -->
+                                <div class="stats-row">
+                                    <div class="stat-box">
+                                        <p class="stat-value">23</p>
+                                        <p class="stat-label">Calls Today</p>
+                                    </div>
+                                    <div class="stat-box">
+                                        <p class="stat-value">89%</p>
+                                        <p class="stat-label">Qualified</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <h3>Instant</h3>
+                <p>Go Live Right Away</p>
+            </div>
+            <div class="stat-item">
+                <h3>24/7</h3>
+                <p>Always Available</p>
+            </div>
+            <div class="stat-item">
+                <h3>50-70%</h3>
+                <p>Admin Time Saved</p>
+            </div>
+            <div class="stat-item">
+                <h3>30%+</h3>
+                <p>More Jobs/Month</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="how-it-works-container">
+            <div class="section-title">
+                <h2>How VoiceFlow CRM Works</h2>
+                <p>Build powerful voice AI workflows with visual no-code tools. Connect voice agents, automate tasks, and integrate your systems—all without writing code.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Tell Us Your Needs</h3>
+                    <p>Share your business goals and use cases. We'll consult with you to understand exactly what your AI agents need to accomplish.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>We Build Your Agents</h3>
+                    <p>Our team builds custom AI voice agents, designs workflows, and integrates everything with your existing systems—no technical work required from you.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Go Live Instantly</h3>
+                    <p>We deploy your agents and train them with your data. Start handling calls, qualifying leads, and automating tasks immediately.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>We Manage & Optimize</h3>
+                    <p>Access your full-featured CRM platform. We monitor performance, provide insights, and continuously improve your agents for better results.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-title">
+                <h2>Complete CRM Platform With Built-For-You Agents</h2>
+                <p>We provide everything—pre-built agents, custom development, and a full-featured CRM to manage your entire operation.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3>Pre-Built AI Voice Agents</h3>
+                    <p>We provide ready-to-use voice agents powered by ElevenLabs. Ultra-realistic voices with emotional intelligence that handle calls, qualify leads, and book appointments—deployed instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Custom Agent Development</h3>
+                    <p>Need something specific? Our team builds custom AI agents tailored to your unique business requirements, workflows, and industry needs—from consultation to deployment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Intelligent Lead Management</h3>
+                    <p>Built-in CRM with automated lead qualification, scoring, and routing. Your agents ask the right questions and send hot prospects to your sales team instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Unified Business Pipeline</h3>
+                    <p>Manage deals, projects, and invoices in one cohesive workflow. Track opportunities from lead to payment with visual kanban boards, automated stage transitions, and real-time revenue tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Team Messaging & Collaboration</h3>
+                    <p>Built-in messaging with Slack integration. Create channels for teams, customers, contractors, and vendors. Sync conversations across platforms and keep everyone connected in real-time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Smart Scheduling & Automation</h3>
+                    <p>We set up agents that check availability, book appointments, send reminders, and handle reschedules—all without human intervention. Integrated with your calendar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>We Handle All Integrations</h3>
+                    <p>We connect Twilio, Stripe, Google Calendar, SMTP, and any custom APIs you use. All integrations configured and tested by our team—no technical work from you.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Real-Time Analytics</h3>
+                    <p>Track call metrics, conversion rates, agent performance, and ROI. Make data-driven decisions to optimize workflows.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Enterprise Security</h3>
+                    <p>SOC 2 compliant infrastructure. End-to-end encryption, role-based access control, and audit logs for peace of mind.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Scalable Infrastructure</h3>
+                    <p>Handle thousands of concurrent calls. Auto-scaling, 99.9% uptime SLA, and global edge network for low-latency voice.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Workflow Builder Section -->
+    <section class="workflow-builder-section" id="workflow-builder">
+        <div class="workflow-container">
+            <div class="section-title">
+                <h2>Voice-First Automation Workflows</h2>
+                <p>Connect voice agents to your business processes with visual, no-code workflows—built for real conversations.</p>
+            </div>
+
+            <div class="workflow-builder-demo">
+                <div class="workflow-canvas-preview">
+                    <div class="workflow-node trigger-node" style="left: 50px; top: 100px;">
+                        <div class="node-icon">📞</div>
+                        <div class="node-label">Incoming Call</div>
+                        <div class="node-connector"></div>
+                    </div>
+                    <div class="workflow-connection" style="left: 140px; top: 125px; width: 60px;"></div>
+
+                    <div class="workflow-node action-node" style="left: 200px; top: 100px;">
+                        <div class="node-icon">🤖</div>
+                        <div class="node-label">AI Voice Agent</div>
+                        <div class="node-connector"></div>
+                    </div>
+                    <div class="workflow-connection" style="left: 290px; top: 125px; width: 60px;"></div>
+
+                    <div class="workflow-node condition-node" style="left: 350px; top: 100px;">
+                        <div class="node-icon">⚡</div>
+                        <div class="node-label">Qualify Lead</div>
+                        <div class="node-connector" style="top: 40px; left: 50%;"></div>
+                        <div class="node-connector" style="top: 40px; left: 50%; transform: translateX(-50%) rotate(45deg);"></div>
+                    </div>
+
+                    <div class="workflow-connection vertical" style="left: 395px; top: 150px; height: 50px;"></div>
+                    <div class="workflow-connection diagonal" style="left: 395px; top: 150px; width: 70px; height: 70px;"></div>
+
+                    <div class="workflow-node action-node" style="left: 350px; top: 210px;">
+                        <div class="node-icon">📅</div>
+                        <div class="node-label">Book Appointment</div>
+                        <div class="node-connector"></div>
+                    </div>
+
+                    <div class="workflow-node action-node" style="left: 460px; top: 210px;">
+                        <div class="node-icon">📨</div>
+                        <div class="node-label">Send Follow-up</div>
+                        <div class="node-connector"></div>
+                    </div>
+
+                    <div class="workflow-connection" style="left: 395px; top: 260px; width: 60px;"></div>
+                    <div class="workflow-connection" style="left: 505px; top: 260px; width: 60px;"></div>
+
+                    <div class="workflow-node integration-node" style="left: 350px; top: 310px;">
+                        <div class="node-icon">📊</div>
+                        <div class="node-label">Update CRM</div>
+                    </div>
+
+                    <div class="workflow-node integration-node" style="left: 460px; top: 310px;">
+                        <div class="node-icon">📧</div>
+                        <div class="node-label">Notify Team</div>
+                    </div>
+
+                    <div class="workflow-pulse" style="left: 50px; top: 100px;"></div>
+                </div>
+
+                <div class="workflow-features-list">
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Voice Agent Integration</h4>
+                            <p>Connect ElevenLabs AI voice agents directly to your workflows</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Smart Call Routing</h4>
+                            <p>Route calls to the right agent based on lead score, time, or custom rules</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Automated Follow-ups</h4>
+                            <p>Trigger SMS, email, or voice calls based on conversation outcomes</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>CRM Sync</h4>
+                            <p>Automatically update your CRM with call transcripts and lead data</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>Appointment Booking</h4>
+                            <p>Let voice agents schedule meetings and sync to your calendar</p>
+                        </div>
+                    </div>
+                    <div class="workflow-feature-item">
+                        <div class="feature-check">✓</div>
+                        <div>
+                            <h4>No-Code Builder</h4>
+                            <p>Drag-and-drop interface—build complex automations in minutes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workflow-cta">
+                <a href="/login" class="btn btn-primary">Try Workflow Builder →</a>
+                <p class="workflow-cta-note">No credit card required • 14-day free trial</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="section-title">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>Start free, scale as you grow. Overages billed monthly at competitive rates.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-name">Starter</div>
+                <div class="pricing-price">$149<span>/month</span></div>
+                <div class="pricing-description">Perfect for small businesses testing AI automation</div>
+                <ul class="pricing-features">
+                    <li>1 AI Voice Agent</li>
+                    <li>200 Minutes Included (~40 calls)</li>
+                    <li>$0.60/min overage</li>
+                    <li>Lead Capture & CRM</li>
+                    <li>Email Notifications</li>
+                    <li>Phone Number Included</li>
+                    <li>Basic Analytics</li>
+                </ul>
+                <a href="/login" class="btn btn-secondary pricing-cta">Start Free Trial</a>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-name">Professional</div>
+                <div class="pricing-price">$299<span>/month</span></div>
+                <div class="pricing-description">Ideal for growing teams scaling operations</div>
+                <ul class="pricing-features">
+                    <li>5 AI Voice Agents</li>
+                    <li>1,000 Minutes Included (~200 calls)</li>
+                    <li>$0.50/min overage</li>
+                    <li>Advanced Workflows</li>
+                    <li>SMS & Email Automation</li>
+                    <li>Calendar Integration</li>
+                    <li>Team Management</li>
+                    <li>Advanced Analytics</li>
+                    <li>Priority Support</li>
+                </ul>
+                <a href="/login" class="btn btn-primary pricing-cta">Start Free Trial →</a>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-name">Enterprise</div>
+                <div class="pricing-price">$799<span>/month</span></div>
+                <div class="pricing-description">For large organizations with custom needs</div>
+                <ul class="pricing-features">
+                    <li>Unlimited AI Agents</li>
+                    <li>5,000 Minutes Included (~1,000 calls)</li>
+                    <li>$0.40/min overage</li>
+                    <li>Custom Workflows</li>
+                    <li>White-Label Options</li>
+                    <li>Unlimited Team Members</li>
+                    <li>Dedicated Support</li>
+                    <li>Custom Integrations</li>
+                    <li>Custom AI Training</li>
+                </ul>
+                <a href="/login" class="btn btn-secondary pricing-cta">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="cta-section">
+        <h2>Ready to Transform Your Business with AI?</h2>
+        <p>Join innovative businesses already using VoiceFlow CRM to automate operations, qualify leads faster, and scale without limits.</p>
+        <div class="cta-group">
+            <a href="/login" class="btn btn-primary">Start Free Trial →</a>
+            <a href="mailto:support@voiceflowcrm.ai" class="btn btn-secondary">Contact Sales</a>
+        </div>
+    </section>
+
+    <!-- Contact Form Modal -->
+    <div class="contact-modal-overlay" id="contactModalOverlay">
+        <div class="contact-modal" id="contactModal">
+            <div id="contactFormContainer">
+                <div class="contact-modal-header">
+                    <div>
+                        <h2>Contact Sales</h2>
+                        <p>Fill out the form below and our team will get back to you within 24 hours.</p>
+                    </div>
+                    <button type="button" id="contactFormClose" class="modal-close-btn" aria-label="Close">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="contact-modal-body">
+                    <form id="contactForm">
+                        <div class="contact-form-group">
+                            <label for="contactName">
+                                Full Name <span class="required">*</span>
+                            </label>
+                            <input type="text" id="contactName" name="name" placeholder="John Smith" required>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactEmail">
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <input type="email" id="contactEmail" name="email" placeholder="john@company.com" required>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactPhone">
+                                Phone Number
+                            </label>
+                            <input type="tel" id="contactPhone" name="phone" placeholder="+1 (555) 000-0000">
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactCompany">
+                                Company Name
+                            </label>
+                            <input type="text" id="contactCompany" name="company" placeholder="ACME Corp">
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactInterest">
+                                What are you interested in? <span class="required">*</span>
+                            </label>
+                            <select id="contactInterest" name="interest" required>
+                                <option value="">Select an option...</option>
+                                <option value="enterprise">Enterprise Plan</option>
+                                <option value="demo">Schedule a Demo</option>
+                                <option value="custom">Custom Integration</option>
+                                <option value="migration">Migration Support</option>
+                                <option value="partnership">Partnership Opportunities</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="contact-form-group">
+                            <label for="contactMessage">
+                                Message <span class="required">*</span>
+                            </label>
+                            <textarea id="contactMessage" name="message" placeholder="Tell us about your needs..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="contact-modal-footer">
+                    <button type="button" class="contact-form-btn contact-form-btn-secondary" id="contactFormCancel">Cancel</button>
+                    <button type="submit" class="contact-form-btn contact-form-btn-primary" id="contactFormSubmit">Send Message</button>
+                </div>
+            </div>
+            <div id="contactFormSuccess" class="contact-form-success" style="display: none;">
+                <div class="contact-form-success-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3>Message Sent</h3>
+                <p>Thank you for your interest. Our sales team will reach out to you within 24 hours.</p>
+                <button type="button" class="contact-form-btn contact-form-btn-primary" id="contactFormClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Booking Modal -->
+    <div class="contact-modal-overlay" id="calendarModalOverlay">
+        <div class="contact-modal" style="max-width: 900px;">
+            <div id="calendarBookingContainer">
+                <div class="contact-modal-header">
+                    <h2>Schedule a Meeting</h2>
+                    <button class="contact-modal-close" id="calendarModalClose">&times;</button>
+                </div>
+                <div class="contact-modal-body" style="padding: 24px 32px;">
+                    <div class="calendar-booking-wrapper">
+                        <div class="calendar-info-section">
+                            <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 12px;">Book Your Demo Call</h3>
+                            <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 20px;">
+                                Choose a convenient time to speak with our sales team. We'll walk you through VoiceFlow CRM and answer any questions you have.
+                            </p>
+                            <div class="meeting-details">
+                                <div class="meeting-detail-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #4f46e5;">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>30 minutes</span>
+                                </div>
+                                <div class="meeting-detail-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #4f46e5;">
+                                        <path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                    <span>Video or Phone Call</span>
+                                </div>
+                                <div class="meeting-detail-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #4f46e5;">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                    <span>Sales Team</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendar-widget-section">
+                            <div class="calendar-form">
+                                <div class="contact-form-group">
+                                    <label for="bookingName">Full Name <span class="required">*</span></label>
+                                    <input type="text" id="bookingName" placeholder="John Doe" required>
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingEmail">Email <span class="required">*</span></label>
+                                    <input type="email" id="bookingEmail" placeholder="john@company.com" required>
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingPhone">Phone Number</label>
+                                    <input type="tel" id="bookingPhone" placeholder="+1 (555) 000-0000">
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingDate">Preferred Date <span class="required">*</span></label>
+                                    <input type="date" id="bookingDate" required>
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingTime">Preferred Time <span class="required">*</span></label>
+                                    <select id="bookingTime" required>
+                                        <option value="">Select a time</option>
+                                        <option value="09:00">9:00 AM</option>
+                                        <option value="09:30">9:30 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="10:30">10:30 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="11:30">11:30 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="12:30">12:30 PM</option>
+                                        <option value="13:00">1:00 PM</option>
+                                        <option value="13:30">1:30 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="14:30">2:30 PM</option>
+                                        <option value="15:00">3:00 PM</option>
+                                        <option value="15:30">3:30 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                        <option value="16:30">4:30 PM</option>
+                                    </select>
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingTimezone">Timezone</label>
+                                    <select id="bookingTimezone">
+                                        <option value="America/New_York">Eastern Time (ET)</option>
+                                        <option value="America/Chicago">Central Time (CT)</option>
+                                        <option value="America/Denver">Mountain Time (MT)</option>
+                                        <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                        <option value="Europe/London">GMT</option>
+                                        <option value="Europe/Paris">CET</option>
+                                    </select>
+                                </div>
+                                <div class="contact-form-group">
+                                    <label for="bookingNotes">Additional Notes</label>
+                                    <textarea id="bookingNotes" placeholder="Anything specific you'd like to discuss?" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-modal-footer">
+                    <button type="button" class="contact-form-btn contact-form-btn-secondary" id="calendarBookingCancel">Cancel</button>
+                    <button type="button" class="contact-form-btn contact-form-btn-primary" id="calendarBookingSubmit">Schedule Meeting</button>
+                </div>
+            </div>
+            <div id="calendarBookingSuccess" class="contact-form-success" style="display: none;">
+                <div class="contact-form-success-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3>Meeting Scheduled</h3>
+                <p>Your demo call has been scheduled. You'll receive a confirmation email with the meeting details and calendar invite.</p>
+                <button type="button" class="contact-form-btn contact-form-btn-primary" id="calendarBookingClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 VoiceFlow CRM. All rights reserved.</p>
+    </footer>
+
+    <!-- AI Chat Toggle Button -->
+    <button class="ai-chat-toggle" id="aiChatToggle" aria-label="Toggle AI Assistant">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
+
+    <!-- Hybrid Chat Widget -->
+    <div class="hybrid-chat-widget" id="hybridChatWidget">
+        <!-- Header -->
+        <div class="hybrid-chat-header">
+            <div class="hybrid-chat-header-content">
+                <div class="header-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h3>Remodelee AI</h3>
+                    <div class="header-subtitle">We typically reply instantly</div>
+                </div>
+            </div>
+            <button class="hybrid-chat-close" id="chatClose" aria-label="Close">×</button>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="chatModeBtn">Chat</button>
+            <button class="mode-btn" id="voiceModeBtn">Call Me</button>
+        </div>
+
+        <!-- Human Agent Support Banner -->
+        <!-- NOTE: Marketing page uses "Contact Sales" for sales inquiries.
+             CRM app should use "Contact Tech Support" for technical assistance when implemented. -->
+        <div class="human-agent-banner" id="humanAgentBanner" style="display: none;">
+            <div class="banner-content">
+                <div class="banner-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="banner-text">
+                    <strong>Need more information?</strong>
+                    <p>Talk to our sales team</p>
+                </div>
+            </div>
+            <button class="banner-btn" id="requestHumanBtn">Contact Sales</button>
+        </div>
+
+        <!-- Chat Mode -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">
+                <div class="message-content">
+                    Hi! Ask me anything about VoiceFlow CRM - our pricing, features, or how we can help automate your business.
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Mode -->
+        <div class="voice-mode-container" id="voiceModeContainer">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding: 0;">
+                <!-- Status Text -->
+                <div class="voice-status" style="margin-bottom: 24px; text-align: center;">
+                    <div class="voice-status-title" id="voiceStatusTitle" style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+                        Get a Live Voice Demo
+                    </div>
+                    <div class="voice-status-text" id="voiceStatusText" style="font-size: 14px; line-height: 1.6; color: #64748b;">
+                        Experience our AI voice agent! Enter your details and we'll call you instantly.
+                    </div>
+                </div>
+
+                <!-- Demo Request Form -->
+                <div id="voiceDemoForm" style="width: 100%; max-width: 420px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <input
+                            type="text"
+                            id="demoNameInput"
+                            placeholder="Your Name"
+                            class="demo-input"
+                        />
+                        <input
+                            type="email"
+                            id="demoEmailInput"
+                            placeholder="Email Address (optional)"
+                            class="demo-input"
+                        />
+                        <input
+                            type="tel"
+                            id="demoPhoneInput"
+                            placeholder="Phone Number (e.g., +1 555-123-4567)"
+                            class="demo-input"
+                        />
+                        <button
+                            id="requestCallBtn"
+                            class="demo-submit-btn"
+                        >
+                            <span id="btnIcon">📞</span>
+                            <span id="btnText">Call Me Now</span>
+                        </button>
+                    </div>
+                    <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 16px; line-height: 1.5;">
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> Instant callback &nbsp;
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> No app needed &nbsp;
+                        <span style="color: #3b82f6; font-weight: 700;">✓</span> Works on any phone
+                    </p>
+                </div>
+
+                <!-- Status Message (Hidden initially) -->
+                <div id="voiceStatusMessage" style="display: none; margin-top: 20px; padding: 14px 20px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; max-width: 420px; width: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Chat Input (hidden in voice mode) -->
+        <div class="chat-input-container" id="chatInputContainer">
+            <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+                <button class="chat-send-btn" id="chatSendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice feature temporarily disabled due to mobile compatibility issues -->
+    <!-- Will be replaced with phone call integration -->
+
+    <!-- Hybrid Widget Script -->
+    <script>
+        // Contact Form Modal Logic
+        const contactModalOverlay = document.getElementById('contactModalOverlay');
+        const contactModal = document.getElementById('contactModal');
+        const contactForm = document.getElementById('contactForm');
+        const contactFormSubmit = document.getElementById('contactFormSubmit');
+        const contactFormCancel = document.getElementById('contactFormCancel');
+        const contactFormClose = document.getElementById('contactFormClose');
+        const contactFormContainer = document.getElementById('contactFormContainer');
+        const contactFormSuccess = document.getElementById('contactFormSuccess');
+
+        // Get all Contact Sales buttons
+        const contactSalesButtons = document.querySelectorAll('a[href*="Contact Sales"], a[href="mailto:support@voiceflowcrm.ai"]');
+
+        // Open modal when Contact Sales buttons are clicked
+        contactSalesButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                openContactModal();
+            });
+        });
+
+        function openContactModal() {
+            contactModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            contactForm.reset();
+            contactFormContainer.style.display = 'block';
+            contactFormSuccess.style.display = 'none';
+        }
+
+        function closeContactModal() {
+            contactModalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        contactModalOverlay.addEventListener('click', (e) => {
+            if (e.target === contactModalOverlay) {
+                closeContactModal();
+            }
+        });
+
+        // Close modal on cancel
+        contactFormCancel.addEventListener('click', closeContactModal);
+        contactFormClose.addEventListener('click', closeContactModal);
+
+        // Handle form submission
+        contactFormSubmit.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Validate form
+            if (!contactForm.checkValidity()) {
+                contactForm.reportValidity();
+                return;
+            }
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                company: document.getElementById('contactCompany').value,
+                interest: document.getElementById('contactInterest').value,
+                message: document.getElementById('contactMessage').value,
+                source: 'website_contact_form'
+            };
+
+            // Disable submit button
+            contactFormSubmit.disabled = true;
+            contactFormSubmit.textContent = 'Sending...';
+
+            try {
+                // Send to backend API
+                const response = await fetch('/api/public/contact-sales', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    contactFormContainer.style.display = 'none';
+                    contactFormSuccess.style.display = 'block';
+
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        closeContactModal();
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to send message');
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                alert('Sorry, there was an error sending your message. Please try again or email us directly at help.remodely@gmail.com');
+            } finally {
+                // Re-enable submit button
+                contactFormSubmit.disabled = false;
+                contactFormSubmit.textContent = 'Send Message';
+            }
+        });
+
+        // Calendar Booking Modal
+        const calendarModalOverlay = document.getElementById('calendarModalOverlay');
+        const calendarModalClose = document.getElementById('calendarModalClose');
+        const calendarBookingCancel = document.getElementById('calendarBookingCancel');
+        const calendarBookingSubmit = document.getElementById('calendarBookingSubmit');
+        const calendarBookingClose = document.getElementById('calendarBookingClose');
+        const calendarBookingContainer = document.getElementById('calendarBookingContainer');
+        const calendarBookingSuccess = document.getElementById('calendarBookingSuccess');
+        const bookingDateInput = document.getElementById('bookingDate');
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        bookingDateInput.min = today;
+
+        // Auto-detect timezone
+        const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timezoneSelect = document.getElementById('bookingTimezone');
+        const timezoneOptions = Array.from(timezoneSelect.options);
+        const matchingOption = timezoneOptions.find(opt => opt.value === detectedTimezone);
+        if (matchingOption) {
+            timezoneSelect.value = detectedTimezone;
+        }
+
+        function openCalendarModal() {
+            calendarModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            calendarBookingContainer.style.display = 'block';
+            calendarBookingSuccess.style.display = 'none';
+        }
+
+        function closeCalendarModal() {
+            calendarModalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        calendarModalOverlay.addEventListener('click', (e) => {
+            if (e.target === calendarModalOverlay) {
+                closeCalendarModal();
+            }
+        });
+
+        // Close modal buttons
+        calendarModalClose.addEventListener('click', closeCalendarModal);
+        calendarBookingCancel.addEventListener('click', closeCalendarModal);
+        calendarBookingClose.addEventListener('click', closeCalendarModal);
+
+        // Handle calendar booking submission
+        calendarBookingSubmit.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Validate required fields
+            const name = document.getElementById('bookingName').value.trim();
+            const email = document.getElementById('bookingEmail').value.trim();
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+
+            if (!name || !email || !date || !time) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Validate email
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            const bookingData = {
+                name,
+                email,
+                phone: document.getElementById('bookingPhone').value,
+                date,
+                time,
+                timezone: document.getElementById('bookingTimezone').value,
+                notes: document.getElementById('bookingNotes').value,
+                meetingType: 'demo'
+            };
+
+            // Disable submit button
+            calendarBookingSubmit.disabled = true;
+            calendarBookingSubmit.textContent = 'Scheduling...';
+
+            try {
+                const response = await fetch('/api/public/schedule-meeting', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    calendarBookingContainer.style.display = 'none';
+                    calendarBookingSuccess.style.display = 'block';
+
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        closeCalendarModal();
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to schedule meeting');
+                }
+            } catch (error) {
+                console.error('Calendar booking error:', error);
+                alert('Sorry, there was an error scheduling your meeting. Please try again or email us directly at help.remodely@gmail.com');
+            } finally {
+                // Re-enable submit button
+                calendarBookingSubmit.disabled = false;
+                calendarBookingSubmit.textContent = 'Schedule Meeting';
+            }
+        });
+
+        // Chat widget variables
+        const toggleBtn = document.getElementById('aiChatToggle');
+        const widget = document.getElementById('hybridChatWidget');
+        const closeBtn = document.getElementById('chatClose');
+        const chatModeBtn = document.getElementById('chatModeBtn');
+        const voiceModeBtn = document.getElementById('voiceModeBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const voiceModeContainer = document.getElementById('voiceModeContainer');
+        const chatInputContainer = document.getElementById('chatInputContainer');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const popupLabel = document.getElementById('chatPopupLabel');
+
+        let currentMode = 'chat';
+        let popupTimeout;
+
+        // Function to hide popup label with smooth fade-out
+        function hidePopupLabel() {
+            // Check if popup label exists before trying to manipulate it
+            if (!popupLabel) return;
+
+            // Start fade-out animation
+            popupLabel.classList.add('hidden');
+
+            // Remove event listeners
+            window.removeEventListener('scroll', hidePopupLabel);
+            window.removeEventListener('touchstart', hidePopupLabel);
+            document.removeEventListener('click', hidePopupLabel);
+
+            if (popupTimeout) {
+                clearTimeout(popupTimeout);
+            }
+
+            // Completely remove from DOM after animation completes
+            setTimeout(() => {
+                if (popupLabel) {
+                    popupLabel.classList.add('hidden-complete');
+                }
+            }, 300);
+        }
+
+        // Show popup label after 3 seconds (only if element exists)
+        if (popupLabel) {
+            setTimeout(() => {
+                popupLabel.style.display = 'block';
+
+                // Auto-hide after 10 seconds
+                popupTimeout = setTimeout(hidePopupLabel, 10000);
+
+                // Hide on scroll
+                window.addEventListener('scroll', hidePopupLabel, { once: true });
+
+                // Hide on tap/click anywhere (but don't interfere with other clicks)
+                setTimeout(() => {
+                    window.addEventListener('touchstart', hidePopupLabel, { once: true });
+                    document.addEventListener('click', hidePopupLabel, { once: true });
+                }, 100);
+            }, 3000);
+        }
+
+        // Toggle widget open/close
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            widget.classList.toggle('active');
+            toggleBtn.classList.toggle('hidden');
+            hidePopupLabel(); // Hide popup when widget opens
+        });
+
+        closeBtn.addEventListener('click', function() {
+            widget.classList.remove('active');
+            toggleBtn.classList.remove('hidden');
+
+            // Hide ElevenLabs widget when closing
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.remove('voice-active');
+            }
+
+            // Switch back to chat mode when closing
+            if (currentMode === 'voice') {
+                currentMode = 'chat';
+                chatModeBtn.classList.add('active');
+                voiceModeBtn.classList.remove('active');
+                chatMessages.style.display = 'flex';
+                voiceModeContainer.classList.remove('active');
+                chatInputContainer.style.display = 'block';
+            }
+        });
+
+        // Mode switching
+        chatModeBtn.addEventListener('click', function() {
+            if (currentMode === 'chat') return;
+            currentMode = 'chat';
+            chatModeBtn.classList.add('active');
+            voiceModeBtn.classList.remove('active');
+            chatMessages.style.display = 'flex';
+            voiceModeContainer.classList.remove('active');
+            chatInputContainer.style.display = 'block';
+
+            // Hide ElevenLabs widget
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.remove('voice-active');
+            }
+        });
+
+        voiceModeBtn.addEventListener('click', function() {
+            if (currentMode === 'voice') return;
+            currentMode = 'voice';
+            voiceModeBtn.classList.add('active');
+            chatModeBtn.classList.remove('active');
+            chatMessages.style.display = 'none';
+            voiceModeContainer.classList.add('active');
+            chatInputContainer.style.display = 'none';
+
+            // Keep ElevenLabs widget visible but hidden (we control it via our button)
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            if (elevenLabsWidget) {
+                elevenLabsWidget.classList.add('voice-active');
+            }
+        });
+
+        // Chat functionality
+        function addMessage(text, isUser = false, suggestions = null, showContactForm = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isUser ? 'user' : ''}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = isUser ?
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' :
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path></svg>';
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+
+            // Add contact form button if requested
+            if (showContactForm && !isUser) {
+                const contactButton = document.createElement('button');
+                contactButton.className = 'contact-form-btn contact-form-btn-primary';
+                contactButton.style.marginTop = '14px';
+                contactButton.style.display = 'flex';
+                contactButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg><span>Contact Sales</span>';
+                contactButton.onclick = () => {
+                    openContactModal();
+                    // Pre-fill the interest to "demo" since they were chatting
+                    document.getElementById('contactInterest').value = 'demo';
+                };
+                content.appendChild(contactButton);
+            }
+
+            // Add suggestion chips if provided
+            if (suggestions && suggestions.length > 0 && !isUser) {
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.className = 'suggestion-chips';
+
+                suggestions.forEach(suggestion => {
+                    const chip = document.createElement('button');
+                    chip.className = 'suggestion-chip';
+                    chip.textContent = suggestion;
+                    chip.onclick = () => {
+                        chatInput.value = suggestion;
+                        chatInput.focus();
+                        // Optionally auto-send
+                        // sendMessage();
+                    };
+                    suggestionsDiv.appendChild(chip);
+                });
+
+                content.appendChild(suggestionsDiv);
+            }
+
+            chatMessages.appendChild(messageDiv);
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Store conversation history for context
+        let conversationHistory = [];
+
+        // Show thinking indicator
+        function showThinking() {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.id = 'thinking-indicator';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = '🤖';
+
+            const bubbles = document.createElement('div');
+            bubbles.className = 'thinking-bubbles';
+            bubbles.innerHTML = '<div class="thinking-bubble"></div><div class="thinking-bubble"></div><div class="thinking-bubble"></div>';
+
+            thinkingDiv.appendChild(avatar);
+            thinkingDiv.appendChild(bubbles);
+            chatMessages.appendChild(thinkingDiv);
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            return thinkingDiv;
+        }
+
+        // Remove thinking indicator
+        function hideThinking() {
+            const thinking = document.getElementById('thinking-indicator');
+            if (thinking) {
+                thinking.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Check if user wants to schedule a demo
+            const scheduleKeywords = ['schedule', 'book', 'demo', 'meeting', 'call', 'appointment'];
+            const lowerMessage = message.toLowerCase();
+            if (scheduleKeywords.some(keyword => lowerMessage.includes(keyword))) {
+                addMessage(message, true);
+                addMessage("I'd be happy to help you schedule a demo! Let me open our calendar for you.", false);
+                setTimeout(() => {
+                    openCalendarModal();
+                }, 500);
+                return;
+            }
+
+            // Add user message to UI and history
+            addMessage(message, true);
+            conversationHistory.push({ text: message, isUser: true });
+            chatInput.value = '';
+
+            // Disable input while waiting for response
+            chatInput.disabled = true;
+            chatSendBtn.disabled = true;
+
+            // Show thinking bubbles
+            showThinking();
+
+            try {
+                // Call backend API for AI response
+                const response = await fetch('/api/public/marketing-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationHistory: conversationHistory.slice(-10) // Keep last 10 messages for context
+                    })
+                });
+
+                const data = await response.json();
+
+                // Use API response or fallback
+                const aiResponse = data.response || data.fallbackResponse ||
+                    "Thanks for your interest! Our team would love to help you learn more about VoiceFlow CRM. We have flexible plans starting at $149/month with a 14-day free trial. Please email help.remodely@gmail.com for personalized assistance!";
+
+                const suggestions = data.suggestions || [];
+
+                // Log analytics data if available
+                if (data.intent) {
+                    console.log('User intent detected:', data.intent);
+                }
+
+                // Check if user wants to talk to sales or be contacted
+                const showContactForm = message.toLowerCase().match(/contact|talk to|speak with|call me|reach out|get in touch|sales|demo|enterprise/) ||
+                                      data.intent === 'support' ||
+                                      conversationHistory.length >= 6; // Show after 6+ messages
+
+                // Hide thinking bubbles before showing response
+                hideThinking();
+
+                addMessage(aiResponse, false, suggestions, showContactForm);
+                conversationHistory.push({ text: aiResponse, isUser: false });
+
+            } catch (error) {
+                console.error('Chat error:', error);
+
+                // Hide thinking bubbles on error too
+                hideThinking();
+
+                // Better error handling with user-friendly messages
+                let fallbackResponse = "I apologize, but I'm having trouble responding right now. ";
+
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    fallbackResponse += "It seems there's a connection issue. Please check your internet connection and try again.";
+                } else {
+                    fallbackResponse += "VoiceFlow CRM offers AI voice agents and automation starting at $149/month with a 14-day free trial. ";
+                    fallbackResponse += "For immediate assistance, please email help.remodely@gmail.com or fill out our contact form!";
+                }
+
+                const fallbackSuggestions = [
+                    "Show me pricing plans",
+                    "Schedule a demo",
+                    "Tell me how it works"
+                ];
+                addMessage(fallbackResponse, false, fallbackSuggestions, true);
+                conversationHistory.push({ text: fallbackResponse, isUser: false });
+            } finally {
+                // Re-enable input
+                chatInput.disabled = false;
+                chatSendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        chatSendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Voice demo via phone call with user info collection
+        const requestCallBtn = document.getElementById('requestCallBtn');
+        const demoNameInput = document.getElementById('demoNameInput');
+        const demoEmailInput = document.getElementById('demoEmailInput');
+        const demoPhoneInput = document.getElementById('demoPhoneInput');
+        const voiceStatusMessage = document.getElementById('voiceStatusMessage');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnText = document.getElementById('btnText');
+
+        // Handle phone call request
+        requestCallBtn.addEventListener('click', async () => {
+            const name = demoNameInput.value.trim();
+            const email = demoEmailInput.value.trim();
+            const phoneNumber = demoPhoneInput.value.trim();
+
+            // Validate required fields
+            if (!name) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter your name';
+                demoNameInput.focus();
+                return;
+            }
+
+            if (!phoneNumber) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter your phone number';
+                demoPhoneInput.focus();
+                return;
+            }
+
+            // Validate phone number format (basic check)
+            const digitsOnly = phoneNumber.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid phone number (at least 10 digits)';
+                demoPhoneInput.focus();
+                return;
+            }
+
+            // Validate email if provided
+            if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid email address';
+                demoEmailInput.focus();
+                return;
+            }
+
+            // Show loading state
+            requestCallBtn.disabled = true;
+            btnIcon.textContent = '⏳';
+            btnText.textContent = 'Calling...';
+            voiceStatusMessage.style.display = 'block';
+            voiceStatusMessage.className = 'voice-status-message';
+            voiceStatusMessage.textContent = `⏳ Initiating call to ${name}...`;
+
+            try {
+                const response = await fetch('/api/public/voice-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phoneNumber,
+                        name,
+                        email: email || undefined
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Hide any inline status message
+                    voiceStatusMessage.style.display = 'none';
+
+                    // Show success modal popup
+                    const successModal = document.getElementById('successModal');
+                    const successModalMessage = document.getElementById('successModalMessage');
+
+                    successModalMessage.textContent = `Hi ${name}! Your phone should ring in 5-10 seconds.`;
+                    successModal.classList.add('show');
+
+                    // Reset form and hide modal after 5 seconds
+                    setTimeout(() => {
+                        successModal.classList.remove('show');
+                        demoNameInput.value = '';
+                        demoEmailInput.value = '';
+                        demoPhoneInput.value = '';
+                        btnIcon.textContent = '📞';
+                        btnText.textContent = 'Call Me Now';
+                        requestCallBtn.disabled = false;
+                    }, 5000);
+                } else {
+                    throw new Error(data.message || 'Failed to initiate call');
+                }
+            } catch (error) {
+                console.error('Voice demo error:', error);
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.className = 'voice-status-message error';
+                voiceStatusMessage.textContent = '⚠️ ' + (error.message || 'Failed to initiate call. Please try again.');
+
+                // Reset button state on error
+                requestCallBtn.disabled = false;
+                btnIcon.textContent = '📞';
+                btnText.textContent = 'Call Me Now';
+            }
+        });
+
+        // Allow Enter key to submit
+        [demoNameInput, demoEmailInput, demoPhoneInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    requestCallBtn.click();
+                }
+            });
+        });
+
+        // ===== HUMAN AGENT SUPPORT SYSTEM =====
+        const humanAgentBanner = document.getElementById('humanAgentBanner');
+        const requestHumanBtn = document.getElementById('requestHumanBtn');
+
+        // Show banner after 3 messages or if AI can't help
+        let messageCount = 0;
+        const originalAddMessage = addMessage;
+
+        addMessage = function(message, isUser, suggestions, showContact) {
+            originalAddMessage(message, isUser, suggestions, showContact);
+
+            if (isUser) {
+                messageCount++;
+
+                // Show human support banner after 3 user messages
+                if (messageCount >= 3 && humanAgentBanner.style.display === 'none') {
+                    humanAgentBanner.style.display = 'flex';
+                }
+
+                // Also show if user seems frustrated or needs help
+                const frustrationKeywords = ['help', 'human', 'agent', 'person', 'support', 'speak', 'talk', 'frustrated', 'confused', 'don\'t understand'];
+                if (frustrationKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
+                    humanAgentBanner.style.display = 'flex';
+                }
+            }
+        };
+
+        // Handle human agent request
+        requestHumanBtn.addEventListener('click', async () => {
+            // Hide banner
+            humanAgentBanner.style.display = 'none';
+
+            // Create help desk form modal
+            const modalHTML = `
+                <div class="modal-overlay" id="humanAgentModal" style="z-index: 10001;">
+                    <div class="modal-content" style="max-width: 520px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Connect with Our Support Team</h3>
+                            <button class="modal-close" id="closeHumanAgentModal" style="background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; color: #64748b;">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color: #64748b; margin-bottom: 20px;">Fill out the form below and our team will get back to you shortly. For urgent matters, we typically respond within 1-2 hours.</p>
+
+                            <div class="form-group">
+                                <label class="form-label">Your Name *</label>
+                                <input type="text" class="form-input" id="humanAgentName" placeholder="John Smith" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" class="form-input" id="humanAgentEmail" placeholder="john@company.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">How can we help you? *</label>
+                                <textarea class="form-input" id="humanAgentMessage" placeholder="Please describe your question or issue..." rows="4" required style="resize: vertical; min-height: 100px;"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Urgency</label>
+                                <select class="form-input" id="humanAgentUrgency">
+                                    <option value="normal">Normal (4-6 hours)</option>
+                                    <option value="high">High Priority (2-4 hours)</option>
+                                    <option value="urgent">Urgent (1-2 hours)</option>
+                                </select>
+                            </div>
+
+                            <div id="humanAgentError" style="display: none; padding: 12px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 14px; margin-top: 12px;"></div>
+
+                            <div id="humanAgentSuccess" style="display: none; padding: 12px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 8px; color: #065f46; font-size: 14px; margin-top: 12px;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-modern btn-modern-secondary" id="cancelHumanAgent">Cancel</button>
+                            <button class="btn-modern btn-modern-primary" id="submitHumanAgent">
+                                <span id="submitHumanAgentText">Submit Request</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            const modal = document.getElementById('humanAgentModal');
+            const closeBtn = document.getElementById('closeHumanAgentModal');
+            const cancelBtn = document.getElementById('cancelHumanAgent');
+            const submitBtn = document.getElementById('submitHumanAgent');
+            const errorDiv = document.getElementById('humanAgentError');
+            const successDiv = document.getElementById('humanAgentSuccess');
+
+            // Close modal function
+            const closeModal = () => {
+                modal.style.animation = 'fadeOut 0.2s ease-out';
+                setTimeout(() => modal.remove(), 200);
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Handle form submission
+            submitBtn.addEventListener('click', async () => {
+                const name = document.getElementById('humanAgentName').value.trim();
+                const email = document.getElementById('humanAgentEmail').value.trim();
+                const message = document.getElementById('humanAgentMessage').value.trim();
+                const urgency = document.getElementById('humanAgentUrgency').value;
+
+                // Validate
+                if (!name || !email || !message) {
+                    errorDiv.textContent = 'Please fill in all required fields.';
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                    return;
+                }
+
+                if (!email.includes('@')) {
+                    errorDiv.textContent = 'Please enter a valid email address.';
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                    return;
+                }
+
+                // Show loading
+                submitBtn.disabled = true;
+                document.getElementById('submitHumanAgentText').textContent = 'Submitting...';
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                try {
+                    // Format conversation history for email
+                    const formattedHistory = conversationHistory.slice(-6).map(msg => ({
+                        role: msg.isUser ? 'user' : 'assistant',
+                        content: msg.text
+                    }));
+
+                    const response = await fetch('/api/help-desk/request', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userName: name,
+                            userEmail: email,
+                            userMessage: message,
+                            conversationHistory: formattedHistory,
+                            urgency: urgency,
+                            category: 'chat_support'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        successDiv.innerHTML = `
+                            <strong>✓ Request Submitted!</strong><br>
+                            Thank you, ${name}! Our team will contact you at ${email} within ${data.estimatedResponseTime || '4-6 hours'}.
+                        `;
+                        successDiv.style.display = 'block';
+                        errorDiv.style.display = 'none';
+
+                        // Close modal after 3 seconds
+                        setTimeout(() => {
+                            closeModal();
+
+                            // Add confirmation message to chat
+                            addMessage('✅ Your support request has been submitted successfully! Our team will reach out to you soon.', false);
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Failed to submit request');
+                    }
+                } catch (error) {
+                    console.error('Help desk error:', error);
+                    errorDiv.textContent = 'Failed to submit request. Please email help.remodely@gmail.com directly.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    document.getElementById('submitHumanAgentText').textContent = 'Submit Request';
+                }
+            });
+        });
+
+        // Professional hero - phone mockup stays visible on all devices
+    </script>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal-overlay">
+        <div class="success-modal">
+            <div class="success-icon">📞 ✨</div>
+            <div class="success-title">Calling You Now!</div>
+            <div class="success-message" id="successModalMessage"></div>
+            <div class="success-submessage" id="successModalSubmessage">
+                Our AI assistant will introduce herself and give you an amazing demo of our voice AI platform!
+            </div>
+        </div>
+    </div>
+</body>
+</html>

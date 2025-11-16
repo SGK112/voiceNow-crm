@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remodely.ai - AI Voice Agents + Visual Workflow Automation</title>
+    <meta name="description" content="Combine ElevenLabs AI voice agents with n8n-style visual workflows. Powered by Google, OpenAI, and Anthropic for best-in-class automation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light-bg: #f8fafc;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            background: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navigation - Sticky with blur */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section - Mobile First */
+        .hero {
+            padding: 120px 24px 60px;
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 100px;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 8vw, 64px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--gray) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-highlight {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(16px, 3vw, 20px);
+            color: var(--gray);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto 40px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        /* Integration Showcase */
+        .integrations {
+            padding: 80px 24px;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .integration-card {
+            background: white;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .integration-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.15);
+        }
+
+        .integration-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .integration-card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .integration-card p {
+            color: var(--gray);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .integration-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 24px;
+            background: var(--light-bg);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: var(--gray);
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(32px, 6vw, 48px);
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 40px 24px;
+            background: var(--dark);
+            color: white;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        /* Floating Chat Button */
+        .chat-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .chat-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Responsive Desktop */
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .hero-cta {
+                flex-direction: row;
+                max-width: none;
+                justify-content: center;
+            }
+
+            .cta-buttons {
+                flex-direction: row;
+                max-width: none;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">🎙️ Remodely.ai</a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#integrations">Integrations</a>
+                <a href="#pricing">Pricing</a>
+            </div>
+            <a href="/login" class="nav-cta">Start Free Trial →</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                ✨ Powered by ElevenLabs, Google AI, OpenAI & Anthropic
+            </div>
+            <h1>
+                <span class="hero-highlight">AI Voice Agents</span> +<br>
+                Visual Workflow Automation
+            </h1>
+            <p>
+                Combine ultra-realistic AI phone calls with n8n-style workflows.
+                No-code automation that actually feels human.
+            </p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="openChat()">Try Live AI Demo 🎙️</button>
+                <a href="/signup" class="btn btn-secondary">Start Free Trial</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Always Available</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">80%</span>
+                    <span class="stat-label">Cost Savings</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Uptime SLA</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integrations Showcase -->
+    <section id="integrations" class="integrations">
+        <div class="section-header">
+            <div class="section-label">Powered by Industry Leaders</div>
+            <h2 class="section-title">Best-of-Breed Integrations</h2>
+            <p class="section-description">
+                We combine the best AI and automation tools to give you superpowers, not limitations.
+            </p>
+        </div>
+        <div class="integration-grid">
+            <div class="integration-card">
+                <div class="integration-icon">🎙️</div>
+                <h3>ElevenLabs Voice AI</h3>
+                <p>Ultra-realistic AI voice agents that sound completely human. Perfect for sales calls, customer support, and lead qualification.</p>
+                <span class="integration-badge">Voice Generation</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">🧠</div>
+                <h3>Multi-AI Brain</h3>
+                <p>Choose from GPT-4, Claude 3, or Gemini Pro. Pick the best model for each task. Never locked into one provider.</p>
+                <span class="integration-badge">OpenAI • Anthropic • Google</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">🔄</div>
+                <h3>n8n Workflows</h3>
+                <p>Visual workflow automation like Zapier, but better. Self-hosted, unlimited automations, no monthly limits.</p>
+                <span class="integration-badge">Visual Automation</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">📊</div>
+                <h3>Google Workspace</h3>
+                <p>Seamless integration with Gmail, Google Sheets, Calendar, and Drive. Automate your entire workflow.</p>
+                <span class="integration-badge">Sheets • Calendar • Gmail</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">💳</div>
+                <h3>Stripe Payments</h3>
+                <p>Accept payments, manage subscriptions, and track revenue. Built-in billing that just works.</p>
+                <span class="integration-badge">Payments & Billing</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">💬</div>
+                <h3>Slack & Twilio</h3>
+                <p>Get instant notifications in Slack. Send SMS/calls via Twilio. Connect with your existing tools.</p>
+                <span class="integration-badge">Communication</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <div class="section-label">Everything You Need</div>
+            <h2 class="section-title">Built for Modern Sales Teams</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎙️</div>
+                <h3>AI Voice Agents</h3>
+                <p>Deploy AI agents that make/receive calls 24/7. Sounds human, never takes breaks, scales infinitely.</p>
+                <ul class="feature-list">
+                    <li>Lead qualification calls</li>
+                    <li>Appointment booking</li>
+                    <li>Customer support</li>
+                    <li>Collections & reminders</li>
+                    <li>Custom use cases</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Visual Workflows</h3>
+                <p>Drag-and-drop automation builder. No coding required. If-this-then-that on steroids.</p>
+                <ul class="feature-list">
+                    <li>Visual workflow builder</li>
+                    <li>Triggers: calls, emails, webhooks</li>
+                    <li>Actions: CRM, email, SMS, Slack</li>
+                    <li>Conditions & branching logic</li>
+                    <li>Unlimited automations</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Multi-AI Chat</h3>
+                <p>Deploy chat agents powered by GPT-4, Claude, or Gemini. Choose the best model for each task.</p>
+                <ul class="feature-list">
+                    <li>Website chat widget</li>
+                    <li>Slack/WhatsApp bots</li>
+                    <li>Knowledge base (RAG)</li>
+                    <li>Function calling</li>
+                    <li>24/7 support automation</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Full CRM Included</h3>
+                <p>Manage leads, deals, tasks, and pipelines. Everything syncs automatically from voice calls.</p>
+                <ul class="feature-list">
+                    <li>Lead & deal management</li>
+                    <li>Call transcripts & recordings</li>
+                    <li>Task automation</li>
+                    <li>Team collaboration</li>
+                    <li>Analytics dashboard</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>200+ Integrations</h3>
+                <p>Connect with Google, Slack, Stripe, Twilio, and hundreds of other tools via n8n.</p>
+                <ul class="feature-list">
+                    <li>Google Workspace</li>
+                    <li>Slack & Microsoft Teams</li>
+                    <li>Stripe & payment gateways</li>
+                    <li>Twilio & SMS providers</li>
+                    <li>Custom webhooks & APIs</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>AI-Powered Insights</h3>
+                <p>Every call analyzed automatically. Get quality scores, sentiment, and next-best-actions.</p>
+                <ul class="feature-list">
+                    <li>Lead quality scoring</li>
+                    <li>Sentiment analysis</li>
+                    <li>Pain point detection</li>
+                    <li>Objection tracking</li>
+                    <li>Conversion predictions</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Ready to 10x Your Sales Team?</h2>
+        <p>Start with a free trial. No credit card required. Cancel anytime.</p>
+        <div class="cta-buttons">
+            <button class="btn btn-white" onclick="openChat()">Try Live Demo 🎙️</button>
+            <a href="/signup" class="btn btn-outline">Start Free Trial →</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 Remodely.ai. All rights reserved.</p>
+    </footer>
+
+    <!-- Floating Chat Button -->
+    <button class="chat-fab" onclick="openChat()" aria-label="Open live demo">
+        💬
+    </button>
+
+    <script>
+        function openChat() {
+            // Smooth scroll to top and open chat widget
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                alert('Live AI Voice Demo\n\nClick "Call Me Now" to receive an instant AI phone call!\n\nThe AI will:\n✓ Greet you by name\n✓ Explain VoiceFlow CRM\n✓ Answer your questions\n✓ Sound completely human\n\nYour phone will ring in 5-10 seconds!');
+                window.location.href = '/';
+            }, 500);
+        }
+    </script>
+</body>
+</html>

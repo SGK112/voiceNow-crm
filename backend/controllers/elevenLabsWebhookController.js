@@ -1,7 +1,11 @@
 import TwilioService from '../services/twilioService.js';
 import emailService from '../services/emailService.js';
+import AIService from '../services/aiService.js';
+import WorkflowEngine from '../services/workflowEngine.js';
 
 const twilioService = new TwilioService();
+const aiService = new AIService();
+const workflowEngine = new WorkflowEngine();
 
 // Handle agent action: Send signup link via MMS with image during call
 export const sendSignupLinkAction = async (req, res) => {
@@ -169,14 +173,46 @@ export const handlePostCallFollowUp = async (req, res) => {
         });
         console.log(`✅ Post-call confirmation email sent to ${customerEmail}`);
 
-        // Send lead alert to business
+        // Generate AI-powered call analysis
+        let callAnalysis = null;
+        if (transcript && aiService.isAvailable()) {
+          try {
+            const analysisPrompt = `Analyze this sales call transcript and provide:
+1. Lead Quality Score (1-10)
+2. Interest Level (High/Medium/Low)
+3. Key Pain Points mentioned
+4. Objections raised
+5. Next Best Action for sales team
+6. Likelihood to Convert (%)
+
+Transcript:
+${transcript}
+
+Provide a concise analysis in bullet points.`;
+
+            callAnalysis = await aiService.chat([
+              { role: 'user', content: analysisPrompt }
+            ], {
+              model: 'gpt-4o-mini', // Fast and cost-effective
+              temperature: 0.3,
+              maxTokens: 500
+            });
+            console.log(`✅ AI call analysis generated`);
+          } catch (aiError) {
+            console.error('Failed to generate AI analysis:', aiError);
+            callAnalysis = null;
+          }
+        }
+
+        // Send lead alert to business with analysis
         try {
           const transcriptSnippet = transcript ? transcript.substring(0, 500) : 'No transcript available';
+          const fullTranscript = transcript || 'No transcript available';
 
           await emailService.sendEmail({
             to: 'help.remodely@gmail.com',
             subject: `🎯 New Demo Lead: ${customerName || 'Unknown'} ${customerPhone ? `(${customerPhone})` : ''}`,
-            text: `New demo call completed!\n\nLead Information:\n- Name: ${customerName || 'Not provided'}\n- Phone: ${customerPhone || 'Not provided'}\n- Email: ${customerEmail}\n- Conversation ID: ${conversation_id}\n\nConversation Snippet:\n${transcriptSnippet}\n\nNext Steps:\n- Follow up with the lead\n- Check if they signed up for trial\n- Provide personalized assistance\n\nView full conversation in CRM dashboard.`,
+            text: `New demo call completed!\n\nLead Information:\n- Name: ${customerName || 'Not provided'}\n- Phone: ${customerPhone || 'Not provided'}\n- Email: ${customerEmail}\n- Conversation ID: ${conversation_id}\n\n${callAnalysis ? `AI Call Analysis:\n${callAnalysis}\n\n` : ''}Conversation Snippet:\n${transcriptSnippet}\n\nFull Transcript:\n${fullTranscript}\n\nNext Steps:\n- Follow up with the lead\n- Check if they signed up for trial\n- Provide personalized assistance\n\nView full conversation in CRM dashboard.`,
             html: `
               <!DOCTYPE html>
               <html>
@@ -211,9 +247,21 @@ export const handlePostCallFollowUp = async (req, res) => {
                       </tr>
                     </table>
 
+                    ${callAnalysis ? `
+                    <div style="background-color: #fef3c7; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                      <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">🤖 AI Call Analysis</h3>
+                      <p style="margin: 0; font-size: 14px; color: #78350f; white-space: pre-wrap; line-height: 1.6;">${callAnalysis}</p>
+                    </div>
+                    ` : ''}
+
                     <div style="background-color: #f8fafc; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #10b981;">
                       <h3 style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px;">📝 Conversation Snippet</h3>
                       <p style="margin: 0; font-size: 14px; color: #475569; font-family: monospace; white-space: pre-wrap;">${transcriptSnippet}</p>
+                    </div>
+
+                    <div style="background-color: #f1f5f9; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                      <h3 style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px;">📄 Full Transcript</h3>
+                      <p style="margin: 0; font-size: 13px; color: #475569; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto;">${fullTranscript}</p>
                     </div>
 
                     <div style="background-color: #eff6ff; padding: 20px; margin: 20px 0; border-radius: 8px;">
@@ -241,12 +289,42 @@ export const handlePostCallFollowUp = async (req, res) => {
       }
     }
 
+    // Trigger workflow automation for call completed
+    try {
+      await workflowEngine.handleTrigger('call_completed', {
+        callData: {
+          id: call_id,
+          conversationId: conversation_id,
+          agentId: agent_id,
+          phoneNumber: customerPhone,
+          status: 'completed',
+          transcript: transcript || '',
+          analysis: analysis || {},
+          metadata: metadata || {}
+        },
+        lead: {
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail
+        },
+        agent: {
+          id: agent_id
+        },
+        aiAnalysis: callAnalysis || null
+      });
+      console.log(`✅ Workflow triggered for call completion`);
+    } catch (workflowError) {
+      console.error('Failed to trigger workflow:', workflowError);
+      // Don't fail the request if workflow fails
+    }
+
     // Send success response
     res.json({
       success: true,
       message: 'Post-call follow-up sent',
       sms_sent: !!customerPhone,
-      email_sent: !!customerEmail
+      email_sent: !!customerEmail,
+      workflow_triggered: true
     });
 
   } catch (error) {

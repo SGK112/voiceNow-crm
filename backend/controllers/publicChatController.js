@@ -4,6 +4,9 @@ import emailService from '../services/emailService.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
 import TwilioService from '../services/twilioService.js';
 import callMonitorService from '../services/callMonitorService.js';
+import WorkflowEngine from '../services/workflowEngine.js';
+
+const workflowEngine = new WorkflowEngine();
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
@@ -712,6 +715,35 @@ export const requestVoiceDemo = async (req, res) => {
         trigger_source: 'marketing_page_demo'
       });
       console.log(`✅ Call registered for automatic email follow-up`);
+    }
+
+    // Trigger workflow automation for demo call initiated
+    try {
+      await workflowEngine.handleTrigger('call_initiated', {
+        callData: {
+          id: callId,
+          phoneNumber: formattedNumber,
+          agentId: demoAgentId,
+          status: 'initiated',
+          type: 'demo',
+          source: 'marketing_page'
+        },
+        lead: {
+          name: name,
+          firstName: firstName,
+          phone: formattedNumber,
+          email: email || null
+        },
+        agent: {
+          type: 'demo',
+          id: demoAgentId
+        },
+        metadata: dynamicVariables
+      });
+      console.log(`✅ Workflow triggered for demo call initiation`);
+    } catch (workflowError) {
+      console.error('Failed to trigger workflow:', workflowError);
+      // Don't fail the request if workflow fails
     }
 
     // Send lead notification to sales team

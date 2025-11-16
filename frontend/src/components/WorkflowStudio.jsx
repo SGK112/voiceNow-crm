@@ -767,7 +767,7 @@ function WorkflowStudioContent() {
     }, {});
 
     return (
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex relative" style={{ height: '100%' }}>
         {/* Node Palette */}
         <div className={`${showNodePalette ? 'w-52' : 'w-12'} bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden`}>
           <div className="p-2 h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
