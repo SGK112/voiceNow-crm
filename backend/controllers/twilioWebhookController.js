@@ -288,9 +288,9 @@ export const handleTwilioSms = async (req, res) => {
     if (wantsCall) {
       console.log('   🎯 Customer requested a call - initiating voice demo');
 
-      // Trigger ElevenLabs voice call (same agent as marketing page)
+      // Trigger ElevenLabs voice call (use SMS-specific agent)
       try {
-        const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9301k802kktwfbhrbe9bam7f1spe';
+        const demoAgentId = process.env.ELEVENLABS_SMS_AGENT_ID || 'agent_8101ka4wyweke1s9np3je7npewrr';
         const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
         const webhookUrl = process.env.WEBHOOK_URL || 'https://f66af302a875.ngrok-free.app';
 
@@ -302,16 +302,11 @@ export const handleTwilioSms = async (req, res) => {
           return;
         }
 
-        // Extract name from previous messages if available (fallback to "there")
-        const customerName = 'there'; // Could be enhanced to store customer name
-
         console.log(`📞 Initiating ElevenLabs voice call to ${From}`);
 
         const dynamicVariables = {
-          customer_name: customerName,
-          lead_phone: From,
-          company_name: 'Remodelee AI',
-          trigger_source: 'sms_request'
+          customer_phone: From,
+          trigger_source: 'sms_demo'
         };
 
         // Call ElevenLabs API - use agent's default configuration
@@ -332,9 +327,8 @@ export const handleTwilioSms = async (req, res) => {
           // Register call for automatic post-call email monitoring
           if (callId) {
             callMonitorService.registerCall(callId, From, {
-              customer_name: customerName,
               customer_phone: From,
-              trigger_source: 'sms_request'
+              trigger_source: 'sms_demo'
             });
             console.log(`✅ Call registered for automatic email follow-up`);
           }
