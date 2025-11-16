@@ -1,8 +1,27 @@
 import N8nWorkflow from '../models/N8nWorkflow.js';
 import N8nService from '../services/n8nService.js';
+import mongoose from 'mongoose';
 
 // Don't instantiate at module level - do it inside functions so env vars are loaded
 const getN8nService = () => new N8nService();
+
+// Visual Workflow Schema (for templates)
+const visualWorkflowSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  name: String,
+  description: String,
+  nodes: Array,
+  edges: Array,
+  status: String,
+  isTemplate: Boolean,
+  category: String,
+  icon: String,
+  tags: [String],
+  createdAt: Date,
+  updatedAt: Date
+}, { strict: false });
+
+const VisualWorkflow = mongoose.models.VisualWorkflow || mongoose.model('VisualWorkflow', visualWorkflowSchema);
 
 export const getWorkflows = async (req, res) => {
   try {
@@ -210,8 +229,39 @@ export const deleteWorkflow = async (req, res) => {
 
 export const getPrebuiltTemplates = async (req, res) => {
   try {
-    const templates = getN8nService().getPrebuiltWorkflowTemplates();
-    res.json(templates);
+    // Get both n8n templates and visual workflow templates
+    const n8nTemplates = getN8nService().getPrebuiltWorkflowTemplates();
+
+    // Get visual workflow templates from MongoDB
+    const visualTemplates = await VisualWorkflow.find({ isTemplate: true }).lean();
+
+    // Format visual templates to match expected structure
+    const formattedVisualTemplates = visualTemplates.reduce((acc, template) => {
+      acc[template._id] = {
+        id: template._id,
+        name: template.name,
+        description: template.description,
+        category: template.category || 'lead_generation',
+        icon: template.icon || '🎯',
+        tags: template.tags || [],
+        nodes: template.nodes,
+        edges: template.edges,
+        workflowJson: {
+          nodes: template.nodes,
+          edges: template.edges
+        },
+        type: 'visual'
+      };
+      return acc;
+    }, {});
+
+    // Combine both types of templates
+    const allTemplates = {
+      ...n8nTemplates,
+      ...formattedVisualTemplates
+    };
+
+    res.json(allTemplates);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
