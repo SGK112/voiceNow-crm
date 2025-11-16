@@ -19,6 +19,64 @@ class ElevenLabsService {
     });
   }
 
+  /**
+   * Generate current date/time context for agents
+   * This ensures agents always know the current date and time
+   */
+  generateDateTimeContext() {
+    const now = new Date();
+
+    // Format: Friday, November 15, 2025
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+
+    // Format: 3:45 PM MST
+    const timeOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+    const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+
+    // Get day of week
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+
+    // Determine time of day
+    const hour = now.getHours();
+    let timeOfDay;
+    if (hour < 12) timeOfDay = 'morning';
+    else if (hour < 17) timeOfDay = 'afternoon';
+    else if (hour < 21) timeOfDay = 'evening';
+    else timeOfDay = 'night';
+
+    // Calculate tomorrow
+    const tomorrow = new Date(now.getTime() + 86400000);
+    const tomorrowFormatted = tomorrow.toLocaleDateString('en-US', dateOptions);
+
+    // Calculate next week
+    const nextWeekStart = new Date(now.getTime() + (8 - now.getDay()) * 86400000);
+    const nextWeekFormatted = nextWeekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    return `
+**CURRENT DATE & TIME INFORMATION:**
+📅 Today's Date: ${formattedDate}
+🕐 Current Time: ${formattedTime}
+📆 Day of Week: ${dayOfWeek}
+☀️ Time of Day: ${timeOfDay}
+
+**IMPORTANT - USE THIS INFORMATION:**
+- When scheduling appointments, today is ${formattedDate}
+- For "tomorrow", that means ${tomorrowFormatted}
+- For "next week", that's the week starting ${nextWeekFormatted}
+- When someone asks "what's today's date?", say "${formattedDate}"
+- Always reference the correct day of week (${dayOfWeek})
+- Adjust your greeting based on time of day (currently ${timeOfDay})
+
+**BOOKING APPOINTMENTS:**
+When scheduling, calculate dates from TODAY (${formattedDate}):
+- "Tomorrow" = ${tomorrow.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+- "Next Monday" = Calculate from ${formattedDate}
+- Always confirm the full date when booking
+
+`.trim();
+  }
+
   async getVoices() {
     try {
       const response = await this.client.get('/voices');
@@ -83,6 +141,27 @@ class ElevenLabsService {
       // Validate inputs
       if (!agentId || !phoneNumber || !agentPhoneNumberId) {
         throw new Error('Missing required parameters for call initiation');
+      }
+
+      // ALWAYS inject current date/time context into the script
+      const dateTimeContext = this.generateDateTimeContext();
+
+      // If there's a personalized script, prepend date/time context
+      if (personalizedScript) {
+        // Remove any old date/time context first
+        const cleanedScript = personalizedScript.replace(/\*\*CURRENT DATE & TIME INFORMATION:\*\*[\s\S]*?(?=\n\n(?:\*\*[A-Z]|\w+:)|$)/, '').trim();
+        personalizedScript = dateTimeContext + '\n\n' + cleanedScript;
+      } else {
+        // If no personalized script, we'll still add date/time via conversation_config_override
+        // Get the agent's current config and prepend date/time
+        try {
+          const agent = await this.getAgentById(agentId);
+          const currentPrompt = agent.conversation_config?.agent?.prompt?.prompt || '';
+          const cleanedPrompt = currentPrompt.replace(/\*\*CURRENT DATE & TIME INFORMATION:\*\*[\s\S]*?(?=\n\n(?:\*\*[A-Z]|\w+:)|$)/, '').trim();
+          personalizedScript = dateTimeContext + '\n\n' + cleanedPrompt;
+        } catch (error) {
+          console.warn('⚠️ Could not fetch agent config for date/time injection:', error.message);
+        }
       }
 
       // Validate script length (ElevenLabs typically has limits around 3000-5000 chars)

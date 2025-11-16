@@ -12,8 +12,8 @@ const twilioClient = twilio(
 
 const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
-// Demo agent configuration (same as marketing page)
-const DEMO_AGENT_ID = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9301k802kktwfbhrbe9bam7f1spe';
+// SMS agent configuration (separate from website form agent)
+const SMS_AGENT_ID = process.env.ELEVENLABS_SMS_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
 const DEMO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 /**
@@ -46,7 +46,7 @@ router.post('/trigger-demo-call', async (req, res) => {
           const webhookUrl = process.env.WEBHOOK_URL || process.env.BASE_URL;
 
           const callData = await elevenLabsService.initiateCall(
-            DEMO_AGENT_ID,
+            SMS_AGENT_ID,
             From,
             agentPhoneNumberId,
             `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
@@ -77,7 +77,7 @@ router.post('/trigger-demo-call', async (req, res) => {
             type: 'demo_call_triggered',
             phone: From,
             callId: callId,
-            agentId: DEMO_AGENT_ID,
+            agentId: SMS_AGENT_ID,
             timestamp: new Date()
           });
 
