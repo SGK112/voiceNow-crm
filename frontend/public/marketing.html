@@ -10,7 +10,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/marketing-enhanced-styles.css">
+    <link rel="stylesheet" href="/cookie-consent.css">
     <style>
+        /*
+         * Background Images Guide:
+         *
+         * To add construction or team images to your marketing page:
+         * 1. Place images in /frontend/public/ (e.g., construction.jpg, team.jpg)
+         * 2. Uncomment the background-image CSS in the sections below
+         * 3. Replace '/path/to/image.jpg' with your actual image path
+         *
+         * Recommended sections for images:
+         * - .hero: Construction site or finished project (line 178)
+         * - .cta-section: Team photo or construction crew (line 1142)
+         *
+         * The overlays ensure text remains readable over images.
+         */
+
         * {
             margin: 0;
             padding: 0;
@@ -175,6 +191,11 @@
             position: relative;
             overflow: hidden;
             background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            /* Optional: Add background image by uncommenting and adding image URL */
+            /* background-image: linear-gradient(rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.95)), url('/path/to/construction-image.jpg'); */
+            /* background-size: cover; */
+            /* background-position: center; */
+            /* background-attachment: fixed; */
         }
 
         .hero::before {
@@ -1133,6 +1154,11 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            /* Optional: Add team or construction background image */
+            /* background-image: linear-gradient(rgba(30, 41, 59, 0.85), rgba(30, 41, 59, 0.90)), url('/path/to/team-image.jpg'); */
+            /* background-size: cover; */
+            /* background-position: center; */
+            /* background-attachment: fixed; */
         }
 
         .cta-section::before {
@@ -2657,6 +2683,346 @@
             transform: none;
             box-shadow: none;
         }
+
+        /* ============================================
+           COMPREHENSIVE MOBILE OPTIMIZATIONS
+           ============================================ */
+
+        @media (max-width: 968px) {
+            /* Hero Section Mobile */
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+                line-height: 1.2;
+            }
+
+            .hero-description {
+                font-size: 16px;
+                max-width: 100%;
+            }
+
+            .hero-cta-group {
+                flex-direction: column;
+                width: 100%;
+                gap: 12px;
+            }
+
+            .hero-cta-group .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px 24px;
+            }
+
+            /* Stats Section Mobile */
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            /* Features Section Mobile */
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            .feature-card {
+                padding: 24px 20px;
+            }
+
+            /* Pricing Section Mobile */
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 0 20px;
+            }
+
+            .pricing-card {
+                max-width: 100%;
+            }
+
+            /* Integration Grid Mobile */
+            .integration-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                padding: 0 20px;
+            }
+
+            /* Navigation Mobile */
+            .nav-menu {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+            .btn {
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+
+            /* Section Spacing */
+            section {
+                padding: 60px 20px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            /* CTA Section Mobile */
+            .cta-section {
+                padding: 60px 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 32px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .cta-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            /* Tighter mobile spacing */
+            .hero {
+                padding: 80px 16px 40px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+                line-height: 1.2;
+            }
+
+            .hero-badge {
+                font-size: 11px;
+                padding: 6px 14px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .hero-cta-group .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            /* Stats Mobile */
+            .stat-number {
+                font-size: 32px;
+            }
+
+            .stat-label {
+                font-size: 13px;
+            }
+
+            /* Features Mobile */
+            .feature-card {
+                padding: 20px 16px;
+            }
+
+            .feature-icon {
+                font-size: 36px;
+            }
+
+            .feature-card h3 {
+                font-size: 18px;
+            }
+
+            .feature-card p {
+                font-size: 14px;
+            }
+
+            /* Pricing Mobile */
+            .pricing-card {
+                padding: 24px 20px;
+            }
+
+            .plan-price {
+                font-size: 36px;
+            }
+
+            .plan-name {
+                font-size: 20px;
+            }
+
+            /* Integration Grid - Single Column on Small Mobile */
+            .integration-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .integration-card {
+                padding: 16px;
+            }
+
+            /* Section Headings */
+            h2 {
+                font-size: 26px;
+            }
+
+            .section-subtitle {
+                font-size: 14px;
+            }
+
+            /* CTA Section */
+            .cta-section {
+                padding: 40px 16px;
+            }
+
+            .cta-section h2 {
+                font-size: 26px;
+            }
+
+            .cta-section p {
+                font-size: 15px;
+            }
+
+            /* Footer Mobile */
+            .footer {
+                padding: 40px 16px 20px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .footer-column h4 {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+
+            .footer-column a {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            /* Make all buttons touch-friendly */
+            button, .btn, a.btn {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Ensure text stays readable */
+            body {
+                font-size: 15px;
+                line-height: 1.6;
+            }
+
+            /* Prevent horizontal scroll */
+            .container, .section-container {
+                max-width: 100%;
+                overflow-x: hidden;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            /* Touch-friendly spacing */
+            .feature-grid,
+            .pricing-cards,
+            .integration-grid {
+                gap: 16px;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 375px) {
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .hero-description {
+                font-size: 14px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
+
+            .plan-price {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            /* Ensure navbar doesn't overflow */
+            .navbar-container {
+                padding: 12px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .logo-icon {
+                font-size: 20px;
+            }
+        }
+
+        /* Landscape mode optimization for phones */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .hero {
+                padding: 60px 16px 30px;
+            }
+
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            section {
+                padding: 40px 16px;
+            }
+        }
+
+        /* Prevent zoom on input focus (iOS) */
+        @media (max-width: 640px) {
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            textarea,
+            select {
+                font-size: 16px;
+            }
+        }
+
+        /* Optimize touch targets */
+        @media (hover: none) and (pointer: coarse) {
+            /* Touch device optimization */
+            .nav-link,
+            .btn,
+            button,
+            a {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            /* Increase padding for better touch targets */
+            .feature-card,
+            .pricing-card,
+            .integration-card {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3537,34 +3903,34 @@
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <a href="#how-it-works">How It Works</a>
-                        <a href="#integrations">Integrations</a>
-                        <a href="#pricing">Pricing</a>
+                        <a href="/features.html">Features</a>
+                        <a href="/how-it-works.html">How It Works</a>
+                        <a href="/integrations.html">Integrations</a>
+                        <a href="/pricing.html">Pricing</a>
                     </div>
 
                     <div class="footer-column">
                         <h4>Company</h4>
-                        <a href="/login">About</a>
-                        <a href="/login">Blog</a>
-                        <a href="/login">Careers</a>
-                        <a href="/login">Contact</a>
+                        <a href="/about.html">About</a>
+                        <a href="/blog.html">Blog</a>
+                        <a href="/careers.html">Careers</a>
+                        <a href="/contact.html">Contact</a>
                     </div>
 
                     <div class="footer-column">
                         <h4>Resources</h4>
-                        <a href="/login">Documentation</a>
-                        <a href="/login">API Reference</a>
-                        <a href="/login">Support</a>
-                        <a href="/login">Status</a>
+                        <a href="/documentation.html">Documentation</a>
+                        <a href="/api-reference.html">API Reference</a>
+                        <a href="/support.html">Support</a>
+                        <a href="/status.html">Status</a>
                     </div>
 
                     <div class="footer-column">
                         <h4>Legal</h4>
-                        <a href="/login">Privacy Policy</a>
-                        <a href="/login">Terms of Service</a>
-                        <a href="/login">Cookie Policy</a>
-                        <a href="/login">Security</a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                        <a href="/terms.html">Terms of Service</a>
+                        <a href="/cookies.html">Cookie Policy</a>
+                        <a href="/security.html">Security</a>
                     </div>
                 </div>
             </div>
@@ -4578,5 +4944,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Cookie Consent Banner -->
+    <script src="/cookie-consent.js"></script>
 </body>
 </html>

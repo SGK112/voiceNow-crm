@@ -19,9 +19,22 @@ const leadSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Additional Contact Info
+  alternatePhone: String,
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: { type: String, default: 'USA' }
+  },
+  company: String,
+  jobTitle: String,
+
+  // Lead Classification
   source: {
     type: String,
-    enum: ['lead_gen', 'booking', 'collections', 'promo', 'support', 'manual'],
+    enum: ['lead_gen', 'booking', 'collections', 'promo', 'support', 'manual', 'referral', 'website', 'social_media', 'ai_call', 'import'],
     required: true
   },
   qualified: {
@@ -40,27 +53,106 @@ const leadSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['new', 'contacted', 'qualified', 'converted', 'lost'],
+    enum: ['new', 'contacted', 'qualified', 'proposal_sent', 'negotiation', 'converted', 'lost', 'on_hold'],
     default: 'new'
   },
-  assignedTo: {
-    type: String
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high', 'urgent'],
+    default: 'medium'
   },
+
+  // Assignment & Ownership
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  assignedToName: String,
+  teamMembers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+
+  // Activity Tracking
   callId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CallLog'
   },
+  lastActivityType: {
+    type: String,
+    enum: ['call', 'email', 'sms', 'meeting', 'note', 'ai_call']
+  },
+  lastActivityAt: Date,
+  lastContactedAt: Date,
+  convertedAt: Date,
+
+  // Financial
+  totalRevenue: {
+    type: Number,
+    default: 0
+  },
+  estimatedValue: Number,
+
+  // Project/Service Details
+  projectType: String,
+  serviceCategory: String,
+  projectDescription: String,
+  preferredStartDate: Date,
+  budget: {
+    min: Number,
+    max: Number
+  },
+
+  // Engagement Stats
+  emailsSent: { type: Number, default: 0 },
+  emailsOpened: { type: Number, default: 0 },
+  smsSent: { type: Number, default: 0 },
+  callsReceived: { type: Number, default: 0 },
+  callsMade: { type: Number, default: 0 },
+  meetingsScheduled: { type: Number, default: 0 },
+
+  // AI & Automation
+  aiCallsScheduled: [{
+    date: Date,
+    agentId: mongoose.Schema.Types.ObjectId,
+    topic: String,
+    status: String
+  }],
+  nextScheduledCall: Date,
+
+  // Tags & Custom Fields
+  tags: [String],
+  customFields: {
+    type: Map,
+    of: mongoose.Schema.Types.Mixed
+  },
+
+  // Images & Files
+  avatar: String,
+  files: [{
+    filename: String,
+    url: String,
+    type: String,
+    uploadedAt: Date
+  }],
+
+  // Notes (deprecated - use Note model instead, kept for backward compatibility)
   notes: [{
     content: String,
     createdBy: String,
     createdAt: { type: Date, default: Date.now }
   }],
-  customFields: {
+
+  // Slack Integration
+  slackChannelId: String,
+  slackThreadId: String,
+
+  // Metadata
+  importBatchId: String,
+  metadata: {
     type: Map,
-    of: String
-  },
-  lastContactedAt: Date,
-  convertedAt: Date
+    of: mongoose.Schema.Types.Mixed
+  }
 }, {
   timestamps: true
 });

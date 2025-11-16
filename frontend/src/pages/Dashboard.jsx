@@ -73,8 +73,8 @@ export default function Dashboard() {
 
   const quickActions = [
     { label: 'Deploy AI Agent', icon: Library, path: '/app/agents', color: 'bg-blue-500' },
-    { label: 'Add Lead', icon: UserPlus, path: '/app/crm', color: 'bg-green-500' },
-    { label: 'View Calls', icon: PhoneCall, path: '/app/crm', color: 'bg-purple-500' },
+    { label: 'Add Lead', icon: UserPlus, path: '/app/leads', color: 'bg-green-500' },
+    { label: 'View Calls', icon: PhoneCall, path: '/app/conversations', color: 'bg-purple-500' },
     { label: 'Create Workflow', icon: TrendingUp, path: '/app/workflows', color: 'bg-orange-500' },
   ];
 

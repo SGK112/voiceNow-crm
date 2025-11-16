@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - Remodely.ai VoiceFlow CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            background: #f8fafc;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .hero {
+            padding: 80px 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .hero p {
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .step {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 80px;
+            align-items: center;
+        }
+        .step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .step-number {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .step-content {
+            flex: 1;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .step-content h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+        .step-content p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .step-features {
+            list-style: none;
+            margin-top: 20px;
+        }
+        .step-features li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #475569;
+        }
+        .step-features li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        .cta-section {
+            background: #1e293b;
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+            border-radius: 12px;
+            margin-top: 60px;
+        }
+        .cta-section h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="/shared-styles.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    
+
+    <div class="hero">
+        <h1>How It Works</h1>
+        <p>Get up and running in minutes with our simple 4-step process</p>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h2>Choose Your Agent Template</h2>
+                <p>Start with one of our pre-built agent templates designed for common business use cases, or create a custom agent from scratch.</p>
+                <ul class="step-features">
+                    <li>Sales qualification agent</li>
+                    <li>Appointment booking agent</li>
+                    <li>Customer support agent</li>
+                    <li>Lead nurturing agent</li>
+                    <li>Custom agent builder</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h2>Customize & Configure</h2>
+                <p>Personalize your agent's voice, personality, and conversation flow. Our AI assistant can help you write effective prompts.</p>
+                <ul class="step-features">
+                    <li>Select from professional voices</li>
+                    <li>Define conversation goals</li>
+                    <li>Set qualification criteria</li>
+                    <li>Configure call routing</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h2>Test with One Click</h2>
+                <p>Test your agent instantly with our quick dial feature. Make adjustments in real-time based on how conversations go.</p>
+                <ul class="step-features">
+                    <li>Instant test calls to your phone</li>
+                    <li>Listen to call recordings</li>
+                    <li>Review conversation transcripts</li>
+                    <li>Refine prompts and responses</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h2>Go Live & Scale</h2>
+                <p>Deploy your agent and start handling customer conversations automatically. Monitor performance and optimize as you grow.</p>
+                <ul class="step-features">
+                    <li>Assign phone numbers</li>
+                    <li>Set up workflows and automations</li>
+                    <li>Track leads and deals in CRM</li>
+                    <li>Monitor call analytics</li>
+                    <li>Scale to unlimited calls</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Ready to Automate Your Business?</h2>
+            <p>Start your free trial today - no credit card required</p>
+            <a href="/login" class="btn">Get Started →</a>
+        </div>
+    </div>
+        <div id="footer-placeholder"></div>
+    <script src="/shared-components.js"></script>
+</body>
+</html>

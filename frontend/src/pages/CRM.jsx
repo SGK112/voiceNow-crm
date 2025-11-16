@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dealApi, leadApi } from '@/services/api';
 import api from '../services/api';
@@ -28,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
+import LeadImporter from '@/components/LeadImporter';
 
 const LEAD_STAGES = [
   { id: 'new', name: 'New', color: 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600' },
@@ -48,6 +50,7 @@ const DEAL_STAGES = [
 ];
 
 export default function CRM() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('leads'); // 'leads' or 'deals'
   const [viewMode, setViewMode] = useState('pipeline'); // 'pipeline' or 'table'
   const [searchQuery, setSearchQuery] = useState('');
@@ -330,6 +333,25 @@ export default function CRM() {
             <Plus className="w-4 h-4 mr-2" />
             Add {activeTab === 'leads' ? 'Lead' : 'Deal'}
           </Button>
+          {activeTab === 'leads' && (
+            <>
+              <LeadImporter
+                onSuccess={() => {
+                  queryClient.invalidateQueries({ queryKey: ['leads'] });
+                  queryClient.invalidateQueries({ queryKey: ['lead-stats'] });
+                }}
+              />
+              <Button
+                onClick={() => navigate('/app/crm/workflows')}
+                variant="outline"
+                className="w-full"
+                size="sm"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Workflow Builder
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -401,7 +423,11 @@ export default function CRM() {
                       </div>
                       <div className="space-y-3 min-h-[500px]">
                         {stageLeads.map(lead => (
-                          <Card key={lead._id} className="hover:shadow-md transition-shadow">
+                          <Card
+                            key={lead._id}
+                            className="hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => navigate(`/app/crm/leads/${lead._id}`)}
+                          >
                             <CardContent className="p-4">
                               {(lead.aiAssigned || lead.assignedAgent) && (
                                 <Badge className="mb-2 bg-green-600">
@@ -441,7 +467,8 @@ export default function CRM() {
                                   size="sm"
                                   variant="outline"
                                   className="flex-1"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setSelectedLead(lead);
                                     setShowAssignAgentModal(true);
                                   }}
@@ -449,23 +476,28 @@ export default function CRM() {
                                   <Bot className="w-3 h-3 mr-1" />
                                   {lead.aiAssigned ? 'Change' : 'Assign AI'}
                                 </Button>
-                                <Select
-                                  value={lead.stage || 'new'}
-                                  onValueChange={(value) => updateLeadStageMutation.mutate({ id: lead._id, stage: value })}
-                                >
-                                  <SelectTrigger className="flex-1">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {LEAD_STAGES.map(s => (
-                                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                <div onClick={(e) => e.stopPropagation()} className="flex-1">
+                                  <Select
+                                    value={lead.stage || 'new'}
+                                    onValueChange={(value) => updateLeadStageMutation.mutate({ id: lead._id, stage: value })}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {LEAD_STAGES.map(s => (
+                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => handleDeleteLead(lead._id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteLead(lead._id);
+                                  }}
                                   className="text-destructive"
                                 >
                                   <Trash2 className="w-4 h-4" />

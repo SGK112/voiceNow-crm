@@ -39,8 +39,11 @@ router.post('/test', protect, async (req, res) => {
     );
 
     // Create call log
+    // Note: agentId should be a VoiceAgent ObjectId, but for test calls we'll skip validation
+    // by making it optional in the schema or using a temporary agent
     const callLog = await CallLog.create({
       userId: req.user._id,
+      agentId: agent_id, // This is the ElevenLabs agent_id string
       callerPhone: formattedNumber,
       direction: 'outbound',
       status: 'in-progress',

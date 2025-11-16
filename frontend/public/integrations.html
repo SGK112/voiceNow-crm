@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Remodely.ai VoiceFlow CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            background: #f8fafc;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .hero {
+            padding: 80px 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-bottom: 60px;
+        }
+        .integration-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .integration-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .integration-logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .integration-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .integration-card p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 48px;
+            color: #0f172a;
+        }
+        .cta-section {
+            background: #1e293b;
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+            border-radius: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="/shared-styles.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    
+
+    <div class="hero">
+        <h1>Integrations</h1>
+        <p>Connect with your favorite tools and services</p>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Voice & Communication</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-logo">🎙️</div>
+                <h3>ElevenLabs</h3>
+                <p>Advanced AI voice technology for natural-sounding conversations</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">📱</div>
+                <h3>Twilio</h3>
+                <p>Phone numbers and SMS messaging for customer communication</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">Payments & Billing</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-logo">💳</div>
+                <h3>Stripe</h3>
+                <p>Accept payments, manage subscriptions, and process invoices</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">📊</div>
+                <h3>QuickBooks</h3>
+                <p>Sync invoices and financial data with your accounting software</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">Productivity & Scheduling</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-logo">📅</div>
+                <h3>Google Calendar</h3>
+                <p>Schedule appointments and sync calendars automatically</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">✉️</div>
+                <h3>Email (SMTP)</h3>
+                <p>Send automated emails and notifications to customers</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">💬</div>
+                <h3>Slack</h3>
+                <p>Get notifications and collaborate with your team</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">Workflow Automation</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-logo">🔄</div>
+                <h3>n8n</h3>
+                <p>Visual workflow automation with 300+ integrations</p>
+                <span class="badge">POWERED BY</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">🔗</div>
+                <h3>Webhooks</h3>
+                <p>Connect to any service with custom webhook integrations</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">🌐</div>
+                <h3>REST API</h3>
+                <p>Full API access for custom integrations and automations</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">AI & Intelligence</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-logo">🤖</div>
+                <h3>OpenAI</h3>
+                <p>GPT-4 powered conversations and intelligent responses</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+            <div class="integration-card">
+                <div class="integration-logo">✨</div>
+                <h3>Gemini</h3>
+                <p>Google's advanced AI for natural conversations</p>
+                <span class="badge">BUILT-IN</span>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Need a Custom Integration?</h2>
+            <p>Our team can build custom integrations for your specific needs</p>
+            <a href="/contact.html" class="btn">Contact Us →</a>
+        </div>
+    </div>
+        <div id="footer-placeholder"></div>
+    <script src="/shared-components.js"></script>
+</body>
+</html>

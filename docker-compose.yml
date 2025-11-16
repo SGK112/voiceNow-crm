@@ -1,112 +1,42 @@
 version: '3.8'
 
 services:
-  # MongoDB is now using MongoDB Atlas in production
-  # Uncomment below only for local development
-  # mongodb:
-  #   image: mongo:7.0
-  #   container_name: voiceflow-mongodb
-  #   restart: unless-stopped
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - mongodb_data:/data/db
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: admin
-  #     MONGO_INITDB_ROOT_PASSWORD: password
-  #   networks:
-  #     - voiceflow-network
+  mongodb:
+    image: mongo:latest
+    container_name: voiceflow-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: voiceflow-crm
 
   redis:
-    image: redis:7-alpine
+    image: redis:alpine
     container_name: voiceflow-redis
-    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - voiceflow-network
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: voiceflow-backend
-    restart: unless-stopped
+  app:
+    build: .
+    container_name: voiceflow-crm
     ports:
-      - "5000:5000"
+      - "5001:5001"
     env_file:
-      - .env.production
-    environment:
-      - NODE_ENV=production
-      - PORT=5000
-      - REDIS_URL=redis://redis:6379
+      - .env
     depends_on:
+      - mongodb
       - redis
-    networks:
-      - voiceflow-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health')"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 40s
-
-  # Frontend is now deployed to Vercel/Render separately
-  # Uncomment below only for local development or all-in-one deployment
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: voiceflow-frontend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "5173:5173"
-  #   env_file:
-  #     - ./frontend/.env
-  #   depends_on:
-  #     - backend
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   networks:
-  #     - voiceflow-network
-
-  # n8n - Self-hosted workflow automation
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: voiceflow-n8n
-    restart: unless-stopped
-    ports:
-      - "5678:5678"
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=Remodely2025!
-      - N8N_HOST=0.0.0.0
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://localhost:5678
-      - GENERIC_TIMEZONE=America/New_York
-      - N8N_ENCRYPTION_KEY=RemodelyCRM2025SecretKey123456789
-      - N8N_METRICS=true
+      MONGODB_URI: mongodb://mongodb:27017/voiceflow-crm
+      REDIS_URL: redis://redis:6379
     volumes:
-      - n8n_data:/home/node/.n8n
-    networks:
-      - voiceflow-network
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      - ./backend:/app/backend
+      - ./frontend/dist:/app/frontend/dist
+      - ./frontend/public:/app/frontend/public
 
 volumes:
   mongodb_data:
   redis_data:
-  n8n_data:
-
-networks:
-  voiceflow-network:
-    driver: bridge

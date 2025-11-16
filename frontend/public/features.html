@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Remodely.ai VoiceFlow CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            background: #f8fafc;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+        .nav-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            color: #3b82f6;
+        }
+        .hero {
+            padding: 80px 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .hero p {
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .section {
+            margin-bottom: 80px;
+        }
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 48px;
+            color: #0f172a;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+        }
+        .feature-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: #475569;
+        }
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        .cta-section {
+            background: #1e293b;
+            padding: 80px 24px;
+            text-align: center;
+            color: white;
+            border-radius: 12px;
+        }
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .cta-section p {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 32px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+    </style>
+    <link rel="stylesheet" href="/shared-styles.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    
+
+    <div class="hero">
+        <h1>Powerful Features for Your Business</h1>
+        <p>Everything you need to automate customer conversations, manage leads, and close more deals.</p>
+    </div>
+
+    <div class="container">
+        <section class="section">
+            <h2 class="section-title">AI Voice Agents</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>One-Click Agent Creation</h3>
+                    <p>Choose from pre-built templates or create custom agents in seconds. No technical knowledge required.</p>
+                    <ul class="feature-list">
+                        <li>Sales qualification agents</li>
+                        <li>Appointment booking agents</li>
+                        <li>Customer support agents</li>
+                        <li>Lead nurturing agents</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3>Natural Voice Quality</h3>
+                    <p>Powered by ElevenLabs, the most advanced text-to-speech technology available.</p>
+                    <ul class="feature-list">
+                        <li>Human-like voice quality</li>
+                        <li>Multiple voice options</li>
+                        <li>Real-time conversation</li>
+                        <li>Emotion detection</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Test Calls</h3>
+                    <p>Test your agents instantly with one-click dial. See results in real-time.</p>
+                    <ul class="feature-list">
+                        <li>Quick dial testing</li>
+                        <li>Call recording</li>
+                        <li>Conversation transcripts</li>
+                        <li>Performance analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Visual Workflow Automation</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Drag & Drop Builder</h3>
+                    <p>Create complex workflows visually without writing code. Connect triggers, actions, and conditions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Pre-Built Integrations</h3>
+                    <p>Connect to your favorite tools instantly with our built-in integrations.</p>
+                    <ul class="feature-list">
+                        <li>Stripe for payments</li>
+                        <li>Google Calendar</li>
+                        <li>Email (SMTP)</li>
+                        <li>Twilio for SMS</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Monitoring</h3>
+                    <p>Track workflow execution in real-time with detailed logs and analytics.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">CRM & Lead Management</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Smart Lead Scoring</h3>
+                    <p>Automatically qualify and score leads based on conversation data.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📞</div>
+                    <h3>Call Tracking</h3>
+                    <p>Complete call history with recordings, transcripts, and sentiment analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h3>Deal Pipeline</h3>
+                    <p>Visual pipeline to track deals from lead to close. Drag-and-drop interface.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Team Collaboration</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Built-In Messaging</h3>
+                    <p>Team chat with channels for projects, customers, and internal communication.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Smart Notifications</h3>
+                    <p>Get notified when hot leads come in or deals need attention.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Team Management</h3>
+                    <p>Role-based access control and team performance tracking.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="cta-section">
+            <h2>Ready to Get Started?</h2>
+            <p>Start your 14-day free trial today. No credit card required.</p>
+            <a href="/login" class="btn">Start Free Trial →</a>
+        </div>
+    </div>
+        <div id="footer-placeholder"></div>
+    <script src="/shared-components.js"></script>
+</body>
+</html>

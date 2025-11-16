@@ -8,9 +8,8 @@ const callLogSchema = new mongoose.Schema({
     index: true
   },
   agentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'VoiceAgent',
-    required: true,
+    type: mongoose.Schema.Types.Mixed, // Can be ObjectId or string (ElevenLabs agent_id)
+    required: false, // Optional for test calls
     index: true
   },
   callerName: String,

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status - Remodely.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; }
+        .logo { font-size: 24px; font-weight: 700; color: #0f172a; text-decoration: none; }
+        .hero { padding: 80px 24px; text-align: center; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+        .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+        .container { max-width: 900px; margin: 80px auto; padding: 0 24px; }
+        .status-card { background: white; padding: 32px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 20px; }
+        .status-icon { font-size: 32px; }
+        .status-info { flex: 1; }
+        h3 { font-size: 18px; margin-bottom: 4px; }
+        p { color: #64748b; font-size: 14px; }
+        .operational { color: #10b981; }
+    </style>
+    <link rel="stylesheet" href="/shared-styles.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    
+    <div class="hero"><h1>System Status</h1><p>All systems operational</p></div>
+    <div class="container">
+        <div class="status-card">
+            <div class="status-icon">✅</div>
+            <div class="status-info"><h3>API</h3><p class="operational">Operational</p></div>
+        </div>
+        <div class="status-card">
+            <div class="status-icon">✅</div>
+            <div class="status-info"><h3>Voice Agents</h3><p class="operational">Operational</p></div>
+        </div>
+        <div class="status-card">
+            <div class="status-icon">✅</div>
+            <div class="status-info"><h3>CRM Platform</h3><p class="operational">Operational</p></div>
+        </div>
+    </div>
+        <div id="footer-placeholder"></div>
+    <script src="/shared-components.js"></script>
+</body>
+</html>

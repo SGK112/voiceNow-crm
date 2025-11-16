@@ -12,6 +12,7 @@ import AgentDetail from './pages/AgentDetail';
 import VoiceFlowBuilder from './components/VoiceFlowBuilder';
 import Conversations from './pages/Conversations';
 import CRM from './pages/CRM';
+import LeadDetail from './pages/LeadDetail';
 import Marketplace from './pages/Marketplace';
 import Leads from './pages/Leads';
 import Business from './pages/Business';
@@ -30,6 +31,9 @@ import IntegrationCallback from './pages/IntegrationCallback';
 import AgentLibrary from './pages/AgentLibrary';
 import AgentSetup from './pages/AgentSetup';
 import WorkflowMarketplace from './pages/WorkflowMarketplace';
+import CustomizableDashboard from './pages/CustomizableDashboard';
+import CRMWorkflowBuilder from './pages/CRMWorkflowBuilder';
+import CRMWorkflowBuilderHybrid from './pages/CRMWorkflowBuilderHybrid';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -76,6 +80,7 @@ function App() {
 
         {/* Dashboard as main landing page */}
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="dashboard/custom" element={<CustomizableDashboard />} />
 
         {/* Legacy CRM-style agent management (available for power users) */}
         <Route path="agent-library-crm" element={<AgentsUnified />} />
@@ -87,6 +92,9 @@ function App() {
         <Route path="workflows" element={<WorkflowStudio />} />
         <Route path="workflows/:id" element={<WorkflowStudio />} />
         <Route path="crm" element={<CRM />} />
+        <Route path="crm/leads/:id" element={<LeadDetail />} />
+        <Route path="crm/workflows" element={<CRMWorkflowBuilderHybrid />} />
+        <Route path="crm/workflows/basic" element={<CRMWorkflowBuilder />} />
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="settings" element={<Settings />} />
 

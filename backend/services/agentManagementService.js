@@ -57,7 +57,7 @@ class AgentManagementService {
 
     try {
       const response = await axios.post(
-        `${this.baseUrl}/convai/agents`,
+        `${this.baseUrl}/convai/agents/create`,
         agentConfig,
         {
           headers: {
