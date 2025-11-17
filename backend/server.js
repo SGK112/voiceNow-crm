@@ -118,6 +118,9 @@ app.use(mongoSanitize());
 app.use(requestIdMiddleware); // Add request ID tracking for security
 app.use(apiMonitoring); // Track API requests and response times
 
+// Serve audio files generated for calls
+app.use('/audio', express.static('public/audio'));
+
 // Monitoring and health check routes
 app.use('/api/monitoring', monitoringRoutes);
 

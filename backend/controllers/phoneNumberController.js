@@ -453,9 +453,241 @@ export const deletePhoneNumber = async (req, res) => {
   }
 };
 
+/**
+ * @route   POST /api/phone-numbers/search
+ * @desc    Advanced search for numbers (local, toll-free, international)
+ * @access  Private (Starter+)
+ */
+export const searchNumbers = async (req, res) => {
+  try {
+    const { type, areaCode, country, contains, capabilities } = req.body;
+
+    const twilioClient = getTwilioClient();
+
+    let searchParams = {
+      limit: 50
+    };
+
+    if (contains) {
+      searchParams.contains = contains;
+    }
+
+    let availableNumbers;
+
+    // Search based on type
+    switch (type) {
+      case 'local':
+        if (!areaCode) {
+          return res.status(400).json({
+            success: false,
+            error: 'Area code is required for local numbers'
+          });
+        }
+        searchParams.areaCode = areaCode;
+        availableNumbers = await twilioClient
+          .availablePhoneNumbers(country || 'US')
+          .local
+          .list(searchParams);
+        break;
+
+      case 'tollfree':
+        availableNumbers = await twilioClient
+          .availablePhoneNumbers(country || 'US')
+          .tollFree
+          .list(searchParams);
+        break;
+
+      case 'international':
+        if (!country || country === 'US') {
+          return res.status(400).json({
+            success: false,
+            error: 'Country code is required for international numbers'
+          });
+        }
+        availableNumbers = await twilioClient
+          .availablePhoneNumbers(country)
+          .local
+          .list(searchParams);
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid search type. Use: local, tollfree, or international'
+        });
+    }
+
+    // Filter by capabilities if specified
+    let filteredNumbers = availableNumbers;
+    if (capabilities && capabilities.length > 0) {
+      filteredNumbers = availableNumbers.filter(number => {
+        return capabilities.every(cap => {
+          if (cap === 'voice') return number.capabilities.voice;
+          if (cap === 'sms') return number.capabilities.SMS;
+          if (cap === 'mms') return number.capabilities.MMS;
+          return true;
+        });
+      });
+    }
+
+    // Format response with pricing
+    const formattedNumbers = filteredNumbers.map(number => ({
+      phoneNumber: number.phoneNumber,
+      friendlyName: number.friendlyName,
+      locality: number.locality,
+      region: number.region,
+      isoCountry: number.isoCountry,
+      capabilities: {
+        voice: number.capabilities.voice,
+        SMS: number.capabilities.SMS,
+        MMS: number.capabilities.MMS
+      },
+      price: '1.00' // Standard Twilio pricing ~$1/month
+    }));
+
+    res.json({
+      success: true,
+      numbers: formattedNumbers,
+      count: formattedNumbers.length
+    });
+
+  } catch (error) {
+    console.error('Error searching numbers:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search numbers',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * @route   GET /api/phone-numbers/my-numbers
+ * @desc    Get user's purchased numbers with full details
+ * @access  Private
+ */
+export const getMyNumbers = async (req, res) => {
+  try {
+    const phoneNumbers = await PhoneNumber.find({ userId: req.user._id })
+      .populate('assignedAgent', 'name type enabled')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      numbers: phoneNumbers,
+      count: phoneNumbers.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching my numbers:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch numbers',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * @route   POST /api/phone-numbers/bulk-purchase
+ * @desc    Purchase multiple phone numbers at once
+ * @access  Private (Starter+)
+ */
+export const bulkPurchase = async (req, res) => {
+  try {
+    const { phoneNumbers } = req.body;
+
+    if (!phoneNumbers || !Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Phone numbers array is required'
+      });
+    }
+
+    // Check resource limit
+    const currentCount = await PhoneNumber.countDocuments({ userId: req.user._id });
+    const limit = getResourceLimit(req.user.subscriptionTier, 'phoneNumbers');
+
+    if (currentCount + phoneNumbers.length > limit) {
+      return res.status(403).json({
+        success: false,
+        error: 'Phone number limit exceeded',
+        message: `Your plan allows ${limit} phone numbers. You have ${currentCount} and are trying to add ${phoneNumbers.length} more.`,
+        limit,
+        current: currentCount,
+        upgradeRequired: true
+      });
+    }
+
+    const twilioClient = getTwilioClient();
+    const results = {
+      success: [],
+      failed: []
+    };
+
+    // Purchase each number
+    for (const phoneNumber of phoneNumbers) {
+      try {
+        const purchasedNumber = await twilioClient.incomingPhoneNumbers.create({
+          phoneNumber: phoneNumber,
+          voiceUrl: `${process.env.APP_URL}/api/voice/webhook`,
+          smsUrl: `${process.env.APP_URL}/api/sms/webhook`,
+          voiceMethod: 'POST',
+          smsMethod: 'POST'
+        });
+
+        // Save to database
+        const newNumber = await PhoneNumber.create({
+          userId: req.user._id,
+          phoneNumber: purchasedNumber.phoneNumber,
+          friendlyName: purchasedNumber.friendlyName,
+          twilioSid: purchasedNumber.sid,
+          capabilities: {
+            voice: purchasedNumber.capabilities.voice,
+            sms: purchasedNumber.capabilities.SMS,
+            mms: purchasedNumber.capabilities.MMS
+          },
+          voiceUrl: purchasedNumber.voiceUrl,
+          smsUrl: purchasedNumber.smsUrl
+        });
+
+        results.success.push({
+          phoneNumber: phoneNumber,
+          sid: purchasedNumber.sid
+        });
+
+      } catch (error) {
+        console.error(`Error purchasing ${phoneNumber}:`, error);
+        results.failed.push({
+          phoneNumber: phoneNumber,
+          error: error.message
+        });
+      }
+    }
+
+    res.json({
+      success: results.failed.length === 0,
+      purchased: results.success.length,
+      failed: results.failed.length,
+      results
+    });
+
+  } catch (error) {
+    console.error('Error in bulk purchase:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to purchase numbers',
+      message: error.message
+    });
+  }
+};
+
 export default {
   getPhoneNumbers,
   searchAvailableNumbers,
+  searchNumbers,
+  getMyNumbers,
+  bulkPurchase,
   purchaseNumber,
   portNumber,
   updatePhoneNumber,

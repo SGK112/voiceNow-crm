@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_URL = process.env.API_URL || 'http://localhost:5001';
+const API_URL = process.env.API_URL || 'http://localhost:5000';
 
 async function initiateCall() {
   console.log('📞 Initiating demo call to 480-255-5887...\n');

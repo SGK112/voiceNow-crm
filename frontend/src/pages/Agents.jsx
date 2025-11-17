@@ -12,13 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, MoreVertical, Pencil, Trash2, Phone, Eye, Copy } from 'lucide-react';
+import { Plus, MoreVertical, Pencil, Trash2, Phone, Eye, Copy, PhoneCall } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import AIPromptHelper from '@/components/AIPromptHelper';
+import axios from 'axios';
 
 const AGENT_TYPES = {
   lead_gen: { name: 'Lead Generation', color: '#3b82f6', icon: '🎯' },
@@ -40,6 +41,9 @@ const VOICES = [
 
 export default function Agents() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isTestCallOpen, setIsTestCallOpen] = useState(false);
+  const [testCallAgent, setTestCallAgent] = useState(null);
+  const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     type: 'lead_gen',
@@ -95,6 +99,41 @@ export default function Agents() {
       toast.error('Failed to delete agent');
     }
   });
+
+  const testCallMutation = useMutation({
+    mutationFn: async ({ agentId, phoneNumber }) => {
+      const response = await axios.post('/api/agents/test-call', {
+        agentId,
+        phoneNumber
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success('Test call initiated! Your phone should ring shortly.');
+      setIsTestCallOpen(false);
+      setTestPhoneNumber('');
+      setTestCallAgent(null);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to initiate test call');
+    }
+  });
+
+  const handleTestCall = (agent) => {
+    setTestCallAgent(agent);
+    setIsTestCallOpen(true);
+  };
+
+  const initiateTestCall = () => {
+    if (!testPhoneNumber.trim()) {
+      toast.error('Please enter a phone number');
+      return;
+    }
+    testCallMutation.mutate({
+      agentId: testCallAgent._id,
+      phoneNumber: testPhoneNumber
+    });
+  };
 
   const handleTypeChange = (type) => {
     setFormData({ ...formData, type, name: formData.name || `${AGENT_TYPES[type].name} Agent` });
@@ -366,6 +405,11 @@ export default function Agents() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleTestCall(agent)}>
+                          <PhoneCall className="h-4 w-4 mr-2" />
+                          Test Call
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => navigate(`/app/agents/${agent._id}`)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
@@ -398,6 +442,83 @@ export default function Agents() {
           </div>
         </div>
       )}
+
+      {/* Test Call Dialog */}
+      <Dialog open={isTestCallOpen} onOpenChange={setIsTestCallOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Test Call - {testCallAgent?.name}</DialogTitle>
+            <DialogDescription>
+              Make a test call with this agent to verify it's working correctly
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="testPhone">Phone Number *</Label>
+              <Input
+                id="testPhone"
+                type="tel"
+                placeholder="+1 (480) 555-5887"
+                value={testPhoneNumber}
+                onChange={(e) => setTestPhoneNumber(e.target.value)}
+                className="mt-2"
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Enter with country code (e.g., +1 for US)
+              </p>
+            </div>
+
+            {testCallAgent && (
+              <div className="bg-accent/50 border rounded-lg p-3 space-y-2">
+                <div className="text-sm">
+                  <span className="font-medium">Agent:</span> {testCallAgent.name}
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Voice:</span> {testCallAgent.voiceName || 'Default'}
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">ElevenLabs ID:</span>{' '}
+                  <code className="text-xs bg-background px-1 py-0.5 rounded">
+                    {testCallAgent.elevenLabsAgentId?.startsWith('agent_')
+                      ? testCallAgent.elevenLabsAgentId.substring(0, 20) + '...'
+                      : testCallAgent.elevenLabsAgentId || 'Not configured'}
+                  </code>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsTestCallOpen(false);
+                  setTestPhoneNumber('');
+                  setTestCallAgent(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={initiateTestCall}
+                disabled={testCallMutation.isPending || !testPhoneNumber.trim()}
+              >
+                {testCallMutation.isPending ? (
+                  <>
+                    <Phone className="h-4 w-4 mr-2 animate-pulse" />
+                    Calling...
+                  </>
+                ) : (
+                  <>
+                    <PhoneCall className="h-4 w-4 mr-2" />
+                    Make Test Call
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

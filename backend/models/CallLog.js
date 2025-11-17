@@ -73,6 +73,7 @@ const callLogSchema = new mongoose.Schema({
     default: 'neutral'
   },
   elevenLabsCallId: String,
+  twilioCallSid: String, // For calls made via Twilio
   metadata: {
     type: Map,
     of: String

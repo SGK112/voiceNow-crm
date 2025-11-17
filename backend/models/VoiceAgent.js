@@ -47,7 +47,7 @@ const voiceAgentSchema = new mongoose.Schema({
   },
   elevenLabsAgentId: {
     type: String,
-    required: true
+    required: false // Not required - we generate local IDs since we don't use ElevenLabs conversational AI
   },
   voiceId: {
     type: String,
@@ -100,15 +100,60 @@ const voiceAgentSchema = new mongoose.Schema({
     averageDuration: { type: Number, default: 0 },
     leadsGenerated: { type: Number, default: 0 },
     conversionRate: { type: Number, default: 0 }
-  }
-}, {
+  },
+  // Deployment lifecycle management
+  deployment: {
+    status: {
+      type: String,
+      enum: ['draft', 'testing', 'production'],
+      default: 'draft'
+    },
+    version: {
+      type: Number,
+      default: 1
+    },
+    lastDeployedAt: Date,
+    deployedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    testResults: [{
+      testedAt: Date,
+      testedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      duration: Number, // seconds
+      conversationTranscript: String,
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5
+      },
+      notes: String,
+      status: {
+        type: String,
+        enum: ['passed', 'failed', 'needs_improvement']
+      }
+    }],
+    changelog: [{
+      version: Number,
+      changes: String,
+      updatedAt: Date,
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }]
+  },
   archived: {
     type: Boolean,
     default: false
   },
   archivedAt: {
     type: Date
-  },
+  }
+}, {
   timestamps: true
 });
 

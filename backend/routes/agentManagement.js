@@ -13,7 +13,17 @@ router.post('/create', protect, async (req, res) => {
   try {
     const { name, description, voice_id, prompt, first_message, language } = req.body;
 
+    console.log('📝 Agent Creation Request:', {
+      name,
+      description: description?.substring(0, 50),
+      voice_id,
+      prompt: prompt?.substring(0, 100),
+      first_message: first_message?.substring(0, 50),
+      language
+    });
+
     if (!name || !prompt) {
+      console.log('❌ Validation failed:', { hasName: !!name, hasPrompt: !!prompt });
       return res.status(400).json({
         success: false,
         message: 'Name and prompt are required'

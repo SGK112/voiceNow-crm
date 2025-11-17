@@ -484,3 +484,133 @@ export const handleTwilioSmsFallback = async (req, res) => {
     res.send(response.toString());
   }
 };
+
+// Handle outbound agent calls (NEW - for our local agents using Twilio + ElevenLabs TTS)
+export const handleAgentCall = async (req, res) => {
+  try {
+    const { agentId } = req.query;
+    const { CallSid, From, To, CallStatus } = req.body;
+
+    console.log(`\n📞 [AGENT CALL] Webhook triggered`);
+    console.log(`   Agent ID: ${agentId}`);
+    console.log(`   Call SID: ${CallSid}`);
+    console.log(`   From: ${From} → To: ${To}`);
+    console.log(`   Status: ${CallStatus}`);
+
+    if (!agentId) {
+      console.error('❌ [AGENT CALL] No agent ID provided');
+      const VoiceResponse = twilio.twiml.VoiceResponse;
+      const response = new VoiceResponse();
+      response.say({ voice: 'alice' }, 'Configuration error.');
+      response.hangup();
+      res.type('text/xml');
+      return res.send(response.toString());
+    }
+
+    // Get the agent from database
+    const agent = await VoiceAgent.findById(agentId);
+
+    if (!agent) {
+      console.error(`❌ [AGENT CALL] Agent not found: ${agentId}`);
+      const VoiceResponse = twilio.twiml.VoiceResponse;
+      const response = new VoiceResponse();
+      response.say({ voice: 'alice' }, 'Agent not found.');
+      response.hangup();
+      res.type('text/xml');
+      return res.send(response.toString());
+    }
+
+    console.log(`✅ [AGENT CALL] Found agent: ${agent.name}`);
+    console.log(`   Voice: ${agent.voiceName} (${agent.voiceId})`);
+    console.log(`   Script length: ${(agent.script || '').length} chars`);
+
+    const VoiceResponse = twilio.twiml.VoiceResponse;
+    const response = new VoiceResponse();
+
+    // Get the message to speak
+    const firstMessage = agent.firstMessage || agent.configuration?.first_message || 'Hello! Thank you for connecting.';
+
+    console.log(`🎙️  [AGENT CALL] Generating ElevenLabs audio for: "${firstMessage.substring(0, 50)}..."`);
+
+    // Generate audio with ElevenLabs TTS and save it
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const { dirname } = path.default;
+
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = dirname(__filename);
+
+      // Generate audio with ElevenLabs
+      const audioBuffer = await elevenLabsService.textToSpeech(
+        firstMessage,
+        agent.voiceId,
+        {
+          stability: 0.5,
+          similarity_boost: 0.75,
+          style: 0.0,
+          use_speaker_boost: true
+        }
+      );
+
+      // Save to public directory
+      const publicDir = path.default.join(__dirname, '../../public/audio');
+      if (!fs.default.existsSync(publicDir)) {
+        fs.default.mkdirSync(publicDir, { recursive: true });
+      }
+
+      const audioFileName = `agent_${agent._id}_${Date.now()}.mp3`;
+      const audioPath = path.default.join(publicDir, audioFileName);
+
+      fs.default.writeFileSync(audioPath, audioBuffer);
+
+      // Serve the audio via public URL
+      const baseUrl = process.env.WEBHOOK_URL || process.env.API_URL || 'http://localhost:5000';
+      const audioUrl = `${baseUrl}/audio/${audioFileName}`;
+
+      console.log(`✅ [AGENT CALL] ElevenLabs audio saved: ${audioUrl}`);
+
+      // Play the ElevenLabs-generated audio
+      response.play(audioUrl);
+
+      response.pause({ length: 1 });
+
+      response.say({
+        voice: 'Polly.Joanna'
+      }, `You just heard the ${agent.voiceName} voice from ElevenLabs! This is your VoiceFlow agent in action.`);
+
+    } catch (error) {
+      console.error(`❌ [AGENT CALL] Error generating ElevenLabs audio:`, error.message);
+
+      // Fallback to Polly voice
+      response.say({
+        voice: 'Polly.Joanna',
+        language: agent.configuration?.language || 'en-US'
+      }, firstMessage);
+
+      response.pause({ length: 1 });
+
+      response.say({
+        voice: 'Polly.Joanna'
+      }, 'There was an error generating the ElevenLabs voice. Using fallback voice instead.');
+    }
+
+    response.hangup();
+
+    console.log(`✅ [AGENT CALL] Sending TwiML response`);
+    res.type('text/xml');
+    res.send(response.toString());
+
+  } catch (error) {
+    console.error('❌ [AGENT CALL] Error:', error);
+
+    const VoiceResponse = twilio.twiml.VoiceResponse;
+    const response = new VoiceResponse();
+    response.say({ voice: 'alice' }, 'Technical error. Call ended.');
+    response.hangup();
+
+    res.type('text/xml');
+    res.send(response.toString());
+  }
+};

@@ -16,11 +16,13 @@ import {
   TrendingUp,
   Users,
   Clock,
-  Wand2
+  Wand2,
+  Music
 } from 'lucide-react';
 import api from '../services/api';
 import AIVoiceAgentWizard from '../components/AIVoiceAgentWizard';
 import AgentStudio from '../components/AgentStudio';
+import VoiceLibraryBrowser from '../components/VoiceLibraryBrowser';
 
 export default function AgentsUnified() {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ export default function AgentsUnified() {
   const [showAIWizard, setShowAIWizard] = useState(false);
   const [showAgentStudio, setShowAgentStudio] = useState(false);
   const [selectedAgentForStudio, setSelectedAgentForStudio] = useState(null);
+  const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
 
   useEffect(() => {
     fetchAgents();
@@ -360,42 +363,65 @@ export default function AgentsUnified() {
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-1.5">
-                  {activeTab === 'deployed' ? (
-                    <>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {activeTab === 'deployed' ? (
+                      <>
+                        <button
+                          onClick={() => navigate(`/app/agents/${agent._id}`)}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
+                        >
+                          <Settings className="w-3.5 h-3.5" />
+                          Manage
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedAgentForStudio(agent);
+                            setShowAgentStudio(true);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 text-xs"
+                          title="Advanced Node Configuration"
+                        >
+                          <Zap className="w-3.5 h-3.5" />
+                          Advanced
+                        </button>
+                        <button
+                          onClick={() => deleteAgent(agent._id, agent.type)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    ) : (
                       <button
-                        onClick={() => navigate(`/app/agents/${agent._id}`)}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
-                      >
-                        <Settings className="w-3.5 h-3.5" />
-                        Manage
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedAgentForStudio(agent);
-                          setShowAgentStudio(true);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 text-xs"
-                        title="Advanced Node Configuration"
+                        onClick={() => deployFromLibrary(agent.id || agent._id)}
+                        className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
                       >
                         <Zap className="w-3.5 h-3.5" />
-                        Advanced
+                        Deploy Agent
                       </button>
-                      <button
-                        onClick={() => deleteAgent(agent._id, agent.type)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    )}
+                  </div>
+
+                  {/* Browse Voices Button */}
+                  {activeTab === 'deployed' && (
+                    <>
+                      {console.log('Agent type check:', {
+                        name: agent.name,
+                        type: agent.type,
+                        isVoice: agent.type === 'voice',
+                        activeTab
+                      })}
+                      {agent.type === 'voice' && (
+                        <button
+                          onClick={() => setShowVoiceLibrary(true)}
+                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 text-xs font-semibold shadow-sm"
+                        >
+                          <Music className="w-3.5 h-3.5" />
+                          Browse Voices
+                        </button>
+                      )}
                     </>
-                  ) : (
-                    <button
-                      onClick={() => deployFromLibrary(agent.id || agent._id)}
-                      className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      Deploy Agent
-                    </button>
                   )}
                 </div>
               </div>
@@ -440,6 +466,46 @@ export default function AgentsUnified() {
               setSelectedAgentForStudio(null);
             }}
           />
+        </div>
+      )}
+
+      {/* Voice Library Modal */}
+      {showVoiceLibrary && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                  <Music className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Voice Library</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Browse hundreds of community voices</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowVoiceLibrary(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-auto">
+              <VoiceLibraryBrowser
+                embedded={true}
+                onVoiceSelect={(voice) => {
+                  console.log('Voice selected from library:', voice);
+                  // Close modal after selection
+                  setShowVoiceLibrary(false);
+                  // Show success message
+                  alert(`Added "${voice.name}" to your voice library!`);
+                }}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>

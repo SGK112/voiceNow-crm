@@ -8,7 +8,8 @@ import {
   handleElevenLabsForward,
   handleElevenLabsOutbound,
   handleTwilioSms,
-  handleTwilioSmsFallback
+  handleTwilioSmsFallback,
+  handleAgentCall
 } from '../controllers/twilioWebhookController.js';
 import {
   sendSignupLinkAction,
@@ -35,6 +36,8 @@ router.post('/elevenlabs/test', testWebhook);
 // Twilio webhooks
 router.post('/twilio/voice', handleTwilioVoice);
 router.post('/twilio/status', handleTwilioStatus);
+router.post('/twilio/agent-call', handleAgentCall); // NEW: Handle outbound agent calls
+router.post('/twilio/call-status', handleTwilioStatus); // Alias for call status updates
 router.post('/twilio/elevenlabs-forward', handleElevenLabsForward);
 router.post('/twilio/elevenlabs-outbound', handleElevenLabsOutbound);
 router.post('/twilio/sms', handleTwilioSms);

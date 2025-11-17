@@ -8,7 +8,7 @@ const AgentConfiguration = ({ agentId }) => {
   const [configUrl, setConfigUrl] = useState(null);
   const [copied, setCopied] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showIframe, setShowIframe] = useState(false);
+  const [isConfiguring, setIsConfiguring] = useState(false);
 
   useEffect(() => {
     if (agentId) {
@@ -37,6 +37,24 @@ const AgentConfiguration = ({ agentId }) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(''), 2000);
+  };
+
+  const openElevenLabsConfig = () => {
+    if (!configUrl) return;
+
+    // Open ElevenLabs in a new window with optimal dimensions
+    const width = 1200;
+    const height = 800;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    window.open(
+      configUrl,
+      'elevenlabs-config',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+    );
+
+    setIsConfiguring(true);
   };
 
   if (loading) {
@@ -121,64 +139,76 @@ const AgentConfiguration = ({ agentId }) => {
       </div>
 
       {/* Configuration Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">
-          How to Configure Webhooks
-        </h3>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <ExternalLink className="w-6 h-6 text-white" />
+            </div>
+          </div>
 
-        <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800 mb-4">
-          <li>Copy the webhook URLs above</li>
-          <li>Click "Configure in ElevenLabs Dashboard" below</li>
-          <li>In the agent settings, navigate to "Client Tools"</li>
-          <li>Add each webhook as a new tool</li>
-          <li>Paste the corresponding URL for each webhook</li>
-          <li>Test the webhooks by triggering them during a call</li>
-        </ol>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Configure Your Agent in ElevenLabs
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Follow these steps to connect your webhooks and activate your voice agent:
+            </p>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowIframe(!showIframe)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            {showIframe ? 'Hide' : 'Show'} Configuration Panel
-          </button>
+            <div className="bg-white rounded-lg p-4 mb-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                <p className="text-sm text-gray-700">Copy the webhook URLs from above (click the copy icon)</p>
+              </div>
 
-          {configUrl && (
-            <a
-              href={configUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Open in ElevenLabs
-              <ExternalLink className="ml-2 w-4 h-4" />
-            </a>
-          )}
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                <p className="text-sm text-gray-700">Click "Open ElevenLabs Dashboard" below (opens in new window)</p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                <p className="text-sm text-gray-700">In ElevenLabs, navigate to your agent settings → <strong>"Client Tools"</strong> tab</p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                <p className="text-sm text-gray-700">Add each webhook as a new tool and paste the corresponding URL</p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                <p className="text-sm text-gray-700">Save your changes and test the agent by making a test call</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              {configUrl && (
+                <button
+                  onClick={openElevenLabsConfig}
+                  className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all"
+                >
+                  Open ElevenLabs Dashboard
+                  <ExternalLink className="ml-2 w-4 h-4" />
+                </button>
+              )}
+
+              {isConfiguring && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-green-700 font-medium">Window opened - configure your agent</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-xs text-yellow-800">
+                <strong>Note:</strong> ElevenLabs blocks iframe embedding for security. We open their dashboard in a new window for the best experience.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* ElevenLabs iframe */}
-      {showIframe && configUrl && (
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">
-              ElevenLabs Agent Configuration
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Configure advanced settings and webhooks directly in the ElevenLabs dashboard
-            </p>
-          </div>
-
-          <div className="relative" style={{ height: '800px' }}>
-            <iframe
-              src={configUrl}
-              className="w-full h-full border-0"
-              title="ElevenLabs Agent Configuration"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

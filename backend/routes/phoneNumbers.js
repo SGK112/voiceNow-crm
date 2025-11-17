@@ -16,8 +16,31 @@ router.use(protect);
 router.get('/', phoneNumberController.getPhoneNumbers);
 
 /**
+ * @route   POST /api/phone-numbers/search
+ * @desc    Search available phone numbers (local, toll-free, international)
+ * @body    { type, areaCode, country, contains, capabilities }
+ * @access  Private (Starter+)
+ */
+router.post('/search', requirePlan('starter'), phoneNumberController.searchNumbers);
+
+/**
+ * @route   GET /api/phone-numbers/my-numbers
+ * @desc    Get user's purchased phone numbers
+ * @access  Private
+ */
+router.get('/my-numbers', phoneNumberController.getMyNumbers);
+
+/**
+ * @route   POST /api/phone-numbers/bulk-purchase
+ * @desc    Purchase multiple phone numbers at once
+ * @body    { phoneNumbers: ['+1...', '+1...'] }
+ * @access  Private (Starter+)
+ */
+router.post('/bulk-purchase', requirePlan('starter'), phoneNumberController.bulkPurchase);
+
+/**
  * @route   GET /api/phone-numbers/available
- * @desc    Search available phone numbers
+ * @desc    Search available phone numbers (LEGACY)
  * @query   areaCode - Area code to search (e.g., 415)
  * @access  Private (Starter+)
  */

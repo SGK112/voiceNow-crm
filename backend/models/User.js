@@ -83,6 +83,25 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['admin', 'member'], default: 'member' },
     addedAt: { type: Date, default: Date.now }
   }],
+  savedVoices: [{
+    voiceId: { type: String, required: true },
+    publicOwnerId: String,
+    name: { type: String, required: true },
+    gender: String,
+    age: String,
+    accent: String,
+    useCase: String,
+    category: String,
+    language: String,
+    locale: String,
+    description: String,
+    previewUrl: String,
+    freeUsersAllowed: Boolean,
+    clonedByCount: Number,
+    addedAt: { type: Date, default: Date.now },
+    tags: [String], // Custom user tags
+    notes: String // User notes about the voice
+  }],
   userApiKeys: [{
     name: { type: String, required: true },
     key: { type: String, required: true, select: false },

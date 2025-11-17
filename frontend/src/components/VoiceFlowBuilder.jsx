@@ -9,6 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import ElevenLabsEmbed from '@/components/ElevenLabsEmbed';
 import axios from 'axios';
 
 // Create axios instance with auth
@@ -482,22 +483,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">ElevenLabs Conversational AI Dashboard</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.conversationalAI, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">ElevenLabs Conversational AI Dashboard</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.conversationalAI}
-                  className="w-full h-[700px] border-0"
-                  title="ElevenLabs Agents"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.conversationalAI}
+                title="Conversational AI Dashboard"
+                description="View and manage all your ElevenLabs voice agents in one place."
+                instructions={[
+                  "View all your created voice agents",
+                  "Monitor agent performance and usage",
+                  "Configure agent settings and prompts",
+                  "Test agents with the built-in playground"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -506,22 +505,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Phone Numbers Management</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.phoneNumbers, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Phone Numbers Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.phoneNumbers}
-                  className="w-full h-[700px] border-0"
-                  title="Phone Numbers"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.phoneNumbers}
+                title="Phone Numbers Dashboard"
+                description="Purchase and manage phone numbers for your voice agents."
+                instructions={[
+                  "Browse available phone numbers by country/region",
+                  "Purchase new numbers for your agents",
+                  "Configure call routing and forwarding",
+                  "Monitor call activity and usage"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -530,22 +527,20 @@ const VoiceFlowBuilder = () => {
         return selectedAgent ? (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Client Tools & Advanced Settings</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.agentDetail(selectedAgent.agent_id), '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Client Tools & Advanced Settings</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.agentDetail(selectedAgent.agent_id)}
-                  className="w-full h-[700px] border-0"
-                  title="Agent Tools"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.agentDetail(selectedAgent.agent_id)}
+                title="Agent Configuration"
+                description="Configure webhooks, client tools, and advanced settings for your voice agent."
+                instructions={[
+                  "Navigate to the 'Client Tools' tab",
+                  "Add webhook URLs from the Agent Configuration section above",
+                  "Configure conversation settings and prompts",
+                  "Test the agent with different scenarios"
+                ]}
+              />
             </CardContent>
           </Card>
         ) : (
@@ -696,22 +691,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Speech Synthesis Studio</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.speechSynthesis, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Speech Synthesis Studio</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.speechSynthesis}
-                  className="w-full h-[700px] border-0"
-                  title="Speech Synthesis"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.speechSynthesis}
+                title="Speech Synthesis Studio"
+                description="Generate high-quality voice audio from text in real-time."
+                instructions={[
+                  "Enter or paste your text",
+                  "Select voice and adjust settings",
+                  "Preview and fine-tune output",
+                  "Download or use in your projects"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -720,22 +713,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Professional Voice Library</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.voiceLibrary, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Professional Voice Library</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.voiceLibrary}
-                  className="w-full h-[700px] border-0"
-                  title="Voice Library"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.voiceLibrary}
+                title="Voice Library Dashboard"
+                description="Browse and select from thousands of AI voices."
+                instructions={[
+                  "Browse pre-made voices",
+                  "Preview voices before using",
+                  "Filter by language/accent/gender",
+                  "Add voices to your collection"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -744,22 +735,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Voice Design Studio</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.voiceDesign, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Voice Design Studio</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.voiceDesign}
-                  className="w-full h-[700px] border-0"
-                  title="Voice Design"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.voiceDesign}
+                title="Voice Design Studio"
+                description="Create custom AI voices with advanced controls."
+                instructions={[
+                  "Design unique voice characteristics",
+                  "Adjust pitch/tone/speed settings",
+                  "Clone voices from samples",
+                  "Save custom voice profiles"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -768,22 +757,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Voice Cloning - Voice Lab</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.voiceLab, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Voice Cloning - Voice Lab</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.voiceLab}
-                  className="w-full h-[700px] border-0"
-                  title="Voice Lab"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.voiceLab}
+                title="Voice Lab"
+                description="Clone voices using audio samples for personalized AI voices."
+                instructions={[
+                  "Upload voice samples (at least 1 minute)",
+                  "Train the AI on voice characteristics",
+                  "Test cloned voice quality",
+                  "Deploy cloned voice to your agents"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -896,22 +883,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Usage Overview</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.usage, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Usage Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.usage}
-                  className="w-full h-[700px] border-0"
-                  title="Usage"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.usage}
+                title="Usage & Analytics"
+                description="Monitor your ElevenLabs usage and costs."
+                instructions={[
+                  "View current billing period usage",
+                  "Track character/voice generation stats",
+                  "Monitor API call volume",
+                  "Set usage alerts and limits"
+                ]}
+              />
             </CardContent>
           </Card>
         );
@@ -960,22 +945,20 @@ const VoiceFlowBuilder = () => {
         return (
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Generation History</CardTitle>
-                <Button size="sm" variant="outline" onClick={() => window.open(elevenLabsPages.history, '_blank')}>
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in New Tab
-                </Button>
-              </div>
+              <CardTitle className="text-base">Generation History</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border">
-                <iframe
-                  src={elevenLabsPages.history}
-                  className="w-full h-[700px] border-0"
-                  title="History"
-                />
-              </div>
+              <ElevenLabsEmbed
+                url={elevenLabsPages.history}
+                title="Generation History"
+                description="Review and manage your voice generation history."
+                instructions={[
+                  "Browse past voice generations",
+                  "Download previous audio files",
+                  "Re-generate with same settings",
+                  "Manage your audio library"
+                ]}
+              />
             </CardContent>
           </Card>
         );

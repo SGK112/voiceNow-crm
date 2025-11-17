@@ -322,3 +322,138 @@ export const getCallInsights = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * AI Chat for Voice Agent Builder
+ * Conversational interface to build agents
+ */
+export const aiChat = async (req, res) => {
+  try {
+    if (!aiService.isAvailable()) {
+      return res.status(503).json({
+        message: 'AI service not available. Please configure an AI provider API key.',
+        error: 'AI_NOT_AVAILABLE'
+      });
+    }
+
+    const { messages, task } = req.body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ message: 'Messages array is required' });
+    }
+
+    // Enhanced system prompt for agent/workflow building
+    let systemPrompt = 'You are a helpful AI assistant.';
+
+    if (task === 'voice_agent_builder') {
+      systemPrompt = `You are an expert AI assistant helping users build voice agents for their business.
+
+Your job is to:
+1. Ask 2-3 clarifying questions to understand what they need
+2. Gather key information: purpose, target audience, message, tone, specific details
+3. When you have enough info, respond with a JSON block containing the agent configuration
+
+Keep responses conversational, friendly, and concise (2-3 sentences per response).
+
+When ready to generate the agent config (after 2-3 exchanges), include this EXACT format in your response:
+
+\`\`\`json
+{
+  "agent_ready": true,
+  "agent_config": {
+    "name": "Short descriptive name (e.g. 'Promo Caller Sarah')",
+    "purpose": "Brief purpose statement",
+    "main_message": "The core message to communicate in the call",
+    "tone": "professional/friendly/urgent/casual",
+    "greeting": "Opening greeting for the call",
+    "specific_details": "Any specific details like times, dates, offers, etc."
+  }
+}
+\`\`\`
+
+Only include this JSON when you have enough information from the user.`;
+    } else if (task === 'workflow_builder') {
+      systemPrompt = `You are an expert AI assistant helping users build automation workflows.
+
+Your job is to:
+1. Ask 2-3 clarifying questions to understand what they want to automate
+2. Gather key information: trigger event, actions to take, conditions, integrations needed
+3. When you have enough info, respond with a JSON block containing the workflow configuration
+
+Keep responses conversational, friendly, and concise (2-3 sentences per response).
+
+When ready to generate the workflow config (after 2-3 exchanges), include this EXACT format in your response:
+
+\`\`\`json
+{
+  "agent_ready": true,
+  "agent_config": {
+    "name": "Short descriptive name (e.g. 'Lead Follow-up Flow')",
+    "purpose": "Brief purpose statement",
+    "trigger": "What starts this workflow (webhook, schedule, manual, etc.)",
+    "nodes": [],
+    "connections": []
+  }
+}
+\`\`\`
+
+Only include this JSON when you have enough information from the user.`;
+    }
+
+    // Prepend system prompt
+    const fullMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages
+    ];
+
+    // Convert messages to prompt format for AI service
+    const prompt = fullMessages.map(m => {
+      if (m.role === 'system') {
+        return `System: ${m.content}`;
+      } else if (m.role === 'user') {
+        return `User: ${m.content}`;
+      } else if (m.role === 'assistant') {
+        return `Assistant: ${m.content}`;
+      }
+      return `${m.role}: ${m.content}`;
+    }).join('\n\n') + '\n\nAssistant:';
+
+    // Call AI service with prompt string
+    const response = await aiService.chat(prompt);
+
+    let aiMessage = response;
+    let agentReady = false;
+    let agentConfig = null;
+
+    // Check if AI provided agent configuration
+    const jsonMatch = aiMessage.match(/```json\s*\n([\s\S]*?)\n```/);
+    if (jsonMatch) {
+      try {
+        const configData = JSON.parse(jsonMatch[1]);
+        if (configData.agent_ready && configData.agent_config) {
+          agentReady = true;
+          agentConfig = configData.agent_config;
+
+          // Remove the JSON block from the message
+          aiMessage = aiMessage.replace(/```json\s*\n[\s\S]*?\n```/, '').trim();
+        }
+      } catch (parseError) {
+        console.error('Error parsing agent config JSON:', parseError);
+      }
+    }
+
+    res.json({
+      message: aiMessage,
+      agent_ready: agentReady,
+      agent_config: agentConfig,
+      provider: aiService.activeProvider
+    });
+
+  } catch (error) {
+    console.error('AI chat error:', error);
+    res.status(500).json({
+      error: 'Failed to get AI response',
+      message: error.message
+    });
+  }
+};

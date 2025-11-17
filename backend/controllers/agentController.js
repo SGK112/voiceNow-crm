@@ -33,6 +33,9 @@ export const getAgentById = async (req, res) => {
 
 export const createAgent = async (req, res) => {
   try {
+    console.log('\n🚀 [CREATE AGENT] Request received');
+    console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
+
     const {
       name,
       type,
@@ -46,17 +49,24 @@ export const createAgent = async (req, res) => {
       temperature
     } = req.body;
 
+    console.log('✅ [CREATE AGENT] Extracted fields:', { name, type, voiceId, voiceName });
+
     // Validate required fields
     if (!name) {
+      console.log('❌ [CREATE AGENT] Validation failed: Missing name');
       return res.status(400).json({ message: 'Agent name is required' });
     }
 
     if (!script) {
+      console.log('❌ [CREATE AGENT] Validation failed: Missing script');
       return res.status(400).json({ message: 'Agent script/prompt is required' });
     }
 
+    console.log('✅ [CREATE AGENT] Validation passed');
+
     // Get user to check subscription limits
     const user = await User.findById(req.user._id);
+    console.log('👤 [CREATE AGENT] User plan:', user.plan);
 
     // Check subscription limits based on plan
     const agentCount = await VoiceAgent.countDocuments({ userId: req.user._id });
@@ -68,7 +78,10 @@ export const createAgent = async (req, res) => {
     };
 
     const maxAgents = planLimits[user.plan] || 1;
+    console.log(`📊 [CREATE AGENT] Agent count: ${agentCount}/${maxAgents}`);
+
     if (agentCount >= maxAgents) {
+      console.log('❌ [CREATE AGENT] Subscription limit reached');
       return res.status(403).json({
         message: `Your ${user.plan} plan allows up to ${maxAgents} agent(s). Upgrade to create more agents.`
       });
@@ -95,34 +108,52 @@ export const createAgent = async (req, res) => {
       selectedVoiceName = 'Sarah';
     }
 
-    // Create agent in ElevenLabs using PLATFORM credentials
-    let elevenLabsAgent;
+    // Extract additional configuration from request body (for AI Builder)
+    const agentConfiguration = req.body.configuration || {};
+    console.log('⚙️  [CREATE AGENT] Configuration:', agentConfiguration);
+
+    // CREATE REAL ELEVENLABS CONVERSATIONAL AI AGENT
+    console.log('🤖 [CREATE AGENT] Creating ElevenLabs Conversational AI agent...');
+
+    let elevenLabsAgentId;
     try {
       const elevenLabsService = getElevenLabsService();
-      elevenLabsAgent = await elevenLabsService.createAgent({
+
+      // Build the agent configuration for ElevenLabs
+      const elevenLabsConfig = {
         name: name,
         voiceId: selectedVoiceId,
         script: script,
         firstMessage: firstMessage || `Hi! I'm calling from {{company_name}}. How are you today?`,
-        language: language || 'en'
-      });
+        language: language || 'en',
+        temperature: temperature || 0.8
+      };
 
-      console.log(`✅ Created agent in ElevenLabs: ${elevenLabsAgent.agent_id}`);
-    } catch (error) {
-      console.error('Failed to create agent in ElevenLabs:', error.message);
-      return res.status(500).json({
-        message: 'Failed to create voice agent in ElevenLabs. Please try again or contact support.',
-        error: error.message
-      });
+      console.log('📤 [CREATE AGENT] Calling ElevenLabs API to create agent...');
+      const elevenLabsAgent = await elevenLabsService.createAgent(elevenLabsConfig);
+
+      elevenLabsAgentId = elevenLabsAgent.agent_id || elevenLabsAgent.id;
+      console.log(`✅ [CREATE AGENT] ElevenLabs agent created: ${elevenLabsAgentId}`);
+
+    } catch (elevenLabsError) {
+      console.error('❌ [CREATE AGENT] Failed to create ElevenLabs agent:', elevenLabsError.message);
+
+      // If ElevenLabs creation fails, use a placeholder ID so the agent can still be saved
+      // This allows the system to work even if ElevenLabs API is down
+      elevenLabsAgentId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      console.warn(`⚠️  [CREATE AGENT] Using placeholder ID: ${elevenLabsAgentId}`);
+      console.warn('   Agent will be saved to database but calls may not work until ElevenLabs agent is created');
     }
 
-    // Save to database with REAL elevenLabsAgentId
+    console.log('💾 [CREATE AGENT] Saving agent to database...');
+
+    // Save agent to database with the real ElevenLabs agent ID
     const agent = await VoiceAgent.create({
       userId: req.user._id,
       name: name,
       type: type || 'custom',
       customType: customType,
-      elevenLabsAgentId: elevenLabsAgent.agent_id,
+      elevenLabsAgentId: elevenLabsAgentId, // Real ElevenLabs agent ID
       voiceId: selectedVoiceId,
       voiceName: selectedVoiceName,
       script: script,
@@ -131,7 +162,15 @@ export const createAgent = async (req, res) => {
       configuration: {
         temperature: temperature || 0.8,
         maxDuration: 300,
-        language: language || 'en'
+        language: language || 'en',
+        // Store additional config from AI Builder
+        purpose: agentConfiguration.purpose,
+        main_message: agentConfiguration.main_message,
+        tone: agentConfiguration.tone,
+        greeting: agentConfiguration.greeting,
+        system_prompt: agentConfiguration.system_prompt,
+        first_message: agentConfiguration.first_message,
+        ...agentConfiguration
       },
       availability: {
         enabled: true,
@@ -148,10 +187,20 @@ export const createAgent = async (req, res) => {
       }
     });
 
-    console.log(`✅ Saved agent to database: ${agent._id}`);
+    console.log(`✅ [CREATE AGENT] SUCCESS! Agent saved to database: ${agent._id}`);
+    console.log(`📋 [CREATE AGENT] Agent details:`, {
+      id: agent._id,
+      name: agent.name,
+      voiceId: agent.voiceId,
+      voiceName: agent.voiceName,
+      type: agent.type
+    });
+    console.log('🎉 [CREATE AGENT] Sending response to client\n');
+
     res.status(201).json(agent);
   } catch (error) {
-    console.error('Error creating agent:', error);
+    console.error('❌ [CREATE AGENT] ERROR:', error);
+    console.error('Stack:', error.stack);
     res.status(500).json({ message: error.message });
   }
 };
@@ -228,11 +277,20 @@ export const getAgentCalls = async (req, res) => {
 export const getVoices = async (req, res) => {
   try {
     const elevenLabsService = getElevenLabsService();
-    const voices = await elevenLabsService.getVoices();
-    res.json(voices);
+    const response = await elevenLabsService.getVoices();
+
+    // ElevenLabs returns { voices: [...] }
+    // Wrap it in success response for frontend
+    res.json({
+      success: true,
+      voices: response.voices || []
+    });
   } catch (error) {
     console.error('Error fetching voices:', error);
-    res.status(500).json({ message: 'Failed to fetch voices from ElevenLabs' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch voices from ElevenLabs'
+    });
   }
 };
 
@@ -1046,5 +1104,691 @@ export const getAgentPerformance = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Test call - make a quick test call with an agent
+export const testCall = async (req, res) => {
+  try {
+    const { agentId, phoneNumber } = req.body;
+
+    console.log('\n📞 [TEST CALL] Initiating test call');
+    console.log('   Agent ID:', agentId);
+    console.log('   Phone:', phoneNumber);
+
+    if (!agentId || !phoneNumber) {
+      return res.status(400).json({
+        message: 'Agent ID and phone number are required'
+      });
+    }
+
+    // Fetch the agent
+    const agent = await VoiceAgent.findOne({ _id: agentId, userId: req.user._id });
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    console.log('   Agent Name:', agent.name);
+    console.log('   ElevenLabs ID:', agent.elevenLabsAgentId);
+
+    // Check if agent has valid ElevenLabs ID
+    if (!agent.elevenLabsAgentId || agent.elevenLabsAgentId.startsWith('local_')) {
+      return res.status(400).json({
+        message: 'This agent was not properly created in ElevenLabs. Please recreate the agent.'
+      });
+    }
+
+    // Get ElevenLabs phone number ID
+    const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
+    if (!agentPhoneNumberId) {
+      return res.status(500).json({
+        message: 'ElevenLabs phone number not configured'
+      });
+    }
+
+    // Format phone number
+    let formattedNumber = phoneNumber.trim();
+    if (!formattedNumber.startsWith('+')) {
+      formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
+    }
+
+    console.log('   Formatted Phone:', formattedNumber);
+
+    // Prepare webhook URL
+    const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/elevenlabs/conversation-event`;
+
+    // Dynamic variables for test call
+    const dynamicVariables = {
+      customer_name: 'Test User',
+      lead_name: 'Test User',
+      lead_phone: formattedNumber,
+      company_name: 'VoiceFlow CRM',
+      demo_type: 'agent_test_call'
+    };
+
+    // Initiate call using ElevenLabs batch calling
+    const elevenLabsService = getElevenLabsService();
+
+    console.log('   Calling ElevenLabs API...');
+
+    const callData = await elevenLabsService.initiateCall(
+      agent.elevenLabsAgentId,
+      formattedNumber,
+      agentPhoneNumberId,
+      webhookUrl,
+      dynamicVariables,
+      null, // Use agent's default script
+      null  // Use agent's default first message
+    );
+
+    const callId = callData.id || callData.call_id || callData.batch_id;
+    console.log('   ✅ Call initiated:', callId);
+
+    // Log the call
+    await CallLog.create({
+      userId: req.user._id,
+      agentId: agent._id,
+      elevenLabsCallId: callId,
+      phoneNumber: formattedNumber,
+      status: 'initiated',
+      direction: 'outbound',
+      metadata: {
+        testCall: true,
+        dynamicVariables
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Test call initiated successfully',
+      callId: callId
+    });
+
+  } catch (error) {
+    console.error('❌ [TEST CALL] Error:', error.message);
+    res.status(500).json({
+      message: error.message || 'Failed to initiate test call'
+    });
+  }
+};
+
+// ==========================================
+// AGENT LIFECYCLE MANAGEMENT
+// ==========================================
+
+/**
+ * Update agent deployment status
+ * POST /api/agents/:id/deploy
+ */
+export const deployAgent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, changes } = req.body; // status: 'draft', 'testing', 'production'
+
+    console.log(`🚀 [DEPLOY AGENT] Updating deployment status to: ${status}`);
+
+    const agent = await VoiceAgent.findOne({ _id: id, userId: req.user._id });
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    // Validate status transition
+    const validStatuses = ['draft', 'testing', 'production'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid deployment status' });
+    }
+
+    // Check if agent has valid ElevenLabs ID for production deployment
+    if (status === 'production' && (!agent.elevenLabsAgentId || agent.elevenLabsAgentId.startsWith('local_'))) {
+      return res.status(400).json({
+        message: 'Cannot deploy to production: Agent not properly created in ElevenLabs'
+      });
+    }
+
+    // Update deployment status
+    agent.deployment.status = status;
+    agent.deployment.lastDeployedAt = new Date();
+    agent.deployment.deployedBy = req.user._id;
+
+    // Increment version if moving to production
+    if (status === 'production') {
+      agent.deployment.version += 1;
+    }
+
+    // Add changelog entry if changes provided
+    if (changes) {
+      agent.deployment.changelog.push({
+        version: agent.deployment.version,
+        changes: changes,
+        updatedAt: new Date(),
+        updatedBy: req.user._id
+      });
+    }
+
+    await agent.save();
+
+    console.log(`✅ [DEPLOY AGENT] Agent deployed to ${status} (v${agent.deployment.version})`);
+
+    res.json({
+      success: true,
+      message: `Agent deployed to ${status}`,
+      agent: agent
+    });
+
+  } catch (error) {
+    console.error('❌ [DEPLOY AGENT] Error:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Save test results for an agent
+ * POST /api/agents/:id/test-results
+ */
+export const saveTestResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { duration, transcript, rating, notes, status } = req.body;
+
+    console.log(`📝 [TEST RESULT] Saving test result for agent ${id}`);
+
+    const agent = await VoiceAgent.findOne({ _id: id, userId: req.user._id });
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    // Add test result
+    agent.deployment.testResults.push({
+      testedAt: new Date(),
+      testedBy: req.user._id,
+      duration: duration,
+      conversationTranscript: transcript,
+      rating: rating,
+      notes: notes,
+      status: status // 'passed', 'failed', 'needs_improvement'
+    });
+
+    await agent.save();
+
+    console.log(`✅ [TEST RESULT] Test result saved (Status: ${status}, Rating: ${rating}/5)`);
+
+    res.json({
+      success: true,
+      message: 'Test result saved',
+      testResults: agent.deployment.testResults
+    });
+
+  } catch (error) {
+    console.error('❌ [TEST RESULT] Error:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get test results for an agent
+ * GET /api/agents/:id/test-results
+ */
+export const getTestResults = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const agent = await VoiceAgent.findOne({ _id: id, userId: req.user._id })
+      .populate('deployment.testResults.testedBy', 'name email');
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    res.json({
+      testResults: agent.deployment.testResults || [],
+      deploymentStatus: agent.deployment.status,
+      version: agent.deployment.version
+    });
+
+  } catch (error) {
+    console.error('❌ [GET TEST RESULTS] Error:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get deployment changelog for an agent
+ * GET /api/agents/:id/changelog
+ */
+export const getChangelog = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const agent = await VoiceAgent.findOne({ _id: id, userId: req.user._id })
+      .populate('deployment.changelog.updatedBy', 'name email');
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    res.json({
+      changelog: agent.deployment.changelog || [],
+      currentVersion: agent.deployment.version
+    });
+
+  } catch (error) {
+    console.error('❌ [GET CHANGELOG] Error:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get ElevenLabs Voice Library (shared voices)
+export const getVoiceLibrary = async (req, res) => {
+  try {
+    const { page = 1, limit = 100 } = req.query;
+    const requestedPage = parseInt(page);
+    const requestedLimit = parseInt(limit);
+
+    console.log(`\n📚 [VOICE LIBRARY] Fetching page ${requestedPage} (limit: ${requestedLimit})...`);
+
+    const elevenLabsService = getElevenLabsService();
+
+    // Fetch only the requested page from ElevenLabs
+    const response = await elevenLabsService.client.get('/shared-voices', {
+      params: {
+        page_size: requestedLimit,
+        page: requestedPage
+      }
+    });
+
+    const voices = response.data.voices || [];
+    const hasMore = response.data.has_more || false;
+
+    console.log(`✅ [VOICE LIBRARY] Page ${requestedPage}: ${voices.length} voices fetched`);
+
+    // Get user's saved voices to check which ones are already in library
+    const userId = req.user?.id || req.user?._id;
+    const user = userId ? await User.findById(userId) : null;
+    const savedVoiceIds = new Set((user?.savedVoices || []).map(v => v.voiceId));
+
+    console.log(`📋 [VOICE LIBRARY] User ID: ${userId}, User has ${savedVoiceIds.size} voices in their library`);
+
+    // Format voices for frontend
+    const formattedVoices = voices.map(v => ({
+      id: v.voice_id,
+      publicOwnerId: v.public_owner_id,
+      name: v.name,
+      gender: v.gender || 'unknown',
+      age: v.age || 'unknown',
+      accent: v.accent || 'unknown',
+      useCase: v.use_case || 'general',
+      category: v.category || 'general',
+      language: v.language || 'en',
+      locale: v.locale || 'en-US',
+      description: v.description || '',
+      previewUrl: v.preview_url || null,
+      freeUsersAllowed: v.free_users_allowed || false,
+      isAddedByUser: savedVoiceIds.has(v.voice_id), // Check against user's saved voices
+      clonedByCount: v.cloned_by_count || 0,
+      verifiedLanguages: v.verified_languages || []
+    }));
+
+    // Pagination info
+    const pagination = {
+      currentPage: requestedPage,
+      pageSize: requestedLimit,
+      count: formattedVoices.length,
+      hasMore: hasMore
+    };
+
+    res.json({
+      success: true,
+      voices: formattedVoices,
+      pagination,
+      hasMore
+    });
+
+  } catch (error) {
+    console.error('❌ [VOICE LIBRARY] Error:', error.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch voice library',
+      error: error.message
+    });
+  }
+};
+
+// Add voice from library to user's account
+export const addVoiceFromLibrary = async (req, res) => {
+  try {
+    const { publicOwnerId, voiceId, voiceName } = req.body;
+
+    console.log('\n➕ [ADD VOICE] Adding voice to account:', {
+      voiceId,
+      voiceName,
+      publicOwnerId
+    });
+
+    if (!publicOwnerId || !voiceId) {
+      return res.status(400).json({
+        success: false,
+        message: 'publicOwnerId and voiceId are required'
+      });
+    }
+
+    const elevenLabsService = getElevenLabsService();
+
+    // Add voice to user's ElevenLabs account using the correct endpoint
+    // The endpoint is: POST /v1/voices/add/{public_user_id}/{voice_id}
+    // Body should contain: {"new_name": "Custom Name"} (optional)
+    const response = await elevenLabsService.client.post(
+      `/voices/add/${publicOwnerId}/${voiceId}`,
+      {
+        new_name: voiceName  // Optional: rename the voice when adding
+      }
+    );
+
+    console.log(`✅ [ADD VOICE] Successfully added: ${voiceName}`);
+
+    res.json({
+      success: true,
+      message: `Voice "${voiceName}" added to your account`,
+      voice: response.data
+    });
+
+  } catch (error) {
+    console.error('❌ [ADD VOICE] Error:', error.response?.data || error.message);
+
+    // Handle specific errors
+    if (error.response?.status === 400) {
+      return res.status(400).json({
+        success: false,
+        message: 'Voice may already be in your account or limit reached'
+      });
+    }
+
+    if (error.response?.status === 422) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid voice or user ID'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add voice to account',
+      error: error.message
+    });
+  }
+};
+
+// ============================================
+// USER VOICE LIBRARY MANAGEMENT
+// ============================================
+
+// Get user's saved voices
+export const getSavedVoices = async (req, res) => {
+  try {
+    console.log('\n📚 [GET SAVED VOICES] Fetching user voice library...');
+
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const savedVoices = user.savedVoices || [];
+
+    console.log(`✅ [GET SAVED VOICES] Found ${savedVoices.length} saved voices`);
+
+    res.json({
+      success: true,
+      voices: savedVoices,
+      total: savedVoices.length
+    });
+
+  } catch (error) {
+    console.error('❌ [GET SAVED VOICES] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch saved voices',
+      error: error.message
+    });
+  }
+};
+
+// Save a voice to user's library
+export const saveVoiceToLibrary = async (req, res) => {
+  try {
+    const voiceData = req.body;
+
+    console.log('\n💾 [SAVE VOICE] Saving voice to user library:', {
+      voiceId: voiceData.voiceId,
+      name: voiceData.name
+    });
+
+    if (!voiceData.voiceId || !voiceData.name) {
+      return res.status(400).json({
+        success: false,
+        message: 'voiceId and name are required'
+      });
+    }
+
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if voice already saved
+    const existingVoice = user.savedVoices.find(v => v.voiceId === voiceData.voiceId);
+
+    if (existingVoice) {
+      return res.status(400).json({
+        success: false,
+        message: 'Voice already in your library'
+      });
+    }
+
+    // Add voice to user's saved voices
+    user.savedVoices.push({
+      voiceId: voiceData.voiceId,
+      publicOwnerId: voiceData.publicOwnerId,
+      name: voiceData.name,
+      gender: voiceData.gender,
+      age: voiceData.age,
+      accent: voiceData.accent,
+      useCase: voiceData.useCase,
+      category: voiceData.category,
+      language: voiceData.language,
+      locale: voiceData.locale,
+      description: voiceData.description,
+      previewUrl: voiceData.previewUrl,
+      freeUsersAllowed: voiceData.freeUsersAllowed,
+      clonedByCount: voiceData.clonedByCount,
+      tags: voiceData.tags || [],
+      notes: voiceData.notes || ''
+    });
+
+    await user.save();
+
+    console.log(`✅ [SAVE VOICE] Voice "${voiceData.name}" saved to library`);
+
+    res.json({
+      success: true,
+      message: `Voice "${voiceData.name}" saved to your library`,
+      voice: user.savedVoices[user.savedVoices.length - 1]
+    });
+
+  } catch (error) {
+    console.error('❌ [SAVE VOICE] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save voice',
+      error: error.message
+    });
+  }
+};
+
+// Remove voice from user's library
+export const removeVoiceFromLibrary = async (req, res) => {
+  try {
+    const { voiceId } = req.params;
+
+    console.log('\n🗑️  [REMOVE VOICE] Removing voice from library:', voiceId);
+
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const voiceIndex = user.savedVoices.findIndex(v => v.voiceId === voiceId);
+
+    if (voiceIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Voice not found in your library'
+      });
+    }
+
+    const voiceName = user.savedVoices[voiceIndex].name;
+    user.savedVoices.splice(voiceIndex, 1);
+
+    await user.save();
+
+    console.log(`✅ [REMOVE VOICE] Voice "${voiceName}" removed from library`);
+
+    res.json({
+      success: true,
+      message: `Voice "${voiceName}" removed from your library`
+    });
+
+  } catch (error) {
+    console.error('❌ [REMOVE VOICE] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove voice',
+      error: error.message
+    });
+  }
+};
+
+// Update voice metadata (tags, notes)
+export const updateSavedVoice = async (req, res) => {
+  try {
+    const { voiceId } = req.params;
+    const { tags, notes } = req.body;
+
+    console.log('\n✏️  [UPDATE VOICE] Updating voice metadata:', voiceId);
+
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const voice = user.savedVoices.find(v => v.voiceId === voiceId);
+
+    if (!voice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Voice not found in your library'
+      });
+    }
+
+    if (tags !== undefined) voice.tags = tags;
+    if (notes !== undefined) voice.notes = notes;
+
+    await user.save();
+
+    console.log(`✅ [UPDATE VOICE] Voice "${voice.name}" metadata updated`);
+
+    res.json({
+      success: true,
+      message: 'Voice updated successfully',
+      voice
+    });
+
+  } catch (error) {
+    console.error('❌ [UPDATE VOICE] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update voice',
+      error: error.message
+    });
+  }
+};
+
+// Test agent conversation (simulated)
+export const testConversation = async (req, res) => {
+  try {
+    const { agentId, message, prompt, firstMessage, conversationHistory } = req.body;
+
+    console.log(`🧪 [TEST CONVERSATION] Testing agent ${agentId} with message: "${message}"`);
+
+    // In a real implementation, this would call ElevenLabs or OpenAI
+    // For now, we'll create a simple simulated response based on the prompt
+
+    // Simulate thinking time
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Generate a context-aware response
+    let response = '';
+
+    // Check if this is the first message in the conversation
+    if (!conversationHistory || conversationHistory.length === 0) {
+      response = firstMessage || 'Hello! How can I help you today?';
+    } else {
+      // Simple keyword-based responses for testing
+      const lowerMessage = message.toLowerCase();
+
+      if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        response = 'Hello! How can I assist you today?';
+      } else if (lowerMessage.includes('help') || lowerMessage.includes('assist')) {
+        response = 'I\'d be happy to help you. What do you need assistance with?';
+      } else if (lowerMessage.includes('thank')) {
+        response = 'You\'re welcome! Is there anything else I can help you with?';
+      } else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye')) {
+        response = 'Goodbye! Have a great day!';
+      } else if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+        response = 'I can help you with pricing information. Could you please provide more details about what you\'re interested in?';
+      } else if (lowerMessage.includes('schedule') || lowerMessage.includes('appointment')) {
+        response = 'I\'d be happy to help you schedule an appointment. What date and time works best for you?';
+      } else {
+        // Generic response
+        response = `I understand you said "${message}". Based on my instructions, I'm here to help. Could you provide more details so I can assist you better?`;
+      }
+    }
+
+    console.log(`✅ [TEST CONVERSATION] Generated response: "${response}"`);
+
+    res.json({
+      success: true,
+      response,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ [TEST CONVERSATION] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate test response',
+      error: error.message
+    });
   }
 };

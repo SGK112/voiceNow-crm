@@ -146,23 +146,13 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
       // ALWAYS inject current date/time context into the script
       const dateTimeContext = this.generateDateTimeContext();
 
-      // If there's a personalized script, prepend date/time context
+      // Only modify script if one is explicitly provided
       if (personalizedScript) {
         // Remove any old date/time context first
         const cleanedScript = personalizedScript.replace(/\*\*CURRENT DATE & TIME INFORMATION:\*\*[\s\S]*?(?=\n\n(?:\*\*[A-Z]|\w+:)|$)/, '').trim();
         personalizedScript = dateTimeContext + '\n\n' + cleanedScript;
-      } else {
-        // If no personalized script, we'll still add date/time via conversation_config_override
-        // Get the agent's current config and prepend date/time
-        try {
-          const agent = await this.getAgentById(agentId);
-          const currentPrompt = agent.conversation_config?.agent?.prompt?.prompt || '';
-          const cleanedPrompt = currentPrompt.replace(/\*\*CURRENT DATE & TIME INFORMATION:\*\*[\s\S]*?(?=\n\n(?:\*\*[A-Z]|\w+:)|$)/, '').trim();
-          personalizedScript = dateTimeContext + '\n\n' + cleanedPrompt;
-        } catch (error) {
-          console.warn('⚠️ Could not fetch agent config for date/time injection:', error.message);
-        }
       }
+      // If no personalizedScript is provided, don't override - let agent use its default config
 
       // Validate script length (ElevenLabs typically has limits around 3000-5000 chars)
       const MAX_SCRIPT_LENGTH = 4000;

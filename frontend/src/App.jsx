@@ -34,6 +34,13 @@ import WorkflowMarketplace from './pages/WorkflowMarketplace';
 import CustomizableDashboard from './pages/CustomizableDashboard';
 import CRMWorkflowBuilder from './pages/CRMWorkflowBuilder';
 import CRMWorkflowBuilderHybrid from './pages/CRMWorkflowBuilderHybrid';
+import CollaborativeAgentBuilder from './components/CollaborativeAgentBuilder';
+import AgentDashboard from './components/AgentDashboard';
+import PremiumAgentRequest from './components/PremiumAgentRequest';
+import AIConversationalAgentBuilder from './components/AIConversationalAgentBuilder';
+import PhoneNumberMarketplace from './pages/PhoneNumberMarketplace';
+import VoiceLibraryBrowser from './components/VoiceLibraryBrowser';
+import MyVoices from './pages/MyVoices';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -87,8 +94,15 @@ function App() {
         <Route path="agent-library/setup/:templateId" element={<AgentSetup />} />
 
         {/* Core 5 Sections - Voice Workflow CRM */}
-        <Route path="agents" element={<VoiceFlowBuilder />} />
+        <Route path="agents" element={<AgentDashboard />} />
         <Route path="agents/:id" element={<AgentDetail />} />
+        <Route path="agents/:id/edit" element={<CollaborativeAgentBuilder />} />
+        <Route path="agent-builder" element={<CollaborativeAgentBuilder />} />
+        <Route path="ai-agent-builder" element={<AIConversationalAgentBuilder />} />
+        <Route path="premium-agent-request" element={<PremiumAgentRequest />} />
+        <Route path="voice-library" element={<VoiceLibraryBrowser />} />
+        <Route path="my-voices" element={<MyVoices />} />
+        <Route path="voiceflow-builder" element={<VoiceFlowBuilder />} />
         <Route path="workflows" element={<WorkflowStudio />} />
         <Route path="workflows/:id" element={<WorkflowStudio />} />
         <Route path="crm" element={<CRM />} />
@@ -108,6 +122,7 @@ function App() {
         <Route path="conversations" element={<Conversations />} />
         <Route path="workflow-marketplace" element={<WorkflowMarketplace />} />
         <Route path="phone-numbers" element={<PhoneNumbers />} />
+        <Route path="phone-marketplace" element={<PhoneNumberMarketplace />} />
 
         {/* Legacy redirects - redirect old pages to new consolidated pages */}
         <Route path="agent-library" element={<Navigate to="/app/agents" replace />} />

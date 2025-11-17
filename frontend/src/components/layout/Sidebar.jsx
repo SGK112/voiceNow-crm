@@ -1,12 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store, Music, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
 // Core sections - Voice Workflow CRM focused navigation
 const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
-  { name: 'Voice Agents', href: '/app/agents', icon: Bot, tourId: 'agents', description: 'AI Voice Agent Builder' },
+  { name: 'Agent Studio', href: '/app/agents', icon: Bot, tourId: 'agents', description: 'AI Agent Builder' },
+  { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
+  { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
   { name: 'Workflows', href: '/app/workflows', icon: Workflow, tourId: 'workflows', description: 'Visual Workflow Automation' },
   { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
   { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Templates & Integrations' },
@@ -122,7 +124,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 data-tour={item.tourId}
                 className={cn(
                   'flex items-center gap-3 rounded-lg text-sm font-medium transition-all relative group',
-                  isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-3',
+                  isCollapsed ? 'p-3 justify-center' : 'px-4 py-3',
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'

@@ -191,11 +191,26 @@
             position: relative;
             overflow: hidden;
             background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-            /* Optional: Add background image by uncommenting and adding image URL */
-            /* background-image: linear-gradient(rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.95)), url('/path/to/construction-image.jpg'); */
-            /* background-size: cover; */
-            /* background-position: center; */
-            /* background-attachment: fixed; */
+            /*
+             * ADD YOUR IMAGES HERE:
+             *
+             * Option 1: Hero background with construction team or field workers
+             * Upload image to /frontend/public/ folder (e.g., hero-construction.jpg)
+             * Then uncomment these lines and update the path:
+             *
+             * background-image:
+             *   linear-gradient(rgba(248, 250, 252, 0.92), rgba(255, 255, 255, 0.95)),
+             *   url('/hero-construction.jpg');
+             * background-size: cover;
+             * background-position: center;
+             * background-attachment: fixed;
+             *
+             * Recommended images:
+             * - Construction crew on job site
+             * - Field service professionals answering calls
+             * - Busy office with phone operators
+             * - Modern construction site with workers
+             */
         }
 
         .hero::before {
@@ -1154,11 +1169,24 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            /* Optional: Add team or construction background image */
-            /* background-image: linear-gradient(rgba(30, 41, 59, 0.85), rgba(30, 41, 59, 0.90)), url('/path/to/team-image.jpg'); */
-            /* background-size: cover; */
-            /* background-position: center; */
-            /* background-attachment: fixed; */
+            /*
+             * ADD CTA BACKGROUND IMAGE:
+             *
+             * Upload a powerful image to /frontend/public/ (e.g., team-work.jpg)
+             * Recommended images:
+             * - Construction team celebrating completed project
+             * - Field workers using phones/tablets on job site
+             * - Professional service team in action
+             * - Happy contractors with equipment
+             *
+             * Uncomment to activate:
+             * background-image:
+             *   linear-gradient(rgba(30, 41, 59, 0.88), rgba(30, 41, 59, 0.92)),
+             *   url('/team-work.jpg');
+             * background-size: cover;
+             * background-position: center;
+             * background-attachment: fixed;
+             */
         }
 
         .cta-section::before {
@@ -2075,6 +2103,13 @@
                 max-width: 400px;
                 margin-left: auto;
                 margin-right: auto;
+                align-items: center;
+            }
+
+            .cta-group .btn {
+                width: 100%;
+                max-width: 320px;
+                justify-content: center;
             }
 
             /* Hero Section */
@@ -3053,12 +3088,13 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    Powered by ElevenLabs AI Voice Technology
+                    Complete Plug-and-Play Solution • ElevenLabs + n8n Powered
                 </div>
-                <h1>AI Voice Agents That <span class="gradient-text">Work 24/7</span> for Your Business</h1>
-                <p class="hero-subtitle">Automate calls, qualify leads, and book appointments with intelligent voice AI. Build custom workflows without code and scale your operations instantly.</p>
+                <h1>Voice AI That <span class="gradient-text">Answers Every Call</span> and Runs Your Workflows</h1>
+                <p class="hero-subtitle">Built-in voice automation with ElevenLabs AI and n8n workflow automation. Answer calls, book jobs, send estimates, and manage your entire operation - all without touching code. Perfect for construction, field services, and businesses that run on phone calls.</p>
                 <div class="hero-stats">
                     <div class="hero-stat">
                         <div class="stat-number">50K+</div>
@@ -3266,15 +3302,15 @@
                 <p>We provide everything—pre-built agents, custom development, and a full-featured CRM to manage your entire operation.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card" style="border: 2px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);">
                     <div class="feature-icon">🎙️</div>
-                    <h3>Pre-Built AI Voice Agents</h3>
-                    <p>We provide ready-to-use voice agents powered by ElevenLabs. Ultra-realistic voices with emotional intelligence that handle calls, qualify leads, and book appointments—deployed instantly.</p>
+                    <h3>ElevenLabs AI Voice - Built-In ✓</h3>
+                    <p><strong>Critical Integration #1:</strong> Pre-configured ElevenLabs voice technology with ultra-realistic voices. Handles every call with natural conversation, emotional intelligence, and perfect clarity - works 24/7 without breaks. No setup required, it just works.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Custom Agent Development</h3>
-                    <p>Need something specific? Our team builds custom AI agents tailored to your unique business requirements, workflows, and industry needs—from consultation to deployment.</p>
+                <div class="feature-card" style="border: 2px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>n8n Workflow Automation - Built-In ✓</h3>
+                    <p><strong>Critical Integration #2:</strong> Full n8n workflow platform integrated out-of-the-box. Connect to Facebook, Shopify, Google, Stripe, QuickBooks, and 300+ services with OAuth. Visual workflow builder included - automate everything from lead capture to payment.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🎯</div>
@@ -3678,11 +3714,31 @@
 
     <!-- Final CTA -->
     <section class="cta-section">
-        <h2>Ready to Transform Your Business with AI?</h2>
-        <p>Join innovative businesses already using VoiceFlow CRM to automate operations, qualify leads faster, and scale without limits.</p>
+        <h2>Never Miss Another Call. Automate Everything.</h2>
+        <p>Complete plug-and-play solution with ElevenLabs voice AI and n8n workflows built-in. Start answering calls, booking jobs, and running your business 24/7 - setup takes 5 minutes, no coding required. Perfect for contractors, field services, and any business that depends on phone calls.</p>
         <div class="cta-group">
-            <a href="/login" class="btn btn-primary">Start Free Trial →</a>
-            <a href="mailto:support@voiceflowcrm.ai" class="btn btn-secondary">Contact Sales</a>
+            <a href="/login" class="btn btn-primary btn-large">Start Free Trial - Setup in 5 Min →</a>
+            <button class="btn btn-secondary btn-large" onclick="openCalendarModal()">Watch 2-Min Demo</button>
+        </div>
+        <div style="margin-top: 32px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; color: #94a3b8; font-size: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>ElevenLabs Integrated</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>n8n Workflows Built-In</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Works 24/7/365</span>
+            </div>
         </div>
     </section>
 

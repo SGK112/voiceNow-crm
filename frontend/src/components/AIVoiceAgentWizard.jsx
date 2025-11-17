@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { X, Wand2, Mic, Phone, Bot, ChevronRight, Sparkles, Check, Search, Filter, Play, Sliders, Upload, MessageSquare, Brain, Book, Zap, Star, Trash2, Copy, RefreshCw } from 'lucide-react';
+import { X, Wand2, Mic, Phone, Bot, ChevronRight, Sparkles, Check, Search, Filter, Play, Sliders, Upload, MessageSquare, Brain, Book, Zap, Star, Trash2, Copy, RefreshCw, Music } from 'lucide-react';
 import api from '../services/api';
+import VoiceLibraryBrowser from './VoiceLibraryBrowser';
 
 const AGENT_TEMPLATES = [
   // Sales & Business
@@ -318,7 +319,7 @@ export default function AIVoiceAgentWizard({ onClose, onCreate }) {
   const [loading, setLoading] = useState(false);
 
   // Voice Source Selection
-  const [voiceSource, setVoiceSource] = useState('preset'); // 'preset', 'clone', 'design', 'cloned'
+  const [voiceSource, setVoiceSource] = useState('preset'); // 'preset', 'clone', 'design', 'cloned', 'library'
 
   // Voice filtering and search
   const [voiceSearch, setVoiceSearch] = useState('');
@@ -777,6 +778,19 @@ export default function AIVoiceAgentWizard({ onClose, onCreate }) {
                     My Voices ({clonedVoices.length})
                   </div>
                 </button>
+                <button
+                  onClick={() => setVoiceSource('library')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    voiceSource === 'library'
+                      ? 'border-pink-600 text-pink-600'
+                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Music className="w-4 h-4" />
+                    Voice Library
+                  </div>
+                </button>
               </div>
 
               {/* Preset Voices Tab */}
@@ -1215,6 +1229,29 @@ export default function AIVoiceAgentWizard({ onClose, onCreate }) {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Voice Library Tab */}
+              {voiceSource === 'library' && (
+                <div className="bg-white dark:bg-gray-900 rounded-lg">
+                  <VoiceLibraryBrowser
+                    embedded={true}
+                    onVoiceSelect={(voice) => {
+                      setSelectedVoice({
+                        id: voice.id,
+                        name: voice.name,
+                        voiceId: voice.id,
+                        gender: voice.gender,
+                        accent: voice.accent,
+                        age: voice.age,
+                        description: voice.description,
+                        tone: voice.useCase,
+                        category: voice.useCase
+                      });
+                      setVoiceSource('library');
+                    }}
+                  />
                 </div>
               )}
 

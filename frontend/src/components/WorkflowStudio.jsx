@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import UniversalAIBuilder from './UniversalAIBuilder';
 import ReactFlow, {
   Background,
   Controls,
@@ -1463,13 +1464,18 @@ function WorkflowStudioContent() {
         )}
       </div>
 
-      {/* AI Workflow Wizard Modal */}
-      {showAIWizard && (
-        <AIWorkflowWizard
-          onClose={() => setShowAIWizard(false)}
-          onGenerate={handleAIWorkflowGenerate}
-        />
-      )}
+      {/* Universal AI Builder Modal */}
+      <UniversalAIBuilder
+        open={showAIWizard}
+        onOpenChange={(open) => {
+          setShowAIWizard(open);
+          if (!open) {
+            // Reload workflows when modal closes
+            loadWorkflows();
+          }
+        }}
+        mode="workflow"
+      />
 
       {/* Credential Connection Modal */}
       {showCredentialModal && credentialInfo && (

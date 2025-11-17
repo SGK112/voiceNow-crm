@@ -191,37 +191,76 @@ export const initiateCall = async (req, res) => {
     console.log('📝 Personalized script preview:', personalizedScript.substring(0, Math.min(200, personalizedScript.length)));
     console.log('📝 Personalized first message:', personalizedFirstMessage);
 
-    // Make the call using PLATFORM credentials
-    const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID || 'phnum_1801k7xb68cefjv89rv10f90qykv';
+    console.log('\n📞 [INITIATE CALL] Making call with ElevenLabs Conversational AI');
+    console.log('   Phone: ', phoneNumber);
+    console.log('   Agent: ', agent.name);
+    console.log('   Voice: ', agent.voiceName, `(${agent.voiceId})`);
+    console.log('   ElevenLabs Agent ID:', agent.elevenLabsAgentId);
 
+    // Use ElevenLabs batch calling API to make the call
+    const ElevenLabsService = (await import('../services/elevenLabsService.js')).default;
+    const elevenLabsService = new ElevenLabsService();
+
+    // Check if we have a valid ElevenLabs agent ID
+    if (!agent.elevenLabsAgentId || agent.elevenLabsAgentId.startsWith('local_')) {
+      console.error('❌ Agent does not have a valid ElevenLabs agent ID');
+      return res.status(400).json({
+        message: 'This agent was not properly created in ElevenLabs. Please recreate the agent.'
+      });
+    }
+
+    // Get the ElevenLabs phone number ID from environment
+    const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
+    if (!agentPhoneNumberId) {
+      console.error('❌ ELEVENLABS_PHONE_NUMBER_ID not configured');
+      return res.status(500).json({
+        message: 'ElevenLabs phone number not configured. Please contact support.'
+      });
+    }
+
+    // Make the call using ElevenLabs batch calling
     let callData;
     try {
-      callData = await getElevenLabsService().initiateCall(
+      console.log(`📞 Calling ${phoneNumber} with ElevenLabs agent ${agent.elevenLabsAgentId}`);
+
+      // Prepare webhook URL for call events
+      const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/elevenlabs/conversation-event`;
+      console.log(`🔗 Webhook URL: ${webhookUrl}`);
+
+      // Initiate call with personalized script and first message
+      callData = await elevenLabsService.initiateCall(
         agent.elevenLabsAgentId,
         phoneNumber,
         agentPhoneNumberId,
-        `${process.env.API_URL || 'http://localhost:5000'}/api/webhooks/elevenlabs/call-completed`,
+        webhookUrl,
         dynamicVariables,
         personalizedScript,
         personalizedFirstMessage
       );
+
+      const callId = callData.id || callData.call_id || callData.batch_id;
+      console.log(`✅ [INITIATE CALL] Call initiated via ElevenLabs: ${callId}`);
     } catch (error) {
-      console.error('Failed to initiate call with ElevenLabs:', error.message);
+      console.error('❌ [INITIATE CALL] Failed to make call:', error.message);
       return res.status(500).json({
-        message: 'Failed to initiate call. Please try again or contact support.'
+        message: 'Failed to initiate call: ' + error.message
       });
     }
 
     // Create call log
-    // Note: batch calling returns batch_id, not call_id
     const call = await CallLog.create({
       userId: req.user._id,
       agentId: agent._id,
       leadId: leadId || null,
-      elevenLabsCallId: callData.id || callData.call_id, // batch returns 'id'
+      elevenLabsCallId: callData.id || callData.call_id || callData.batch_id,
       phoneNumber,
       status: 'initiated',
-      direction: 'outbound'
+      direction: 'outbound',
+      metadata: {
+        personalizedScript,
+        personalizedFirstMessage,
+        dynamicVariables
+      }
     });
 
     // Update lead status if applicable
