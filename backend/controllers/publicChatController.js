@@ -54,9 +54,9 @@ const KNOWLEDGE_BASE = {
     }
   },
   commonQuestions: {
-    'what is': 'Remodely is an AI-powered voice agent platform that helps businesses automate phone calls, qualify leads, and manage customers through voice conversations and CRM tools.',
+    'what is': 'Remodelee AI is an AI-powered voice agent platform that helps businesses automate phone calls, qualify leads, and manage customers through voice conversations and CRM tools.',
     'how does it work': 'We build custom AI voice agents for your business. They handle calls 24/7, qualify leads, book appointments, and integrate with your existing tools through our visual workflow builder.',
-    'pricing': 'We have three plans: Starter at $149/month for small businesses, Professional at $299/month (most popular) for growing teams, and Enterprise with custom pricing for large organizations. All plans include a 14-day free trial!',
+    'pricing': 'We have three plans: Starter at $149/month for small businesses, Professional at $299/month (most popular) for growing teams, and Enterprise with custom pricing for large organizations. All plans include a 14-day free trial at remodely.ai/signup!',
     'free trial': 'Yes! We offer a 14-day free trial with no credit card required. You get full access to test the platform and see how it works for your business.',
     'setup': 'Most businesses are live in 2-3 hours. We handle the setup for you - just tell us about your business and we\'ll build your custom AI agent.',
     'integrations': 'We integrate with Twilio (calls/SMS), Google Calendar, Stripe (payments), Gmail, and many more through our visual workflow builder.',
@@ -73,12 +73,17 @@ const KNOWLEDGE_BASE = {
 };
 
 // System prompt for marketing chat AI
-const MARKETING_SYSTEM_PROMPT = `You are an expert sales consultant for Remodely's VoiceFlow CRM platform. You excel at understanding customer needs and providing personalized, helpful responses.
+const MARKETING_SYSTEM_PROMPT = `You are an expert sales consultant for Remodelee AI's voice automation platform. You excel at understanding customer needs and providing personalized, helpful responses.
 
 CORE IDENTITY:
-Company: Remodely (formerly Remodely AI)
-Product: VoiceFlow CRM - AI Voice Workflows & Automation Platform
+Company: Remodelee AI (pronounced: REM-oh-del-ee A-I)
+Product: Remodelee AI - AI Voice Workflows & Automation Platform
 Mission: Help businesses automate operations with AI voice agents
+
+IMPORTANT PRONUNCIATION GUIDE:
+- Company name: "REMODELEE AI" (REM-oh-del-ee A-I)
+- When speaking about signup, say: "REMODELEE AI forward slash signup" or "remodely dot A I forward slash signup"
+- Website: remodely.ai (pronounced: remodely dot A I)
 
 COMMUNICATION STYLE:
 1. Be conversational and warm - like a knowledgeable friend
@@ -639,7 +644,7 @@ This inquiry was automatically captured by VoiceFlow CRM
   }
 };
 
-// Request a voice demo call using ElevenLabs batch calling
+// Request a voice demo call using Twilio + ElevenLabs WebSocket
 export const requestVoiceDemo = async (req, res) => {
   try {
     const { phoneNumber, name, email } = req.body;
@@ -654,15 +659,26 @@ export const requestVoiceDemo = async (req, res) => {
 
     // Format phone number (ensure it has + prefix for international format)
     let formattedNumber = phoneNumber.trim();
-    if (!formattedNumber.startsWith('+')) {
-      // Assume US number if no country code
-      formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
+
+    // Strip all non-digits first
+    const digitsOnly = formattedNumber.replace(/\D/g, '');
+
+    // Check if it starts with country code
+    if (formattedNumber.startsWith('+')) {
+      // Already has +, just ensure it's properly formatted
+      formattedNumber = '+' + digitsOnly;
+    } else if (digitsOnly.startsWith('1') && digitsOnly.length === 11) {
+      // US number with country code but no +
+      formattedNumber = '+' + digitsOnly;
+    } else {
+      // Assume US number, add +1
+      formattedNumber = '+1' + digitsOnly;
     }
 
-    // Use the demo agent (the one from marketing page widget)
-    // Note: Using the environment variable to match the phone number configuration
+    // Use the demo agent - get ElevenLabs agent ID from environment
     const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
     const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.NGROK_URL;
 
     if (!agentPhoneNumberId) {
       return res.status(503).json({
@@ -676,34 +692,82 @@ export const requestVoiceDemo = async (req, res) => {
     // Extract first name only (more natural than full name)
     const firstName = name.trim().split(' ')[0];
 
-    // Personalize the call with the user's name using dynamic variables
-    // These variables are available in the agent's script as {{customer_name}}, etc.
+    // Prepare dynamic variables for agent personalization
     const dynamicVariables = {
       customer_name: firstName,
+      customer_phone: formattedNumber,
+      customer_email: email || null,
       lead_name: name,
-      lead_phone: formattedNumber,
-      lead_email: email || '',
-      company_name: 'Remodelee.ai',
-      demo_type: 'marketing_website_demo'
+      trigger_source: 'marketing_page_demo',
+      company_name: 'Remodelee AI',
+      company_pronunciation: 'REM-oh-del-ee A-I',
+      signup_url: 'remodely.ai/signup',
+      signup_pronunciation: 'remodely dot A I forward slash signup'
     };
 
-    // Initiate call using ElevenLabs batch calling
-    // Using agent's default configuration (no script override - cleaner and more reliable)
-    const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/elevenlabs/conversation-event`;
-    console.log(`🔗 Using webhook URL: ${webhookUrl}`);
+    // Initialize ElevenLabs service
+    const { default: ElevenLabsService } = await import('../services/elevenLabsService.js');
+    const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
-    const callData = await getElevenLabsService().initiateCall(
+    // Custom prompt to prove we have control over the system
+    const customPrompt = `You are a friendly AI sales assistant for REMODELEE AI (pronounced: REM-oh-del-ee A-I).
+
+**YOUR IDENTITY:**
+- Company: REMODELEE AI (always pronounce as "REM-oh-del-ee A-I")
+- Your role: Help ${firstName} understand how REMODELEE AI can automate their business with voice AI
+- Be enthusiastic, helpful, and concise
+
+**IMPORTANT PRONUNCIATION:**
+- Always say "REMODELEE AI" (REM-oh-del-ee A-I) - never "Remodely" or "VoiceFlow"
+- For signup, say: "REMODELEE AI forward slash signup" or "remodely dot A I forward slash signup"
+
+**YOUR CONVERSATION FLOW:**
+1. Start with warm greeting using their name: ${firstName}
+2. Briefly explain REMODELEE AI: "We help businesses like yours automate phone calls with AI voice agents that sound completely natural"
+3. Ask about their business: "What type of business do you run?"
+4. Listen and provide relevant examples for their industry
+5. Offer next steps: "Would you like to start a free 14-day trial at REMODELEE AI forward slash signup?"
+
+**KEY FEATURES TO MENTION:**
+- 24/7 AI voice agents that handle calls automatically
+- Lead qualification and appointment booking
+- CRM integration and workflow automation
+- Free 14-day trial at remodely.ai/signup (pronounce: "REMODELEE AI forward slash signup")
+
+**TONE:**
+- Conversational and warm
+- Professional but not robotic
+- Keep responses under 30 seconds
+- Ask questions to understand their needs
+
+Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal!`;
+
+    const customFirstMessage = `Hi ${firstName}! This is the REMODELEE AI assistant calling. Thanks for requesting a demo! I'm an AI voice agent - just like the ones we build for businesses to automate their calls. How are you doing today?`;
+
+    // Use Sarah - warm, sales-focused female voice (very distinct from default)
+    const customVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Lead Gen voice (warm, professional female)
+
+    // Initiate call using ElevenLabs batch calling API with custom prompt and voice
+    const callData = await elevenLabsService.initiateCall(
       demoAgentId,
       formattedNumber,
       agentPhoneNumberId,
-      webhookUrl,
+      `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
       dynamicVariables,
-      null, // Use agent's default prompt (configured at agent level)
-      null  // Use agent's default first_message
+      customPrompt,               // Override with custom prompt
+      customFirstMessage,         // Override with custom first message
+      customVoiceId               // Override with custom voice (Lisa)
     );
 
+    if (!callData) {
+      return res.status(500).json({
+        error: 'Failed to initiate call',
+        message: 'Sorry, we couldn\'t place the call right now. Please try again or use the text chat.'
+      });
+    }
+
     const callId = callData.id || callData.call_id;
-    console.log(`✅ Voice demo call initiated: ${callId}`);
+    console.log(`✅ Voice demo call initiated via ElevenLabs: ${callId}`);
 
     // Register call for automatic post-call email monitoring
     if (callId) {

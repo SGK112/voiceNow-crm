@@ -79,6 +79,7 @@ import smsToCallRoutes from './routes/sms-to-call.js';
 import helpDeskRoutes from './routes/helpDesk.js';
 import n8nSyncRoutes from './routes/n8n-sync.js';
 import aiModelsRoutes from './routes/ai-models.js';
+import callInitiationRoutes from './routes/callInitiation.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -171,6 +172,7 @@ app.use('/api/sms-to-call', smsToCallRoutes);
 app.use('/api/help-desk', helpDeskRoutes);
 app.use('/api/n8n-sync', n8nSyncRoutes);
 app.use('/api/ai-models', aiModelsRoutes);
+app.use('/api/call-initiation', callInitiationRoutes);
 
 app.use('/api', apiLimiter);
 

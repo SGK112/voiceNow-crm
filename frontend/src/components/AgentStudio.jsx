@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -465,8 +465,193 @@ function AgentStudioContent({ agentId, agentData, onSave, onClose }) {
 
 // Configuration Panels
 function VoiceConfigPanel({ config, onChange }) {
+  const [voices, setVoices] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [selectedVoice, setSelectedVoice] = React.useState(null);
+  const [showVoiceLibrary, setShowVoiceLibrary] = React.useState(false);
+  const [previewPlaying, setPreviewPlaying] = React.useState(null);
+
+  React.useEffect(() => {
+    fetchVoices();
+  }, []);
+
+  const fetchVoices = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/agents/helpers/voice-library?limit=50', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setVoices(data.voices || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch voices:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredVoices = voices.filter(voice =>
+    voice.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    voice.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    voice.accent?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleVoiceSelect = (voice) => {
+    setSelectedVoice(voice);
+    onChange({
+      ...config,
+      voiceId: voice.voice_id || voice.id,
+      voiceName: voice.name,
+      voiceGender: voice.labels?.gender,
+      voiceAccent: voice.labels?.accent
+    });
+    setShowVoiceLibrary(false);
+  };
+
+  const playPreview = async (voice) => {
+    if (!voice.preview_url) return;
+
+    setPreviewPlaying(voice.voice_id || voice.id);
+    const audio = new Audio(voice.preview_url);
+
+    audio.onended = () => setPreviewPlaying(null);
+    audio.onerror = () => setPreviewPlaying(null);
+
+    try {
+      await audio.play();
+    } catch (error) {
+      console.error('Audio playback failed:', error);
+      setPreviewPlaying(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Voice Selection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Voice Selection
+        </label>
+
+        {config.voiceId ? (
+          <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {config.voiceName || 'Selected Voice'}
+              </div>
+              {config.voiceAccent && (
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {config.voiceGender} • {config.voiceAccent}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setShowVoiceLibrary(true)}
+              className="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
+            >
+              Change
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowVoiceLibrary(true)}
+            className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center justify-center gap-2"
+          >
+            <Mic className="w-4 h-4" />
+            Select Voice from Library
+          </button>
+        )}
+      </div>
+
+      {/* Voice Library Modal */}
+      {showVoiceLibrary && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Voice Library
+              </h3>
+              <button
+                onClick={() => setShowVoiceLibrary(false)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Search */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by name, accent, or description..."
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Voice List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {loading ? (
+                <div className="text-center py-8 text-gray-500">Loading voices...</div>
+              ) : filteredVoices.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">No voices found</div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredVoices.map((voice) => (
+                    <div
+                      key={voice.voice_id || voice.id}
+                      className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                      onClick={() => handleVoiceSelect(voice)}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {voice.name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {voice.labels?.gender && `${voice.labels.gender} • `}
+                          {voice.labels?.accent || 'General'}
+                          {voice.labels?.age && ` • ${voice.labels.age}`}
+                        </div>
+                        {voice.description && (
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            {voice.description}
+                          </div>
+                        )}
+                      </div>
+                      {voice.preview_url && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playPreview(voice);
+                          }}
+                          className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 rounded"
+                          disabled={previewPlaying === (voice.voice_id || voice.id)}
+                        >
+                          {previewPlaying === (voice.voice_id || voice.id) ? (
+                            <span className="text-xs">⏸</span>
+                          ) : (
+                            <Play className="w-4 h-4 text-purple-600" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Voice Model */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Voice Model
@@ -477,11 +662,13 @@ function VoiceConfigPanel({ config, onChange }) {
           className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
         >
           <option value="eleven_turbo_v2_5">Turbo v2.5 (Fastest)</option>
+          <option value="eleven_flash_v2">Flash v2 (Recommended)</option>
           <option value="eleven_turbo_v2">Turbo v2</option>
           <option value="eleven_multilingual_v2">Multilingual v2</option>
         </select>
       </div>
 
+      {/* Voice Settings */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Stability: {config.stability || 50}%
@@ -494,6 +681,9 @@ function VoiceConfigPanel({ config, onChange }) {
           onChange={(e) => onChange({ ...config, stability: parseInt(e.target.value) })}
           className="w-full"
         />
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Higher = more consistent, Lower = more expressive
+        </p>
       </div>
 
       <div>
@@ -508,6 +698,9 @@ function VoiceConfigPanel({ config, onChange }) {
           onChange={(e) => onChange({ ...config, similarity: parseInt(e.target.value) })}
           className="w-full"
         />
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          How closely to match the original voice
+        </p>
       </div>
 
       <div>
@@ -522,6 +715,9 @@ function VoiceConfigPanel({ config, onChange }) {
           onChange={(e) => onChange({ ...config, style: parseInt(e.target.value) })}
           className="w-full"
         />
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Style exaggeration (0 = neutral)
+        </p>
       </div>
     </div>
   );
@@ -610,6 +806,76 @@ function InstructionsConfigPanel({ config, onChange }) {
 }
 
 function KnowledgeBaseConfigPanel({ config, onChange }) {
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadedDocs, setUploadedDocs] = React.useState(config.uploadedDocuments || []);
+  const fileInputRef = React.useRef(null);
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only PDF, TXT, DOC, and DOCX files are supported');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('name', file.name);
+
+      const response = await fetch('/api/knowledge-base/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+
+      const newDoc = {
+        id: result.id,
+        name: result.name,
+        uploadedAt: new Date().toISOString()
+      };
+
+      const updatedDocs = [...uploadedDocs, newDoc];
+      setUploadedDocs(updatedDocs);
+      onChange({ ...config, uploadedDocuments: updatedDocs });
+
+      alert('File uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload file. Please try again.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveDocument = (docId) => {
+    const updatedDocs = uploadedDocs.filter(doc => doc.id !== docId);
+    setUploadedDocs(updatedDocs);
+    onChange({ ...config, uploadedDocuments: updatedDocs });
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -620,10 +886,65 @@ function KnowledgeBaseConfigPanel({ config, onChange }) {
           value={config.knowledge || ''}
           onChange={(e) => onChange({ ...config, knowledge: e.target.value })}
           placeholder="Add FAQs, product info, policies..."
-          rows={8}
+          rows={6}
           className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 resize-none"
         />
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Upload Knowledge Base Documents
+        </label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.txt,.doc,.docx"
+          onChange={handleFileUpload}
+          disabled={uploading}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 text-sm flex items-center justify-center gap-2"
+        >
+          <FileText className="w-4 h-4" />
+          {uploading ? 'Uploading...' : 'Upload Document'}
+        </button>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Supported: PDF, TXT, DOC, DOCX (max 10MB)
+        </p>
+      </div>
+
+      {uploadedDocs.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Uploaded Documents
+          </label>
+          <div className="space-y-2">
+            {uploadedDocs.map((doc) => (
+              <div
+                key={doc.id}
+                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <FileText className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span className="text-xs text-gray-900 dark:text-gray-100 truncate">
+                    {doc.name}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleRemoveDocument(doc.id)}
+                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                  title="Remove document"
+                >
+                  <X className="w-3 h-3 text-red-600" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="flex items-center gap-2">

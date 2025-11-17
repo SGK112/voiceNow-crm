@@ -1112,7 +1112,7 @@ export const testCall = async (req, res) => {
   try {
     const { agentId, phoneNumber } = req.body;
 
-    console.log('\n📞 [TEST CALL] Initiating test call');
+    console.log('\n📞 [TEST CALL] Initiating test call via Twilio + ElevenLabs');
     console.log('   Agent ID:', agentId);
     console.log('   Phone:', phoneNumber);
 
@@ -1130,20 +1130,21 @@ export const testCall = async (req, res) => {
     }
 
     console.log('   Agent Name:', agent.name);
-    console.log('   ElevenLabs ID:', agent.elevenLabsAgentId);
+    console.log('   ElevenLabs Agent ID:', agent.elevenLabsAgentId);
+    console.log('   Voice ID:', agent.voiceId);
 
-    // Check if agent has valid ElevenLabs ID
-    if (!agent.elevenLabsAgentId || agent.elevenLabsAgentId.startsWith('local_')) {
+    // Check if agent has ElevenLabs configuration
+    if (!agent.elevenLabsAgentId) {
       return res.status(400).json({
-        message: 'This agent was not properly created in ElevenLabs. Please recreate the agent.'
+        message: 'Agent must have an ElevenLabs agent ID configured'
       });
     }
 
-    // Get ElevenLabs phone number ID
-    const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
-    if (!agentPhoneNumberId) {
+    // Get Twilio phone number from environment
+    const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
+    if (!twilioFromNumber) {
       return res.status(500).json({
-        message: 'ElevenLabs phone number not configured'
+        message: 'Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER in environment variables.'
       });
     }
 
@@ -1153,37 +1154,30 @@ export const testCall = async (req, res) => {
       formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
     }
 
-    console.log('   Formatted Phone:', formattedNumber);
+    console.log('   From Number:', twilioFromNumber);
+    console.log('   To Number:', formattedNumber);
 
-    // Prepare webhook URL
-    const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/elevenlabs/conversation-event`;
+    // Initialize Twilio service
+    const TwilioService = (await import('../services/twilioService.js')).default;
+    const twilioService = new TwilioService();
 
-    // Dynamic variables for test call
-    const dynamicVariables = {
-      customer_name: 'Test User',
-      lead_name: 'Test User',
-      lead_phone: formattedNumber,
-      company_name: 'VoiceFlow CRM',
-      demo_type: 'agent_test_call'
-    };
+    if (!twilioService.client) {
+      return res.status(500).json({
+        message: 'Twilio not configured. Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.'
+      });
+    }
 
-    // Initiate call using ElevenLabs batch calling
-    const elevenLabsService = getElevenLabsService();
+    // Make outbound call using Twilio + ElevenLabs WebSocket
+    console.log('   Initiating Twilio call with ElevenLabs WebSocket...');
 
-    console.log('   Calling ElevenLabs API...');
-
-    const callData = await elevenLabsService.initiateCall(
-      agent.elevenLabsAgentId,
+    const call = await twilioService.makeCallWithElevenLabs(
+      twilioFromNumber,
       formattedNumber,
-      agentPhoneNumberId,
-      webhookUrl,
-      dynamicVariables,
-      null, // Use agent's default script
-      null  // Use agent's default first message
+      agent.elevenLabsAgentId
     );
 
-    const callId = callData.id || callData.call_id || callData.batch_id;
-    console.log('   ✅ Call initiated:', callId);
+    const callId = call.sid;
+    console.log('   ✅ Call initiated via Twilio:', callId);
 
     // Log the call
     await CallLog.create({
@@ -1195,14 +1189,17 @@ export const testCall = async (req, res) => {
       direction: 'outbound',
       metadata: {
         testCall: true,
-        dynamicVariables
+        twilioCallSid: callId,
+        fromNumber: twilioFromNumber,
+        method: 'twilio_elevenlabs_websocket'
       }
     });
 
     res.json({
       success: true,
-      message: 'Test call initiated successfully',
-      callId: callId
+      message: 'Test call initiated successfully via Twilio',
+      callId: callId,
+      method: 'twilio_elevenlabs_websocket'
     });
 
   } catch (error) {

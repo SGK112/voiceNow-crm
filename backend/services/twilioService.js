@@ -166,10 +166,23 @@ class TwilioService {
   }
 
   // Make outbound call with ElevenLabs
-  async makeCallWithElevenLabs(from, to, elevenLabsAgentId) {
+  async makeCallWithElevenLabs(from, to, elevenLabsAgentId, customerName = null, customerEmail = null) {
     try {
-      const twimlUrl = `${process.env.API_URL}/api/webhooks/twilio/elevenlabs-outbound?agentId=${elevenLabsAgentId}`;
-      const statusCallback = `${process.env.API_URL}/api/webhooks/twilio/call-status`;
+      // Use public webhook URL (ngrok in dev, actual domain in production)
+      const webhookUrl = process.env.WEBHOOK_URL || process.env.NGROK_URL;
+
+      // Build TwiML URL with customer data for personalization
+      let twimlUrl = `${webhookUrl}/api/webhooks/twilio/elevenlabs-outbound?agentId=${elevenLabsAgentId}`;
+
+      if (customerName) {
+        twimlUrl += `&customerName=${encodeURIComponent(customerName)}`;
+      }
+
+      if (customerEmail) {
+        twimlUrl += `&customerEmail=${encodeURIComponent(customerEmail)}`;
+      }
+
+      const statusCallback = `${webhookUrl}/api/webhooks/twilio/call-status`;
 
       return await this.makeCall(from, to, twimlUrl, statusCallback);
     } catch (error) {
@@ -179,7 +192,7 @@ class TwilioService {
   }
 
   // Generate TwiML for ElevenLabs WebSocket connection
-  generateElevenLabsTwiML(elevenLabsAgentId, customMessage = null) {
+  generateElevenLabsTwiML(elevenLabsAgentId, customMessage = null, dynamicVariables = null) {
     const VoiceResponse = twilio.twiml.VoiceResponse;
     const response = new VoiceResponse();
 
@@ -190,8 +203,21 @@ class TwilioService {
     const webhookUrl = process.env.WEBHOOK_URL || process.env.NGROK_URL;
     const conversationEventUrl = `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`;
 
+    // Build WebSocket URL with dynamic variables if provided
+    let wsUrl = `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${elevenLabsAgentId}&callback_url=${encodeURIComponent(conversationEventUrl)}`;
+
+    // Add custom variables for agent personalization
+    if (dynamicVariables && Object.keys(dynamicVariables).length > 0) {
+      // ElevenLabs expects variables as query parameters in format: &variable_name=value
+      for (const [key, value] of Object.entries(dynamicVariables)) {
+        if (value !== null && value !== undefined) {
+          wsUrl += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+        }
+      }
+    }
+
     connect.stream({
-      url: `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${elevenLabsAgentId}&callback_url=${encodeURIComponent(conversationEventUrl)}`,
+      url: wsUrl,
       parameters: {
         api_key: process.env.ELEVENLABS_API_KEY
       }

@@ -2,6 +2,7 @@ import KnowledgeBase from '../models/KnowledgeBase.js';
 import ragService from '../services/ragService.js';
 import cloudinaryService from '../services/cloudinaryService.js';
 import googleSheetsService from '../services/googleSheetsService.js';
+import ElevenLabsService from '../services/elevenLabsService.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -148,6 +149,22 @@ export const uploadDocument = async (req, res) => {
       }
     );
 
+    // Also upload to ElevenLabs Knowledge Base
+    let elevenLabsDocumentId = null;
+    try {
+      const elevenLabsService = new ElevenLabsService();
+      const elevenLabsResult = await elevenLabsService.createKnowledgeBaseFromFile(
+        req.file.path,
+        req.file.originalname,
+        name || req.file.originalname
+      );
+      elevenLabsDocumentId = elevenLabsResult.id;
+      console.log('✅ Document uploaded to ElevenLabs Knowledge Base:', elevenLabsDocumentId);
+    } catch (elevenLabsError) {
+      console.error('⚠️ Failed to upload to ElevenLabs Knowledge Base:', elevenLabsError);
+      // Continue even if ElevenLabs upload fails
+    }
+
     // Clean up temp file
     fs.unlinkSync(req.file.path);
 
@@ -157,12 +174,15 @@ export const uploadDocument = async (req, res) => {
     });
 
     res.status(201).json({
+      id: elevenLabsDocumentId || result.knowledgeBase._id,
+      name: name || req.file.originalname,
       knowledgeBase: result.knowledgeBase,
       uploadedFile: {
         url: result.upload.url,
         size: result.upload.bytes,
         format: result.upload.format
-      }
+      },
+      elevenLabsDocumentId
     });
   } catch (error) {
     console.error('Upload document error:', error);

@@ -67,6 +67,11 @@ export const agentApi = {
   deleteAgent: (id) => api.delete(`/agents/${id}`),
   getAgentCalls: (id) => api.get(`/agents/${id}/calls`),
   getAgentPerformance: (id) => api.get(`/agents/${id}/performance`),
+  testCall: (data) => api.post('/agents/test-call', data),
+  getVoiceLibrary: (params) => api.get('/agents/helpers/voice-library', { params }),
+  getSavedVoices: () => api.get('/agents/voices/saved'),
+  saveVoice: (data) => api.post('/agents/voices/save', data),
+  deleteVoice: (voiceId) => api.delete(`/agents/voices/${voiceId}`),
 };
 
 export const callApi = {
@@ -74,6 +79,11 @@ export const callApi = {
   getCallById: (id) => api.get(`/calls/${id}`),
   initiateCall: (data) => api.post('/calls/initiate', data),
   deleteCall: (id) => api.delete(`/calls/${id}`),
+  initiateLiveCall: (data) => api.post('/call-initiation/live-call', data),
+  uploadBulkCalls: (formData) => api.post('/call-initiation/bulk-upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getCallStatus: (callId) => api.get(`/call-initiation/status/${callId}`),
 };
 
 export const leadApi = {

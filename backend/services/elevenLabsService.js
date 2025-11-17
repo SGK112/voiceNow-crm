@@ -136,7 +136,7 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
     }
   }
 
-  async initiateCall(agentId, phoneNumber, agentPhoneNumberId, callbackUrl, dynamicVariables = {}, personalizedScript = null, personalizedFirstMessage = null) {
+  async initiateCall(agentId, phoneNumber, agentPhoneNumberId, callbackUrl, dynamicVariables = {}, personalizedScript = null, personalizedFirstMessage = null, voiceIdOverride = null) {
     try {
       // Validate inputs
       if (!agentId || !phoneNumber || !agentPhoneNumberId) {
@@ -186,9 +186,9 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
         recipients: [recipientData]
       };
 
-      // Override agent prompt and first message with personalized versions if provided
+      // Override agent prompt, first message, and voice if provided
       // This allows each call to have a customized script with lead-specific information
-      if (personalizedScript || personalizedFirstMessage) {
+      if (personalizedScript || personalizedFirstMessage || voiceIdOverride) {
         requestBody.conversation_config_override = {
           agent: {}
         };
@@ -201,6 +201,14 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
 
         if (personalizedFirstMessage) {
           requestBody.conversation_config_override.agent.first_message = personalizedFirstMessage;
+        }
+
+        // Override voice if specified
+        if (voiceIdOverride) {
+          requestBody.conversation_config_override.tts = {
+            voice_id: voiceIdOverride,
+            model_id: 'eleven_flash_v2'  // Use flash v2 for best performance
+          };
         }
       }
 
@@ -226,6 +234,7 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
       if (requestBody.conversation_config_override) {
         console.log('  - Override prompt length:', requestBody.conversation_config_override.agent?.prompt?.prompt?.length || 0);
         console.log('  - Override first_message:', requestBody.conversation_config_override.agent?.first_message || 'none');
+        console.log('  - Override voice_id:', requestBody.conversation_config_override.tts?.voice_id || 'none');
         console.log('  - First 200 chars of prompt:', requestBody.conversation_config_override.agent?.prompt?.prompt?.substring(0, 200));
       }
 
@@ -289,6 +298,75 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
       console.error('ElevenLabs API Error:', error.response?.data || error.message);
       throw new Error('Failed to fetch phone numbers');
     }
+  }
+
+  /**
+   * Upload a file to ElevenLabs Knowledge Base
+   * @param {string|Buffer} filePathOrBuffer - Path to file or file buffer
+   * @param {string} fileName - Original filename
+   * @param {string} documentName - Name for the knowledge base document
+   * @returns {Promise<Object>} Response with document ID and name
+   */
+  async createKnowledgeBaseFromFile(filePathOrBuffer, fileName, documentName = null) {
+    try {
+      const FormData = (await import('form-data')).default;
+      const fs = (await import('fs')).default;
+
+      const formData = new FormData();
+
+      // If it's a file path, read the file
+      if (typeof filePathOrBuffer === 'string') {
+        formData.append('file', fs.createReadStream(filePathOrBuffer), {
+          filename: fileName,
+          contentType: this.getContentType(fileName)
+        });
+      } else {
+        // It's a buffer
+        formData.append('file', filePathOrBuffer, {
+          filename: fileName,
+          contentType: this.getContentType(fileName)
+        });
+      }
+
+      // Add optional name parameter
+      if (documentName) {
+        formData.append('name', documentName);
+      }
+
+      const response = await axios.post(
+        `${ELEVENLABS_API_URL}/convai/knowledge-base/file`,
+        formData,
+        {
+          headers: {
+            'xi-api-key': this.apiKey,
+            ...formData.getHeaders()
+          }
+        }
+      );
+
+      console.log('✅ Knowledge base document created:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('ElevenLabs Knowledge Base Upload Error:', error.response?.data || error.message);
+      throw new Error(`Failed to upload to ElevenLabs Knowledge Base: ${error.response?.data?.detail || error.message}`);
+    }
+  }
+
+  /**
+   * Get content type based on file extension
+   */
+  getContentType(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const contentTypes = {
+      'pdf': 'application/pdf',
+      'txt': 'text/plain',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'csv': 'text/csv',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    };
+    return contentTypes[ext] || 'application/octet-stream';
   }
 
   getPrebuiltAgents() {

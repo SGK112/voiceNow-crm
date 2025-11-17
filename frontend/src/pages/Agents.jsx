@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import AIPromptHelper from '@/components/AIPromptHelper';
-import axios from 'axios';
+import AgentStudioV2 from '@/components/AgentStudioV2';
 
 const AGENT_TYPES = {
   lead_gen: { name: 'Lead Generation', color: '#3b82f6', icon: '🎯' },
@@ -45,6 +45,7 @@ export default function Agents() {
   const [testCallAgent, setTestCallAgent] = useState(null);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [step, setStep] = useState(1);
+  const [studioAgent, setStudioAgent] = useState(null);
   const [formData, setFormData] = useState({
     type: 'lead_gen',
     name: '',
@@ -102,7 +103,7 @@ export default function Agents() {
 
   const testCallMutation = useMutation({
     mutationFn: async ({ agentId, phoneNumber }) => {
-      const response = await axios.post('/api/agents/test-call', {
+      const response = await agentApi.testCall({
         agentId,
         phoneNumber
       });
@@ -115,6 +116,7 @@ export default function Agents() {
       setTestCallAgent(null);
     },
     onError: (error) => {
+      console.error('Test call error:', error);
       toast.error(error.response?.data?.message || 'Failed to initiate test call');
     }
   });
@@ -410,6 +412,10 @@ export default function Agents() {
                           Test Call
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setStudioAgent(agent)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Agent Studio
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate(`/app/agents/${agent._id}`)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
@@ -519,6 +525,26 @@ export default function Agents() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Agent Studio V2 Modal */}
+      {studioAgent && (
+        <AgentStudioV2
+          agentId={studioAgent._id}
+          agentData={studioAgent}
+          onSave={async (config) => {
+            try {
+              await agentApi.updateAgent(studioAgent._id, config);
+              toast.success('Agent configuration saved!');
+              queryClient.invalidateQueries(['agents']);
+              setStudioAgent(null);
+            } catch (error) {
+              toast.error('Failed to save agent configuration');
+              console.error(error);
+            }
+          }}
+          onClose={() => setStudioAgent(null)}
+        />
+      )}
     </div>
   );
 }

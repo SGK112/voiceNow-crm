@@ -2663,6 +2663,74 @@
             line-height: 1.5;
         }
 
+        /* Error Modal - Red theme variant */
+        .error-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .error-modal-overlay.show {
+            display: flex;
+        }
+
+        .error-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        .error-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #dc2626;
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            font-size: 18px;
+            color: #4b5563;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .error-close-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .error-close-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+
         /* Voice demo form styles */
         .demo-input {
             width: 100%;
@@ -4784,14 +4852,35 @@
                 }
             } catch (error) {
                 console.error('Voice demo error:', error);
-                voiceStatusMessage.style.display = 'block';
-                voiceStatusMessage.className = 'voice-status-message error';
-                voiceStatusMessage.textContent = '⚠️ ' + (error.message || 'Failed to initiate call. Please try again.');
+
+                // Hide inline message
+                voiceStatusMessage.style.display = 'none';
+
+                // Show error modal popup
+                const errorModal = document.getElementById('errorModal');
+                const errorModalMessage = document.getElementById('errorModalMessage');
+
+                errorModalMessage.textContent = error.message || 'We\'re having trouble placing your call right now. Please try again or use the text chat below.';
+                errorModal.classList.add('show');
 
                 // Reset button state on error
                 requestCallBtn.disabled = false;
                 btnIcon.textContent = '📞';
                 btnText.textContent = 'Call Me Now';
+            }
+        });
+
+        // Error modal close button
+        const errorModal = document.getElementById('errorModal');
+        const errorCloseBtn = document.getElementById('errorCloseBtn');
+        errorCloseBtn.addEventListener('click', () => {
+            errorModal.classList.remove('show');
+        });
+
+        // Close error modal when clicking outside
+        errorModal.addEventListener('click', (e) => {
+            if (e.target === errorModal) {
+                errorModal.classList.remove('show');
             }
         });
 
@@ -4998,6 +5087,18 @@
             <div class="success-submessage" id="successModalSubmessage">
                 Our AI assistant will introduce herself and give you an amazing demo of our voice AI platform!
             </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="error-modal-overlay">
+        <div class="error-modal">
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">Couldn't Place Call</div>
+            <div class="error-message" id="errorModalMessage">
+                We're having trouble placing your call right now. Please try again or use the text chat below.
+            </div>
+            <button class="error-close-btn" id="errorCloseBtn">Try Again</button>
         </div>
     </div>
 

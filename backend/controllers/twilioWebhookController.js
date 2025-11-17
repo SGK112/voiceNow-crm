@@ -204,7 +204,7 @@ export const handleElevenLabsForward = async (req, res) => {
 // Handle TwiML for outbound calls with ElevenLabs
 export const handleElevenLabsOutbound = async (req, res) => {
   try {
-    const { agentId } = req.query;
+    const { agentId, customerName, customerEmail } = req.query;
     const { CallSid, From, To } = req.body;
 
     console.log(`📞 Outbound call ${CallSid} from ${From} to ${To}`);
@@ -221,7 +221,15 @@ export const handleElevenLabsOutbound = async (req, res) => {
       return res.send(response.toString());
     }
 
-    const twiml = twilioService.generateElevenLabsTwiML(agentId);
+    // Prepare dynamic variables for ElevenLabs agent personalization
+    const dynamicVariables = {
+      customer_name: customerName || 'there',
+      customer_phone: To,
+      customer_email: customerEmail || null,
+      call_source: 'marketing_demo'
+    };
+
+    const twiml = twilioService.generateElevenLabsTwiML(agentId, null, dynamicVariables);
 
     res.type('text/xml');
     res.send(twiml);
