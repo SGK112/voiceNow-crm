@@ -116,7 +116,14 @@ export default function MobileAgentBuilder() {
         console.error('Failed to load saved draft:', e);
       }
     }
+    // Scroll to top on mount
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   const updateAgentData = (updates) => {
     setAgentData(prev => ({ ...prev, ...updates }));
@@ -145,17 +152,18 @@ export default function MobileAgentBuilder() {
       case 'voice':
         return agentData.voiceId !== null;
       case 'greeting':
-        return agentData.greeting.trim().length > 0;
+        return agentData.greeting && agentData.greeting.trim().length > 0;
       case 'prompt':
-        return agentData.prompt.trim().length > 0;
+        return agentData.prompt && agentData.prompt.trim().length >= 10;
       case 'smsTemplate':
-        return agentData.smsTemplate.trim().length > 0;
+        return agentData.smsTemplate && agentData.smsTemplate.trim().length > 0;
       case 'mmsMedia':
-        return agentData.mediaFiles.length > 0;
+        return agentData.mediaFiles && agentData.mediaFiles.length > 0;
       case 'emailTemplate':
-        return agentData.emailSubject.trim().length > 0 && agentData.emailBody.trim().length > 0;
+        return agentData.emailSubject && agentData.emailSubject.trim().length > 0 &&
+               agentData.emailBody && agentData.emailBody.trim().length > 0;
       case 'notificationChannels':
-        return agentData.notificationChannels.length > 0;
+        return agentData.notificationChannels && agentData.notificationChannels.length > 0;
       default:
         return true;
     }
