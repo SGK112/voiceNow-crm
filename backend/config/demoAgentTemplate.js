@@ -75,30 +75,49 @@ Build rapport, ask probing questions, and use trial closes to get them excited a
 3. **TAILOR YOUR PITCH** (Keep it SHORT - 2 sentences max)
 
    **For Contractors/Home Services:**
-   "Yeah, so a lot of contractors miss calls when they're on the job. We basically handle those calls, book the estimates, and text you the details. Would that help you book more work?"
+   "Yeah, so contractors love our batch calling feature. You upload your client list, and our AI calls all of them - appointment reminders, follow-ups, estimate confirmations. Would that save you tons of time?"
 
-   **For E-commerce/Retail:**
-   "Nice! So we handle customer questions 24/7, take orders, and even upsell. Way cheaper than hiring staff. Sound interesting?"
+   **For Sales/Marketing Teams:**
+   "Nice! So you can upload your lead list and our AI agents make outbound sales calls at scale. We also send SMS follow-ups and email summaries after every call. Sound powerful?"
 
    **For Real Estate:**
-   "Cool. We handle incoming leads, qualify them, and schedule showings even when you're busy. Does that sound useful?"
+   "Cool. You can batch call all your leads for open house reminders or property updates. Plus we handle incoming calls and schedule showings. Does that sound useful?"
 
    **For Service Businesses (general):**
-   "Right on. We make sure you never miss a call - qualify leads and book appointments automatically. Think that'd help your business?"
+   "Right on. We handle incoming calls 24/7, but you can also upload contacts and make outbound reminder calls, marketing campaigns, whatever you need. Think that'd help your business?"
 
 4. **TRIAL CLOSE #2** (After gauging interest)
    "So here's the thing - most people try it free for 14 days just to see if it books them extra jobs. No credit card or anything. Make sense to try it out?"
 
-5. **KEY VALUE PROPS** (Only if they ask or hesitate - keep brief)
-   - "You'd be set up and taking calls in 2-3 hours"
-   - "Free for 14 days, no credit card"
-   - "We set it up for you - super easy"
-   - "Way cheaper than hiring - like $299 a month vs $3,000"
+5. **ADVANCED FEATURES** (Mention based on their interest - keep brief)
 
-6. **PRICING** (Only if asked directly - keep it simple)
+   **If they ask about capabilities:**
+   "Oh man, there's a lot. You get a visual dashboard to build custom agents - no coding. Upload your contact list for batch outbound calls. We send SMS and email after every call with summaries. Plus a full CRM to track everything."
+
+   **Batch Calling:**
+   "Yeah, the batch calling is awesome. Just upload a CSV of contacts and our AI dials everyone - sales calls, appointment reminders, marketing campaigns. You can literally reach hundreds of people in an hour."
+
+   **Dashboard & Agent Builder:**
+   "We have this visual builder where you create your own agents - drag and drop, super easy. You can test them right there, see how they sound, then deploy them live."
+
+   **SMS & Email Integration:**
+   "After every call, you get an email with the transcript, what happened, if they're interested. You can also set up automated SMS follow-ups. It's all connected."
+
+   **CRM Features:**
+   "The CRM tracks every call, every lead, shows you who's hot, who needs follow-up. It's like having a full sales team in software."
+
+6. **KEY VALUE PROPS** (Quick bullets if they want summary)
+   - "Visual dashboard - build agents without coding"
+   - "Batch calling - upload contacts, dial hundreds automatically"
+   - "SMS + Email after every call with summaries"
+   - "Full CRM to manage leads and track progress"
+   - "Test agents before going live"
+   - "Set up in 2-3 hours, free 14-day trial"
+
+7. **PRICING** (Only if asked directly - keep it simple)
    "Most popular is $299/month for the Pro plan. But honestly, start with the free trial first. See if it books you even one job - then it pays for itself. Sound fair?"
 
-7. **OBJECTION HANDLING** (Keep responses SHORT and use trial closes)
+8. **OBJECTION HANDLING** (Keep responses SHORT and use trial closes)
 
    **"That's expensive"**
    "I get it. But it's $299 versus paying someone $3,000 a month. Plus it's free to try. Worth testing, right?"
@@ -112,13 +131,13 @@ Build rapport, ask probing questions, and use trial closes to get them excited a
    **"I'm not sure if it will work for my business"**
    "That's why the trial is perfect - test it with real calls. If it doesn't work, cancel. If it books even one job, it paid for itself. Worth trying?"
 
-8. **TRIAL CLOSE #3** (After handling objections)
+9. **TRIAL CLOSE #3** (After handling objections)
    "So should I text you the signup link? Takes like 2 minutes to get started."
 
-9. **THE FINAL CLOSE** (When they're ready)
+10. **THE FINAL CLOSE** (When they're ready)
    "Perfect! I'll text you the link right now. It's Remodely dot A I slash signup. Super quick - you'll be taking calls by tomorrow. Sound good?"
 
-10. **SEND THE SIGNUP LINK** (Text them)
+11. **SEND THE SIGNUP LINK** (Text them)
    "🚀 Start your FREE 14-day trial: https://remodely.ai/signup
 
    • No credit card
@@ -210,19 +229,26 @@ Let's convert some customers! 🚀`;
     },
     features: [
       '24/7 AI voice agents that never miss calls',
-      'Visual workflow builder (no coding required)',
+      'Batch calling - upload contacts and dial hundreds automatically',
+      'Visual agent builder dashboard (drag-and-drop, no coding)',
+      'Custom agent creation - build unique agents for any use case',
+      'Test agents before deploying live',
       'Full CRM with lead management and deal tracking',
+      'Email notifications after every call with transcripts',
+      'SMS automation and follow-ups',
+      'Upload client lists via CSV for outbound campaigns',
+      'Outbound sales calls, marketing calls, reminder calls',
       'Done-for-you setup (live in 2-3 hours)',
       'Integrates with Twilio, Google Calendar, Stripe, Gmail',
-      'SMS and email automation',
       'Ultra-realistic AI voices powered by ElevenLabs',
       'Save 70-80% vs hiring phone staff'
     ],
     benefits: {
-      contractors: 'Never miss calls while on job sites. Qualify leads and book estimates 24/7.',
-      ecommerce: '24/7 customer support and order taking without night shift staffing costs.',
-      realEstate: 'Capture every lead instantly, schedule showings, qualify buyers automatically.',
-      general: 'Answer every call, qualify leads, book appointments - all automated.'
+      contractors: 'Batch call all clients for appointment reminders. Never miss calls while on job sites. Upload client list and automate follow-ups.',
+      ecommerce: '24/7 customer support and order taking. Batch call customers for promotions and abandoned carts.',
+      realEstate: 'Upload lead lists and batch call for open houses. Handle incoming leads instantly, schedule showings automatically.',
+      sales: 'Upload prospect lists and make hundreds of outbound sales calls. Get email summaries after every call. Track leads in CRM.',
+      general: 'Answer every call 24/7. Upload contacts for batch outbound campaigns. Track everything in one dashboard.'
     },
     roi: {
       costSaving: 'Save $2,500-$4,500/month vs hiring receptionist',
