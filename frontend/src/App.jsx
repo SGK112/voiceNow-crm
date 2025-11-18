@@ -41,6 +41,9 @@ import AIConversationalAgentBuilder from './components/AIConversationalAgentBuil
 import PhoneNumberMarketplace from './pages/PhoneNumberMarketplace';
 import VoiceLibraryBrowser from './components/VoiceLibraryBrowser';
 import MyVoices from './pages/MyVoices';
+import AgentStudio from './pages/AgentStudio';
+import AgentStudioWizard from './pages/AgentStudioWizard';
+import VisualAgentBuilder from './components/VisualAgentBuilder';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -102,6 +105,11 @@ function App() {
         <Route path="premium-agent-request" element={<PremiumAgentRequest />} />
         <Route path="voice-library" element={<VoiceLibraryBrowser />} />
         <Route path="my-voices" element={<MyVoices />} />
+        {/* Visual Agent Builder - Primary Route */}
+        <Route path="agent-studio" element={<VisualAgentBuilder />} />
+        <Route path="agent-studio/visual" element={<VisualAgentBuilder />} />
+        <Route path="agent-studio/new" element={<AgentStudioWizard />} />
+        <Route path="agent-studio/legacy" element={<AgentStudio />} />
         <Route path="voiceflow-builder" element={<VoiceFlowBuilder />} />
         <Route path="workflows" element={<WorkflowStudio />} />
         <Route path="workflows/:id" element={<WorkflowStudio />} />
