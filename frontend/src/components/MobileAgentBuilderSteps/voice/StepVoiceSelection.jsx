@@ -93,6 +93,10 @@ export default function StepVoiceSelection({ agentData, updateAgentData }) {
   };
 
   const selectVoice = (voice) => {
+    console.log('Selecting voice:', {
+      voiceId: voice.voice_id,
+      voiceName: voice.name
+    });
     updateAgentData({
       voiceId: voice.voice_id,
       voiceName: voice.name
@@ -181,6 +185,16 @@ export default function StepVoiceSelection({ agentData, updateAgentData }) {
             {filteredVoices.map((voice) => {
               const isSelected = agentData.voiceId === voice.voice_id;
               const isPlaying = playingVoice === voice.voice_id;
+
+              // Debug logging
+              if (isSelected) {
+                console.log('Voice marked as selected:', {
+                  voiceName: voice.name,
+                  voiceId: voice.voice_id,
+                  agentDataVoiceId: agentData.voiceId,
+                  matches: agentData.voiceId === voice.voice_id
+                });
+              }
 
               return (
                 <div
