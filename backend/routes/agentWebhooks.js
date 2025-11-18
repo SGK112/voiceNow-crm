@@ -269,4 +269,81 @@ router.post('/collect-lead-info', async (req, res) => {
   }
 });
 
+/**
+ * Post-call notification webhook
+ * Triggered after every call ends to notify team
+ */
+router.post('/post-call-notification', async (req, res) => {
+  try {
+    const {
+      call_id,
+      customer_name,
+      customer_email,
+      customer_phone,
+      call_duration,
+      call_outcome,
+      transcript,
+      interested,
+      business_type,
+      notes
+    } = req.body;
+
+    console.log(`📞 Post-call notification for call: ${call_id}`);
+    console.log(`   Customer: ${customer_name || 'Unknown'}`);
+    console.log(`   Duration: ${call_duration || 'N/A'}`);
+    console.log(`   Outcome: ${call_outcome || 'Unknown'}`);
+
+    // Send notification to help.remodely@gmail.com
+    await emailService.sendEmail({
+      to: 'help.remodely@gmail.com',
+      subject: `New Call Completed - ${customer_name || 'Unknown Customer'}`,
+      html: `
+        <h2>📞 Call Summary</h2>
+        <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Customer Information</h3>
+          <p><strong>Name:</strong> ${customer_name || 'Not provided'}</p>
+          <p><strong>Email:</strong> ${customer_email || 'Not provided'}</p>
+          <p><strong>Phone:</strong> ${customer_phone || 'Not provided'}</p>
+          <p><strong>Business Type:</strong> ${business_type || 'Not specified'}</p>
+        </div>
+
+        <div style="background: #EFF6FF; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Call Details</h3>
+          <p><strong>Call ID:</strong> ${call_id}</p>
+          <p><strong>Duration:</strong> ${call_duration || 'Unknown'}</p>
+          <p><strong>Outcome:</strong> ${call_outcome || 'Completed'}</p>
+          <p><strong>Interested:</strong> ${interested ? '✅ YES' : '❌ NO'}</p>
+          ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
+        </div>
+
+        ${transcript ? `
+        <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Call Transcript</h3>
+          <p style="white-space: pre-wrap; font-family: monospace; font-size: 12px;">${transcript}</p>
+        </div>
+        ` : ''}
+
+        <p><strong>Action Required:</strong> ${interested ? 'Follow up with this hot lead!' : 'Lead may need nurturing.'}</p>
+
+        <p>View full details in the VoiceFlow CRM dashboard.</p>
+      `
+    });
+
+    console.log(`   ✅ Post-call notification sent to help.remodely@gmail.com`);
+
+    res.json({
+      success: true,
+      message: 'Post-call notification sent successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error in post-call-notification webhook:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send post-call notification',
+      error: error.message
+    });
+  }
+});
+
 export default router;

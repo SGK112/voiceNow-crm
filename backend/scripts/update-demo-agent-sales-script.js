@@ -1,54 +1,18 @@
-/**
- * VoiceFlow CRM Demo Agent Template
- *
- * Purpose: Showcase VoiceFlow CRM capabilities to potential customers
- * Trigger: SMS "DEMO" or "call me" from marketing website
- *
- * This agent demonstrates:
- * - Instant call response (SMS-to-Call workflow)
- * - Natural conversation abilities
- * - Lead qualification
- * - Sales positioning
- * - Product knowledge
- */
+import dotenv from 'dotenv';
+import axios from 'axios';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const voiceflowDemoAgent = {
-  id: 'voiceflow-demo',
-  name: 'VoiceFlow CRM Demo Agent',
-  description: 'Interactive demo showcasing VoiceFlow CRM\'s AI capabilities - calls prospects instantly when they text "DEMO"',
-  category: 'outbound',
-  icon: '🎙️',
-  color: '#10B981', // Green
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-  // Pricing (internal use only - this is a demo agent)
-  pricing: {
-    basePrice: 0,
-    billingCycle: 'free',
-    perCallPrice: 0,
-    freeCallsIncluded: 1000
-  },
+dotenv.config({ path: join(__dirname, '../../.env') });
 
-  // Features displayed to users
-  features: [
-    'Instant SMS-to-Call response (<5 seconds)',
-    'Natural, conversational AI voice',
-    'Product knowledge about VoiceFlow CRM',
-    'Captures lead information',
-    'Sends follow-up materials via SMS/email',
-    'Live demo of platform capabilities',
-    'Smart qualification questions',
-    'ROI calculator built-in'
-  ],
+const AGENT_ID = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+const API_KEY = process.env.ELEVENLABS_API_KEY;
+const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
 
-  // Perfect for...
-  targetUser: 'VoiceFlow CRM marketing team - converting website visitors to trials',
-
-  // This agent doesn't need setup questions - it's pre-configured
-  setupQuestions: [],
-
-  // Pre-configured demo agent prompt
-  generatePrompt: () => {
-    return `You are a friendly, conversational AI sales rep for Remodely.ai's VoiceFlow CRM platform.
+const improvedPrompt = `You are a friendly, conversational AI sales rep for Remodely.ai's VoiceFlow CRM platform.
 
 **IMPORTANT - YOU ARE THE DEMO:**
 The fact that you're calling them RIGHT NOW after they texted "DEMO" IS the demo itself. This instant response showcases what VoiceFlow CRM can do.
@@ -118,15 +82,6 @@ Build rapport, ask probing questions, and use trial closes to get them excited a
 9. **THE FINAL CLOSE** (When they're ready)
    "Perfect! I'll text you the link right now. It's Remodely dot A I slash signup. Super quick - you'll be taking calls by tomorrow. Sound good?"
 
-10. **SEND THE SIGNUP LINK** (Text them)
-   "🚀 Start your FREE 14-day trial: https://remodely.ai/signup
-
-   • No credit card
-   • Taking calls in 2-3 hours
-   • Cancel anytime
-
-   Questions? Text back!"
-
 **PERSONALITY:**
 - Friendly and warm (like a helpful buddy, not a salesperson)
 - Conversational and natural (NO scripts or robotic language)
@@ -163,73 +118,73 @@ Your goal is getting them excited enough to try it FREE. Every question should u
 - Keep it SHORT and conversational
 - You ARE the proof it works!
 
-Let's convert some customers! 🚀`;
-  },
+After the call, I will automatically send a summary to the Remodely team.`;
 
-  // Required integrations
-  requiredIntegrations: ['twilio', 'elevenlabs'],
+async function updateDemoAgent() {
+  try {
+    console.log(`\n🔧 Updating demo agent with improved sales script...\n`);
 
-  // Optional integrations
-  optionalIntegrations: ['email', 'slack'],
+    // Get current agent
+    const getResponse = await axios.get(
+      `https://api.elevenlabs.io/v1/convai/agents/${AGENT_ID}`,
+      { headers: { 'xi-api-key': API_KEY } }
+    );
 
-  // Knowledge base for RAG
-  knowledgeBase: {
-    product: {
-      name: 'VoiceFlow CRM',
-      company: 'Remodely.ai',
-      tagline: 'AI Voice Workflows & Automation Platform',
-      website: 'https://remodely.ai',
-      signupUrl: 'https://remodely.ai/signup'
-    },
-    pricing: {
-      starter: {
-        price: 149,
-        agents: 1,
-        minutes: 500,
-        calls: '~100 calls/month',
-        features: ['Basic CRM', 'Lead capture', 'Email notifications', 'Phone number included'],
-        bestFor: 'Small businesses testing AI automation'
+    const currentAgent = getResponse.data;
+    console.log(`📋 Current Agent: ${currentAgent.name}`);
+
+    // Update the agent with new prompt and webhook
+    const updatedConfig = {
+      ...currentAgent,
+      conversation_config: {
+        ...currentAgent.conversation_config,
+        agent: {
+          ...currentAgent.conversation_config.agent,
+          prompt: {
+            ...currentAgent.conversation_config.agent.prompt,
+            prompt: improvedPrompt
+          }
+        }
       },
-      professional: {
-        price: 299,
-        agents: 5,
-        minutes: 2000,
-        calls: '~400 calls/month',
-        features: ['Everything in Starter', 'Workflow builder', 'SMS & Email automation', 'Google Calendar', 'Team management', 'Priority support', 'API access'],
-        bestFor: 'Growing teams scaling operations',
-        popular: true
-      },
-      enterprise: {
-        price: 'Custom',
-        agents: 'Unlimited',
-        minutes: '5,000+',
-        features: ['Everything in Professional', 'Custom workflows', 'White-label', 'Unlimited team members', 'Dedicated account manager', 'Custom integrations', '24/7 support'],
-        bestFor: 'Large organizations with custom needs'
-      },
-      freeTrial: '14 days free, no credit card required'
-    },
-    features: [
-      '24/7 AI voice agents that never miss calls',
-      'Visual workflow builder (no coding required)',
-      'Full CRM with lead management and deal tracking',
-      'Done-for-you setup (live in 2-3 hours)',
-      'Integrates with Twilio, Google Calendar, Stripe, Gmail',
-      'SMS and email automation',
-      'Ultra-realistic AI voices powered by ElevenLabs',
-      'Save 70-80% vs hiring phone staff'
-    ],
-    benefits: {
-      contractors: 'Never miss calls while on job sites. Qualify leads and book estimates 24/7.',
-      ecommerce: '24/7 customer support and order taking without night shift staffing costs.',
-      realEstate: 'Capture every lead instantly, schedule showings, qualify buyers automatically.',
-      general: 'Answer every call, qualify leads, book appointments - all automated.'
-    },
-    roi: {
-      costSaving: 'Save $2,500-$4,500/month vs hiring receptionist',
-      revenueIncrease: 'Average contractor gains 3-5 extra jobs/month = $15k-$50k revenue',
-      conversionBoost: 'Never miss a call = 40-60% higher lead capture rate'
+      // Add post-call webhook
+      webhooks: [
+        {
+          url: `${WEBHOOK_URL}/api/agent-webhooks/post-call-notification`,
+          method: 'POST',
+          event_type: 'call_ended'
+        }
+      ]
+    };
+
+    const updateResponse = await axios.patch(
+      `https://api.elevenlabs.io/v1/convai/agents/${AGENT_ID}`,
+      updatedConfig,
+      {
+        headers: {
+          'xi-api-key': API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log(`✅ Agent updated successfully!\n`);
+    console.log(`📝 Improvements:`);
+    console.log(`   ✓ Shortened responses (1-2 sentences max)`);
+    console.log(`   ✓ Added rapport-building questions`);
+    console.log(`   ✓ Added 3+ trial closes throughout`);
+    console.log(`   ✓ Removed "liv" typo (now says "taking calls")`);
+    console.log(`   ✓ More conversational, less scripted`);
+    console.log(`   ✓ Probing questions to uncover pain points\n`);
+    console.log(`🔔 Post-call notifications:`);
+    console.log(`   ✓ Email sent to help.remodely@gmail.com after each call`);
+    console.log(`   ✓ Includes customer info, call summary, and transcript\n`);
+
+  } catch (error) {
+    console.error('\n❌ Error:', error.response?.data || error.message);
+    if (error.response?.data) {
+      console.error('Details:', JSON.stringify(error.response.data, null, 2));
     }
   }
-};
+}
 
-export default voiceflowDemoAgent;
+updateDemoAgent();
