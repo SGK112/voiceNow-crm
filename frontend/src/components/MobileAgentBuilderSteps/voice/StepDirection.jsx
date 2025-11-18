@@ -62,10 +62,10 @@ export default function StepDirection({ agentData, updateAgentData }) {
               <button
                 key={dir.id}
                 onClick={() => updateAgentData({ direction: dir.id })}
-                className={`w-full p-5 rounded-xl border-2 transition-all touch-manipulation text-left ${
+                className={`w-full p-5 rounded-xl border-2 transition-all touch-manipulation text-left bg-card ${
                   isSelected
-                    ? `${dir.borderColor} bg-gradient-to-r ${dir.color} bg-opacity-10`
-                    : 'border-border hover:border-muted-foreground bg-card'
+                    ? `${dir.borderColor}`
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <div className="flex items-start gap-4 mb-3">

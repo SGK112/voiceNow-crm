@@ -83,10 +83,10 @@ export default function StepAgentType({ agentData, updateAgentData, nextStep }) 
               <button
                 key={type.id}
                 onClick={() => handleSelectType(type.id)}
-                className={`w-full p-4 rounded-xl border-2 transition-all touch-manipulation text-left ${
+                className={`w-full p-4 rounded-xl border-2 transition-all touch-manipulation text-left bg-card ${
                   isSelected
-                    ? `${type.borderColor} bg-gradient-to-r ${type.color} bg-opacity-10`
-                    : 'border-border hover:border-muted-foreground bg-card'
+                    ? `${type.borderColor}`
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <div className="flex items-start gap-4">
