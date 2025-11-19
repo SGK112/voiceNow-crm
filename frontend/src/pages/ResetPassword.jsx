@@ -38,10 +38,11 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
+      // Backend expects: email, code, newPassword
       const payload = {
+        email,
         code,
-        newPassword,
-        ...(method === 'email' ? { email } : { phone })
+        newPassword
       };
 
       const response = await api.post('/auth/reset-password', payload);
@@ -51,14 +52,14 @@ export default function ResetPassword() {
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
       setUser({
-        _id: response.data._id,
-        email: response.data.email,
-        company: response.data.company,
-        plan: response.data.plan
+        _id: response.data.user._id,
+        email: response.data.user.email,
+        company: response.data.user.company,
+        plan: response.data.user.plan
       });
 
       toast.success('Password reset successful!');
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to reset password');
     } finally {
@@ -89,7 +90,7 @@ export default function ResetPassword() {
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Enter the 6-digit code sent to {method === 'email' ? email : phone}
+                Enter the 6-digit code sent via {method} to {email}
               </p>
             </div>
 

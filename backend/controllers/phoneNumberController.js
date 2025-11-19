@@ -579,7 +579,8 @@ export const getMyNumbers = async (req, res) => {
 
     res.json({
       success: true,
-      numbers: phoneNumbers,
+      phoneNumbers: phoneNumbers,
+      numbers: phoneNumbers, // Keep for backwards compatibility
       count: phoneNumbers.length
     });
 

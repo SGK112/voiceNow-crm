@@ -125,6 +125,21 @@ app.use(apiMonitoring); // Track API requests and response times
 // Serve audio files generated for calls
 app.use('/audio', express.static('public/audio'));
 
+// Explicit route for demo audio with proper MIME type
+app.get('/demo-elevenlabs.mp3', (req, res) => {
+  res.setHeader('Content-Type', 'audio/mpeg');
+  res.sendFile(join(__dirname, 'public', 'demo-elevenlabs.mp3'));
+});
+
+// Serve demo audio files directly with proper MIME types
+app.use(express.static('public', {
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.mp3')) {
+      res.setHeader('Content-Type', 'audio/mpeg');
+    }
+  }
+}));
+
 // Monitoring and health check routes
 app.use('/api/monitoring', monitoringRoutes);
 

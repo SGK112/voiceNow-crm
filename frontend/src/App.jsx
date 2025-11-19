@@ -22,7 +22,6 @@ import Invoices from './pages/Invoices';
 import Deals from './pages/Deals';
 import Tasks from './pages/Tasks';
 import Campaigns from './pages/Campaigns';
-import WorkflowStudio from './components/WorkflowStudio';
 import Settings from './pages/Settings';
 import PhoneNumbers from './pages/PhoneNumbers';
 import Home from './pages/Home';
@@ -108,16 +107,17 @@ function App() {
         <Route path="premium-agent-request" element={<PremiumAgentRequest />} />
         <Route path="voice-library" element={<VoiceLibraryBrowser />} />
         <Route path="my-voices" element={<MyVoices />} />
-        {/* Agent Studio - Responsive (Mobile Builder on mobile, Visual Builder on desktop) */}
-        <Route path="agent-studio" element={<AgentStudioResponsive />} />
-        <Route path="agent-studio/mobile" element={<MobileAgentBuilder />} />
-        <Route path="agent-studio/visual" element={<VisualAgentBuilder />} />
-        <Route path="agent-studio/new" element={<AgentStudioWizard />} />
-        <Route path="agent-studio/legacy" element={<AgentStudio />} />
-        <Route path="credits" element={<CreditsDashboard />} />
+        {/* UNIFIED VoiceFlow Builder - consolidates agent studio and workflow builder */}
         <Route path="voiceflow-builder" element={<VoiceFlowBuilder />} />
-        <Route path="workflows" element={<WorkflowStudio />} />
-        <Route path="workflows/:id" element={<WorkflowStudio />} />
+        <Route path="voiceflow-builder/:id" element={<VoiceFlowBuilder />} />
+
+        {/* Redirects from old separate builders to unified VoiceFlow Builder */}
+        <Route path="agent-studio" element={<Navigate to="/app/voiceflow-builder" replace />} />
+        <Route path="agent-studio/*" element={<Navigate to="/app/voiceflow-builder" replace />} />
+        <Route path="workflows" element={<Navigate to="/app/voiceflow-builder" replace />} />
+        <Route path="workflows/:id" element={<Navigate to="/app/voiceflow-builder" replace />} />
+
+        <Route path="credits" element={<CreditsDashboard />} />
         <Route path="crm" element={<CRM />} />
         <Route path="crm/leads/:id" element={<LeadDetail />} />
         <Route path="crm/workflows" element={<CRMWorkflowBuilderHybrid />} />

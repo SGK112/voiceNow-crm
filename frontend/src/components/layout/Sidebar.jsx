@@ -6,10 +6,9 @@ import { useState, useEffect } from 'react';
 // Core sections - Voice Workflow CRM focused navigation
 const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
-  { name: 'Agent Studio', href: '/app/agent-studio', icon: Bot, tourId: 'agents', description: 'Visual Agent Builder' },
+  { name: 'VoiceFlow Builder', href: '/app/voiceflow-builder', icon: Workflow, tourId: 'voiceflow-builder', description: 'Visual Agent & Workflow Builder' },
   { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
   { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
-  { name: 'Workflows', href: '/app/workflows', icon: Workflow, tourId: 'workflows', description: 'Visual Workflow Automation' },
   { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
   { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Templates & Integrations' },
   { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings', description: 'Integrations & Configuration' },

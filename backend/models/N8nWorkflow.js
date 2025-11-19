@@ -22,6 +22,8 @@ const n8nWorkflowSchema = new mongoose.Schema({
     required: true
   },
   n8nWorkflowId: String,
+  webhookUrl: String, // The webhook URL for inbound workflows
+  webhookPath: String, // The custom webhook path (e.g., /call/16028335307)
   enabled: {
     type: Boolean,
     default: false

@@ -9,6 +9,7 @@ import StepVoiceSelection from './MobileAgentBuilderSteps/voice/StepVoiceSelecti
 import StepGreeting from './MobileAgentBuilderSteps/voice/StepGreeting';
 import StepPrompt from './MobileAgentBuilderSteps/voice/StepPrompt';
 import StepKnowledgeBase from './MobileAgentBuilderSteps/shared/StepKnowledgeBase';
+import StepWorkflow from './MobileAgentBuilderSteps/StepWorkflow';
 import StepSMSTemplate from './MobileAgentBuilderSteps/sms/StepSMSTemplate';
 import StepMMSMedia from './MobileAgentBuilderSteps/mms/StepMMSMedia';
 import StepEmailTemplate from './MobileAgentBuilderSteps/email/StepEmailTemplate';
@@ -30,7 +31,7 @@ const AGENT_TYPES = {
     icon: '🎙️',
     description: 'AI phone calls',
     provider: 'elevenlabs',
-    steps: ['agentType', 'direction', 'voice', 'greeting', 'prompt', 'knowledge', 'review', 'deploy']
+    steps: ['agentType', 'direction', 'voice', 'greeting', 'prompt', 'knowledge', 'workflow', 'review', 'deploy']
   },
   sms: {
     name: 'SMS Agent',
@@ -75,6 +76,9 @@ export default function MobileAgentBuilder() {
     greeting: '',
     prompt: '',
     knowledgeBase: [],
+    // Workflow
+    workflowId: null,
+    webhookUrl: null,
     // SMS-specific
     smsTemplate: '',
     keywords: [],
@@ -191,6 +195,8 @@ export default function MobileAgentBuilder() {
         return <StepPrompt {...stepProps} />;
       case 'knowledge':
         return <StepKnowledgeBase {...stepProps} />;
+      case 'workflow':
+        return <StepWorkflow {...stepProps} />;
       case 'smsTemplate':
         return <StepSMSTemplate {...stepProps} />;
       case 'mmsMedia':

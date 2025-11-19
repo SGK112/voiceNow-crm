@@ -9,8 +9,7 @@ import api from '@/lib/api';
 
 export default function ForgotPassword() {
   const [method, setMethod] = useState('email'); // 'email' or 'sms'
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [identifier, setIdentifier] = useState(''); // email or phone
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -19,17 +18,18 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const payload = method === 'email' ? { email } : { phone };
+      const payload = method === 'email'
+        ? { email: identifier, method: 'email' }
+        : { email: identifier, phone: identifier, method: 'sms' };
+
       const response = await api.post('/auth/forgot-password', payload);
 
       toast.success(response.data.message);
 
-      // Navigate to reset password page with the email/phone
       navigate('/reset-password', {
         state: {
           method,
-          email: method === 'email' ? email : null,
-          phone: method === 'sms' ? phone : null
+          email: identifier
         }
       });
     } catch (error) {
@@ -51,11 +51,11 @@ export default function ForgotPassword() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Method Selection */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant={method === 'email' ? 'default' : 'outline'}
-                onClick={() => setMethod('email')}
+                onClick={() => { setMethod('email'); setIdentifier(''); }}
                 className="flex-1"
               >
                 Email
@@ -63,44 +63,32 @@ export default function ForgotPassword() {
               <Button
                 type="button"
                 variant={method === 'sms' ? 'default' : 'outline'}
-                onClick={() => setMethod('sms')}
+                onClick={() => { setMethod('sms'); setIdentifier(''); }}
                 className="flex-1"
               >
                 SMS
               </Button>
             </div>
 
-            {method === 'email' ? (
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <p className="text-sm text-muted-foreground">
-                  We'll send a 6-digit code to your email
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+1234567890"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
-                <p className="text-sm text-muted-foreground">
-                  We'll send a 6-digit code via SMS
-                </p>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="identifier">
+                {method === 'email' ? 'Email Address' : 'Phone Number'}
+              </Label>
+              <Input
+                id="identifier"
+                type={method === 'email' ? 'email' : 'tel'}
+                placeholder={method === 'email' ? 'you@company.com' : '+1 (555) 123-4567'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+              />
+              <p className="text-sm text-muted-foreground">
+                {method === 'email'
+                  ? "We'll send a 6-digit code to your email"
+                  : "We'll send a 6-digit code via SMS"
+                }
+              </p>
+            </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Sending...' : 'Send Reset Code'}

@@ -20,7 +20,9 @@ import {
   saveVoiceToLibrary,
   removeVoiceFromLibrary,
   updateSavedVoice,
-  testConversation
+  testConversation,
+  connectWorkflow,
+  disconnectWorkflow
 } from '../controllers/agentController.js';
 import { protect, checkSubscription } from '../middleware/auth.js';
 import { requirePlan } from '../middleware/subscriptionGate.js';
@@ -62,5 +64,9 @@ router.get('/voices/saved', protect, getSavedVoices);
 router.post('/voices/saved', protect, saveVoiceToLibrary);
 router.delete('/voices/saved/:voiceId', protect, removeVoiceFromLibrary);
 router.patch('/voices/saved/:voiceId', protect, updateSavedVoice);
+
+// Agent-Workflow Connection
+router.post('/:id/connect-workflow', protect, connectWorkflow);
+router.delete('/:id/disconnect-workflow', protect, disconnectWorkflow);
 
 export default router;

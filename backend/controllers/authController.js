@@ -14,6 +14,222 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 }
 
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Request password reset via SMS or Email
+ * @body    { email, method: 'sms' | 'email', phone?: string }
+ * @access  Public
+ */
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email, method = 'email', phone } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal that user doesn't exist
+      return res.json({
+        message: `Password reset code sent via ${method}`,
+        method
+      });
+    }
+
+    // Generate 6-digit reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash the code before storing
+    const hashedCode = crypto
+      .createHash('sha256')
+      .update(resetCode)
+      .digest('hex');
+
+    // Store hashed code and expiration (15 minutes)
+    user.resetPasswordToken = hashedCode;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    // Update user's phone if provided
+    if (phone && !user.phone) {
+      user.phone = phone;
+    }
+
+    await user.save();
+
+    // Send reset code via selected method
+    if (method === 'sms') {
+      // SMS via Twilio
+      const phoneNumber = phone || user.phone;
+
+      if (!phoneNumber) {
+        return res.status(400).json({
+          message: 'Phone number required for SMS. Please provide a phone number or use email method.'
+        });
+      }
+
+      if (!twilioClient) {
+        return res.status(503).json({
+          message: 'SMS service unavailable. Please use email method.'
+        });
+      }
+
+      try {
+        await twilioClient.messages.create({
+          body: `Your VoiceFlow CRM password reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nIf you didn't request this, please ignore this message.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phoneNumber
+        });
+
+        console.log(`✅ Password reset SMS sent to ${phoneNumber}`);
+      } catch (smsError) {
+        console.error('SMS send error:', smsError);
+        return res.status(500).json({
+          message: 'Failed to send SMS. Please try email method.'
+        });
+      }
+    } else {
+      // Email via SMTP
+      try {
+        await emailService.sendPasswordResetEmail(user.email, resetCode, user.company);
+        console.log(`✅ Password reset email sent to ${user.email}`);
+      } catch (emailError) {
+        console.error('Email send error:', emailError);
+        return res.status(500).json({
+          message: 'Failed to send email. Please try SMS method or contact support.'
+        });
+      }
+    }
+
+    res.json({
+      message: `Password reset code sent via ${method}`,
+      method,
+      expiresIn: '15 minutes'
+    });
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ message: 'Error processing request' });
+  }
+};
+
+/**
+ * @route   POST /api/auth/verify-reset-code
+ * @desc    Verify the reset code before allowing password change
+ * @body    { email, code }
+ * @access  Public
+ */
+export const verifyResetCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({ message: 'Email and code are required' });
+    }
+
+    // Hash the provided code
+    const hashedCode = crypto
+      .createHash('sha256')
+      .update(code)
+      .digest('hex');
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: hashedCode,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    res.json({
+      message: 'Code verified successfully',
+      valid: true
+    });
+
+  } catch (error) {
+    console.error('Verify reset code error:', error);
+    res.status(500).json({ message: 'Error verifying code' });
+  }
+};
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password with verified code
+ * @body    { email, code, newPassword }
+ * @access  Public
+ */
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({
+        message: 'Email, code, and new password are required'
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters'
+      });
+    }
+
+    // Hash the provided code
+    const hashedCode = crypto
+      .createHash('sha256')
+      .update(code)
+      .digest('hex');
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: hashedCode,
+      resetPasswordExpire: { $gt: Date.now() }
+    }).select('+password');
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    // Update password (will be hashed by pre-save hook)
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    // Generate new token for automatic login
+    const token = generateToken(user._id);
+
+    // Send confirmation email
+    emailService.sendPasswordChangedEmail(user.email, user.company).catch(err => {
+      console.error('Failed to send password changed email:', err);
+    });
+
+    res.json({
+      message: 'Password reset successful',
+      token,
+      user: {
+        _id: user._id,
+        email: user.email,
+        company: user.company,
+        plan: user.plan
+      }
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+};
+
 export const signup = async (req, res) => {
   try {
     const { email, password, company } = req.body;
@@ -235,122 +451,5 @@ export const getMe = async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-};
-
-// Forgot Password - Send SMS with reset code
-export const forgotPassword = async (req, res) => {
-  try {
-    const { email, phone } = req.body;
-
-    if (!email && !phone) {
-      return res.status(400).json({ message: 'Email or phone number required' });
-    }
-
-    // Find user by email or phone
-    const query = email ? { email } : { phone };
-    const user = await User.findOne(query);
-
-    if (!user) {
-      // Don't reveal if user exists for security
-      return res.json({ message: 'If an account exists, a reset code has been sent' });
-    }
-
-    // Generate 6-digit reset code
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Hash the reset code before storing
-    const resetToken = crypto.createHash('sha256').update(resetCode).digest('hex');
-
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await user.save();
-
-    // Send reset code via SMS if phone is provided
-    if (phone && twilioClient) {
-      try {
-        await twilioClient.messages.create({
-          body: `Your VoiceFlow CRM password reset code is: ${resetCode}. This code expires in 10 minutes.`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: phone
-        });
-      } catch (twilioError) {
-        console.error('Twilio SMS Error:', twilioError);
-        return res.status(500).json({ message: 'Failed to send SMS. Please try again.' });
-      }
-    } else {
-      // Fallback to email
-      try {
-        await emailService.sendPasswordResetEmail(user.email, resetCode);
-      } catch (emailError) {
-        console.error('Email Error:', emailError);
-        return res.status(500).json({ message: 'Failed to send reset code. Please try again.' });
-      }
-    }
-
-    res.json({
-      message: 'If an account exists, a reset code has been sent',
-      method: phone ? 'sms' : 'email'
-    });
-  } catch (error) {
-    console.error('Forgot Password Error:', error);
-    res.status(500).json({ message: 'Error processing request' });
-  }
-};
-
-// Reset Password - Verify code and update password
-export const resetPassword = async (req, res) => {
-  try {
-    const { email, phone, code, newPassword } = req.body;
-
-    if (!code || !newPassword) {
-      return res.status(400).json({ message: 'Reset code and new password required' });
-    }
-
-    if (!email && !phone) {
-      return res.status(400).json({ message: 'Email or phone number required' });
-    }
-
-    // Hash the provided code to compare with stored hash
-    const resetToken = crypto.createHash('sha256').update(code).digest('hex');
-
-    // Find user with valid reset token
-    const query = {
-      resetPasswordToken: resetToken,
-      resetPasswordExpire: { $gt: Date.now() }
-    };
-
-    if (email) {
-      query.email = email;
-    } else if (phone) {
-      query.phone = phone;
-    }
-
-    const user = await User.findOne(query);
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset code' });
-    }
-
-    // Update password
-    user.password = newPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-
-    // Generate new token for auto-login
-    const token = generateToken(user._id);
-
-    res.json({
-      message: 'Password reset successful',
-      token,
-      _id: user._id,
-      email: user.email,
-      company: user.company,
-      plan: user.plan
-    });
-  } catch (error) {
-    console.error('Reset Password Error:', error);
-    res.status(500).json({ message: 'Error resetting password' });
   }
 };

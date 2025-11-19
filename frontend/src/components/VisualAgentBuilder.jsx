@@ -679,7 +679,7 @@ function VisualAgentBuilderContent() {
   const [isResizing, setIsResizing] = useState(false);
   const [consoleTab, setConsoleTab] = useState('logs'); // 'logs', 'workflow', 'inspector'
   const [selectedNodeForInspection, setSelectedNodeForInspection] = useState(null);
-  const [consoleSplitView, setConsoleSplitView] = useState(false); // Split screen for logs + AI
+  const [consoleSplitView, setConsoleSplitView] = useState(true); // Split screen for logs + AI - default to true
   const consoleEndRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -3116,10 +3116,16 @@ function InboundCallConfig({ formData, setFormData }) {
     // Fetch user's Twilio numbers
     const fetchNumbers = async () => {
       try {
-        const response = await axios.get('/api/phone-numbers/my-numbers');
-        setMyNumbers(response.data.phoneNumbers || []);
+        console.log('🔄 Fetching phone numbers from API...');
+        const response = await api.get('/phone-numbers/my-numbers');
+        console.log('📞 Phone numbers response:', response.data);
+
+        const numbers = response.data?.phoneNumbers || response.data?.numbers || [];
+        console.log('📊 Parsed numbers:', numbers);
+
+        setMyNumbers(numbers);
       } catch (error) {
-        console.error('Failed to fetch phone numbers:', error);
+        console.error('❌ Failed to fetch phone numbers:', error);
       } finally {
         setLoading(false);
       }
@@ -3194,10 +3200,16 @@ function OutboundCallConfig({ formData, setFormData }) {
     // Fetch user's Twilio numbers
     const fetchNumbers = async () => {
       try {
-        const response = await axios.get('/api/phone-numbers/my-numbers');
-        setMyNumbers(response.data.phoneNumbers || []);
+        console.log('🔄 Fetching phone numbers from API...');
+        const response = await api.get('/phone-numbers/my-numbers');
+        console.log('📞 Phone numbers response:', response.data);
+
+        const numbers = response.data?.phoneNumbers || response.data?.numbers || [];
+        console.log('📊 Parsed numbers:', numbers);
+
+        setMyNumbers(numbers);
       } catch (error) {
-        console.error('Failed to fetch phone numbers:', error);
+        console.error('❌ Failed to fetch phone numbers:', error);
       } finally {
         setLoading(false);
       }

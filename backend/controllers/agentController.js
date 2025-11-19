@@ -1789,3 +1789,86 @@ export const testConversation = async (req, res) => {
     });
   }
 };
+
+// @desc    Connect agent to workflow
+// @route   POST /api/agents/:id/connect-workflow
+// @access  Private
+export const connectWorkflow = async (req, res) => {
+  try {
+    const { workflowId, webhookUrl } = req.body;
+
+    const agent = await Agent.findOne({ _id: req.params.id, userId: req.user._id });
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    // Update agent with workflow connection
+    agent.connectedWorkflowId = workflowId;
+    agent.webhookUrl = webhookUrl || agent.webhookUrl;
+    await agent.save();
+
+    // Configure ElevenLabs agent to use the webhook
+    try {
+      const elevenLabsService = getElevenLabsService();
+      if (agent.elevenLabsAgentId) {
+        await elevenLabsService.updateAgent(agent.elevenLabsAgentId, {
+          webhook: {
+            url: webhookUrl,
+            events: ['conversation.end']
+          }
+        });
+      }
+    } catch (elevenLabsError) {
+      console.warn('Could not update ElevenLabs webhook:', elevenLabsError.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Workflow connected successfully',
+      agent
+    });
+  } catch (error) {
+    console.error('Connect workflow error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Disconnect workflow from agent
+// @route   DELETE /api/agents/:id/disconnect-workflow
+// @access  Private
+export const disconnectWorkflow = async (req, res) => {
+  try {
+    const agent = await Agent.findOne({ _id: req.params.id, userId: req.user._id });
+
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    // Remove workflow connection
+    agent.connectedWorkflowId = null;
+    agent.webhookUrl = null;
+    await agent.save();
+
+    // Remove webhook from ElevenLabs agent
+    try {
+      const elevenLabsService = getElevenLabsService();
+      if (agent.elevenLabsAgentId) {
+        await elevenLabsService.updateAgent(agent.elevenLabsAgentId, {
+          webhook: null
+        });
+      }
+    } catch (elevenLabsError) {
+      console.warn('Could not remove ElevenLabs webhook:', elevenLabsError.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Workflow disconnected successfully',
+      agent
+    });
+  } catch (error) {
+    console.error('Disconnect workflow error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

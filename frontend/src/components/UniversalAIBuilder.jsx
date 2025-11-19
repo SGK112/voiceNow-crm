@@ -58,7 +58,25 @@ const UniversalAIBuilder = ({ open, onOpenChange, mode = 'agent' }) => {
     setStep('building');
   };
 
-  const startConversation = () => {
+  const startConversation = async () => {
+    let workflowsList = '';
+
+    if (buildMode === 'workflow') {
+      // Fetch existing workflows to show the user
+      try {
+        const workflowsResponse = await api.get('/workflows');
+        const existingWorkflows = workflowsResponse.data || [];
+
+        if (existingWorkflows.length > 0) {
+          workflowsList = `\n\n📋 **Your Existing Workflows:**\n${existingWorkflows.map((w, i) =>
+            `${i + 1}. ${w.name}${w.enabled ? ' ✅' : ' ⏸️'}`
+          ).join('\n')}\n\nYou can ask me to update any of these, or create a new one!`;
+        }
+      } catch (error) {
+        console.error('Could not fetch workflows:', error);
+      }
+    }
+
     const initialMessage = buildMode === 'agent'
       ? `Hi! I'm your AI assistant. I'll help you build the perfect voice agent in just a few questions.
 
@@ -67,13 +85,14 @@ Tell me what you want your voice agent to do. For example:
 - "Follow up with leads who requested quotes"
 - "Schedule appointments for my roofing business"
 - "Remind clients about upcoming deadlines"`
-      : `Hi! I'm your AI assistant. I'll help you create an automation workflow.
+      : `Hi! I'm your AI assistant. I can help you create new automation workflows or update existing ones.${workflowsList}
 
-Tell me what you want to automate. For example:
-- "Send SMS when a new lead comes in"
-- "Create a task when someone fills out a form"
-- "Send email follow-ups after calls"
-- "Update CRM when a deal closes"`;
+Tell me what you want to do. For example:
+- "Create a workflow to send SMS when a new lead calls"
+- "Update my Surprise Granite workflow to include email notifications"
+- "Add a node to my existing workflow that saves leads to CRM"
+- "Modify the inbound call workflow to send Slack notifications"
+- "Create a new workflow for appointment reminders"`;
 
     addMessage('assistant', initialMessage);
   };
@@ -102,9 +121,29 @@ Tell me what you want to automate. For example:
     try {
       const taskType = buildMode === 'agent' ? 'voice_agent_builder' : 'workflow_builder';
 
+      // Fetch existing workflows to give AI context
+      let existingWorkflows = [];
+      if (buildMode === 'workflow') {
+        try {
+          const workflowsResponse = await api.get('/workflows');
+          existingWorkflows = workflowsResponse.data || [];
+        } catch (error) {
+          console.error('Could not fetch existing workflows:', error);
+        }
+      }
+
       const response = await api.post('/ai/chat', {
         messages: context,
-        task: taskType
+        task: taskType,
+        // Give AI full access to existing workflows
+        existingWorkflows: existingWorkflows.map(w => ({
+          id: w._id,
+          name: w.name,
+          description: w.description,
+          enabled: w.enabled,
+          nodes: w.workflowJson?.nodes || [],
+          connections: w.workflowJson?.connections || []
+        }))
       });
 
       if (!response.data || !response.data.message) {
@@ -306,9 +345,16 @@ Your agent is now ready to make calls and handle conversations automatically!`);
     setLoading(true);
 
     try {
-      addMessage('assistant', '🚀 Creating your workflow...');
+      console.log('Workflow config:', config);
 
-      console.log('Creating workflow with config:', config);
+      // Check if AI wants to update existing workflow or create new one
+      const isUpdate = config.workflowId && config.action === 'update';
+
+      if (isUpdate) {
+        addMessage('assistant', `🔄 Updating existing workflow "${config.name}"...`);
+      } else {
+        addMessage('assistant', '🚀 Creating your workflow...');
+      }
 
       // First, use AI to generate the full workflow structure
       addMessage('assistant', '🤖 AI is designing your workflow nodes...');
@@ -316,6 +362,10 @@ Your agent is now ready to make calls and handle conversations automatically!`);
       const aiWorkflowResponse = await api.post('/ai/generate-workflow', {
         description: config.purpose,
         workflowType: 'general',
+        workflowId: config.workflowId || null,
+        action: config.action || 'create',
+        existingNodes: config.existingNodes || [],
+        existingConnections: config.existingConnections || [],
         context: {
           companyName: 'Your Company',
           industry: 'General'
@@ -335,25 +385,55 @@ Your agent is now ready to make calls and handle conversations automatically!`);
         addMessage('assistant', '⚠️ AI couldn\'t generate workflow steps. Creating basic workflow...');
       }
 
-      // Now create the workflow with the AI-generated structure
-      const response = await api.post('/workflows', {
-        name: config.name,
-        description: config.purpose,
-        nodes: workflowStructure.nodes || [],
-        connections: workflowStructure.connections || [],
-        trigger: config.trigger || workflowStructure.trigger || 'manual',
-        enabled: true
-      });
+      let response;
 
-      console.log('Workflow creation response:', response.data);
+      if (isUpdate) {
+        // Update existing workflow
+        response = await api.put(`/workflows/${config.workflowId}`, {
+          name: config.name,
+          description: config.purpose,
+          n8nWorkflow: {
+            nodes: workflowStructure.nodes || [],
+            connections: workflowStructure.connections || []
+          },
+          enabled: config.enabled !== undefined ? config.enabled : true
+        });
 
-      if (response.data) {
-        setStep('done');
-        const nodeCount = workflowStructure.nodes?.length || 0;
-        addMessage('assistant', `✅ **Success!** Your workflow "${config.name}" has been created${nodeCount > 0 ? ` with ${nodeCount} automation step${nodeCount > 1 ? 's' : ''}` : ''}!
+        console.log('Workflow update response:', response.data);
+
+        if (response.data) {
+          setStep('done');
+          const nodeCount = workflowStructure.nodes?.length || 0;
+          addMessage('assistant', `✅ **Success!** Workflow "${config.name}" has been updated${nodeCount > 0 ? ` with ${nodeCount} automation step${nodeCount > 1 ? 's' : ''}` : ''}!
+
+Your workflow changes have been saved and are ready to use!`);
+        }
+      } else {
+        // Create new workflow
+        response = await api.post('/workflows', {
+          name: config.name,
+          type: 'custom',
+          description: config.purpose,
+          workflowJson: {
+            nodes: workflowStructure.nodes || [],
+            connections: workflowStructure.connections || []
+          },
+          triggerConditions: config.trigger || workflowStructure.trigger || {},
+          enabled: true
+        });
+
+        console.log('Workflow creation response:', response.data);
+
+        if (response.data) {
+          setStep('done');
+          const nodeCount = workflowStructure.nodes?.length || 0;
+          addMessage('assistant', `✅ **Success!** Your workflow "${config.name}" has been created${nodeCount > 0 ? ` with ${nodeCount} automation step${nodeCount > 1 ? 's' : ''}` : ''}!
 
 Your workflow is now ready${nodeCount > 0 ? ' to automate your tasks' : '. You can customize it in the Workflow Studio'}!`);
-      } else {
+        }
+      }
+
+      if (!response.data) {
         throw new Error('No data received from server');
       }
 

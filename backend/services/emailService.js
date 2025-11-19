@@ -345,7 +345,7 @@ class EmailService {
   /**
    * Send password reset email
    */
-  async sendPasswordResetEmail(userEmail, resetCode) {
+  async sendPasswordResetEmail(userEmail, resetCode, companyName) {
     const subject = 'Password Reset Code - VoiceFlow CRM';
     const html = `
       <!DOCTYPE html>
@@ -367,6 +367,7 @@ class EmailService {
             <h1>🔐 Password Reset Request</h1>
           </div>
           <div class="content">
+            <p>Hi ${companyName ? companyName : 'there'},</p>
             <p>You requested to reset your password for VoiceFlow CRM.</p>
             <p>Use the code below to reset your password:</p>
 
@@ -374,7 +375,7 @@ class EmailService {
               <div class="code">${resetCode}</div>
             </div>
 
-            <p><strong>This code expires in 10 minutes.</strong></p>
+            <p><strong>This code expires in 15 minutes.</strong></p>
             <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
           </div>
           <div class="footer">
@@ -388,13 +389,88 @@ class EmailService {
     const text = `
       Password Reset Request
 
+      Hi ${companyName ? companyName : 'there'},
+
       You requested to reset your password for VoiceFlow CRM.
 
       Your reset code: ${resetCode}
 
-      This code expires in 10 minutes.
+      This code expires in 15 minutes.
 
       If you didn't request this, please ignore this email.
+    `;
+
+    return this.sendEmail({ to: userEmail, subject, html, text });
+  }
+
+  /**
+   * Send password changed confirmation email
+   */
+  async sendPasswordChangedEmail(userEmail, companyName) {
+    const subject = 'Password Changed Successfully - VoiceFlow CRM';
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #10b981; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .alert-box { background: white; padding: 20px; margin: 20px 0; border: 2px solid #10b981; border-radius: 8px; }
+          .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 6px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Password Changed Successfully</h1>
+          </div>
+          <div class="content">
+            <p>Hi ${companyName ? companyName : 'there'},</p>
+            <p>This confirms that your VoiceFlow CRM password has been successfully changed.</p>
+
+            <div class="alert-box">
+              <p style="margin: 0;"><strong>🔒 Your account is now secured with your new password.</strong></p>
+              <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Changed on: ${new Date().toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</p>
+            </div>
+
+            <div class="warning">
+              <strong>⚠️ Didn't make this change?</strong><br>
+              If you did not change your password, please contact our support team immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'} or reset your password again.
+            </div>
+
+            <p>Thank you for using VoiceFlow CRM!</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Password Changed Successfully
+
+      Hi ${companyName ? companyName : 'there'},
+
+      This confirms that your VoiceFlow CRM password has been successfully changed.
+
+      Changed on: ${new Date().toLocaleString()}
+
+      ⚠️ Didn't make this change?
+      If you did not change your password, please contact support immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'}
+
+      Thank you for using VoiceFlow CRM!
     `;
 
     return this.sendEmail({ to: userEmail, subject, html, text });

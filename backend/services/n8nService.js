@@ -61,8 +61,21 @@ class N8nService {
         apiKey: this.apiKey ? 'SET' : 'NOT SET',
         workflowName: workflow.name
       });
+
+      // Create workflow (without active field - it's read-only)
       const response = await this.client.post('/api/v1/workflows', workflow);
-      return response.data;
+      console.log(`✅ Workflow created: ${response.data.id}`);
+
+      // Activate the workflow using the dedicated endpoint
+      const activatedWorkflow = await this.activateWorkflow(response.data.id);
+
+      if (activatedWorkflow && activatedWorkflow.active) {
+        console.log(`✅ Workflow ${response.data.id} activated successfully`);
+        return activatedWorkflow;
+      } else {
+        console.log(`⚠️  Workflow created but activation failed`);
+        return response.data;
+      }
     } catch (error) {
       console.error('N8N API Error Details:', {
         message: error.message,
@@ -99,10 +112,15 @@ class N8nService {
 
   async activateWorkflow(workflowId) {
     try {
-      const response = await this.client.patch(`/api/v1/workflows/${workflowId}/activate`);
+      console.log(`🔄 Activating workflow ${workflowId}...`);
+
+      // Use the dedicated activation endpoint
+      const response = await this.client.post(`/api/v1/workflows/${workflowId}/activate`);
+
+      console.log(`✅ Workflow ${workflowId} activated successfully`);
       return response.data;
     } catch (error) {
-      console.error('N8N API Error:', error.response?.data || error.message);
+      console.error('❌ Activation error:', error.response?.data || error.message);
       return null;
     }
   }
@@ -629,6 +647,112 @@ class N8nService {
         }
       }
     };
+  }
+
+  /**
+   * Deploy a workflow from a template and activate it
+   * @param {string} templateName - Name of the template or 'custom' for JSON file
+   * @param {object} options - { userId, customWorkflow, webhookPath }
+   * @returns {object} - { workflowId, webhookUrl, active }
+   */
+  async deployWorkflowFromTemplate(templateName, options = {}) {
+    try {
+      let workflowData;
+
+      if (templateName === 'surprise_granite_booking') {
+        // Load from the JSON file we created
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const filePath = path.join(process.cwd(), '../voiceflow-crm/surprise-granite-booking-workflow-production.json');
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        workflowData = JSON.parse(fileContent);
+      } else if (options.customWorkflow) {
+        // Custom workflow JSON provided
+        workflowData = options.customWorkflow;
+      } else {
+        // Use built-in template
+        const templates = this.getPrebuiltWorkflowTemplates();
+        const template = templates[templateName];
+
+        if (!template) {
+          throw new Error(`Template '${templateName}' not found`);
+        }
+
+        workflowData = template.workflowJson;
+        workflowData.name = template.name;
+      }
+
+      // Customize for user if needed
+      if (options.userId) {
+        workflowData.name = `${workflowData.name} - User ${options.userId}`;
+      }
+
+      if (options.webhookPath) {
+        // Update webhook paths in nodes
+        workflowData.nodes = workflowData.nodes.map(node => {
+          if (node.type === 'n8n-nodes-base.webhook') {
+            return {
+              ...node,
+              parameters: {
+                ...node.parameters,
+                path: options.webhookPath
+              }
+            };
+          }
+          return node;
+        });
+      }
+
+      // Create the workflow in n8n
+      console.log(`📤 Deploying workflow: ${workflowData.name}`);
+      const createdWorkflow = await this.createWorkflow(workflowData);
+
+      if (!createdWorkflow || !createdWorkflow.id) {
+        throw new Error('Failed to create workflow in n8n');
+      }
+
+      console.log(`✅ Workflow created with ID: ${createdWorkflow.id}`);
+
+      // Activate the workflow
+      console.log(`🔄 Activating workflow...`);
+      const activated = await this.activateWorkflow(createdWorkflow.id);
+
+      if (!activated) {
+        console.warn(`⚠️  Workflow created but activation failed`);
+      } else {
+        console.log(`✅ Workflow activated successfully`);
+      }
+
+      // Extract webhook URL from the workflow
+      const webhookNode = workflowData.nodes.find(n => n.type === 'n8n-nodes-base.webhook');
+      const webhookPath = webhookNode?.parameters?.path || webhookNode?.webhookId || 'unknown';
+      const webhookUrl = `${this.webhookUrl}/${webhookPath}`;
+
+      return {
+        workflowId: createdWorkflow.id,
+        workflowName: workflowData.name,
+        webhookUrl,
+        active: activated ? true : false,
+        success: true
+      };
+
+    } catch (error) {
+      console.error('❌ Workflow deployment error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * List all workflows
+   */
+  async listWorkflows() {
+    try {
+      const response = await this.client.get('/api/v1/workflows');
+      return response.data;
+    } catch (error) {
+      console.error('N8N API Error:', error.response?.data || error.message);
+      return [];
+    }
   }
 }
 

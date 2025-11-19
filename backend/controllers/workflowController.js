@@ -98,6 +98,21 @@ export const createWorkflow = async (req, res) => {
       if (n8nResult && n8nResult.id) {
         // Save n8n workflow ID to database
         workflow.n8nWorkflowId = n8nResult.id;
+
+        // Extract webhook URL if workflow has a webhook trigger node
+        const webhookNode = finalWorkflowJson.nodes?.find(n =>
+          n.type === 'n8n-nodes-base.webhook'
+        );
+
+        if (webhookNode && webhookNode.parameters?.path) {
+          const n8nUrl = process.env.N8N_API_URL || 'http://5.183.8.119:5678';
+          const baseUrl = n8nUrl.replace('/api/v1', '');
+          const webhookPath = webhookNode.parameters.path;
+          workflow.webhookPath = webhookPath;
+          workflow.webhookUrl = `${baseUrl}/webhook${webhookPath.startsWith('/') ? '' : '/'}${webhookPath}`;
+          console.log('📍 Webhook URL generated:', workflow.webhookUrl);
+        }
+
         await workflow.save();
         console.log('✅ Workflow created in n8n:', n8nResult.id);
       }
@@ -145,6 +160,21 @@ export const updateWorkflow = async (req, res) => {
             saveDataErrorExecution: 'all'
           }
         });
+
+        // Update webhook URL if webhook trigger node changed
+        const webhookNode = workflow.workflowJson.nodes?.find(n =>
+          n.type === 'n8n-nodes-base.webhook'
+        );
+
+        if (webhookNode && webhookNode.parameters?.path) {
+          const n8nUrl = process.env.N8N_API_URL || 'http://5.183.8.119:5678';
+          const baseUrl = n8nUrl.replace('/api/v1', '');
+          const webhookPath = webhookNode.parameters.path;
+          workflow.webhookPath = webhookPath;
+          workflow.webhookUrl = `${baseUrl}/webhook${webhookPath.startsWith('/') ? '' : '/'}${webhookPath}`;
+          console.log('📍 Webhook URL updated:', workflow.webhookUrl);
+        }
+
         console.log('✅ Workflow updated in n8n:', workflow.n8nWorkflowId);
       } catch (n8nError) {
         console.warn('⚠️ Could not update workflow in n8n:', n8nError.message);
@@ -222,6 +252,37 @@ export const deleteWorkflow = async (req, res) => {
 
     await workflow.deleteOne();
     res.json({ message: 'Workflow deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getWorkflowWebhookUrl = async (req, res) => {
+  try {
+    const { workflowId } = req.params;
+
+    const workflow = await N8nWorkflow.findOne({
+      _id: workflowId,
+      userId: req.user._id
+    });
+
+    if (!workflow) {
+      return res.status(404).json({ message: 'Workflow not found' });
+    }
+
+    if (!workflow.webhookUrl) {
+      return res.status(404).json({
+        message: 'No webhook URL found for this workflow. Make sure the workflow has a Webhook Trigger node configured.'
+      });
+    }
+
+    res.json({
+      workflowId: workflow._id,
+      webhookUrl: workflow.webhookUrl,
+      webhookPath: workflow.webhookPath,
+      enabled: workflow.enabled,
+      workflowName: workflow.name
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
