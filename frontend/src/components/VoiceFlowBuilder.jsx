@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import ReactFlow, {
   Background,
@@ -660,6 +660,7 @@ const NODE_TEMPLATES = [
 
 function VisualAgentBuilderContent() {
   const navigate = useNavigate();
+  const { id: workflowId } = useParams(); // Get workflow ID from URL
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [voices, setVoices] = useState([]);
@@ -695,6 +696,29 @@ function VisualAgentBuilderContent() {
     const log = { type, message, data, timestamp, id: Date.now() };
     setConsoleLogs(prev => [...prev, log]);
   }, []);
+
+  // Load workflow if ID is in URL
+  useEffect(() => {
+    if (workflowId) {
+      const loadWorkflow = async () => {
+        try {
+          addLog('info', `Loading workflow ${workflowId}...`);
+          const response = await api.get(`/workflows/${workflowId}`);
+
+          if (response.data) {
+            setAgentName(response.data.name || 'Untitled Agent');
+            setNodes(response.data.nodes || []);
+            setEdges(response.data.edges || []);
+            addLog('success', 'Workflow loaded successfully!');
+          }
+        } catch (error) {
+          console.error('Error loading workflow:', error);
+          addLog('error', 'Failed to load workflow', error.message);
+        }
+      };
+      loadWorkflow();
+    }
+  }, [workflowId, addLog]);
 
   // Handle console resize
   useEffect(() => {
@@ -1049,7 +1073,7 @@ function VisualAgentBuilderContent() {
       };
 
       // Call AI service
-      const response = await api.post('/ai/workflow-copilot', {
+      const response = await api.post('/ai-copilot/workflow-copilot', {
         message: userMessage,
         workflow: workflowContext,
         conversationHistory: copilotMessages.slice(-6) // Last 3 exchanges
@@ -2175,9 +2199,14 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
 
   // Debug logging
   useEffect(() => {
-    console.log('🔍 VoiceConfig received voices:', voices);
+    console.log('========================================');
+    console.log('🎤 VOICE CONFIG COMPONENT RENDER');
+    console.log('🔍 VoiceConfig received voices prop:', voices);
     console.log('📊 VoiceConfig voicesArray length:', voicesArray.length);
+    console.log('📊 Is voices an array?', Array.isArray(voices));
+    console.log('📊 Voices type:', typeof voices);
     if (voicesArray.length > 0) {
+      console.log('✅ Voices loaded successfully!');
       console.log('📊 Sample voice structure:', voicesArray[0]);
       console.log('📊 Voice ID field check:', {
         'has id': !!voicesArray[0].id,
@@ -2185,7 +2214,10 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
         'id value': voicesArray[0].id,
         'voice_id value': voicesArray[0].voice_id
       });
+    } else {
+      console.log('⚠️ No voices loaded yet - voices array is empty');
     }
+    console.log('========================================');
   }, [voices, voicesArray.length]);
 
   // Get unique languages from voices
@@ -2258,8 +2290,12 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
 
   // Debug filtered results and show sample English voices
   useEffect(() => {
-    console.log('🔍 Filtered voices count:', filteredVoices.length);
-    console.log('🔍 Selected language:', selectedLanguage);
+    console.log('========================================');
+    console.log('🔍 VOICE FILTERING RESULTS');
+    console.log('📊 Total voices available:', voicesArray.length);
+    console.log('📊 Filtered voices count:', filteredVoices.length);
+    console.log('📊 Displayed voices count:', displayedVoices.length);
+    console.log('🌍 Selected language:', selectedLanguage);
     console.log('🔍 Search term:', searchTerm);
 
     // When filtering by en-us or en-gb, show first 10 voices to debug their actual structure
@@ -2284,6 +2320,7 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
         console.log(`   - ${v.name}: Full object:`, v);
       });
     }
+    console.log('========================================');
   }, [filteredVoices.length, selectedLanguage, searchTerm, voicesArray]);
 
   // Ensure the selected voice is always in the displayed list
@@ -2393,6 +2430,16 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
             </div>
           )}
 
+          {/* Filter Warning */}
+          {displayedVoices.length === 0 && (
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                <Filter className="h-4 w-4" />
+                <span className="text-sm font-medium">No voices match your current filter. Try changing the language filter to "All Languages".</span>
+              </div>
+            </div>
+          )}
+
           {/* Filters Section */}
           <div className="bg-muted/30 p-4 rounded-lg space-y-3">
             <div className="flex items-center gap-2 mb-2">
@@ -2476,7 +2523,7 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
               style={{ minHeight: '42px' }}
             >
               <option value="" disabled>
-                🎙️ Choose your voice...
+                {voicesArray.length === 0 ? '⏳ Loading voices...' : displayedVoices.length === 0 ? '🔍 No voices match your filter' : '🎙️ Choose your voice...'}
               </option>
 
               {/* Display voices with flag, name, and description */}
@@ -2699,6 +2746,51 @@ function VoiceConfig({ formData, setFormData, voices = [] }) {
 function PromptConfig({ formData, setFormData }) {
   const [showWizard, setShowWizard] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
+  const [wizardData, setWizardData] = useState({
+    purpose: 'Customer Support',
+    tone: 'Friendly & Casual',
+    industry: '',
+    additionalInfo: ''
+  });
+  const [generating, setGenerating] = useState(false);
+
+  const generatePrompt = async () => {
+    if (!wizardData.purpose || !wizardData.tone) {
+      alert('Please select a purpose and tone for your agent.');
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      console.log('🎨 Generating AI prompt...', wizardData);
+
+      const response = await api.post('/ai-copilot/generate-prompt', wizardData);
+
+      if (response.data.success) {
+        console.log('✅ Prompt generated successfully!');
+
+        // Update form data with generated prompt
+        setFormData({
+          ...formData,
+          prompt: response.data.prompt,
+          firstMessage: response.data.firstMessage
+        });
+
+        // Show success message
+        alert('✨ Prompt generated successfully! Check the System Prompt field below.');
+
+        // Collapse wizard
+        setShowWizard(false);
+      } else {
+        throw new Error(response.data.message || 'Failed to generate prompt');
+      }
+    } catch (error) {
+      console.error('❌ Error generating prompt:', error);
+      alert('Failed to generate prompt. Please try again or write your own prompt manually.');
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const promptExamples = [
     {
@@ -2827,12 +2919,18 @@ A: "Most residential projects take 7-10 days from template to installation."
               <label className="block text-xs font-medium text-purple-900 dark:text-purple-100 mb-1">
                 What's your agent's main purpose?
               </label>
-              <select className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm">
+              <select
+                value={wizardData.purpose}
+                onChange={(e) => setWizardData({ ...wizardData, purpose: e.target.value })}
+                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm"
+              >
                 <option>Customer Support</option>
                 <option>Sales & Lead Generation</option>
                 <option>Appointment Booking</option>
                 <option>Information & FAQs</option>
                 <option>Order Taking</option>
+                <option>Lead Qualification</option>
+                <option>Reception & Routing</option>
                 <option>Other</option>
               </select>
             </div>
@@ -2840,16 +2938,60 @@ A: "Most residential projects take 7-10 days from template to installation."
               <label className="block text-xs font-medium text-purple-900 dark:text-purple-100 mb-1">
                 What tone should your agent use?
               </label>
-              <select className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm">
+              <select
+                value={wizardData.tone}
+                onChange={(e) => setWizardData({ ...wizardData, tone: e.target.value })}
+                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm"
+              >
                 <option>Friendly & Casual</option>
                 <option>Professional & Formal</option>
                 <option>Enthusiastic & Energetic</option>
                 <option>Calm & Empathetic</option>
               </select>
             </div>
-            <button className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md font-medium text-sm flex items-center justify-center gap-2">
-              <Wand2 className="h-4 w-4" />
-              Generate Prompt with AI
+            <div>
+              <label className="block text-xs font-medium text-purple-900 dark:text-purple-100 mb-1">
+                Industry (Optional)
+              </label>
+              <input
+                type="text"
+                value={wizardData.industry}
+                onChange={(e) => setWizardData({ ...wizardData, industry: e.target.value })}
+                placeholder="e.g., Home Remodeling, Healthcare, E-commerce"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-purple-900 dark:text-purple-100 mb-1">
+                Additional Details (Optional)
+              </label>
+              <textarea
+                value={wizardData.additionalInfo}
+                onChange={(e) => setWizardData({ ...wizardData, additionalInfo: e.target.value })}
+                placeholder="Any specific requirements, company info, or behaviors you want?"
+                rows={2}
+                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-purple-300 dark:border-purple-700 rounded-md text-sm"
+              />
+            </div>
+            <button
+              onClick={generatePrompt}
+              disabled={generating}
+              className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {generating ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4" />
+                  Generate Prompt with AI
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -3666,50 +3808,18 @@ function EmailConfig({ formData, setFormData }) {
 function AIDecisionConfig({ formData, setFormData }) {
   return (
     <div className="space-y-4">
-      <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-        <p className="text-sm text-amber-900 dark:text-amber-100">
-          🤖 AI-powered decision routing - like n8n's AI Chat Router! Route conversations based on AI analysis.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">AI Provider *</label>
-        <select
-          value={formData.provider || 'openai'}
-          onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        >
-          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="google">Google AI (Gemini)</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">API Key *</label>
-        <input
-          type="password"
-          value={formData.apiKey || ''}
-          onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-          placeholder="sk-..."
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground font-mono"
-        />
-        <p className="text-xs text-muted-foreground mt-1">Your API key is encrypted and stored securely</p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">Model</label>
-        <input
-          type="text"
-          value={formData.model || ''}
-          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-          placeholder={
-            formData.provider === 'openai' ? 'gpt-4o or gpt-3.5-turbo' :
-            formData.provider === 'anthropic' ? 'claude-3-5-sonnet-20241022' :
-            'gemini-pro'
-          }
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        />
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">🤖</div>
+          <div>
+            <p className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">
+              AI-Powered Decision Making
+            </p>
+            <p className="text-xs text-purple-700 dark:text-purple-300">
+              Uses our built-in Claude AI - no API key needed! Route conversations intelligently based on AI analysis.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -3763,49 +3873,18 @@ function AIDecisionConfig({ formData, setFormData }) {
 function AIGeneratorConfig({ formData, setFormData }) {
   return (
     <div className="space-y-4">
-      <div className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-        <p className="text-sm text-purple-900 dark:text-purple-100">
-          ✨ Generate dynamic, personalized content using AI. Perfect for creating custom messages, emails, or responses.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">AI Provider *</label>
-        <select
-          value={formData.provider || 'openai'}
-          onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        >
-          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="google">Google AI (Gemini)</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">API Key *</label>
-        <input
-          type="password"
-          value={formData.apiKey || ''}
-          onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-          placeholder="sk-..."
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground font-mono"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">Model</label>
-        <input
-          type="text"
-          value={formData.model || ''}
-          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-          placeholder={
-            formData.provider === 'openai' ? 'gpt-4o or gpt-4o-mini' :
-            formData.provider === 'anthropic' ? 'claude-3-5-sonnet-20241022' :
-            'gemini-pro'
-          }
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        />
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">✨</div>
+          <div>
+            <p className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">
+              AI Content Generation
+            </p>
+            <p className="text-xs text-purple-700 dark:text-purple-300">
+              Uses our Claude AI to create personalized messages, emails, and responses - no API key needed!
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -3870,34 +3949,18 @@ function AIExtractorConfig({ formData, setFormData }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
-        <p className="text-sm text-teal-900 dark:text-teal-100">
-          📊 Extract structured data from unstructured text using AI. Perfect for pulling names, emails, phone numbers, dates, etc.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">AI Provider *</label>
-        <select
-          value={formData.provider || 'openai'}
-          onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        >
-          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="google">Google AI (Gemini)</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">API Key *</label>
-        <input
-          type="password"
-          value={formData.apiKey || ''}
-          onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-          placeholder="sk-..."
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground font-mono"
-        />
+      <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">📊</div>
+          <div>
+            <p className="text-sm font-medium text-teal-900 dark:text-teal-100 mb-1">
+              AI Data Extraction
+            </p>
+            <p className="text-xs text-teal-700 dark:text-teal-300">
+              Powered by our Claude AI - extract names, emails, dates, and more from text automatically!
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -3977,34 +4040,18 @@ function AIIntentConfig({ formData, setFormData }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-        <p className="text-sm text-orange-900 dark:text-orange-100">
-          🎯 Classify user intent using AI. Route to different paths based on what the user wants (support, sales, demo, etc.)
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">AI Provider *</label>
-        <select
-          value={formData.provider || 'openai'}
-          onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-        >
-          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="google">Google AI (Gemini)</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-foreground">API Key *</label>
-        <input
-          type="password"
-          value={formData.apiKey || ''}
-          onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-          placeholder="sk-..."
-          className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground font-mono"
-        />
+      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">🎯</div>
+          <div>
+            <p className="text-sm font-medium text-orange-900 dark:text-orange-100 mb-1">
+              AI Intent Classification
+            </p>
+            <p className="text-xs text-orange-700 dark:text-orange-300">
+              Powered by our Claude AI - automatically detect user intent (sales, support, etc.) without API keys!
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -4441,7 +4488,7 @@ function TestConfig({ formData, setFormData, addLog }) {
         addLog('info', 'Initiating ElevenLabs voice call test...', {
           endpoint: apiUrl,
           phone: formData.testData.phone,
-          agentId: formData.testData?.elevenLabsAgentId || process.env.ELEVENLABS_DEMO_AGENT_ID
+          agentId: formData.testData?.elevenLabsAgentId || 'agent_9701k9xptd0kfr383djx5zk7300x'
         });
 
         // Get the prompt and first message from the workflow

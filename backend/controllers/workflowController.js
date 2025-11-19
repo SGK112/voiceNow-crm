@@ -34,7 +34,13 @@ export const getWorkflows = async (req, res) => {
 
 export const getWorkflowById = async (req, res) => {
   try {
-    const workflow = await N8nWorkflow.findOne({ _id: req.params.id, userId: req.user._id });
+    // Try N8nWorkflow first
+    let workflow = await N8nWorkflow.findOne({ _id: req.params.id, userId: req.user._id });
+
+    // If not found, try VisualWorkflow (for VoiceFlow builder workflows)
+    if (!workflow) {
+      workflow = await VisualWorkflow.findOne({ _id: req.params.id, userId: req.user._id });
+    }
 
     if (!workflow) {
       return res.status(404).json({ message: 'Workflow not found' });

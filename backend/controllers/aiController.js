@@ -457,3 +457,197 @@ Only include this JSON when you have enough information from the user.`;
     });
   }
 };
+
+/**
+ * AI Decision Node Proxy
+ * Handles AI decision making for VoiceFlow workflows
+ * Uses backend AI keys (Claude/OpenAI) - user doesn't need API key
+ */
+export const aiDecision = async (req, res) => {
+  try {
+    if (!aiService.isAvailable()) {
+      return res.status(503).json({
+        message: 'AI service not available',
+        error: 'AI_NOT_AVAILABLE'
+      });
+    }
+
+    const { prompt, options, context } = req.body;
+
+    if (!prompt || !options || !Array.isArray(options)) {
+      return res.status(400).json({ message: 'Prompt and options array are required' });
+    }
+
+    // Build decision prompt
+    const fullPrompt = `${context ? context + '\n\n' : ''}${prompt}
+
+Available options:
+${options.map((opt, i) => `${i + 1}. ${opt}`).join('\n')}
+
+Based on the context and prompt above, select the BEST option by returning ONLY the option text (nothing else).`;
+
+    const response = await aiService.chat(fullPrompt);
+
+    // Find which option was selected
+    const selectedOption = options.find(opt =>
+      response.toLowerCase().includes(opt.toLowerCase())
+    ) || options[0];
+
+    res.json({
+      decision: selectedOption,
+      reasoning: response,
+      provider: aiService.activeProvider
+    });
+
+  } catch (error) {
+    console.error('AI decision error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * AI Intent Detection Node Proxy
+ * Detects user intent from conversation
+ */
+export const aiIntent = async (req, res) => {
+  try {
+    if (!aiService.isAvailable()) {
+      return res.status(503).json({
+        message: 'AI service not available',
+        error: 'AI_NOT_AVAILABLE'
+      });
+    }
+
+    const { text, intents } = req.body;
+
+    if (!text || !intents || !Array.isArray(intents)) {
+      return res.status(400).json({ message: 'Text and intents array are required' });
+    }
+
+    // Build intent detection prompt
+    const fullPrompt = `Analyze the following text and classify it into ONE of these intents:
+
+${intents.map((intent, i) => `${i + 1}. ${intent.name}: ${intent.description || ''}`).join('\n')}
+
+Text to analyze:
+"${text}"
+
+Return ONLY the intent name (nothing else).`;
+
+    const response = await aiService.chat(fullPrompt);
+
+    // Find which intent was detected
+    const detectedIntent = intents.find(intent =>
+      response.toLowerCase().includes(intent.name.toLowerCase())
+    ) || intents[0];
+
+    res.json({
+      intent: detectedIntent.name,
+      confidence: 0.95, // Simplified - could calculate actual confidence
+      raw: response,
+      provider: aiService.activeProvider
+    });
+
+  } catch (error) {
+    console.error('AI intent error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * AI Extract Node Proxy
+ * Extracts structured data from text
+ */
+export const aiExtract = async (req, res) => {
+  try {
+    if (!aiService.isAvailable()) {
+      return res.status(503).json({
+        message: 'AI service not available',
+        error: 'AI_NOT_AVAILABLE'
+      });
+    }
+
+    const { text, schema } = req.body;
+
+    if (!text || !schema) {
+      return res.status(400).json({ message: 'Text and schema are required' });
+    }
+
+    // Build extraction prompt
+    const fullPrompt = `Extract the following information from the text and return ONLY valid JSON (no markdown, no explanation):
+
+Schema to extract:
+${JSON.stringify(schema, null, 2)}
+
+Text:
+"${text}"
+
+Return JSON only.`;
+
+    const response = await aiService.chat(fullPrompt);
+
+    // Try to parse JSON from response
+    let extractedData = {};
+    try {
+      // Remove markdown code blocks if present
+      const jsonText = response.replace(/```json\s*|\s*```/g, '').trim();
+      extractedData = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('Failed to parse extracted JSON:', parseError);
+      extractedData = { raw: response };
+    }
+
+    res.json({
+      data: extractedData,
+      provider: aiService.activeProvider
+    });
+
+  } catch (error) {
+    console.error('AI extract error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * AI Generate Node Proxy
+ * Generates content based on prompt
+ */
+export const aiGenerate = async (req, res) => {
+  try {
+    if (!aiService.isAvailable()) {
+      return res.status(503).json({
+        message: 'AI service not available',
+        error: 'AI_NOT_AVAILABLE'
+      });
+    }
+
+    const { prompt, type, context } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ message: 'Prompt is required' });
+    }
+
+    // Build generation prompt based on type
+    let fullPrompt = prompt;
+
+    if (type === 'email') {
+      fullPrompt = `Generate a professional email based on this request:\n\n${prompt}\n\n${context ? 'Context: ' + context : ''}`;
+    } else if (type === 'sms') {
+      fullPrompt = `Generate a short SMS message (160 characters max) based on this request:\n\n${prompt}\n\n${context ? 'Context: ' + context : ''}`;
+    } else if (type === 'response') {
+      fullPrompt = `Generate a conversational response based on this request:\n\n${prompt}\n\n${context ? 'Context: ' + context : ''}`;
+    }
+
+    const response = await aiService.chat(fullPrompt);
+
+    res.json({
+      generated: response,
+      type: type || 'text',
+      provider: aiService.activeProvider
+    });
+
+  } catch (error) {
+    console.error('AI generate error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

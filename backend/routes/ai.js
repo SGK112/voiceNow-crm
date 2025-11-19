@@ -9,7 +9,11 @@ import {
   configureNode,
   analyzeAgentPerformance,
   getCallInsights,
-  aiChat
+  aiChat,
+  aiDecision,
+  aiIntent,
+  aiExtract,
+  aiGenerate
 } from '../controllers/aiController.js';
 
 const router = express.Router();
@@ -37,5 +41,11 @@ router.post('/configure-node', configureNode);
 // Analytics and insights
 router.get('/agent/:agentId/analyze', analyzeAgentPerformance);
 router.get('/insights', getCallInsights);
+
+// VoiceFlow Node Proxies (use backend AI - no user API key needed)
+router.post('/decision', aiDecision);
+router.post('/intent', aiIntent);
+router.post('/extract', aiExtract);
+router.post('/generate', aiGenerate);
 
 export default router;
