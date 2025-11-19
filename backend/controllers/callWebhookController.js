@@ -76,17 +76,16 @@ export const handleCallCompletion = async (req, res) => {
 
     // Send calendar invite if consultation was booked
     try {
-      // Check if the call transcript indicates a consultation was booked
+      // Check if the call data indicates a consultation was booked
       const transcript = callData.transcript || '';
-      const metadata = callData.metadata || {};
 
-      // Extract consultation details from transcript or metadata
-      if (metadata.consultation_booked || transcript.toLowerCase().includes('consultation')) {
-        const customerEmail = metadata.customer_email || callData.email;
-        const customerName = callData.caller_name || metadata.customer_name;
-        const consultationDate = metadata.consultation_date;
-        const consultationTime = metadata.consultation_time;
-        const address = metadata.address || agent.configuration?.business_address;
+      // Extract consultation details from callData (ElevenLabs sends it at top level)
+      if (callData.consultation_booked || transcript.toLowerCase().includes('consultation scheduled')) {
+        const customerEmail = callData.customer_email || callData.email;
+        const customerName = callData.customer_name || callData.caller_name;
+        const consultationDate = callData.consultation_date;
+        const consultationTime = callData.consultation_time;
+        const address = callData.address || agent.configuration?.business_address;
 
         if (customerEmail && consultationDate && consultationTime) {
           console.log('📧 Sending consultation confirmation with calendar invite...');

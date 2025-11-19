@@ -7,7 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Ensure environment variables are loaded before initializing email service
-if (process.env.NODE_ENV !== 'production' && !process.env.SMTP_USER) {
+// Note: server.js already loads .env, but load it here too in case emailService is used standalone
+if (!process.env.SMTP_USER) {
   dotenv.config({ path: join(__dirname, '../../.env') });
 }
 
