@@ -179,6 +179,36 @@ export default {
       screens: {
         'xs': '480px',
       },
+
+      /* ===== Mobile-specific utilities ===== */
+      minHeight: {
+        'touch': '44px',
+        'touch-sm': '36px',
+        'touch-lg': '52px',
+      },
+
+      minWidth: {
+        'touch': '44px',
+        'touch-sm': '36px',
+        'touch-lg': '52px',
+      },
+
+      /* ===== Z-index scale (consistent layering) ===== */
+      zIndex: {
+        '0': '0',
+        '10': '10',
+        '20': '20',
+        '30': '30',
+        '40': '40',
+        '50': '50',
+        'dropdown': '1000',
+        'sticky': '1020',
+        'fixed': '1030',
+        'modal-backdrop': '1040',
+        'modal': '1050',
+        'popover': '1060',
+        'tooltip': '1070',
+      },
     },
   },
   plugins: [],
