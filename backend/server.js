@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -231,7 +232,7 @@ if (process.env.NODE_ENV === 'production') {
     } else {
       // For other routes, try to serve from public first, then fall back to React
       const publicFilePath = join(frontendPublicPath, requestPath);
-      if (require('fs').existsSync(publicFilePath) && require('fs').statSync(publicFilePath).isFile()) {
+      if (fs.existsSync(publicFilePath) && fs.statSync(publicFilePath).isFile()) {
         res.sendFile(publicFilePath);
       } else {
         res.sendFile(join(frontendDistPath, 'index.html'));
