@@ -1,2 +1,3 @@
-# Trigger redeploy - Last update: Wed Nov 20 2025 11:30:00
-# Force Render to pick up latest changes from commit ddfb119
+# Trigger redeploy - Last update: Wed Nov 20 2025 12:30:00
+# Force Render to pick up routing fix from commit 7f8d315
+# This enables marketing page to be served from frontend/public
