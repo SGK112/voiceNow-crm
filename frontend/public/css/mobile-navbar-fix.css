@@ -1,0 +1,57 @@
+/**
+ * Global Mobile Navbar & Banner Fix
+ *
+ * Fixes the issue where the promotional banner blocks the logo on mobile devices.
+ * Apply this to all marketing pages for consistent behavior.
+ */
+
+/* Mobile: Move navbar below banner */
+@media (max-width: 768px) {
+    .navbar, nav[id*="Nav"], nav[class*="navbar"] {
+        top: 48px !important; /* Banner height on mobile + spacing */
+    }
+
+    #promoBanner, [id*="banner"], [class*="promo"], [class*="announcement"] {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Adjust hero/main content padding */
+    .hero, section:first-of-type, main > section:first-child {
+        padding-top: 140px !important; /* Extra padding for banner + navbar */
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar, nav[id*="Nav"], nav[class*="navbar"] {
+        top: 44px !important; /* Smaller banner on mobile */
+    }
+
+    #promoBanner, [id*="banner"], [class*="promo"], [class*="announcement"] {
+        height: 44px;
+    }
+
+    /* Adjust hero/main content padding for smaller screens */
+    .hero, section:first-of-type, main > section:first-child {
+        padding-top: 120px !important;
+    }
+}
+
+/* Ensure banner is always on top */
+#promoBanner, [id*="banner"], [class*="promo"], [class*="announcement"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+}
+
+/* Ensure navbar is below banner but above content */
+.navbar, nav[id*="Nav"], nav[class*="navbar"] {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
