@@ -353,8 +353,15 @@
         }
 
         .call-icon {
-            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             animation: pulse-phone 2s infinite;
+        }
+
+        .call-icon svg {
+            width: 24px;
+            height: 24px;
         }
 
         @keyframes pulse-phone {
@@ -416,8 +423,9 @@
                 gap: 10px;
             }
 
-            .call-icon {
-                font-size: 20px;
+            .call-icon svg {
+                width: 20px;
+                height: 20px;
             }
 
             .call-text {
@@ -960,8 +968,10 @@
         }
 
         .reality-icon {
-            font-size: 64px;
-            margin-bottom: 24px;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            color: var(--primary);
         }
 
         .reality-card h3 {
@@ -2852,7 +2862,11 @@
     <div class="sticky-phone-bar" id="stickyPhoneBar">
         <div class="sticky-phone-container">
             <a href="tel:+16028334780" class="sticky-call-button">
-                <span class="call-icon">☎️</span>
+                <span class="call-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                </span>
                 <span class="call-text">CALL ME NOW</span>
                 <span class="call-number">(602) 833-4780</span>
             </a>
@@ -2959,7 +2973,9 @@
 
                         <!-- Hang Up Button -->
                         <button class="hangup-button">
-                            📞
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -2971,24 +2987,44 @@
     <section class="ai-reality-section">
         <div class="section-container">
             <div style="text-align: center;">
-                <div class="reality-badge">⚡ WAKE UP CALL</div>
+                <div class="reality-badge">WAKE UP CALL</div>
                 <h2>AI Isn't Coming — It's Already Here</h2>
             </div>
             <div class="reality-grid">
                 <div class="reality-card">
-                    <div class="reality-icon">🤖</div>
+                    <div class="reality-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="8" width="18" height="12" rx="2" ry="2"></rect>
+                            <path d="M7 8V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"></path>
+                            <path d="M8 14h8"></path>
+                            <circle cx="8" cy="17" r="0.5" fill="currentColor"></circle>
+                            <circle cx="16" cy="17" r="0.5" fill="currentColor"></circle>
+                        </svg>
+                    </div>
                     <h3>You're Already Getting AI Calls</h3>
                     <p>Notice more professional sounding calls lately? That's AI. Your competitors are using automated voice agents to qualify leads, book appointments, and close deals while you're still missing calls.</p>
                 </div>
 
                 <div class="reality-card">
-                    <div class="reality-icon">⚠️</div>
+                    <div class="reality-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
                     <h3>Construction is Dangerous</h3>
                     <p>You can't be at your best on a roof or operating equipment when you're worried about missing that $15K contract call. Stay safe, stay focused. Let AI handle the phone.</p>
                 </div>
 
                 <div class="reality-card">
-                    <div class="reality-icon">🎯</div>
+                    <div class="reality-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
+                        </svg>
+                    </div>
                     <h3>Google Ads are Dead Money</h3>
                     <p>Why pay $50-200 per lead when you can put the internet to work for you? AI agents call, qualify, schedule, and close business while you focus on your craft. Zero cost per lead.</p>
                 </div>
