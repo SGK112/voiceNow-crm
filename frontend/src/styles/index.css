@@ -1,51 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    /* ===== Primary Brand Colors ===== */
+    --primary-50: 221 100% 96%;
+    --primary-100: 221 96% 92%;
+    --primary-200: 221 93% 85%;
+    --primary-300: 221 91% 75%;
+    --primary-400: 221 88% 60%;
+    --primary-500: 221.2 83.2% 53.3%;
+    --primary-600: 221 80% 45%;
+    --primary-700: 221 78% 35%;
+    --primary-800: 221 75% 25%;
+    --primary-900: 221 70% 15%;
+
+    /* ===== Semantic Colors ===== */
+    --success: 142 70% 45%;
+    --success-light: 142 70% 90%;
+    --warning: 30 100% 55%;
+    --warning-light: 30 100% 90%;
+    --danger: 0 84.2% 60.2%;
+    --danger-light: 0 84.2% 90%;
+    --info: 221.2 83.2% 53.3%;
+    --info-light: 221 100% 90%;
+
+    /* ===== Gray Scale (12-step like Twenty CRM) ===== */
+    --gray-50: 0 0% 100%;
+    --gray-100: 0 0% 98.8%;
+    --gray-150: 0 0% 97.6%;
+    --gray-200: 0 0% 94.5%;
+    --gray-300: 0 0% 92.2%;
+    --gray-400: 0 0% 83.9%;
+    --gray-500: 0 0% 80%;
+    --gray-600: 0 0% 70.2%;
+    --gray-700: 0 0% 60%;
+    --gray-800: 0 0% 51.4%;
+    --gray-900: 0 0% 40%;
+    --gray-950: 0 0% 20%;
+
+    /* ===== Background Layers ===== */
+    --background-primary: 0 0% 100%;
+    --background-secondary: 0 0% 98.8%;
+    --background-tertiary: 0 0% 97.6%;
+    --background-quaternary: 0 0% 94.5%;
+    --background-inverted: 0 0% 20%;
+
+    /* ===== Text Colors ===== */
+    --text-primary: 222.2 84% 4.9%;
+    --text-secondary: 222.2 47.4% 11.2%;
+    --text-tertiary: 215.4 16.3% 46.9%;
+    --text-light: 215.4 16.3% 70%;
+    --text-extra-light: 0 0% 80%;
+
+    /* ===== Border Colors ===== */
+    --border-strong: 0 0% 83.9%;
+    --border-medium: 0 0% 92.2%;
+    --border-light: 0 0% 94.5%;
+    --border-inverted: 0 0% 40%;
+
+    /* ===== Shadcn/UI Compatibility Layer ===== */
+    --background: var(--background-primary);
+    --foreground: var(--text-primary);
+    --card: var(--background-primary);
+    --card-foreground: var(--text-primary);
+    --popover: var(--background-primary);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--primary-500);
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: var(--gray-200);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--gray-200);
+    --muted-foreground: var(--text-tertiary);
+    --accent: var(--gray-200);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--danger);
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: var(--border-medium);
+    --input: var(--border-medium);
+    --ring: var(--primary-500);
     --radius: 0.5rem;
+
+    /* ===== Shadows ===== */
+    --shadow-light: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0px 4px 12px rgba(0, 0, 0, 0.10);
+    --shadow-strong: 2px 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0px 8px 32px rgba(0, 0, 0, 0.20);
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 10%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 10%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 217.2 91.2% 59.8%;
+    /* ===== Dark Mode: Inverted Grayscale ===== */
+    --gray-50: 224 71% 4%;
+    --gray-100: 224 65% 8%;
+    --gray-150: 224 55% 12%;
+    --gray-200: 224 45% 16%;
+    --gray-300: 224 35% 20%;
+    --gray-400: 224 25% 30%;
+    --gray-500: 0 0% 40%;
+    --gray-600: 0 0% 51.4%;
+    --gray-700: 0 0% 60%;
+    --gray-800: 0 0% 70.2%;
+    --gray-900: 0 0% 83.9%;
+    --gray-950: 0 0% 100%;
+
+    /* ===== Dark Background Layers ===== */
+    --background-primary: 224 71% 4%;
+    --background-secondary: 224 65% 8%;
+    --background-tertiary: 224 55% 12%;
+    --background-quaternary: 224 45% 16%;
+    --background-inverted: 0 0% 100%;
+
+    /* ===== Dark Text Colors ===== */
+    --text-primary: 213 31% 91%;
+    --text-secondary: 213 31% 75%;
+    --text-tertiary: 213 20% 60%;
+    --text-light: 213 15% 50%;
+    --text-extra-light: 0 0% 40%;
+
+    /* ===== Dark Border Colors ===== */
+    --border-strong: 224 35% 20%;
+    --border-medium: 224 45% 16%;
+    --border-light: 224 55% 12%;
+    --border-inverted: 0 0% 83.9%;
+
+    /* ===== Dark Primary Colors (Brighter) ===== */
+    --primary-500: 217.2 91.2% 59.8%;
+    --primary-400: 217.2 91.2% 65%;
+    --primary-600: 217.2 85% 50%;
+
+    /* ===== Dark Semantic Colors ===== */
+    --success: 142 70% 50%;
+    --success-light: 142 40% 20%;
+    --warning: 30 100% 60%;
+    --warning-light: 30 60% 20%;
+    --danger: 0 84.2% 65%;
+    --danger-light: 0 60% 20%;
+    --info: 217.2 91.2% 59.8%;
+    --info-light: 217 50% 20%;
+
+    /* ===== Shadcn/UI Compatibility Layer (Dark) ===== */
+    --background: var(--background-primary);
+    --foreground: var(--text-primary);
+    --card: var(--background-secondary);
+    --card-foreground: var(--text-primary);
+    --popover: var(--background-secondary);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--primary-500);
     --primary-foreground: 222.2 47.4% 1.2%;
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 70%;
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
+    --secondary: var(--gray-300);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--gray-300);
+    --muted-foreground: var(--text-tertiary);
+    --accent: var(--gray-300);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--danger);
     --destructive-foreground: 210 40% 98%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 217.2 91.2% 59.8%;
+    --border: var(--border-medium);
+    --input: var(--border-medium);
+    --ring: var(--primary-500);
+
+    /* ===== Dark Shadows (More Prominent) ===== */
+    --shadow-light: 0px 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0px 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 2px 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0px 8px 40px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -54,7 +175,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   /* Hide scrollbars globally but keep functionality */
