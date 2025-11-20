@@ -3,13 +3,14 @@ import axios from 'axios';
 // Use relative path in production (same domain), full URL in development
 const API_URL = import.meta.env.MODE === 'production'
   ? '/api'
-  : (import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+  : (import.meta.env.VITE_API_URL || 'http://localhost:5001/api');
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout to prevent hanging
 });
 
 api.interceptors.request.use(
@@ -36,10 +37,45 @@ api.interceptors.response.use(
   }
 );
 
+// ⚠️ DO NOT MODIFY - OAuth Configuration (Working)
+// This separate axios instance is REQUIRED for OAuth to work properly
+// Timeout must be 30s because Google OAuth token exchange is slow
+const oauthApi = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 30000, // ⚠️ DO NOT CHANGE - 30s required for Google OAuth
+});
+
+// Add the same interceptors
+oauthApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+oauthApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ⚠️ DO NOT MODIFY - Auth API Configuration (Working)
 export const authApi = {
   signup: (data) => api.post('/auth/signup', data),
   login: (data) => api.post('/auth/login', data),
-  googleAuth: (data) => api.post('/auth/google', data),
+  googleAuth: (data) => oauthApi.post('/auth/google', data), // ⚠️ MUST use oauthApi (30s timeout)
   getMe: () => api.get('/auth/me'),
 };
 

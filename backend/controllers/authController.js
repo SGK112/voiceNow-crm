@@ -317,6 +317,9 @@ export const login = async (req, res) => {
   }
 };
 
+// ⚠️ DO NOT MODIFY - Google OAuth Handler (Working)
+// This handles Google OAuth callback with proper timeout and error handling
+// Timeout is set to 20s for Google API calls to prevent hanging
 export const googleAuth = async (req, res) => {
   try {
     const { credential, tokenType } = req.body;
@@ -329,44 +332,59 @@ export const googleAuth = async (req, res) => {
       const { code, redirectUri } = req.body;
       console.log('📝 Authorization code flow:', { hasCode: !!code, redirectUri });
 
-      // Exchange authorization code for tokens
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          client_id: process.env.GOOGLE_CLIENT_ID,
-          client_secret: process.env.GOOGLE_CLIENT_SECRET,
-          redirect_uri: redirectUri,
-          grant_type: 'authorization_code'
-        })
-      });
+      // ⚠️ DO NOT MODIFY - Google token exchange with timeout (Working)
+      // 20s timeout prevents hanging when Google API is slow
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
 
-      const tokens = await tokenResponse.json();
-      console.log('🎫 Token exchange response:', {
-        hasIdToken: !!tokens.id_token,
-        hasAccessToken: !!tokens.access_token,
-        error: tokens.error,
-        errorDescription: tokens.error_description
-      });
+      try {
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code,
+            client_id: process.env.GOOGLE_CLIENT_ID,
+            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code'
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
 
-      if (!tokens.id_token) {
-        console.error('❌ No ID token received:', tokens);
-        return res.status(400).json({
-          message: 'Failed to get ID token from Google',
-          details: tokens.error_description || 'No additional details'
+        const tokens = await tokenResponse.json();
+        console.log('🎫 Token exchange response:', {
+          hasIdToken: !!tokens.id_token,
+          hasAccessToken: !!tokens.access_token,
+          error: tokens.error,
+          errorDescription: tokens.error_description
+        });
+
+        if (!tokens.id_token) {
+          console.error('❌ No ID token received:', tokens);
+          return res.status(400).json({
+            message: 'Failed to get ID token from Google',
+            details: tokens.error_description || 'No additional details'
+          });
+        }
+
+        // Verify the ID token
+        const ticket = await googleClient.verifyIdToken({
+          idToken: tokens.id_token,
+          audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        googleId = payload.sub;
+        email = payload.email;
+        name = payload.name;
+      } catch (fetchError) {
+        clearTimeout(timeout);
+        console.error('❌ Google token exchange failed:', fetchError.message);
+        return res.status(500).json({
+          message: 'Failed to exchange authorization code with Google',
+          details: fetchError.name === 'AbortError' ? 'Request timeout' : fetchError.message
         });
       }
-
-      // Verify the ID token
-      const ticket = await googleClient.verifyIdToken({
-        idToken: tokens.id_token,
-        audience: process.env.GOOGLE_CLIENT_ID
-      });
-      const payload = ticket.getPayload();
-      googleId = payload.sub;
-      email = payload.email;
-      name = payload.name;
     } else if (tokenType === 'access_token') {
       // Handle access token from popup flow (useGoogleLogin)
       const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {

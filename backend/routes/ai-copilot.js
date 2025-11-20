@@ -227,4 +227,93 @@ When the workspace is empty and user asks to "build" or "create" a workflow:
   }
 });
 
+/**
+ * AI Prompt Generator
+ * Generates custom system prompts based on user requirements
+ */
+router.post('/generate-prompt', async (req, res) => {
+  try {
+    const { purpose, tone, industry, additionalInfo } = req.body;
+
+    console.log('✨ AI Prompt Generator request:', { purpose, tone, industry });
+
+    const systemPrompt = `You are an expert AI prompt engineer specializing in creating system prompts for voice AI agents.
+
+Your task is to generate a professional, detailed system prompt for a voice AI agent based on the user's requirements.
+
+**Requirements:**
+- Purpose: ${purpose}
+- Tone: ${tone}
+- Industry: ${industry || 'General'}
+${additionalInfo ? `- Additional Info: ${additionalInfo}` : ''}
+
+**Guidelines for creating the system prompt:**
+1. Start by defining who the agent is and their role
+2. Clearly state the agent's primary goals and responsibilities
+3. Define the tone and personality (match the requested tone: ${tone})
+4. Include specific behaviors and response guidelines
+5. Add boundaries - what the agent should NOT do
+6. Include industry-specific knowledge if applicable
+7. Add conversation flow guidance
+8. Keep it clear, actionable, and specific
+
+**IMPORTANT:** Return ONLY a JSON object with this structure:
+{
+  "prompt": "The full system prompt text here",
+  "firstMessage": "A suggested greeting message",
+  "tips": ["Tip 1", "Tip 2", "Tip 3"]
+}
+
+No markdown, no code blocks, just the JSON object.`;
+
+    // Call AI service
+    const response = await aiService.chatWithMessages([
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: `Generate a system prompt for a ${purpose} agent with a ${tone} tone in the ${industry || 'general'} industry.`
+      }
+    ], {
+      model: 'gpt-4o-mini',
+      temperature: 0.8,
+      maxTokens: 1000,
+      responseFormat: 'json_object'
+    });
+
+    // Parse response
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(response);
+    } catch (parseError) {
+      // Try to extract JSON
+      const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) ||
+                        response.match(/(\{[\s\S]*\})/);
+
+      if (jsonMatch && jsonMatch[1]) {
+        aiResponse = JSON.parse(jsonMatch[1]);
+      } else {
+        throw new Error('Failed to parse AI response as JSON');
+      }
+    }
+
+    console.log('✅ Generated prompt successfully');
+
+    res.json({
+      success: true,
+      ...aiResponse
+    });
+
+  } catch (error) {
+    console.error('❌ Prompt generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Failed to generate prompt. Please try again.'
+    });
+  }
+});
+
 export default router;

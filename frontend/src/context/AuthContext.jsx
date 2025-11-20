@@ -9,20 +9,40 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+
+    // Set a timeout to prevent infinite loading (max 5 seconds)
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Auth check timed out, proceeding anyway');
+      setLoading(false);
+      // If we have a token but auth check timed out, remove it to be safe
+      if (token) {
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    }, 5000);
+
     if (token) {
       authApi.getMe()
         .then((response) => {
+          clearTimeout(timeoutId);
           setUser(response.data);
         })
-        .catch(() => {
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          console.error('Auth check failed:', error.message);
           localStorage.removeItem('token');
+          setUser(null);
         })
         .finally(() => {
+          clearTimeout(timeoutId);
           setLoading(false);
         });
     } else {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const login = async (email, password) => {
@@ -39,6 +59,8 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
+  // ⚠️ DO NOT MODIFY - Google OAuth Login (Working)
+  // Uses oauthApi with 30s timeout to handle slow Google token exchange
   const googleLogin = async (credential) => {
     const response = await authApi.googleAuth(credential);
     localStorage.setItem('token', response.data.token);
