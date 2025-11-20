@@ -1,0 +1,536 @@
+/**
+ * MOBILE-FIRST OVERRIDE STYLES
+ * This file fixes all mobile responsiveness issues across the marketing page
+ * Loaded after main styles to override problematic CSS
+ */
+
+/* ============================================
+   CORE MOBILE-FIRST RESETS
+   ============================================ */
+
+/* Prevent horizontal scrolling on all elements */
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  position: relative;
+}
+
+/* Ensure all containers respect viewport width */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fix any absolute/fixed positioning that breaks layout */
+.container,
+.hero-container,
+.section-container,
+.features-container,
+.pricing-container,
+.cta-container {
+  max-width: 100% !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ============================================
+   NAVIGATION - MOBILE OPTIMIZED
+   ============================================ */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-container {
+  max-width: 100%;
+  padding: 0 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 18px !important;
+  white-space: nowrap;
+}
+
+.nav-menu {
+  gap: 8px !important;
+}
+
+@media (max-width: 768px) {
+  .nav-link {
+    display: none;
+  }
+
+  .nav-menu .btn {
+    font-size: 14px !important;
+    padding: 10px 16px !important;
+  }
+}
+
+/* ============================================
+   HERO SECTION - MOBILE OPTIMIZED
+   ============================================ */
+
+.hero {
+  min-height: auto !important;
+  padding: 100px 20px 60px !important;
+  overflow-x: hidden !important;
+}
+
+.hero-content {
+  max-width: 100% !important;
+  text-align: center !important;
+  padding: 0 !important;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 8vw, 56px) !important;
+  line-height: 1.2 !important;
+  margin-bottom: 16px !important;
+  word-wrap: break-word !important;
+}
+
+.hero p,
+.hero-description {
+  font-size: clamp(14px, 4vw, 18px) !important;
+  line-height: 1.6 !important;
+  max-width: 100% !important;
+  margin-bottom: 24px !important;
+}
+
+/* Hero Stats - Stack on mobile */
+.hero-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  margin-bottom: 32px !important;
+  align-items: center !important;
+}
+
+@media (min-width: 640px) {
+  .hero-stats {
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 32px !important;
+  }
+}
+
+.hero-stat {
+  text-align: center !important;
+  min-width: auto !important;
+}
+
+.stat-number {
+  font-size: clamp(24px, 6vw, 36px) !important;
+  margin-bottom: 4px !important;
+}
+
+.stat-label {
+  font-size: clamp(12px, 3vw, 14px) !important;
+}
+
+/* ============================================
+   BUTTONS - MOBILE TOUCH OPTIMIZED
+   ============================================ */
+
+.btn,
+button,
+a.btn {
+  min-height: 44px !important; /* iOS minimum touch target */
+  min-width: 44px !important;
+  padding: 12px 24px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.btn-large {
+  min-height: 52px !important;
+  padding: 16px 32px !important;
+  font-size: 16px !important;
+}
+
+/* Button groups - stack on mobile */
+.cta-group,
+.hero-cta-group,
+.cta-buttons {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+  max-width: 400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.cta-group .btn,
+.hero-cta-group .btn,
+.cta-buttons .btn {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+@media (min-width: 640px) {
+  .cta-group,
+  .hero-cta-group,
+  .cta-buttons {
+    flex-direction: row !important;
+    justify-content: center !important;
+    width: auto !important;
+  }
+
+  .cta-group .btn,
+  .hero-cta-group .btn,
+  .cta-buttons .btn {
+    width: auto !important;
+  }
+}
+
+/* ============================================
+   PHONE MOCKUP - PROPERLY SIZED
+   ============================================ */
+
+.phone-mockup {
+  max-width: 320px !important;
+  width: 100% !important;
+  margin: 40px auto !important;
+  aspect-ratio: 9/19.5 !important;
+  overflow: hidden !important;
+}
+
+.phone-screen {
+  width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 480px) {
+  .phone-mockup {
+    max-width: 280px !important;
+  }
+}
+
+/* ============================================
+   FEATURES GRID - MOBILE OPTIMIZED
+   ============================================ */
+
+.features-grid,
+.integrations-grid,
+.pricing-cards {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 20px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .integrations-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .pricing-cards {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+.feature-card,
+.integration-card,
+.pricing-card {
+  padding: 24px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ============================================
+   SECTION TITLES - MOBILE OPTIMIZED
+   ============================================ */
+
+.section-title h2,
+h2 {
+  font-size: clamp(28px, 7vw, 48px) !important;
+  line-height: 1.2 !important;
+  margin-bottom: 12px !important;
+  text-align: center !important;
+}
+
+.section-title p {
+  font-size: clamp(14px, 4vw, 18px) !important;
+  line-height: 1.6 !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+section {
+  padding: 60px 20px !important;
+  overflow-x: hidden !important;
+}
+
+@media (min-width: 1024px) {
+  section {
+    padding: 100px 40px !important;
+  }
+}
+
+/* ============================================
+   FORMS - MOBILE OPTIMIZED
+   ============================================ */
+
+input,
+textarea,
+select {
+  font-size: 16px !important; /* Prevents iOS zoom */
+  padding: 14px 16px !important;
+  min-height: 48px !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+textarea {
+  min-height: 120px !important;
+  resize: vertical !important;
+}
+
+/* ============================================
+   INTEGRATION CARDS - MOBILE FIX
+   ============================================ */
+
+.integration-badge {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  font-size: 10px !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  z-index: 10 !important;
+}
+
+.integration-header {
+  padding-right: 80px !important; /* Space for badge */
+}
+
+.integration-logo {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 24px !important;
+}
+
+.integration-name {
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+}
+
+/* ============================================
+   CTA SECTION - MOBILE OPTIMIZED
+   ============================================ */
+
+.cta-section {
+  padding: 60px 20px !important;
+  text-align: center !important;
+}
+
+.cta-section h2 {
+  font-size: clamp(28px, 7vw, 42px) !important;
+  margin-bottom: 16px !important;
+}
+
+.cta-section p {
+  font-size: clamp(14px, 4vw, 18px) !important;
+  margin-bottom: 32px !important;
+}
+
+/* ============================================
+   FOOTER - MOBILE OPTIMIZED
+   ============================================ */
+
+.footer {
+  padding: 48px 20px 24px !important;
+}
+
+.footer-content {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 32px !important;
+}
+
+.footer-links {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 24px !important;
+}
+
+@media (min-width: 640px) {
+  .footer-links {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-content {
+    grid-template-columns: 1.5fr 2fr !important;
+  }
+
+  .footer-links {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+.footer-bottom {
+  flex-direction: column !important;
+  gap: 20px !important;
+  text-align: center !important;
+}
+
+@media (min-width: 640px) {
+  .footer-bottom {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    text-align: left !important;
+  }
+}
+
+/* ============================================
+   MODALS - MOBILE OPTIMIZED
+   ============================================ */
+
+.modal-content,
+.error-modal,
+.success-modal {
+  width: calc(100% - 40px) !important;
+  max-width: 500px !important;
+  margin: 20px !important;
+  padding: 32px 24px !important;
+  max-height: calc(100vh - 40px) !important;
+  overflow-y: auto !important;
+}
+
+/* ============================================
+   STATS GRID - MOBILE OPTIMIZED
+   ============================================ */
+
+.stats-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 20px !important;
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+.stat-item {
+  padding: 24px !important;
+  text-align: center !important;
+}
+
+.stat-item h3 {
+  font-size: clamp(32px, 8vw, 48px) !important;
+}
+
+.stat-item p {
+  font-size: clamp(13px, 3.5vw, 16px) !important;
+}
+
+/* ============================================
+   PRICING CARDS - MOBILE OPTIMIZED
+   ============================================ */
+
+.pricing-card {
+  transform: none !important; /* Remove scaling that breaks mobile */
+  margin-bottom: 20px !important;
+}
+
+.pricing-card.featured {
+  transform: none !important;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.mobile-only {
+  display: block !important;
+}
+
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   PREVENT LAYOUT SHIFT
+   ============================================ */
+
+img,
+video,
+iframe {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+
+/* Fix any overflow issues */
+.overflow-hidden {
+  overflow: hidden !important;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}

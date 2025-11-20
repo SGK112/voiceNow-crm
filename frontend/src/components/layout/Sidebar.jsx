@@ -10,7 +10,7 @@ const navigation = [
   { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
   { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
   { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
-  { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Templates & Integrations' },
+  // { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Templates & Integrations' }, // Hidden until ready
   { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings', description: 'Integrations & Configuration' },
 ];
 

@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
 import './styles/index.css';
+import './mobile-first.css';
 import 'flag-icons/css/flag-icons.min.css';
 import { GOOGLE_CLIENT_ID } from './config/oauth';
 
