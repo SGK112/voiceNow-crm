@@ -76,7 +76,7 @@ const callLogSchema = new mongoose.Schema({
   twilioCallSid: String, // For calls made via Twilio
   metadata: {
     type: Map,
-    of: String
+    of: mongoose.Schema.Types.Mixed // Allow any type (strings, objects, arrays)
   }
 }, {
   timestamps: true

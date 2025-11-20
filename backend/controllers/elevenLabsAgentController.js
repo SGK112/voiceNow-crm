@@ -103,7 +103,7 @@ export const createAgent = async (req, res) => {
     };
 
     // Create agent in ElevenLabs
-    const elevenLabsAgent = await elevenLabsService.createAgentDirect(agentConfig);
+    const elevenLabsAgent = await elevenLabsService.createAgent(agentConfig);
 
     console.log(`✅ ElevenLabs agent created: ${elevenLabsAgent.agent_id}`);
 
