@@ -961,7 +961,7 @@
         .reality-card {
             background: white;
             border: 2px solid #e2e8f0;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
             text-align: center;
             transition: all 0.3s;
@@ -1016,7 +1016,7 @@
             padding: 6px 16px;
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
@@ -1247,7 +1247,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 36px;
-            border-radius: 20px;
+            border-radius: 24px;
             border: 1px solid rgba(226, 232, 240, 0.8);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -1259,7 +1259,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1px;
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.05));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -1333,7 +1333,7 @@
         .testimonial-card-premium {
             background: white;
             border: 2px solid #e2e8f0;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
             position: relative;
             transition: all 0.3s;
@@ -1360,7 +1360,7 @@
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: #0f172a;
             padding: 6px 20px;
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
@@ -1486,7 +1486,7 @@
             background: var(--accent);
             color: white;
             padding: 4px 16px;
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
@@ -1540,7 +1540,7 @@
         .cost-breakdown {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border: 2px solid #3b82f6;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
         }
 
@@ -1604,7 +1604,7 @@
             padding: 40px;
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border: 3px solid #3b82f6;
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
         }
 
@@ -1697,7 +1697,7 @@
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: #ffffff;
             padding: 6px 20px;
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
@@ -2153,7 +2153,7 @@
             width: 80px;
             height: 80px;
             background: rgba(59, 130, 246, 0.1);
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2180,7 +2180,7 @@
             padding: 8px 16px;
             background: rgba(59, 130, 246, 0.2);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 14px;
             font-weight: 600;
             color: #60a5fa;
@@ -2188,7 +2188,7 @@
 
         .try-now-callout {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
             display: flex;
             align-items: center;
@@ -2234,7 +2234,7 @@
         .industry-card-premium {
             background: white;
             border: 2px solid #e2e8f0;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
             text-align: center;
             transition: all 0.3s;
@@ -2265,7 +2265,7 @@
             width: 80px;
             height: 80px;
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2313,7 +2313,7 @@
             display: inline-block;
             padding: 8px 16px;
             background: rgba(59, 130, 246, 0.1);
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 13px;
             font-weight: 700;
             color: #3b82f6;
@@ -2912,8 +2912,48 @@
             }
         }
 
+        /* AI Robot Mascot */
+        .ai-robot-mascot {
+            position: absolute;
+            top: 50%;
+            right: 5%;
+            transform: translateY(-50%);
+            z-index: 2;
+            animation: float-mascot 6s ease-in-out infinite;
+            max-width: 450px;
+            width: 35%;
+            pointer-events: none;
+        }
+
+        .ai-robot-mascot img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 20px 60px rgba(59, 130, 246, 0.4));
+            border-radius: 24px;
+        }
+
+        @keyframes float-mascot {
+            0%, 100% {
+                transform: translateY(-50%) translateX(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-55%) translateX(10px) rotate(2deg);
+            }
+        }
+
         /* Mobile Optimizations */
         @media (max-width: 768px) {
+            /* Hide mascot on mobile */
+            .ai-robot-mascot {
+                display: none;
+            }
+
+            /* Live Call Volume - Stack vertically on mobile */
+            section [style*="grid-template-columns: 1fr 380px"] {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+
             /* Hero Section */
             .hero {
                 padding: 120px 20px 40px;
@@ -3068,9 +3108,9 @@
     <!-- Promotional Banner -->
     <div id="promoBanner" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); color: white; text-align: center; padding: 10px 24px; font-size: 14px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1001; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
         <span style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">LIMITED TIME</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 24px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">LIMITED TIME</span>
             <span style="font-size: 13px;">Get 50% off your first 3 months</span>
-            <a href="tel:+16028334780" style="color: white; text-decoration: none; font-weight: 700; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 20px; font-size: 12px; transition: all 0.2s;">Start Now →</a>
+            <a href="tel:+16028334780" style="color: white; text-decoration: none; font-weight: 700; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 24px; font-size: 12px; transition: all 0.2s;">Start Now →</a>
         </span>
     </div>
 
@@ -3095,6 +3135,17 @@
     </nav>
 
     <style>
+        /* Hide logo when scrolled */
+        .navbar.scrolled .logo-link {
+            opacity: 0;
+            transform: translateX(-20px);
+            pointer-events: none;
+        }
+
+        .logo-link {
+            transition: all 0.3s ease;
+        }
+
         /* Dynamic Navbar Animations */
         .logo-link:hover .logo-emoji {
             transform: scale(1.15) rotate(-5deg);
@@ -3329,48 +3380,70 @@
     </section>
 
     <!-- Live Stats Section - Realistic Call Volume -->
-    <section style="padding: 80px 24px; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
-        <div style="max-width: 900px; margin: 0 auto;">
+    <section style="padding: 80px 24px; background: linear-gradient(180deg, #3b82f6 0%, #6366f1 100%); position: relative; overflow: hidden;">
+        <!-- Cloud Background Effects -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
+            <!-- Large soft clouds -->
+            <div style="position: absolute; top: -100px; left: -200px; width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(255,255,255,0.15) 0%, transparent 60%); border-radius: 50%; filter: blur(80px);"></div>
+            <div style="position: absolute; top: 50%; right: -150px; width: 500px; height: 350px; background: radial-gradient(ellipse, rgba(255,255,255,0.12) 0%, transparent 65%); border-radius: 50%; filter: blur(70px);"></div>
+            <div style="position: absolute; bottom: -100px; left: 30%; width: 450px; height: 300px; background: radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);"></div>
+
+            <!-- Smaller accent clouds -->
+            <div style="position: absolute; top: 20%; left: 50%; width: 250px; height: 180px; background: radial-gradient(ellipse, rgba(255,255,255,0.08) 0%, transparent 60%); border-radius: 50%; filter: blur(50px);"></div>
+            <div style="position: absolute; bottom: 30%; right: 35%; width: 200px; height: 150px; background: radial-gradient(ellipse, rgba(255,255,255,0.07) 0%, transparent 65%); border-radius: 50%; filter: blur(45px);"></div>
+
+            <!-- Floating data particles (matching robot theme) -->
+            <div style="position: absolute; top: 15%; left: 15%; width: 3px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.5);"></div>
+            <div style="position: absolute; top: 60%; left: 25%; width: 2px; height: 2px; background: rgba(255,255,255,0.25); border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.4);"></div>
+            <div style="position: absolute; top: 35%; right: 20%; width: 3px; height: 3px; background: rgba(255,255,255,0.28); border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.5);"></div>
+            <div style="position: absolute; bottom: 25%; left: 45%; width: 2px; height: 2px; background: rgba(255,255,255,0.22); border-radius: 50%; box-shadow: 0 0 7px rgba(255,255,255,0.4);"></div>
+        </div>
+
+        <div style="max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;">
+            <!-- Header -->
             <div style="text-align: center; margin-bottom: 48px;">
-                <h2 style="font-size: 42px; font-weight: 900; color: #0f172a; margin-bottom: 12px;">Live Call Volume</h2>
-                <p style="font-size: 18px; color: #64748b;">Real-time activity across our network</p>
+                <h2 style="font-size: 42px; font-weight: 900; color: #ffffff; margin-bottom: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Live Call Volume</h2>
+                <p style="font-size: 18px; color: rgba(255, 255, 255, 0.9);">Real-time activity across our network</p>
             </div>
 
-            <div style="background: white; padding: 48px 40px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0;">
+            <!-- Two Column Layout: Stats + Robot -->
+            <div style="display: grid; grid-template-columns: 1fr 380px; gap: 48px; align-items: center;">
+                <!-- Left Column: Stats (no card) -->
+                <div>
                 <!-- Main Stats -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 40px;">
                     <div style="text-align: center;">
-                        <div style="font-size: 48px; font-weight: 900; color: #3b82f6; line-height: 1; margin-bottom: 8px;">
+                        <div style="font-size: 48px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                             <span id="callCounter">0</span>
                         </div>
-                        <div style="color: #64748b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Calls Today</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Calls Today</div>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-size: 48px; font-weight: 900; color: #10b981; line-height: 1; margin-bottom: 8px;">
+                        <div style="font-size: 48px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                             <span id="activeCallsCounter">147</span>
                         </div>
-                        <div style="color: #64748b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Active Now</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Active Now</div>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-size: 48px; font-weight: 900; color: #f59e0b; line-height: 1; margin-bottom: 8px;">
+                        <div style="font-size: 48px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                             <span>98%</span>
                         </div>
-                        <div style="color: #64748b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Answer Rate</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Answer Rate</div>
                     </div>
                 </div>
 
                 <!-- Hourly Chart -->
-                <div style="margin-top: 40px; padding-top: 32px; border-top: 2px solid #f1f5f9;">
+                <div style="margin-top: 40px; padding-top: 32px; border-top: 2px solid rgba(255, 255, 255, 0.2);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <div style="font-size: 16px; font-weight: 700; color: #0f172a;">Call Volume (Last 24 Hours)</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Call Volume (Last 24 Hours)</div>
                         <div style="display: flex; gap: 20px; font-size: 13px; font-weight: 600;">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 2px;"></div>
-                                <span style="color: #64748b;">Answered</span>
+                                <div style="width: 12px; height: 12px; background: #ffffff; border-radius: 2px;"></div>
+                                <span style="color: rgba(255, 255, 255, 0.9);">Answered</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <div style="width: 12px; height: 12px; background: #cbd5e1; border-radius: 2px;"></div>
-                                <span style="color: #64748b;">Peak Hours</span>
+                                <div style="width: 12px; height: 12px; background: rgba(255, 255, 255, 0.4); border-radius: 2px;"></div>
+                                <span style="color: rgba(255, 255, 255, 0.9);">Peak Hours</span>
                             </div>
                         </div>
                     </div>
@@ -3378,15 +3451,15 @@
                     <svg width="100%" height="200" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <linearGradient id="callGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
-                                <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.05" />
+                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.05" />
                             </linearGradient>
                         </defs>
 
                         <!-- Grid lines -->
-                        <line x1="0" y1="50" x2="800" y2="50" stroke="#f1f5f9" stroke-width="1"/>
-                        <line x1="0" y1="100" x2="800" y2="100" stroke="#f1f5f9" stroke-width="1"/>
-                        <line x1="0" y1="150" x2="800" y2="150" stroke="#f1f5f9" stroke-width="1"/>
+                        <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                        <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                        <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
 
                         <!-- Realistic call volume curve (business hours peak) -->
                         <path d="M 0 180
@@ -3414,7 +3487,7 @@
                                  L 733 176
                                  L 766 178
                                  L 800 180"
-                              stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                              stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
                         <!-- Fill area under curve -->
                         <path d="M 0 180
@@ -3427,18 +3500,24 @@
                               fill="url(#callGradient)"/>
 
                         <!-- Data points -->
-                        <circle cx="200" cy="120" r="5" fill="#3b82f6"/>
-                        <circle cx="300" cy="70" r="5" fill="#3b82f6"/>
-                        <circle cx="400" cy="85" r="5" fill="#3b82f6"/>
-                        <circle cx="500" cy="110" r="5" fill="#3b82f6"/>
+                        <circle cx="200" cy="120" r="5" fill="#ffffff"/>
+                        <circle cx="300" cy="70" r="5" fill="#ffffff"/>
+                        <circle cx="400" cy="85" r="5" fill="#ffffff"/>
+                        <circle cx="500" cy="110" r="5" fill="#ffffff"/>
 
                         <!-- Time labels -->
-                        <text x="0" y="195" font-size="11" fill="#94a3b8" font-weight="600">12AM</text>
-                        <text x="200" y="195" font-size="11" fill="#94a3b8" font-weight="600">6AM</text>
-                        <text x="400" y="195" font-size="11" fill="#94a3b8" font-weight="600">12PM</text>
-                        <text x="600" y="195" font-size="11" fill="#94a3b8" font-weight="600">6PM</text>
-                        <text x="775" y="195" font-size="11" fill="#94a3b8" font-weight="600">Now</text>
+                        <text x="0" y="195" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">12AM</text>
+                        <text x="200" y="195" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">6AM</text>
+                        <text x="400" y="195" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">12PM</text>
+                        <text x="600" y="195" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">6PM</text>
+                        <text x="775" y="195" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">Now</text>
                     </svg>
+                </div>
+            </div>
+
+                <!-- Right Column: AI Robot Mascot -->
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/ai-robot-mascot.jpg" alt="VoiceFlow CRM AI Assistant - Multitasking automation for contractors" loading="lazy" style="width: 100%; max-width: 380px; height: auto; border-radius: 24px; filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.3)); opacity: 0.95; mix-blend-mode: normal;">
                 </div>
             </div>
         </div>
@@ -3657,7 +3736,7 @@
             </div>
 
             <!-- How It Works Simply -->
-            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; padding: 50px 32px; text-align: center; position: relative; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 24px; padding: 50px 32px; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 50%); pointer-events: none;"></div>
                 <div style="position: relative; z-index: 1;">
                     <h3 style="font-size: 32px; font-weight: 900; color: white; margin-bottom: 20px;">It Knows Your Business Inside Out</h3>
