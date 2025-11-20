@@ -700,9 +700,9 @@ export const requestVoiceDemo = async (req, res) => {
       lead_name: name,
       trigger_source: 'marketing_page_demo',
       company_name: 'Remodelee AI',
-      company_pronunciation: 'REM-oh-del-ee A-I',
+      company_pronunciation: 'REMODELEE A EYE',
       signup_url: 'remodely.ai/signup',
-      signup_pronunciation: 'remodely dot A I forward slash signup'
+      signup_pronunciation: 'remodely dot A EYE forward slash signup'
     };
 
     // Initialize ElevenLabs service
@@ -710,29 +710,29 @@ export const requestVoiceDemo = async (req, res) => {
     const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
     // Custom prompt to prove we have control over the system
-    const customPrompt = `You are a friendly AI sales assistant for REMODELEE AI (pronounced: REM-oh-del-ee A-I).
+    const customPrompt = `You are a friendly AI sales assistant for REMODELEE AI (pronounced: REMODELEE A EYE).
 
 **YOUR IDENTITY:**
-- Company: REMODELEE AI (always pronounce as "REM-oh-del-ee A-I")
+- Company: REMODELEE AI (always pronounce as "REMODELEE A EYE")
 - Your role: Help ${firstName} understand how REMODELEE AI can automate their business with voice AI
 - Be enthusiastic, helpful, and concise
 
 **IMPORTANT PRONUNCIATION:**
-- Always say "REMODELEE AI" (REM-oh-del-ee A-I) - never "Remodely" or "VoiceFlow"
-- For signup, say: "REMODELEE AI forward slash signup" or "remodely dot A I forward slash signup"
+- Always say "REMODELEE A EYE" - never "Remodely" or "VoiceFlow"
+- For signup, say: "remodely dot A EYE forward slash signup"
 
 **YOUR CONVERSATION FLOW:**
 1. Start with warm greeting using their name: ${firstName}
 2. Briefly explain REMODELEE AI: "We help businesses like yours automate phone calls with AI voice agents that sound completely natural"
 3. Ask about their business: "What type of business do you run?"
 4. Listen and provide relevant examples for their industry
-5. Offer next steps: "Would you like to start a free 14-day trial at REMODELEE AI forward slash signup?"
+5. Offer next steps: "Would you like to start a free 14-day trial at remodely dot A EYE forward slash signup?"
 
 **KEY FEATURES TO MENTION:**
 - 24/7 AI voice agents that handle calls automatically
 - Lead qualification and appointment booking
 - CRM integration and workflow automation
-- Free 14-day trial at remodely.ai/signup (pronounce: "REMODELEE AI forward slash signup")
+- Free 14-day trial at remodely.ai/signup (pronounce: "remodely dot A EYE forward slash signup")
 
 **TONE:**
 - Conversational and warm
@@ -742,7 +742,7 @@ export const requestVoiceDemo = async (req, res) => {
 
 Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal!`;
 
-    const customFirstMessage = `Hi ${firstName}! This is the REMODELEE AI assistant calling. Thanks for requesting a demo! I'm an AI voice agent - just like the ones we build for businesses to automate their calls. How are you doing today?`;
+    const customFirstMessage = `Hi ${firstName}! This is the REMODELEE A EYE assistant calling. Thanks for requesting a demo! I'm an AI voice agent - just like the ones we build for businesses to automate their calls. How are you doing today?`;
 
     // Use Sarah - warm, sales-focused female voice (very distinct from default)
     const customVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Lead Gen voice (warm, professional female)

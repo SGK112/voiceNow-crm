@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Pre-commit hook to warn about OAuth configuration changes
+# Prevents accidental breaking of Google OAuth setup
+
+PROTECTED_FILES=(
+  "frontend/src/services/api.js"
+  "frontend/src/context/AuthContext.jsx"
+  "frontend/src/components/GoogleSignInButton.jsx"
+  "frontend/src/pages/GoogleCallback.jsx"
+  "backend/controllers/authController.js"
+)
+
+echo "🔍 Checking for OAuth configuration changes..."
+
+# Check if any protected files are being committed
+changed_protected_files=()
+for file in "${PROTECTED_FILES[@]}"; do
+  if git diff --cached --name-only | grep -q "^${file}$"; then
+    changed_protected_files+=("$file")
+  fi
+done
+
+# If protected files are being changed, warn the user
+if [ ${#changed_protected_files[@]} -gt 0 ]; then
+  echo ""
+  echo "⚠️  WARNING: You are modifying OAuth-protected files!"
+  echo ""
+  echo "Protected files being committed:"
+  for file in "${changed_protected_files[@]}"; do
+    echo "  - $file"
+  done
+  echo ""
+  echo "These files contain working Google OAuth configuration."
+  echo "Please review OAUTH_DO_NOT_MODIFY.md before proceeding."
+  echo ""
+  read -p "Are you sure you want to commit these changes? (yes/no): " -n 3 -r
+  echo ""
+
+  if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+    echo "❌ Commit cancelled. OAuth files not modified."
+    exit 1
+  fi
+
+  echo "✅ Proceeding with commit. Please test OAuth after committing!"
+fi
+
+exit 0

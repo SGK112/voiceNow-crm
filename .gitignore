@@ -104,3 +104,8 @@ id_dsa*
 .tokens
 api-keys.txt
 tokens.txt
+
+# OAuth configuration files with secrets
+OAUTH_DO_NOT_MODIFY.md
+*OAUTH*.md
+GOOGLE_OAUTH_FIX_REQUIRED.md

@@ -1,0 +1,151 @@
+/**
+ * VoiceFlow CRM Custom Branding
+ * Brand Colors: Primary Blue (#3b82f6), Secondary Blue (#2563eb), Accent (#f59e0b)
+ */
+
+/* Brand Color Variables */
+:root {
+    --brand-primary: #3b82f6;
+    --brand-secondary: #2563eb;
+    --brand-accent: #f59e0b;
+    --brand-dark: #1e293b;
+    --brand-light: #f8fafc;
+}
+
+/* Modern Font Stack Override */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+}
+
+/* Navigation Override */
+.navbar-default {
+    border-top: 1px solid var(--brand-primary) !important;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: var(--brand-primary) !important;
+}
+
+.navbar-default .navbar-nav > .active > a {
+    color: var(--brand-primary) !important;
+}
+
+.is-sticky .navbar-default {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border-top: 1px solid var(--brand-primary) !important;
+}
+
+/* Primary Buttons */
+.btn-primary,
+.head-btn a.btn-primary {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover,
+.head-btn a.btn-primary:hover {
+    background: linear-gradient(135deg, var(--brand-secondary) 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Accent Color for Icons and Highlights */
+.highlight,
+.feat-list i,
+i.fa {
+    color: var(--brand-primary) !important;
+}
+
+/* Section Headings */
+h1, h2, h3 {
+    color: var(--brand-dark) !important;
+}
+
+/* Links */
+a {
+    color: var(--brand-primary) !important;
+}
+
+a:hover {
+    color: var(--brand-secondary) !important;
+}
+
+/* Feature Icons */
+.feat-list i {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Download Button */
+.btn-default {
+    background: var(--brand-accent) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-default:hover {
+    background: #d97706 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Package Cards */
+.package .plan {
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.package .plan:hover {
+    border-color: var(--brand-primary);
+    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+    transform: translateY(-5px);
+}
+
+.package .plan.featured {
+    border-color: var(--brand-primary) !important;
+    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+}
+
+.package .plan .price {
+    color: var(--brand-primary) !important;
+}
+
+/* Gradient Text Effect */
+.gradient-text {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Ensure responsive images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2em !important;
+    }
+
+    h2 {
+        font-size: 1.5em !important;
+    }
+
+    .head-btn a {
+        display: block;
+        width: 100%;
+        margin: 10px 0 !important;
+    }
+}

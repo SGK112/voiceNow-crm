@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+ 
+<title>VoiceFlow CRM by Remodely.ai - AI Voice Workflows & Automation Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="description" content="VoiceFlow CRM by Remodely.ai: Combine AI voice agents with n8n-style visual workflows. No-code automation, easy OAuth, call routing, and CRM integration in one powerful platform.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- CSS Files -->
+<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="css/font-awesome.min.css" rel="stylesheet">
+<link href="fonts/icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet">
+<link href="css/animate.css" rel="stylesheet" media="screen">
+<link href="css/owl.theme.css" rel="stylesheet">
+<link href="css/owl.carousel.css" rel="stylesheet">
+ 
+<link href="css/styles.css" rel="stylesheet" media="screen">
+<link href="css/voiceflow-custom.css" rel="stylesheet" media="screen">
+
+<!-- Google Fonts --> 
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans:100,300,400,700' rel='stylesheet' type='text/css'>
+
+
+<!-- Font Awesome -->
+<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"> 
+</head>
+  
+<body data-spy="scroll" data-target="#navbar-scroll">
+ 
+ <div id="top"></div>
+
+<!-- NAVIGATION -->
+<div id="menu">
+	<nav class="navbar-wrapper navbar-default" role="navigation">
+		<div class="container">
+			  <div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-themers">
+				  <span class="sr-only">Toggle navigation</span>
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand site-name" href="#top">
+					<span style="font-size: 32px;">🎙️</span>
+					<span style="font-weight: 900; font-size: 24px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Remodely</span>
+				</a>
+			  </div>
+	 
+			  <div id="navbar-scroll" class="collapse navbar-collapse navbar-themers navbar-right">
+				<ul class="nav navbar-nav">
+					<li><a href="#intro">About</a></li>
+					<li><a href="#feature">Features</a></li>
+					<li><a href="#how-it-works">How It Works</a></li>
+					<li><a href="#integrations">Integrations</a></li>
+					<li><a href="#package">Pricing</a></li>
+					<li><a href="/login" class="btn btn-sm" style="background: #fff; color: #3b82f6; border: 2px solid #3b82f6; margin-left: 10px; margin-top: 8px;">Sign In</a></li>
+					<li><a href="/login" class="btn btn-sm btn-primary" style="margin-left: 10px; margin-top: 8px;">Get Started →</a></li>
+				</ul>
+			  </div>
+		</div>
+	</nav>
+</div>
+ 
+<div class="fullscreen landing parallax banner" style="background-image:url('images/bg.jpg');" data-img-width="2000" data-img-height="1325" data-diff="100">
+	
+	<div class="overlay">
+		<div class="container">
+			<div class="row">
+				
+				
+				
+				<div class="col-md-6">
+
+						<h1 class="wow fadeInLeft">
+						Your AI Receptionist That <span style="color: #3b82f6;">Never Misses a Call</span>
+						</h1>
+
+					<div class="landing-text wow fadeInLeft">
+						<p style="font-size: 18px; line-height: 1.7;">While other AI tools automate emails and social media, <strong>VoiceFlow handles your PHONE</strong> - the channel that actually makes you money. Answer every call with human-sounding AI, book appointments automatically, and watch your revenue grow. <strong>Built for businesses where missed calls = missed opportunities.</strong></p>
+					</div>
+
+					<!-- stats badges -->
+					<div class="wow fadeInLeft" style="display: flex; gap: 30px; margin: 25px 0; flex-wrap: wrap;">
+						<div>
+							<div style="font-size: 32px; font-weight: 800; color: #3b82f6;">98%</div>
+							<div style="font-size: 14px; color: #64748b;">Answer Rate</div>
+						</div>
+						<div>
+							<div style="font-size: 32px; font-weight: 800; color: #3b82f6;">24/7</div>
+							<div style="font-size: 14px; color: #64748b;">Always Available</div>
+						</div>
+						<div>
+							<div style="font-size: 32px; font-weight: 800; color: #3b82f6;">60 sec</div>
+							<div style="font-size: 14px; color: #64748b;">Setup Time</div>
+						</div>
+					</div>
+
+					<!-- header button -->
+					<div class="head-btn wow fadeInLeft">
+						<a href="/login" class="btn-primary">
+						<i class="fa fa-rocket"></i> <span> Start Free Trial - No CC Required</span>
+						</a>
+						<a href="#feature" class="btn-primary play-market">
+						<i class="fa fa-play-circle"></i> <span> See How It Works</span>
+						</a>
+					</div>
+					<p style="margin-top: 15px; font-size: 13px; color: #94a3b8;">✓ 14-day free trial  ✓ Cancel anytime  ✓ No credit card needed</p>
+	
+					 				
+
+				</div> 
+				
+				<!-- phone image -->
+				<div class="col-md-6">
+				<img src="images/header-phone.png" alt="phone" class="header-phone img-responsive wow fadeInRight">
+				</div>
+			</div>
+		</div> 
+	</div> 
+</div>
+   
+<!-- intro section -->
+<div id="intro">
+		<div class="container">
+		<div class="row">
+	
+	<!-- feature image -->
+			<div class="col-md-6 feature-2-pic wow fadeInLeft">
+				<img src="images/feature2-image.jpg" alt="image" class="img-responsive">
+			</div>	
+			
+			<!-- feature content -->
+			<div class="col-md-6 wow fadeInRight">
+				<h2>The ONE Thing Sintra.ai Can't Do: <span class="gradient-text">Answer Your Phone</span></h2>
+				<p style="font-size: 17px;"><strong>Email bots are nice. Social media automation is cool. But when a $10,000 job calls at 6pm and you're on a ladder?</strong> That's where VoiceFlow wins.</p>
+
+				<div style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+					<p style="margin: 0; font-size: 16px;"><strong>📞 Voice AI:</strong> Answers calls, books appointments, qualifies leads</p>
+					<p style="margin: 10px 0 0 0; font-size: 16px;"><strong>⚙️ Automation:</strong> Sends estimates, updates CRM, routes to calendar</p>
+					<p style="margin: 10px 0 0 0; font-size: 16px;"><strong>💰 Revenue:</strong> Zero missed calls = More booked jobs</p>
+				</div>
+
+				<p>While other AI tools handle busy work, VoiceFlow handles the calls that actually make you money. Purpose-built for contractors, field services, and phone-based businesses.</p>
+
+					<div class="btn-section"><a href="/login" class="btn-default">Start 14-Day Free Trial →</a></div>
+
+			</div>
+			 			  
+		</div>			  
+  
+	</div>
+</div>
+
+<!-- feature section -->
+<div id="feature">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1 col-sm-12 text-center feature-title">
+
+			<!-- feature title -->
+				<h2>Why Contractors Choose <span class="gradient-text">VoiceFlow Over Sintra</span></h2>
+				<p style="font-size: 18px; max-width: 800px; margin: 0 auto 40px;">Sintra automates emails and posts. We automate the thing that actually pays your bills: <strong>phone calls.</strong></p>
+			</div>
+		</div>
+
+		<!-- Comparison Table -->
+		<div class="row" style="margin-bottom: 60px;">
+			<div class="col-md-10 col-md-offset-1">
+				<div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+					<table style="width: 100%; text-align: center; border-collapse: collapse;">
+						<thead style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+							<tr>
+								<th style="padding: 20px; color: white; font-size: 16px; border-right: 1px solid rgba(255,255,255,0.2);">Feature</th>
+								<th style="padding: 20px; color: white; font-size: 16px; border-right: 1px solid rgba(255,255,255,0.2);">Sintra.ai</th>
+								<th style="padding: 20px; color: white; font-size: 16px;">VoiceFlow CRM</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr style="border-bottom: 1px solid #e5e7eb;">
+								<td style="padding: 15px; font-weight: 600; text-align: left;">Answers Phone Calls</td>
+								<td style="padding: 15px; color: #ef4444; font-size: 24px;">✗</td>
+								<td style="padding: 15px; color: #10b981; font-size: 24px;">✓</td>
+							</tr>
+							<tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+								<td style="padding: 15px; font-weight: 600; text-align: left;">Books Appointments</td>
+								<td style="padding: 15px; color: #f59e0b;">Email only</td>
+								<td style="padding: 15px; color: #10b981; font-size: 24px;">✓</td>
+							</tr>
+							<tr style="border-bottom: 1px solid #e5e7eb;">
+								<td style="padding: 15px; font-weight: 600; text-align: left;">Human-Sounding Voice</td>
+								<td style="padding: 15px; color: #ef4444; font-size: 24px;">✗</td>
+								<td style="padding: 15px; color: #10b981; font-size: 24px;">✓</td>
+							</tr>
+							<tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+								<td style="padding: 15px; font-weight: 600; text-align: left;">Built for Contractors</td>
+								<td style="padding: 15px; color: #ef4444; font-size: 24px;">✗</td>
+								<td style="padding: 15px; color: #10b981; font-size: 24px;">✓</td>
+							</tr>
+							<tr>
+								<td style="padding: 15px; font-weight: 600; text-align: left;">Starting Price</td>
+								<td style="padding: 15px;">$39/mo per bot</td>
+								<td style="padding: 15px; color: #3b82f6; font-weight: 700;">$49/mo all-in</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row row-feat">
+
+			<div class="col-md-12">
+
+				<!-- feature 1 -->
+				<div class="col-sm-4 feat-list">
+					<i class="fa fa-phone wow fadeInUp"></i>
+					<div class="inner">
+						<h4>Voice AI That Sounds Human</h4>
+						<p>ElevenLabs-powered voice that customers can't tell from a real person. Handles objections, answers FAQs, and books appointments - all while you're on the job site.
+						</p>
+					</div>
+				</div>
+
+				<!-- feature 2 -->
+				<div class="col-sm-4 feat-list">
+					<i class="fa fa-dollar wow fadeInUp" data-wow-delay="0.2s"></i>
+					<div class="inner">
+						<h4>Built for Revenue, Not Busywork</h4>
+						<p>Forget email automation. We focus on the ONE channel that drives contractor revenue: phone calls. Every answered call is a potential $5K-$50K job.</p>
+					</div>
+				</div>
+
+				<!-- feature 3 -->
+				<div class="col-sm-4 feat-list">
+					<i class="fa fa-wrench wow fadeInUp" data-wow-delay="0.4s"></i>
+					<div class="inner">
+						<h4>Contractor-First Design</h4>
+						<p>Not built for solopreneurs or agencies. Built for roofers, plumbers, HVAC, and anyone who loses $10K+ when they miss a call.</p>
+					</div>
+				</div>
+			
+				
+			</div>
+		</div>
+	</div>
+</div>
+<section id="features">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 wow fadeInRight animated" data-wow-delay=".8s" id="how-it-works" style="visibility: visible; animation-delay: 0.8s; -webkit-animation-delay: 0.8s; animation-name: fadeInRight; -webkit-animation-name: fadeInRight;">
+                    <h2 class="title">How It Works</h2>
+
+                    <div class="feature-item">
+
+                        <div class="media">
+                            <div class="pull-left icon" href="#">
+                                <i class="fa fa-plug"></i>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">1. Connect Your Phone Number</h4>
+                                <p>Forward your business line to VoiceFlow in 60 seconds. Works with any phone provider. Keep your existing number.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+
+                        <div class="media">
+                            <div class="pull-left icon" href="#">
+                                <i class="fa fa-microphone"></i>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">2. Train Your AI Agent</h4>
+                                <p>Tell your AI agent about your business, services, and pricing. It learns your FAQs and can handle most customer calls autonomously.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+
+                        <div class="media">
+                            <div class="pull-left icon" href="#">
+                                <i class="fa fa-rocket"></i>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">3. Let It Run on Autopilot</h4>
+                                <p>Your AI answers calls, books appointments, sends quotes, and updates your CRM. You focus on the work. It handles the phone.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 wow fadeInLeft animated" data-wow-delay=".8s" style="visibility: visible; animation-delay: 0.8s; -webkit-animation-delay: 0.8s; animation-name: fadeInLeft; -webkit-animation-name: fadeInLeft;">
+                    <div class="block">
+                        <img class="img-responsive" src="images/featured-app.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> 
+
+
+<!-- integrations section -->
+<div id="integrations">
+	<div class="subscribe fullscreen parallax" style="background-image:url('images/bg.jpg');" data-img-width="1920" data-img-height="1281" data-diff="100">
+		<div class="overlay">
+			<div class="container">
+
+				<!-- integrations icon -->
+				<div class="col-md-4 col-md-offset-4 text-center">
+				<i class="fa fa-puzzle-piece letter wow fadeInUp"></i>
+				</div>
+				<div class="col-md-8 col-md-offset-2 text-center">
+					<h2 style="color: #fff; margin-bottom: 20px;">Integrates With Everything You Already Use</h2>
+					<p style="color: #fff; font-size: 18px;">Connect to Stripe, Google Calendar, Twilio, email, SMS, webhooks, and 100+ apps. Build custom workflows in minutes with our visual automation builder.</p>
+
+					<!-- CTA buttons -->
+					<div class="subscribe-form wow fadeInUp" style="margin-top: 40px;">
+						<a href="/login" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); font-size: 18px; padding: 16px 40px; margin: 0 10px;">
+							<i class="fa fa-rocket"></i> <span> Start Free Trial</span>
+						</a>
+						<a href="#how-it-works" class="btn btn-primary" style="background: rgba(255, 255, 255, 0.2); border: 2px solid #fff; font-size: 18px; padding: 16px 40px; margin: 0 10px;">
+							<i class="fa fa-play-circle"></i> <span> See How It Works</span>
+						</a>
+					</div>					
+				</div>
+
+			</div>	
+		</div>
+	</div>
+</div>
+
+<!-- screenshot section -->
+<div id="screenshot">
+	<div class="container">
+		<div class="text-center">
+			<h2 class="wow fadeInLeft">See It <span class="gradient-text">In Action</span></h2>
+			<div class="title-line wow fadeInRight"></div>
+			<p style="margin-top: 20px; font-size: 18px;">Voice agents, workflows, and CRM - all working together</p>
+		</div>
+		<div class="row screenshots">
+			
+			<div id="screenshots" class="owl-carousel">
+
+				<!-- screenshot images -->
+				<div class="screen wow fadeInUp">
+					<a href="images/img1.jpg" data-toggle="lightbox"><img src="images/img1.jpg" alt="Screenshot"></a>
+				</div>
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.1s">
+					<a href="images/img2.jpg" data-toggle="lightbox"><img src="images/img2.jpg" alt="Screenshot"></a>
+				</div>
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.2s">
+					<a href="images/img3.jpg" data-toggle="lightbox"><img src="images/img3.jpg" alt="Screenshot"></a>
+				</div>
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.3s">
+					<a href="images/img4.jpg" data-toggle="lightbox"><img src="images/img4.jpg" alt="Screenshot"></a>
+				</div>
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.4s">
+					<a href="images/img5.jpg" data-toggle="lightbox"><img src="images/img5.jpg" alt="Screenshot"></a>
+				</div>
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.5s">
+					<a href="images/img6.jpg" data-toggle="lightbox"><img src="images/img6.jpg" alt="Screenshot"></a>
+				</div>			
+				
+				<div class="screen wow fadeInUp" data-wow-delay="0.6s">
+					<a href="images/img7.jpg" data-toggle="lightbox"><img src="images/img7.jpg" alt="Screenshot"></a>
+				</div>
+
+				<div class="screen wow fadeInUp" data-wow-delay="0.7s">
+					<a href="images/img8.jpg" data-toggle="lightbox"><img src="images/img8.jpg" alt="Screenshot"></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Clients section -->
+<div id="clients">
+	<div class="container">
+		<div class="text-center">
+			<h2 class="wow fadeInLeft">What Our <span class="gradient-text">Customers Say</span></h2>
+			<div class="title-line wow fadeInRight"></div>
+			<p style="margin-top: 20px; font-size: 18px;">Real results from real businesses</p>
+		</div>
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1">	
+			   <div id="owl-clients" class="owl-carousel owl-theme wow fadeInUp">
+				 
+					<!-- Clients 1 -->
+					<div class="clients-item">
+						<div class="client-pic text-center">
+						
+							<!-- client photo -->
+							<img src="images/client.jpg" alt="client">
+						</div>
+						<div class="box">
+						
+							<!-- Clients content -->
+							<p class="message text-center">"VoiceFlow answered 47 calls last week while I was on job sites. Booked 12 estimates automatically. This thing pays for itself in one job. Game changer for my roofing business."</p>
+						</div>
+						<div class="client-info text-center">
+
+						<!-- client name -->
+							Mike Rodriguez, <span class="company">Rodriguez Roofing LLC</span>
+						</div>
+					</div>		
+					
+					<!-- Clients 2 -->
+					<div class="clients-item">
+						<div class="client-pic text-center">
+
+							<!-- client photo -->
+							<img src="images/client2.jpg" alt="client">
+						</div>
+						<div class="box">
+
+							<!-- Clients content -->
+							<p class="message text-center">"We went from missing 60% of calls to answering 100%. The AI handles FAQs, pricing questions, and books appointments into our calendar automatically. Revenue up 40% in 3 months."</p>
+						</div>
+						<div class="client-info text-center">
+
+							<!-- client name -->
+							Sarah Chen, <span class="company">Elite HVAC Services</span>
+						</div>
+					</div>				
+					
+					<!-- Clients 3 -->
+					<div class="clients-item">
+						<div class="client-pic text-center">
+
+							<!-- client photo -->
+							<img src="images/client3.jpg" alt="client">
+						</div>
+						<div class="box">
+
+							<!-- Clients content -->
+							<p class="message text-center">"Setup took 10 minutes. The AI trained on my service menu and pricing. Now I can focus on plumbing instead of answering 'Do you do water heaters?' 20 times a day. Absolute lifesaver."</p>
+						</div>
+						<div class="client-info text-center">
+
+							<!-- client name -->
+							James Patterson, <span class="company">Patterson Plumbing</span>
+						</div>
+					</div>			
+				 
+				</div>
+			</div>	
+		</div>	
+	</div>
+</div>
+<div id="package">
+	<div class="container">
+		<div class="text-center">
+		
+			<!-- pricing title -->
+			<h2 class="wow fadeInLeft animated" style="visibility: visible; animation-name: fadeInLeft; -webkit-animation-name: fadeInLeft;">Simple, <span class="gradient-text">Transparent Pricing</span></h2>
+			<div class="title-line wow fadeInRight animated" style="visibility: visible; animation-name: fadeInRight; -webkit-animation-name: fadeInRight;"></div>
+			<p style="text-align: center; margin-bottom: 40px; font-size: 18px;">Start free. Scale as you grow. No hidden fees.</p>
+		</div>
+		<div class="row package-option">
+
+			<!-- package 1 -->
+			<div class="col-sm-4">
+			  <div class="price-box wow fadeInUp animated" style="visibility: visible; animation-name: fadeInUp; -webkit-animation-name: fadeInUp;">
+			   <div class="price-heading text-center">
+
+
+					<!-- package name -->
+					<h3>Starter</h3>
+			   </div>
+
+			   <!-- price -->
+				<div class="price-group text-center">
+					<span class="dollar">$</span>
+					<span class="price">49</span>
+					<span class="time">/mo</span>
+				</div>
+
+				<!-- package features -->
+			   <ul class="price-feature text-center">
+				  <li><strong>1</strong> AI Voice Agent</li>
+				  <li><strong>500</strong> Minutes/Month</li>
+				  <li><strong>Unlimited</strong> Workflows</li>
+				  <li><strong>Basic</strong> CRM</li>
+				  <li>Call Recordings & Transcripts</li>
+			   </ul>
+
+			   <!-- package button -->
+			   <div class="price-footer text-center">
+				 <a class="btn btn-price" href="/login">Start Free Trial</a>
+				</div>
+			  </div>
+			</div>
+
+			<!-- package 2 - FEATURED -->
+			<div class="col-sm-4">
+			  <div class="price-box featured wow fadeInUp animated" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; -webkit-animation-delay: 0.2s; animation-name: fadeInUp; -webkit-animation-name: fadeInUp; border: 3px solid #3b82f6;">
+			   <div class="price-heading text-center" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff;">
+				 <span style="background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">MOST POPULAR</span>
+
+			   <!-- package name -->
+				<h3 style="color: #fff; margin-top: 10px;">Pro</h3>
+			   </div>
+
+			   <!-- price -->
+				<div class="price-group text-center">
+					<span class="dollar">$</span>
+					<span class="price">149</span>
+					<span class="time">/mo</span>
+				</div>
+
+				<!-- package features -->
+			   <ul class="price-feature text-center">
+				  <li><strong>3</strong> AI Voice Agents</li>
+				  <li><strong>2,000</strong> Minutes/Month</li>
+				  <li><strong>Unlimited</strong> Workflows</li>
+				  <li><strong>Advanced</strong> CRM</li>
+				  <li>Priority Support</li>
+			   </ul>
+
+				<!-- package button -->
+			   <div class="price-footer text-center">
+				 <a class="btn btn-price btn-primary" href="/login" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff; border: none;">Get Started Now</a>
+				</div>
+			  </div>
+			</div>
+
+			<!-- package 3 - Enterprise -->
+			<div class="col-sm-4">
+			  <div class="price-box wow fadeInUp animated" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; -webkit-animation-delay: 0.4s; animation-name: fadeInUp; -webkit-animation-name: fadeInUp;">
+			   <div class="price-heading text-center">
+
+
+
+					<!-- package name -->
+					<h3>Enterprise</h3>
+			   </div>
+
+			   <!-- price -->
+				<div class="price-group text-center">
+					<span class="price" style="font-size: 32px;">Custom</span>
+				</div>
+
+				<!-- package features -->
+			   <ul class="price-feature text-center">
+				  <li><strong>Unlimited</strong> AI Voice Agents</li>
+				  <li><strong>Unlimited</strong> Minutes</li>
+				  <li><strong>Dedicated</strong> Support</li>
+				  <li><strong>Custom</strong> Integrations</li>
+				  <li>White-Label Options</li>
+			   </ul>
+
+			   <!-- package button -->
+			   <div class="price-footer text-center">
+				 <a class="btn btn-price" href="mailto:sales@remodely.ai">Contact Sales</a>
+				</div>
+			  </div>
+			</div>
+			
+			 
+
+		</div>
+	</div>
+</div>	
+<!-- download section -->
+<div id="download">
+	<div class="action fullscreen parallax" style="background-image:url('images/bg.jpg');" data-img-width="2000" data-img-height="1334" data-diff="100">
+		<div class="overlay downloadSection">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 col-sm-12 text-center">
+						<h2 class="wow fadeInLeft" style="color: #fff;">Ready to Answer <span style="color: #f59e0b;">Every Call?</span></h2>
+						<p class="download-text wow fadeInRight" style="color: #fff; font-size: 20px;">Start your 14-day free trial. No credit card required. Setup in minutes. Cancel anytime.</p>
+						<div class="btn-section">
+
+						<a href="/login" class="btn-primary" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); font-size: 18px; padding: 16px 40px;">
+						<i class="fa fa-rocket"></i> <span> Start Free Trial</span>
+						</a>
+						<a href="#package" class="btn-primary play-market" style="background: rgba(255, 255, 255, 0.2); border: 2px solid #fff; font-size: 18px; padding: 16px 40px;">
+						<i class="fa fa-dollar"></i> <span> View Pricing</span>
+						</a>
+
+						</div>
+						<p style="color: rgba(255, 255, 255, 0.8); margin-top: 30px; font-size: 14px;">Join 500+ contractors already using VoiceFlow CRM</p>
+					</div>					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+  
+<!-- footer -->
+<footer id="footer">
+	<div class="container">
+		<div class="col-sm-4 col-sm-offset-4">
+			<!-- social links -->
+				<div class="social text-center">
+					<ul>
+						<li><a class="wow fadeInUp" href="https://twitter.com/"><i class="fa fa-twitter"></i></a></li>
+						<li><a class="wow fadeInUp" href="https://www.facebook.com/" data-wow-delay="0.2s"><i class="fa fa-facebook"></i></a></li>
+						<li><a class="wow fadeInUp" href="https://plus.google.com/" data-wow-delay="0.4s"><i class="fa fa-google-plus"></i></a></li>
+						<li><a class="wow fadeInUp" href="https://instagram.com/" data-wow-delay="0.6s"><i class="fa fa-instagram"></i></a></li>
+					</ul>
+				</div>	
+			<div class="text-center wow fadeInUp" style="font-size: 14px;">Copyright Juke 2015 - Template by <a href="http://www.webthemez.com">Webthemez</a></div>
+			<a href="#" class="scrollToTop"><i class="fa fa-arrow-circle-o-up"></i></a>
+		</div>	
+	</div>	
+</footer>
+	
+	<!-- javascript files -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/jquery.sticky.js"></script>
+	<script src="js/wow.min.js"></script>
+	<script src="js/owl.carousel.min.js"></script>
+	<script src="js/ekko-lightbox-min.js"></script>
+	<script type="text/javascript">
+	$(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) { event.preventDefault(); $(this).ekkoLightbox(); }); 
+	</script>
+	<script>
+		new WOW().init();
+	</script>
+  </body>
+</html>
