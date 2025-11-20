@@ -169,6 +169,16 @@
             50% { transform: translateY(-3px); }
         }
 
+        @keyframes float-button {
+            0%, 100% { transform: translateY(0px); box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4); }
+            50% { transform: translateY(-8px); box-shadow: 0 15px 50px rgba(59, 130, 246, 0.5); }
+        }
+
+        #floatingCTA:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.6) !important;
+        }
+
         .nav-menu {
             display: flex;
             gap: 8px;
@@ -198,7 +208,7 @@
 
         /* Mobile menu toggle */
         .mobile-menu-toggle {
-            display: none;
+            display: none !important;
             background: transparent;
             border: none;
             cursor: pointer;
@@ -301,14 +311,9 @@
             transform: translateY(0);
         }
 
-        /* Sticky Phone Bar */
+        /* Sticky Phone Bar - HIDDEN (using floating button instead) */
         .sticky-phone-bar {
-            position: fixed;
-            top: 114px;
-            left: 0;
-            right: 0;
-            z-index: 900;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            display: none !important;
             padding: 12px 24px;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
             transform: translateY(-100%);
@@ -443,6 +448,18 @@
         }
 
         @media (max-width: 480px) {
+            #floatingCTA {
+                bottom: 20px !important;
+                right: 20px !important;
+                padding: 14px 24px !important;
+                font-size: 16px !important;
+            }
+
+            #floatingCTA svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
             .sticky-call-button {
                 flex-direction: column;
                 gap: 4px;
@@ -465,25 +482,31 @@
         /* Hero Section */
         .hero {
             padding: 180px 24px 100px;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             position: relative;
             overflow: hidden;
         }
 
-        /* Liquid Blue Background Animation */
+        /* Minimal Cloud-like Background */
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
             background:
-                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(37, 99, 235, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
-            animation: liquid-move 20s ease-in-out infinite;
+                radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(147, 197, 253, 0.04) 0%, transparent 30%),
+                radial-gradient(circle at 50% 60%, rgba(96, 165, 250, 0.02) 0%, transparent 35%),
+                radial-gradient(circle at 30% 80%, rgba(191, 219, 254, 0.03) 0%, transparent 25%);
+            animation: cloud-drift 30s ease-in-out infinite;
             pointer-events: none;
+        }
+
+        @keyframes cloud-drift {
+            0%, 100% { transform: translate(0, 0); opacity: 1; }
+            50% { transform: translate(20px, -15px); opacity: 0.8; }
         }
 
         .hero::after {
@@ -2853,34 +2876,24 @@
         </span>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
+    <!-- Minimal Navigation -->
+    <nav class="navbar" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(226, 232, 240, 0.5); padding: 16px 0;">
+        <div class="navbar-container" style="justify-content: center;">
             <a href="/" class="logo">
                 <div class="logo-text-container">
-                    <span class="logo-text">Remodely AI</span>
-                    <span class="logo-subtitle">VoiceFlow CRM</span>
+                    <span class="logo-text" style="color: #0f172a; font-size: 20px;">Remodely AI</span>
                 </div>
             </a>
-
-            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-
-            <div class="nav-menu" id="navMenu">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#integrations" class="nav-link">Integrations</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a href="/login" class="btn btn-secondary">Sign In</a>
-                <a href="tel:+16028334780" class="btn btn-primary" style="background: white; color: #3b82f6; font-weight: 700; box-shadow: 0 4px 12px rgba(255,255,255,0.2);">
-                    Try Free — Call Now
-                </a>
-            </div>
         </div>
     </nav>
+
+    <!-- Floating Start Now Button -->
+    <a href="tel:+16028334780" id="floatingCTA" style="position: fixed; bottom: 32px; right: 32px; z-index: 1002; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 18px 32px; border-radius: 50px; font-size: 18px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4); display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; animation: float-button 3s ease-in-out infinite;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        <span>Start Now</span>
+    </a>
 
     <!-- Sticky Phone Bar (appears on scroll) -->
     <div class="sticky-phone-bar" id="stickyPhoneBar">
