@@ -69,42 +69,16 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 2px solid #60a5fa;
-            box-shadow:
-                0 4px 30px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            background: transparent;
+            backdrop-filter: none;
+            border-bottom: none;
+            box-shadow: none;
             transition: all 0.3s ease;
         }
 
-        /* Add blue accent highlight */
-        .navbar::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                #60a5fa,
-                #93c5fd,
-                #60a5fa,
-                transparent
-            );
-            animation: shimmer-nav 3s infinite;
-        }
-
-        @keyframes shimmer-nav {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
         .navbar.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            background: transparent;
+            box-shadow: none;
         }
 
         .navbar-container {
@@ -486,7 +460,7 @@
 
         /* Hero Section */
         .hero {
-            padding: 140px 24px 60px;
+            padding: 180px 24px 60px;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -1192,8 +1166,9 @@
         /* Features Section */
         .features {
             padding: 100px 24px;
-            background: #ffffff;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
             position: relative;
+            overflow: hidden;
         }
 
         .features::before {
@@ -1204,9 +1179,36 @@
             right: 0;
             bottom: 0;
             background:
-                linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 30%),
+                radial-gradient(circle at 90% 30%, rgba(147, 197, 253, 0.06) 0%, transparent 35%),
+                radial-gradient(circle at 50% 80%, rgba(96, 165, 250, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 20% 70%, rgba(59, 130, 246, 0.04) 0%, transparent 30%);
             pointer-events: none;
+            animation: features-glow 15s ease-in-out infinite;
+        }
+
+        @keyframes features-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .features::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.02) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(147, 197, 253, 0.03) 50%, transparent 100%);
+            animation: features-shimmer 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes features-shimmer {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(10%, 10%) rotate(5deg); }
         }
 
         .container {
@@ -1229,7 +1231,8 @@
 
         .section-subtitle {
             font-size: 18px;
-            color: var(--gray-600);
+            color: #0f172a;
+            font-weight: 700;
             max-width: 720px;
             margin: 0 auto;
         }
@@ -1241,42 +1244,75 @@
         }
 
         .feature-card {
-            background: white;
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--gray-200);
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 36px;
+            border-radius: 20px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
         }
 
         .feature-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
-            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow:
+                0 20px 50px rgba(59, 130, 246, 0.15),
+                0 8px 20px rgba(0, 0, 0, 0.08);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 1);
         }
 
         .feature-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 12px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             color: white;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
         }
 
         .feature-title {
             font-size: 20px;
             font-weight: 700;
-            color: var(--dark);
+            color: #0f172a;
             margin-bottom: 12px;
         }
 
         .feature-desc {
-            color: var(--gray-600);
+            color: #1e293b;
             line-height: 1.6;
+            font-weight: 500;
         }
 
         /* Premium Testimonials Section */
@@ -1635,7 +1671,8 @@
 
         .plan-description {
             font-size: 16px;
-            color: #64748b;
+            color: #475569;
+            font-weight: 500;
             margin-bottom: 32px;
             text-align: center;
         }
@@ -2874,11 +2911,162 @@
                 font-size: 24px;
             }
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            /* Hero Section */
+            .hero {
+                padding: 120px 20px 40px;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 36px !important;
+                line-height: 1.2 !important;
+            }
+
+            .hero p {
+                font-size: 18px !important;
+            }
+
+            .hero .btn {
+                font-size: 18px !important;
+                padding: 16px 32px !important;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .trust-badges {
+                flex-direction: column;
+                gap: 16px !important;
+            }
+
+            .trust-badge {
+                width: 100%;
+            }
+
+            /* Navbar Mobile */
+            .navbar {
+                padding: 12px 16px !important;
+            }
+
+            .logo-emoji {
+                font-size: 28px !important;
+            }
+
+            .logo-text {
+                font-size: 18px !important;
+            }
+
+            .cta-button {
+                padding: 10px 24px !important;
+                font-size: 14px !important;
+            }
+
+            /* Features Section */
+            .features-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px;
+            }
+
+            .feature-card {
+                padding: 24px !important;
+            }
+
+            /* Section Titles */
+            .section-title, h2 {
+                font-size: 32px !important;
+            }
+
+            .section-subtitle, .section-header p {
+                font-size: 16px !important;
+            }
+
+            /* Pricing Cards */
+            .pricing-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .pricing-card {
+                margin-bottom: 24px;
+            }
+
+            /* Stats/Metrics */
+            .stats-grid, .metrics-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px;
+            }
+
+            /* Buttons */
+            .btn, button, a.btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Remove animations on mobile */
+            * {
+                animation-duration: 0s !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Extra small screens */
+            .hero {
+                padding: 100px 16px 32px;
+            }
+
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .navbar {
+                padding: 10px 12px !important;
+            }
+
+            .logo-text {
+                font-size: 16px !important;
+            }
+
+            .logo-subtitle {
+                font-size: 9px !important;
+            }
+
+            .cta-button {
+                padding: 8px 20px !important;
+                font-size: 13px !important;
+            }
+
+            /* Promo Banner */
+            #promoBanner {
+                padding: 8px 16px !important;
+                font-size: 12px !important;
+            }
+
+            /* Sections */
+            section {
+                padding: 60px 16px !important;
+            }
+
+            .section-title, h2 {
+                font-size: 28px !important;
+            }
+
+            /* Feature Icons */
+            .feature-icon {
+                width: 48px !important;
+                height: 48px !important;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Promotional Banner -->
-    <div style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); color: white; text-align: center; padding: 10px 24px; font-size: 14px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1001;">
+    <div id="promoBanner" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); color: white; text-align: center; padding: 10px 24px; font-size: 14px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1001; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
         <span style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
             <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">LIMITED TIME</span>
             <span style="font-size: 13px;">Get 50% off your first 3 months</span>
@@ -2887,32 +3075,97 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="navbar" id="mainNavbar" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(226, 232, 240, 0.6); padding: 8px 24px; position: fixed; top: 40px; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease, opacity 0.3s ease;">
+    <nav class="navbar" id="mainNavbar" style="background: transparent; backdrop-filter: none; border-bottom: none; padding: 18px 24px; position: fixed; top: 40px; left: 0; right: 0; z-index: 999; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: none;">
         <div class="navbar-container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
-            <a href="/" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; transition: transform 0.2s;">
-                <span style="font-size: 24px;">🎙️</span>
-                <div style="display: flex; flex-direction: column; gap: 1px;">
-                    <span style="font-size: 16px; font-weight: 900; letter-spacing: -0.03em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;">Remodely</span>
-                    <span style="font-size: 9px; font-weight: 600; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1;">VoiceFlow CRM</span>
+            <a href="/" class="logo-link" style="display: flex; align-items: center; gap: 14px; text-decoration: none; transition: all 0.3s ease;">
+                <div class="logo-icon-wrapper" style="position: relative; display: inline-block;">
+                    <span class="logo-emoji" style="font-size: 38px; display: inline-block; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));">🎙️</span>
+                    <div class="logo-glow" style="position: absolute; inset: -8px; background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%); opacity: 0; transition: opacity 0.4s; pointer-events: none; z-index: -1;"></div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px; transition: all 0.3s;">
+                    <span class="logo-text" style="font-size: 23px; font-weight: 900; letter-spacing: -0.04em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; transition: all 0.3s;">Remodely</span>
+                    <span class="logo-subtitle" style="font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; transition: all 0.3s;">VoiceFlow CRM</span>
                 </div>
             </a>
-            <a href="/login" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 8px 24px; border-radius: 50px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 3px 12px rgba(59, 130, 246, 0.3); transition: all 0.3s ease; display: inline-block;">
-                Start Now
+            <a href="/login" class="cta-button" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 15px 38px; border-radius: 50px; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; position: relative; overflow: hidden;">
+                <span style="position: relative; z-index: 1;">Start Now</span>
+                <div class="button-shine" style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); transition: left 0.5s;"></div>
             </a>
         </div>
     </nav>
 
     <style>
+        /* Dynamic Navbar Animations */
+        .logo-link:hover .logo-emoji {
+            transform: scale(1.15) rotate(-5deg);
+            filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.5));
+            animation: none;
+        }
+
+        .logo-link:hover .logo-glow {
+            opacity: 1;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .logo-link:hover .logo-text {
+            letter-spacing: -0.02em;
+            transform: translateX(2px);
+        }
+
+        .logo-link:hover .logo-subtitle {
+            color: #3b82f6;
+            letter-spacing: 0.1em;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .cta-button:hover .button-shine {
+            left: 100%;
+        }
+
+        .cta-button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .navbar.hidden {
+            transform: translateY(-120%);
+            opacity: 0;
+        }
+
+        /* Promo banner hide on scroll */
+        #promoBanner.hidden {
+            transform: translateY(-100%);
+        }
+
+        /* Navbar scroll effect */
+        .navbar.scrolled {
+            background: transparent;
+            box-shadow: none;
+            padding: 14px 24px;
+            top: 0;
+        }
+
+        /* Floating animation for logo */
+        @keyframes float-logo {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .logo-emoji {
+            animation: float-logo 3s ease-in-out infinite;
+        }
+
+        /* Backward compat */
         .navbar a.logo:hover {
             transform: translateY(-1px);
-        }
-        .navbar a[href="/login"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 16px rgba(59, 130, 246, 0.4);
-        }
-        .navbar.hidden {
-            transform: translateY(-100%);
-            opacity: 0;
         }
     </style>
 
@@ -2948,11 +3201,11 @@
             </div>
 
             <div>
-                <h1 style="font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: #0f172a;">
+                <h1 style="font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: #0f172a; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                     Never miss a call while you're<br>
                     <span class="gradient-text">on the roof</span>
                 </h1>
-                <p style="font-size: 22px; color: #64748b; max-width: 700px; margin: 0 auto 40px; line-height: 1.6;">
+                <p style="font-size: 22px; color: #1e293b; max-width: 700px; margin: 0 auto 40px; line-height: 1.6; font-weight: 500;">
                     AI voice receptionist that answers calls, books jobs, and qualifies leads 24/7. Built for contractors who can't afford to miss $10K+ opportunities.
                 </p>
                 <div class="hero-cta" style="margin-bottom: 24px;">
@@ -2961,37 +3214,37 @@
                     </a>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; margin-bottom: 48px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #3b82f6; font-size: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #2563eb; font-size: 15px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <span style="font-weight: 600;">Free 14-day trial</span>
+                        <span style="font-weight: 700;">Free 14-day trial</span>
                     </div>
-                    <span style="color: #cbd5e1;">•</span>
-                    <div style="display: flex; align-items: center; gap: 8px; color: #10b981; font-size: 15px;">
+                    <span style="color: #94a3b8;">•</span>
+                    <div style="display: flex; align-items: center; gap: 8px; color: #059669; font-size: 15px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
-                        <span style="font-weight: 600;">100% money-back guarantee</span>
+                        <span style="font-weight: 700;">100% money-back guarantee</span>
                     </div>
-                    <span style="color: #cbd5e1;">•</span>
-                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 15px;">
-                        <span style="font-weight: 600;">No credit card required</span>
+                    <span style="color: #94a3b8;">•</span>
+                    <div style="display: flex; align-items: center; gap: 8px; color: #475569; font-size: 15px;">
+                        <span style="font-weight: 700;">No credit card required</span>
                     </div>
                 </div>
                 <div class="trust-badges" style="justify-content: center;">
                     <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">98%</div>
-                        <div class="trust-badge-label">Answer Rate</div>
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">98%</div>
+                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Answer Rate</div>
                     </div>
                     <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">24/7</div>
-                        <div class="trust-badge-label">Availability</div>
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">24/7</div>
+                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Availability</div>
                     </div>
                     <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">100%</div>
-                        <div class="trust-badge-label">Human-Like Voice</div>
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">100%</div>
+                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Human-Like Voice</div>
                     </div>
                 </div>
             </div>
@@ -3442,7 +3695,10 @@
                     Stop relying on voicemail. Start capturing every lead.
                 </p>
                 <a href="tel:+16028334780" style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 18px 40px; border-radius: 12px; font-size: 20px; font-weight: 800; text-decoration: none; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4); transition: all 0.3s;">
-                    📞 Experience It Now: (602) 833-4780
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    Experience It Now: (602) 833-4780
                 </a>
                 <p style="font-size: 14px; color: #94a3b8; margin-top: 16px;">
                     Call our AI and ask about HVAC installation, pricing, or availability
@@ -3516,7 +3772,7 @@
                 <h2 class="section-title">
                     Built for <span class="gradient-text">Contractors</span>
                 </h2>
-                <p class="section-subtitle" style="color: #64748b; font-size: 20px; font-weight: 500;">
+                <p class="section-subtitle" style="color: #0f172a; font-size: 20px; font-weight: 700;">
                     Everything you need to capture every lead while you're on the job
                 </p>
             </div>
@@ -3815,7 +4071,7 @@
         <div class="section-container">
             <div class="section-header">
                 <h2 style="color: #0f172a; font-size: 48px; font-weight: 900;">Simple, Transparent Pricing</h2>
-                <p style="color: #64748b; font-size: 20px;">One missed $10K job costs more than a year of our service</p>
+                <p style="color: #0f172a; font-size: 20px; font-weight: 700;">One missed $10K job costs more than a year of our service</p>
             </div>
 
             <div class="pricing-comparison">
@@ -4230,17 +4486,29 @@
             statsObserver.observe(callCounter.closest('section'));
         }
 
-        // Navbar hide on scroll
+        // Enhanced Navbar scroll effects
         let lastScrollTop = 0;
         const mainNavbar = document.getElementById('mainNavbar');
+        const promoBanner = document.getElementById('promoBanner');
         const scrollThreshold = 100;
+        let ticking = false;
 
-        window.addEventListener('scroll', () => {
+        function updateNavbar() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
+            // Hide promo banner on scroll
+            if (scrollTop > 50) {
+                promoBanner.classList.add('hidden');
+                mainNavbar.classList.add('scrolled');
+            } else {
+                promoBanner.classList.remove('hidden');
+                mainNavbar.classList.remove('scrolled');
+            }
+
+            // Hide/show navbar based on scroll direction
             if (scrollTop > scrollThreshold) {
                 if (scrollTop > lastScrollTop) {
-                    // Scrolling down - hide navbar
+                    // Scrolling down - hide navbar immediately
                     mainNavbar.classList.add('hidden');
                 } else {
                     // Scrolling up - show navbar
@@ -4252,6 +4520,14 @@
             }
 
             lastScrollTop = scrollTop;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateNavbar);
+                ticking = true;
+            }
         });
 
         // Mobile Menu Toggle
@@ -4282,20 +4558,6 @@
                 }
             });
         }
-
-        // Navbar scroll effect
-        let lastScrollTop = 0;
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-            if (scrollTop > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-
-            lastScrollTop = scrollTop;
-        });
 
         // FAQ Accordion
         document.querySelectorAll('.faq-question').forEach(question => {
@@ -4329,14 +4591,16 @@
 
         let currentMode = 'chat';
 
-        // Toggle widget open/close
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            widget.classList.toggle('active');
-            toggleBtn.classList.toggle('hidden');
-        });
+        // Check if elements exist before adding listeners
+        if (toggleBtn && widget && closeBtn) {
+            // Toggle widget open/close
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                widget.classList.toggle('active');
+                toggleBtn.classList.toggle('hidden');
+            });
 
-        closeBtn.addEventListener('click', function() {
+            closeBtn.addEventListener('click', function() {
             widget.classList.remove('active');
             toggleBtn.classList.remove('hidden');
 
@@ -4684,6 +4948,7 @@
 
             animate();
         }
+        } // End chat widget check
 
         // Sticky Phone Bar Logic
         const stickyPhoneBar = document.getElementById('stickyPhoneBar');

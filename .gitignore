@@ -67,3 +67,40 @@ frontend/.env
 .env
 **/.env
 *.env.bak*
+
+# Additional security patterns
+**/secrets/
+**/credentials/
+config/secrets.js
+config/credentials.js
+*.secret
+*.credential
+*secret.json
+*credentials.json
+.secrets
+jwt-secret*
+stripe-secret*
+elevenlabs-api-key*
+openai-api-key*
+twilio-auth-token*
+mongodb-uri*
+
+# Backup files that might contain secrets
+*.env.backup
+*.env.old
+.env.save
+config.backup.js
+
+# SSH and certificates
+*.pem
+*.key
+*.cert
+*.csr
+id_rsa*
+id_dsa*
+
+# API keys and tokens
+.api-keys
+.tokens
+api-keys.txt
+tokens.txt
