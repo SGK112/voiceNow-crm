@@ -294,9 +294,11 @@
         .phone-screen {
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            background: #0f172a;
             border-radius: 32px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
             position: relative;
         }
 
@@ -986,6 +988,20 @@
             font-weight: 700;
             color: #0f172a;
             letter-spacing: -0.01em;
+        }
+
+        .integration-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 0 14px 0 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
         }
 
         .integration-description {
@@ -3126,6 +3142,321 @@
                 padding: 20px;
             }
         }
+
+        /* Dashboard Preview Styles - Optimized */
+        .dashboard-preview-wrapper {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dashboard-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 2px 0;
+        }
+
+        .dashboard-subtitle {
+            font-size: 11px;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+        }
+
+        .live-pulse {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .live-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-content {
+            padding: 20px;
+        }
+
+        .active-call-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 3px solid #10b981;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+
+        .call-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .agent-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .call-info {
+            flex: 1;
+        }
+
+        .call-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 3px 0;
+        }
+
+        .call-meta {
+            font-size: 10px;
+            color: #059669;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .active-badge {
+            background: #10b981;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .transcript-box {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .transcript-label {
+            font-size: 8px;
+            color: #64748b;
+            margin: 0 0 4px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transcript-text {
+            font-size: 11px;
+            color: #166534;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .call-tags {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .tag-hot {
+            background: #059669;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .tag-value {
+            background: #3b82f6;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .workflow-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .workflow-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .workflow-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workflow-step.step-pending {
+            opacity: 0.4;
+        }
+
+        .step-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-complete {
+            background: #10b981;
+        }
+
+        .step-active {
+            background: #3b82f6;
+        }
+
+        .step-waiting {
+            background: #cbd5e1;
+            color: #64748b;
+            font-size: 8px;
+        }
+
+        .step-text {
+            font-size: 10px;
+            color: #0f172a;
+        }
+
+        .step-text-active {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-blue {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        .stat-green {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        }
+
+        .stat-yellow {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .stat-blue .stat-number {
+            color: #1e40af;
+        }
+
+        .stat-green .stat-number {
+            color: #166534;
+        }
+
+        .stat-yellow .stat-number {
+            color: #92400e;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            margin: 5px 0 0 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-blue .stat-label {
+            color: #1e3a8a;
+        }
+
+        .stat-green .stat-label {
+            color: #14532d;
+        }
+
+        .stat-yellow .stat-label {
+            color: #78350f;
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-preview-wrapper {
+                max-width: 100%;
+            }
+
+            .dashboard-content {
+                padding: 20px;
+            }
+
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3178,21 +3509,18 @@
                     </div>
                 </div>
                 <div class="cta-group">
-                    <a href="/login" class="btn btn-primary btn-large">
+                    <a href="/signup" class="btn btn-primary btn-large">
                         <span>Start Free Trial</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;">
                             <path d="M5 12h14M12 5l7 7-7 7"></path>
                         </svg>
                     </a>
-                    <button class="btn btn-secondary btn-large" onclick="openCalendarModal()">
+                    <a href="tel:+16028334780" class="btn btn-secondary btn-large">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                         </svg>
-                        <span>Schedule Demo</span>
-                    </button>
+                        <span>Call Our AI Agent Now</span>
+                    </a>
                 </div>
                 <div class="hero-features">
                     <div class="hero-feature-item">
@@ -3216,91 +3544,70 @@
                 </div>
             </div>
             <div class="hero-visual">
+                <!-- Phone Mockup -->
                 <div class="phone-mockup">
                     <div class="phone-screen">
-                        <div class="phone-notch"></div>
-                        <div class="phone-content">
-                            <div class="phone-header">
-                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                    <span>🎙️ VoiceFlow CRM</span>
-                                    <span class="live-indicator">● LIVE</span>
+                        <!-- Status Bar -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #0f172a; color: white; font-size: 11px;">
+                            <span>9:41</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 22h20V2z"/></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M1 5h22v14H1z"/></svg>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <!-- Call Interface -->
+                        <div style="flex: 1; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+                            <!-- Top Section -->
+                            <div style="text-align: center; width: 100%; margin-top: 20px;">
+                                <div style="background: linear-gradient(135deg, #10b981, #34d399); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);">
+                                    🤖
+                                </div>
+                                <h3 style="color: white; font-size: 20px; font-weight: 700; margin: 0 0 4px 0;">AI Agent</h3>
+                                <p style="color: #94a3b8; font-size: 13px; margin: 0;">VoiceFlow Assistant</p>
+                            </div>
+
+                            <!-- Live Status -->
+                            <div style="width: 100%; background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 12px; padding: 16px; margin: 20px 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                    <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                                    <span style="color: #10b981; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Call In Progress</span>
+                                </div>
+                                <div style="color: white; font-size: 28px; font-weight: 900; margin-bottom: 8px;">2:18</div>
+                                <div style="background: rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px;">
+                                    <p style="color: #94a3b8; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Live Transcript</p>
+                                    <p style="color: #d1fae5; font-size: 12px; margin: 0; line-height: 1.5;">"I can schedule your site visit for Friday at 2 PM. Does that work?"</p>
                                 </div>
                             </div>
-                            <div class="phone-body">
-                                <!-- Active Call Card - Enhanced -->
-                                <div class="crm-card call-active">
-                                    <div class="call-status-bar">
-                                        <span class="pulse-dot"></span>
-                                        <span style="font-size: 11px; font-weight: 600;">AI Agent Active</span>
-                                        <span style="font-size: 10px; opacity: 0.7;">2:18</span>
-                                    </div>
-                                    <div class="crm-card-header">
-                                        <div class="crm-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">🤖</div>
-                                        <div class="crm-info">
-                                            <p class="crm-name">Marcus - General Contractor Agent</p>
-                                            <p class="crm-detail">📞 +1 (480) 555-2847</p>
-                                        </div>
-                                    </div>
-                                    <div class="call-transcript">
-                                        <p style="font-size: 10px; opacity: 0.6; margin: 0 0 6px 0;">🎯 Live Transcript:</p>
-                                        <p style="font-size: 11px; margin: 0 0 6px 0; line-height: 1.5; color: #059669;">"Perfect! I can get you scheduled for Friday at 2 PM. That works great, right?"</p>
-                                        <div style="display: flex; gap: 4px; margin-top: 6px;">
-                                            <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;">HOT LEAD</span>
-                                            <span style="background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;">READY TO BOOK</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <!-- Workflow Automation Card - Enhanced -->
-                                <div class="crm-card workflow-card">
-                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-                                        <span style="font-size: 13px;">⚡</span>
-                                        <span style="font-size: 11px; font-weight: 700; color: #3b82f6;">Auto-Workflow Active</span>
-                                    </div>
-                                    <div class="workflow-steps">
-                                        <div class="workflow-step completed">
-                                            <span class="step-check">✓</span>
-                                            <span class="step-text">Answered in 2 rings</span>
-                                        </div>
-                                        <div class="workflow-step completed">
-                                            <span class="step-check">✓</span>
-                                            <span class="step-text">Lead qualified ($50K job)</span>
-                                        </div>
-                                        <div class="workflow-step active">
-                                            <span class="step-loader">↻</span>
-                                            <span class="step-text">Syncing to calendar...</span>
-                                        </div>
-                                        <div class="workflow-step">
-                                            <span class="step-number">4</span>
-                                            <span class="step-text">Send confirmation email</span>
-                                        </div>
-                                    </div>
+                            <!-- Quick Stats -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-bottom: 20px;">
+                                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
+                                    <div style="color: #3b82f6; font-size: 18px; font-weight: 900;">23</div>
+                                    <div style="color: #64748b; font-size: 9px; font-weight: 600; text-transform: uppercase;">Calls</div>
                                 </div>
-
-                                <!-- Recent Activity - Enhanced -->
-                                <div class="crm-card">
-                                    <div class="crm-card-header">
-                                        <div class="crm-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">JD</div>
-                                        <div class="crm-info">
-                                            <p class="crm-name">John Davis</p>
-                                            <p class="crm-detail">🏠 Kitchen Remodel · $45K</p>
-                                        </div>
-                                        <span class="crm-badge badge-hot">Hot</span>
-                                    </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
+                                    <div style="color: #10b981; font-size: 18px; font-weight: 900;">89%</div>
+                                    <div style="color: #64748b; font-size: 9px; font-weight: 600; text-transform: uppercase;">Qualified</div>
                                 </div>
-
-                                <!-- Stats Dashboard -->
-                                <div class="stats-row">
-                                    <div class="stat-box">
-                                        <p class="stat-value">23</p>
-                                        <p class="stat-label">Calls Today</p>
-                                    </div>
-                                    <div class="stat-box">
-                                        <p class="stat-value">89%</p>
-                                        <p class="stat-label">Qualified</p>
-                                    </div>
+                                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
+                                    <div style="color: #f59e0b; font-size: 16px; font-weight: 900;">$50K</div>
+                                    <div style="color: #64748b; font-size: 9px; font-weight: 600; text-transform: uppercase;">Pipeline</div>
                                 </div>
                             </div>
+
+                            <!-- Action Button -->
+                            <button style="background: #dc2626; color: white; border: none; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4); cursor: pointer;">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Bottom Nav Indicator -->
+                        <div style="height: 20px; background: #0f172a; display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 120px; height: 4px; background: rgba(148, 163, 184, 0.3); border-radius: 2px;"></div>
                         </div>
                     </div>
                 </div>
@@ -3330,211 +3637,813 @@
         </div>
     </section>
 
+    <!-- Live Demo Section - Competitive Positioning -->
+    <section style="background: #0f172a; padding: 80px 24px; margin: 0; position: relative; overflow: hidden;">
+        <!-- Animated gradient background -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); opacity: 0.5;"></div>
+
+        <div style="max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;">
+            <!-- Competitive Header -->
+            <div style="text-align: center; margin-bottom: 48px;">
+                <div style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); color: white; padding: 10px 24px; border-radius: 24px; font-size: 14px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Unlike Motion & Other Task Managers
+                </div>
+                <h2 style="font-size: 52px; font-weight: 900; color: white; margin-bottom: 20px; line-height: 1.1;">
+                    Your AI Answers Calls.<br/>Not Just Tasks.
+                </h2>
+                <p style="font-size: 22px; color: #94a3b8; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+                    Motion organizes your tasks. We run your entire business—answering calls, qualifying leads, and closing deals while you sleep.
+                </p>
+            </div>
+
+            <!-- Comparison Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 64px;">
+                <!-- Motion / Others -->
+                <div style="background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 20px; padding: 32px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 24px; font-weight: 700; color: #ef4444; margin: 0;">Task Managers</h3>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: #94a3b8; font-size: 16px; line-height: 2;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #ef4444; font-size: 20px; flex-shrink: 0;">✗</span>
+                            <span>Missed calls go to voicemail</span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #ef4444; font-size: 20px; flex-shrink: 0;">✗</span>
+                            <span>You manually enter every lead</span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #ef4444; font-size: 20px; flex-shrink: 0;">✗</span>
+                            <span>Still need separate phone system</span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #ef4444; font-size: 20px; flex-shrink: 0;">✗</span>
+                            <span>No voice automation capabilities</span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <span style="color: #ef4444; font-size: 20px; flex-shrink: 0;">✗</span>
+                            <span>Works only when you're working</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Remodely.ai -->
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid #10b981; border-radius: 20px; padding: 32px; box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 24px; font-weight: 700; color: #10b981; margin: 0;">Remodely.ai</h3>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: #e2e8f0; font-size: 16px; line-height: 2;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #10b981; font-size: 20px; flex-shrink: 0;">✓</span>
+                            <span><strong>AI answers every call instantly</strong></span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #10b981; font-size: 20px; flex-shrink: 0;">✓</span>
+                            <span><strong>Auto-captures & qualifies leads</strong></span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #10b981; font-size: 20px; flex-shrink: 0;">✓</span>
+                            <span><strong>Built-in phone system included</strong></span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                            <span style="color: #10b981; font-size: 20px; flex-shrink: 0;">✓</span>
+                            <span><strong>Voice workflows + full CRM</strong></span>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <span style="color: #10b981; font-size: 20px; flex-shrink: 0;">✓</span>
+                            <span><strong>Works 24/7, even when you don't</strong></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Interactive Demo Section -->
+            <div style="background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 56px; box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: center;">
+                    <!-- Left: Call to Action -->
+                    <div>
+                        <div style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; color: #92400e; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                            Test It Right Now - Free
+                        </div>
+                        <h3 style="font-size: 38px; font-weight: 900; color: #0f172a; margin-bottom: 16px; line-height: 1.2;">
+                            Call This Number.<br/>AI Picks Up Instantly.
+                        </h3>
+                        <p style="font-size: 18px; color: #64748b; margin-bottom: 32px; line-height: 1.6;">
+                            Unlike task managers that need you to check them, our AI actually <strong style="color: #10b981;">answers your phone</strong>. Try it yourself—call now and experience what contractors are using to capture every lead, 24/7.
+                        </p>
+
+                        <!-- Phone Number CTA -->
+                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; padding: 40px; margin-bottom: 28px; text-align: center; box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);">
+                            <p style="font-size: 15px; color: rgba(255, 255, 255, 0.9); font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Pick Up Your Phone & Call</p>
+                            <a href="tel:+16028334780" style="font-size: 52px; font-weight: 900; color: white; text-decoration: none; display: block; margin-bottom: 12px; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                (602) 833-4780
+                            </a>
+                            <p style="font-size: 15px; color: rgba(255, 255, 255, 0.85); margin: 0;">
+                                Live AI Agent • Answers in 2 Seconds • Available Right Now
+                            </p>
+                        </div>
+
+                        <!-- What to Try -->
+                        <div style="background: #f8fafc; border-left: 4px solid #3b82f6; padding: 20px 24px; border-radius: 12px;">
+                            <p style="font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Try Asking:</p>
+                            <div style="display: grid; gap: 8px;">
+                                <p style="margin: 0; color: #475569; font-size: 15px;">"What's your pricing?"</p>
+                                <p style="margin: 0; color: #475569; font-size: 15px;">"Can you schedule a demo?"</p>
+                                <p style="margin: 0; color: #475569; font-size: 15px;">"How does this work for contractors?"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Alternative Contact Methods -->
+                    <div>
+                        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 20px; padding: 32px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
+                            <h4 style="font-size: 19px; font-weight: 700; color: #0f172a; margin-bottom: 24px;">Prefer Text? Chat With Our AI</h4>
+
+                            <!-- Chat Widget Container -->
+                            <div id="chat-widget-container" style="min-height: 420px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1;">
+                                <div style="text-align: center; padding: 32px;">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin: 0 auto 16px;">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    <p style="color: #64748b; font-size: 14px; margin: 0 0 16px 0;">AI Chat Widget</p>
+                                    <p style="color: #94a3b8; font-size: 13px; margin: 0; line-height: 1.6;">Voice & text chat with our AI agent.<br/>Has "Call Me Back" button for outbound demo.</p>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px; display: grid; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #f0fdf4; border-radius: 10px; border: 1px solid #bbf7d0;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span style="color: #166534; font-size: 14px; font-weight: 500;">Type or speak your questions</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #eff6ff; border-radius: 10px; border: 1px solid #bfdbfe;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span style="color: #1e40af; font-size: 14px; font-weight: 500;">Request callback for live demo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Stats -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+                <div style="text-align: center; padding: 24px; background: rgba(16, 185, 129, 0.05); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                    <div style="font-size: 36px; font-weight: 900; color: #10b981; margin-bottom: 8px;">&lt;2 sec</div>
+                    <div style="font-size: 14px; color: #94a3b8; font-weight: 500;">Average Answer Time</div>
+                </div>
+                <div style="text-align: center; padding: 24px; background: rgba(59, 130, 246, 0.05); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                    <div style="font-size: 36px; font-weight: 900; color: #3b82f6; margin-bottom: 8px;">24/7</div>
+                    <div style="font-size: 14px; color: #94a3b8; font-weight: 500;">Never Misses a Call</div>
+                </div>
+                <div style="text-align: center; padding: 24px; background: rgba(168, 85, 247, 0.05); border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.2);">
+                    <div style="font-size: 36px; font-weight: 900; color: #a855f7; margin-bottom: 8px;">0 min</div>
+                    <div style="font-size: 14px; color: #94a3b8; font-weight: 500;">Setup Time Required</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 968px) {
+            section[style*="grid-template-columns: 1fr 1fr"] > div:first-child > div:nth-child(3) > div {
+                grid-template-columns: 1fr !important;
+            }
+            section[style*="grid-template-columns: 1.2fr 1fr"] > div > div:last-child > div {
+                grid-template-columns: 1fr !important;
+            }
+            h2[style*="font-size: 52px"] {
+                font-size: 36px !important;
+            }
+            h3[style*="font-size: 38px"] {
+                font-size: 28px !important;
+            }
+            a[style*="font-size: 52px"] {
+                font-size: 38px !important;
+            }
+        }
+    </style>
+
     <!-- How It Works Section -->
-    <section class="how-it-works" id="how-it-works">
-        <div class="how-it-works-container">
-            <div class="section-title">
-                <h2>How VoiceFlow CRM Works</h2>
-                <p>Build powerful voice AI workflows with visual no-code tools. Connect voice agents, automate tasks, and integrate your systems—all without writing code.</p>
+    <section style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); padding: 100px 24px; margin: 0;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 64px;">
+                <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; color: #92400e; padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Simple Setup
+                </div>
+                <h2 style="font-size: 48px; font-weight: 900; color: #0f172a; margin-bottom: 20px; line-height: 1.1;">
+                    Setup Takes 5 Minutes.<br/>Build Your First Agent in 10.
+                </h2>
+                <p style="font-size: 20px; color: #64748b; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+                    No complex onboarding. No technical setup. Just sign up, drag a few nodes, and you're answering calls with AI.
+                </p>
             </div>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3>Tell Us Your Needs</h3>
-                    <p>Share your business goals and use cases. We'll consult with you to understand exactly what your AI agents need to accomplish.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
+                <!-- Step 1 -->
+                <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: relative; border: 2px solid #e2e8f0;">
+                    <div style="position: absolute; top: -20px; left: 36px; width: 48px; height: 48px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <span style="color: white; font-size: 24px; font-weight: 900;">1</span>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h3 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">Sign Up & Get Your Number</h3>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 16px;">
+                            Create account with Google OAuth. Choose a local or toll-free number. Takes 2 minutes.
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 8px; color: #10b981; font-size: 14px; font-weight: 600;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>No credit card required</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3>We Build Your Agents</h3>
-                    <p>Our team builds custom AI voice agents, designs workflows, and integrates everything with your existing systems—no technical work required from you.</p>
+
+                <!-- Step 2 -->
+                <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: relative; border: 2px solid #e2e8f0;">
+                    <div style="position: absolute; top: -20px; left: 36px; width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                        <span style="color: white; font-size: 24px; font-weight: 900;">2</span>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h3 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">Build Your Agent</h3>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 16px;">
+                            Drag nodes onto canvas. Connect inbound call → AI prompt → actions. Test instantly with one click.
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 8px; color: #3b82f6; font-size: 14px; font-weight: 600;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>No coding required</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3>Go Live Instantly</h3>
-                    <p>We deploy your agents and train them with your data. Start handling calls, qualifying leads, and automating tasks immediately.</p>
+
+                <!-- Step 3 -->
+                <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: relative; border: 2px solid #e2e8f0;">
+                    <div style="position: absolute; top: -20px; left: 36px; width: 48px; height: 48px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                        <span style="color: white; font-size: 24px; font-weight: 900;">3</span>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h3 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">Deploy & Start Answering</h3>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 16px;">
+                            Click "Deploy". Your AI is live. Call your number to test. Calls auto-log to CRM with transcripts.
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 8px; color: #8b5cf6; font-size: 14px; font-weight: 600;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Live in under 10 minutes</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3>We Manage & Optimize</h3>
-                    <p>Access your full-featured CRM platform. We monitor performance, provide insights, and continuously improve your agents for better results.</p>
+            </div>
+
+            <!-- Bottom CTA -->
+            <div style="text-align: center; margin-top: 64px;">
+                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #10b981; border-radius: 20px; padding: 40px; max-width: 800px; margin: 0 auto;">
+                    <h3 style="font-size: 28px; font-weight: 900; color: #0f172a; margin-bottom: 12px;">Start Free. No Trial Limits.</h3>
+                    <p style="font-size: 16px; color: #475569; margin-bottom: 28px; line-height: 1.6;">
+                        Full platform access from day one. Build unlimited agents, test workflows, connect integrations. Only pay when you start taking live calls.
+                    </p>
+                    <div style="display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                        <a href="/login" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px 40px; border-radius: 12px; font-size: 18px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);">
+                            Get Started Free
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                        <a href="tel:+16028334780" style="display: inline-flex; align-items: center; gap: 8px; background: white; border: 2px solid #10b981; color: #10b981; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            Call & Talk to Our AI
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="features-container">
-            <div class="section-title">
-                <h2>Complete CRM Platform With Built-For-You Agents</h2>
-                <p>We provide everything—pre-built agents, custom development, and a full-featured CRM to manage your entire operation.</p>
+    <!-- Platform Showcase Section with Real Screenshots -->
+    <section style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); padding: 100px 24px;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <!-- Section Header -->
+            <div style="text-align: center; margin-bottom: 72px;">
+                <div style="display: inline-block; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #3b82f6; color: #1e40af; padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    The Complete Platform
+                </div>
+                <h2 style="font-size: 48px; font-weight: 900; color: #0f172a; margin-bottom: 20px; line-height: 1.1;">
+                    Build Your Voice AI Empire<br/>From Your Phone
+                </h2>
+                <p style="font-size: 20px; color: #64748b; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+                    Motion helps you manage tasks. We give you the tools to run an entire business—drag-and-drop workflow builder, real-time analytics, and full CRM—all mobile-optimized so you can work from anywhere.
+                </p>
             </div>
-            <div class="features-grid">
-                <div class="feature-card" style="border: 2px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);">
-                    <div class="feature-icon">🎙️</div>
-                    <h3>ElevenLabs AI Voice - Built-In ✓</h3>
-                    <p><strong>Critical Integration #1:</strong> Pre-configured ElevenLabs voice technology with ultra-realistic voices. Handles every call with natural conversation, emotional intelligence, and perfect clarity - works 24/7 without breaks. No setup required, it just works.</p>
+
+            <!-- Feature 1: Visual Workflow Builder -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-bottom: 96px;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: #f0fdf4; border: 2px solid #10b981; color: #166534; padding: 8px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        No-Code Builder
+                    </div>
+                    <h3 style="font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 20px; line-height: 1.2;">
+                        Visual Workflow Builder That Actually Makes Sense
+                    </h3>
+                    <p style="font-size: 18px; color: #64748b; margin-bottom: 28px; line-height: 1.7;">
+                        Unlike cluttered task managers, our drag-and-drop builder is designed specifically for voice workflows. Connect inbound calls, outbound campaigns, AI decisions, and system prompts—all in one visual canvas.
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0 0 32px 0;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">Drag & Drop Nodes:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> Inbound/Outbound calls, System Prompts, AI Decision points</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">One-Click Deploy:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> Test workflows instantly, no waiting for dev cycles</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">Mobile-Friendly:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> Build and edit workflows from your phone or tablet</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/login" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);">
+                        Try Workflow Builder
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
                 </div>
-                <div class="feature-card" style="border: 2px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);">
-                    <div class="feature-icon">⚙️</div>
-                    <h3>n8n Workflow Automation - Built-In ✓</h3>
-                    <p><strong>Critical Integration #2:</strong> Full n8n workflow platform integrated out-of-the-box. Connect to Facebook, Shopify, Google, Stripe, QuickBooks, and 300+ services with OAuth. Visual workflow builder included - automate everything from lead capture to payment.</p>
+                <div style="position: relative;">
+                    <div style="background: #0a0f1a; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <!-- Visual Workflow Mockup - Matches Screenshot -->
+                        <div style="background: #0a0f1a; border-radius: 16px; padding: 40px; min-height: 450px; position: relative; overflow: hidden; background-image: radial-gradient(circle, rgba(100, 116, 139, 0.08) 1px, transparent 1px); background-size: 20px 20px;">
+
+                            <!-- AI Generator (top center) -->
+                            <div style="position: absolute; left: 50%; top: 40px; transform: translateX(-50%); background: rgba(139, 92, 246, 0.1); border: 2px solid #8b5cf6; border-radius: 8px; padding: 12px 16px; width: 160px; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                                    </svg>
+                                    <div style="font-weight: 700; font-size: 11px; color: white;">AI Generator</div>
+                                </div>
+                                <div style="font-size: 9px; color: #a78bfa; font-style: italic;">Select AI provider</div>
+                                <!-- Connection dots -->
+                                <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #8b5cf6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                                <div style="position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #8b5cf6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                            </div>
+
+                            <!-- Dotted connections from AI Generator -->
+                            <svg style="position: absolute; left: 50%; top: 110px; width: 400px; height: 80px; transform: translateX(-50%); pointer-events: none;">
+                                <path d="M 200 0 L 50 80" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                                <path d="M 200 0 L 350 80" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                            </svg>
+
+                            <!-- Row 2: Inbound Call and Voice -->
+                            <!-- Inbound Call (left) -->
+                            <div style="position: absolute; left: 80px; top: 180px; background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 8px; padding: 12px 16px; width: 160px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                    <div style="font-weight: 700; font-size: 11px; color: white;">Inbound Call</div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: #fbbf24; font-weight: 600;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                        <line x1="12" y1="9" x2="12" y2="13"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                    <span>Configure Twilio number</span>
+                                </div>
+                                <!-- Connection dots -->
+                                <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                                <div style="position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                            </div>
+
+                            <!-- Voice (center-right) -->
+                            <div style="position: absolute; left: 50%; top: 180px; transform: translateX(20px); background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 8px; padding: 12px 16px; width: 140px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    </svg>
+                                    <div style="font-weight: 700; font-size: 11px; color: white;">Voice</div>
+                                </div>
+                                <div style="font-size: 9px; color: #60a5fa; font-style: italic;">Not configured</div>
+                                <!-- Connection dots -->
+                                <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                                <div style="position: absolute; right: -4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                                <div style="position: absolute; left: -4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                            </div>
+
+                            <!-- AI Intent (right) -->
+                            <div style="position: absolute; right: 60px; top: 140px; background: rgba(251, 146, 60, 0.1); border: 2px solid #fb923c; border-radius: 8px; padding: 12px 16px; width: 140px; box-shadow: 0 0 20px rgba(251, 146, 60, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 16v-4"/>
+                                        <path d="M12 8h.01"/>
+                                    </svg>
+                                    <div style="font-weight: 700; font-size: 11px; color: white;">AI Intent</div>
+                                </div>
+                                <div style="font-size: 9px; color: #fdba74; font-style: italic;">Define intents</div>
+                                <!-- Connection dots -->
+                                <div style="position: absolute; left: -4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #fb923c; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                            </div>
+
+                            <!-- Dotted connection from Voice to AI Intent -->
+                            <svg style="position: absolute; right: 210px; top: 200px; width: 100px; height: 40px; pointer-events: none;">
+                                <path d="M 0 15 L 100 0" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                            </svg>
+
+                            <!-- Row 3: Outbound Call -->
+                            <div style="position: absolute; left: 50%; bottom: 60px; transform: translateX(-80px); background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 8px; padding: 12px 16px; width: 160px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                    <div style="font-weight: 700; font-size: 11px; color: white;">Outbound Call</div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: #fbbf24; font-weight: 600;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                        <line x1="12" y1="9" x2="12" y2="13"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                    <span>Configure Twilio number</span>
+                                </div>
+                                <!-- Connection dots -->
+                                <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; border: 2px solid #0a0f1a;"></div>
+                            </div>
+
+                            <!-- Dotted connection from Inbound to Outbound -->
+                            <svg style="position: absolute; left: 160px; top: 235px; width: 200px; height: 130px; pointer-events: none;">
+                                <path d="M 0 0 Q 50 50, 100 100" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                            </svg>
+
+                            <!-- Mini Map (bottom right) -->
+                            <div style="position: absolute; bottom: 16px; right: 16px; width: 140px; height: 90px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 4px; padding: 8px;">
+                                <div style="position: relative; width: 100%; height: 100%;">
+                                    <!-- Minimap dots representing nodes -->
+                                    <div style="position: absolute; left: 20%; top: 15%; width: 16px; height: 10px; background: rgba(139, 92, 246, 0.6); border-radius: 2px;"></div>
+                                    <div style="position: absolute; left: 10%; top: 50%; width: 16px; height: 10px; background: rgba(16, 185, 129, 0.6); border-radius: 2px;"></div>
+                                    <div style="position: absolute; left: 50%; top: 50%; width: 14px; height: 10px; background: rgba(59, 130, 246, 0.6); border-radius: 2px;"></div>
+                                    <div style="position: absolute; right: 15%; top: 35%; width: 14px; height: 10px; background: rgba(251, 146, 60, 0.6); border-radius: 2px;"></div>
+                                    <div style="position: absolute; left: 35%; bottom: 20%; width: 16px; height: 10px; background: rgba(59, 130, 246, 0.6); border-radius: 2px;"></div>
+                                    <!-- Viewport indicator -->
+                                    <div style="position: absolute; left: 10%; top: 25%; width: 70%; height: 50%; border: 1px solid rgba(59, 130, 246, 0.8); background: rgba(59, 130, 246, 0.1); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Node count (top left subtle) -->
+                            <div style="position: absolute; top: 16px; left: 16px; font-size: 11px; color: rgba(148, 163, 184, 0.6); font-weight: 500;">5 nodes • 4 connections</div>
+                        </div>
+                        <div style="margin-top: 0; padding: 16px 24px; background: rgba(15, 23, 42, 0.5); border-top: 1px solid rgba(100, 116, 139, 0.1);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                                <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Visual no-code builder • Drag & drop nodes • Real-time preview</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Intelligent Lead Management</h3>
-                    <p>Built-in CRM with automated lead qualification, scoring, and routing. Your agents ask the right questions and send hot prospects to your sales team instantly.</p>
+            </div>
+
+            <!-- Feature 2: Analytics Dashboard -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;">
+                <div style="position: relative; order: 1;">
+                    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+                        <!-- Dashboard Mockup -->
+                        <div style="background: #0f172a; border-radius: 12px; padding: 32px; min-height: 400px;">
+                            <!-- Top Stats Row -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;">
+                                <div style="background: rgba(59, 130, 246, 0.1); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px;">
+                                    <div style="color: #94a3b8; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Active Agents</div>
+                                    <div style="color: #3b82f6; font-size: 36px; font-weight: 900;">3</div>
+                                    <div style="color: #64748b; font-size: 11px; margin-top: 4px;">7 total • 4 paused</div>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px;">
+                                    <div style="color: #94a3b8; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Calls This Month</div>
+                                    <div style="color: #10b981; font-size: 36px; font-weight: 900;">24</div>
+                                    <div style="color: #64748b; font-size: 11px; margin-top: 4px;">25% success rate</div>
+                                </div>
+                                <div style="background: rgba(168, 85, 247, 0.1); border: 2px solid rgba(168, 85, 247, 0.3); border-radius: 12px; padding: 20px;">
+                                    <div style="color: #94a3b8; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Revenue Impact</div>
+                                    <div style="color: #a855f7; font-size: 36px; font-weight: 900;">$0</div>
+                                    <div style="color: #64748b; font-size: 11px; margin-top: 4px;">From 0 leads</div>
+                                </div>
+                            </div>
+
+                            <!-- AI Insights Panel -->
+                            <div style="background: rgba(139, 92, 246, 0.05); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 24px;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 8px; padding: 8px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="color: #a78bfa; font-size: 14px; font-weight: 700;">AI Insights</div>
+                                        <div style="color: #64748b; font-size: 12px;">Smart analytics from your call data</div>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                                    <div>
+                                        <div style="color: #e2e8f0; font-size: 13px; font-weight: 600; margin-bottom: 4px;">Success Rate</div>
+                                        <div style="color: #10b981; font-size: 28px; font-weight: 900;">75.0%</div>
+                                        <div style="color: #64748b; font-size: 11px;">6 successful out of 8</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #e2e8f0; font-size: 13px; font-weight: 600; margin-bottom: 4px;">Avg Duration</div>
+                                        <div style="color: #3b82f6; font-size: 28px; font-weight: 900;">98s</div>
+                                        <div style="color: #64748b; font-size: 11px;">Average call duration</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+                                <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                            </svg>
+                            <span style="color: #3b82f6; font-size: 13px; font-weight: 600;">Real-time analytics powered by OpenAI</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Unified Business Pipeline</h3>
-                    <p>Manage deals, projects, and invoices in one cohesive workflow. Track opportunities from lead to payment with visual kanban boards, automated stage transitions, and real-time revenue tracking.</p>
+                <div style="order: 2;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; border: 2px solid #3b82f6; color: #1e40af; padding: 8px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                        </svg>
+                        Real-Time Intelligence
+                    </div>
+                    <h3 style="font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 20px; line-height: 1.2;">
+                        Know Exactly What's Working (And What's Not)
+                    </h3>
+                    <p style="font-size: 18px; color: #64748b; margin-bottom: 28px; line-height: 1.7;">
+                        Task managers show you checkboxes. We show you revenue. Track call performance, lead conversion, agent success rates, and revenue impact—all powered by AI insights that actually help you make money.
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0 0 32px 0;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">AI-Powered Insights:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> Get recommendations on which agents and scripts convert best</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">Revenue Attribution:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> See exactly how much each agent and workflow generates</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <div style="flex-shrink: 0; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong style="color: #0f172a; font-size: 16px;">Mobile Dashboard:</strong>
+                                <span style="color: #64748b; font-size: 16px;"> Monitor your business from anywhere, optimized for phones</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/login" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);">
+                        View Live Demo
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h3>Team Messaging & Collaboration</h3>
-                    <p>Built-in messaging with Slack integration. Create channels for teams, customers, contractors, and vendors. Sync conversations across platforms and keep everyone connected in real-time.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📅</div>
-                    <h3>Smart Scheduling & Automation</h3>
-                    <p>We set up agents that check availability, book appointments, send reminders, and handle reschedules—all without human intervention. Integrated with your calendar.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
-                    <h3>We Handle All Integrations</h3>
-                    <p>We connect Twilio, Stripe, Google Calendar, SMTP, and any custom APIs you use. All integrations configured and tested by our team—no technical work from you.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3>Real-Time Analytics</h3>
-                    <p>Track call metrics, conversion rates, agent performance, and ROI. Make data-driven decisions to optimize workflows.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
-                    <h3>Enterprise Security</h3>
-                    <p>SOC 2 compliant infrastructure. End-to-end encryption, role-based access control, and audit logs for peace of mind.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🚀</div>
-                    <h3>Scalable Infrastructure</h3>
-                    <p>Handle thousands of concurrent calls. Auto-scaling, 99.9% uptime SLA, and global edge network for low-latency voice.</p>
-                </div>
+            </div>
+
+            <!-- Bottom CTA -->
+            <div style="text-align: center; margin-top: 80px; padding: 48px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 24px;">
+                <h3 style="font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 16px;">Run Your Business From Your Phone</h3>
+                <p style="font-size: 18px; color: #64748b; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Solo contractors are closing deals, managing leads, and scaling operations—all from mobile devices. No laptop required.
+                </p>
+                <a href="/login" class="btn btn-primary btn-large" style="font-size: 18px; padding: 18px 48px;">Start Building For Free →</a>
+                <p style="font-size: 14px; color: #94a3b8; margin-top: 16px;">No credit card • 5-minute setup • Cancel anytime</p>
             </div>
         </div>
     </section>
 
-    <!-- Visual Workflow Builder Section -->
-    <section class="workflow-builder-section" id="workflow-builder">
-        <div class="workflow-container">
-            <div class="section-title">
-                <h2>Voice-First Automation Workflows</h2>
-                <p>Connect voice agents to your business processes with visual, no-code workflows—built for real conversations.</p>
+    <!-- Contractor Capabilities Section -->
+    <section style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 100px 24px; margin: 0;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 64px;">
+                <div style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); color: white; padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Built For Contractors
+                </div>
+                <h2 style="font-size: 48px; font-weight: 900; color: white; margin-bottom: 20px; line-height: 1.1;">
+                    Inbound & Outbound.<br/>Everything You Need to Run Your Contracting Business.
+                </h2>
+                <p style="font-size: 20px; color: #94a3b8; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+                    From first contact to final payment, manage every aspect of your contracting operation with AI agents that work as hard as you do.
+                </p>
             </div>
 
-            <div class="workflow-builder-demo">
-                <div class="workflow-canvas-preview">
-                    <div class="workflow-node trigger-node" style="left: 50px; top: 100px;">
-                        <div class="node-icon">📞</div>
-                        <div class="node-label">Incoming Call</div>
-                        <div class="node-connector"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 64px;">
+                <!-- Inbound -->
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%); border: 2px solid #10b981; border-radius: 20px; padding: 40px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 28px; font-weight: 900; color: white; margin: 0 0 4px 0;">Inbound Calls</h3>
+                            <p style="font-size: 14px; color: #10b981; margin: 0; font-weight: 600;">Never Miss Another Lead</p>
+                        </div>
                     </div>
-                    <div class="workflow-connection" style="left: 140px; top: 125px; width: 60px;"></div>
-
-                    <div class="workflow-node action-node" style="left: 200px; top: 100px;">
-                        <div class="node-icon">🤖</div>
-                        <div class="node-label">AI Voice Agent</div>
-                        <div class="node-connector"></div>
-                    </div>
-                    <div class="workflow-connection" style="left: 290px; top: 125px; width: 60px;"></div>
-
-                    <div class="workflow-node condition-node" style="left: 350px; top: 100px;">
-                        <div class="node-icon">⚡</div>
-                        <div class="node-label">Qualify Lead</div>
-                        <div class="node-connector" style="top: 40px; left: 50%;"></div>
-                        <div class="node-connector" style="top: 40px; left: 50%; transform: translateX(-50%) rotate(45deg);"></div>
-                    </div>
-
-                    <div class="workflow-connection vertical" style="left: 395px; top: 150px; height: 50px;"></div>
-                    <div class="workflow-connection diagonal" style="left: 395px; top: 150px; width: 70px; height: 70px;"></div>
-
-                    <div class="workflow-node action-node" style="left: 350px; top: 210px;">
-                        <div class="node-icon">📅</div>
-                        <div class="node-label">Book Appointment</div>
-                        <div class="node-connector"></div>
-                    </div>
-
-                    <div class="workflow-node action-node" style="left: 460px; top: 210px;">
-                        <div class="node-icon">📨</div>
-                        <div class="node-label">Send Follow-up</div>
-                        <div class="node-connector"></div>
-                    </div>
-
-                    <div class="workflow-connection" style="left: 395px; top: 260px; width: 60px;"></div>
-                    <div class="workflow-connection" style="left: 505px; top: 260px; width: 60px;"></div>
-
-                    <div class="workflow-node integration-node" style="left: 350px; top: 310px;">
-                        <div class="node-icon">📊</div>
-                        <div class="node-label">Update CRM</div>
-                    </div>
-
-                    <div class="workflow-node integration-node" style="left: 460px; top: 310px;">
-                        <div class="node-icon">📧</div>
-                        <div class="node-label">Notify Team</div>
-                    </div>
-
-                    <div class="workflow-pulse" style="left: 50px; top: 100px;"></div>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Answer Every Call 24/7:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> AI picks up in 2 seconds, even at 3am on weekends</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Qualify Leads Instantly:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Ask project details, budget, timeline, location automatically</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Book Estimates On-Call:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Check your calendar and schedule site visits while customer is on the phone</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Auto-Update CRM:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Every call logged with transcript, sentiment analysis, and next steps</span>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="workflow-features-list">
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
+                <!-- Outbound -->
+                <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%); border: 2px solid #3b82f6; border-radius: 20px; padding: 40px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                <polyline points="12 5 19 12 12 19" style="opacity: 0.6;"></polyline>
+                            </svg>
+                        </div>
                         <div>
-                            <h4>Voice Agent Integration</h4>
-                            <p>Connect ElevenLabs AI voice agents directly to your workflows</p>
+                            <h3 style="font-size: 28px; font-weight: 900; color: white; margin: 0 0 4px 0;">Outbound Campaigns</h3>
+                            <p style="font-size: 14px; color: #3b82f6; margin: 0; font-weight: 600;">Scale Your Reach Automatically</p>
                         </div>
                     </div>
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
-                        <div>
-                            <h4>Smart Call Routing</h4>
-                            <p>Route calls to the right agent based on lead score, time, or custom rules</p>
-                        </div>
-                    </div>
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
-                        <div>
-                            <h4>Automated Follow-ups</h4>
-                            <p>Trigger SMS, email, or voice calls based on conversation outcomes</p>
-                        </div>
-                    </div>
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
-                        <div>
-                            <h4>CRM Sync</h4>
-                            <p>Automatically update your CRM with call transcripts and lead data</p>
-                        </div>
-                    </div>
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
-                        <div>
-                            <h4>Appointment Booking</h4>
-                            <p>Let voice agents schedule meetings and sync to your calendar</p>
-                        </div>
-                    </div>
-                    <div class="workflow-feature-item">
-                        <div class="feature-check">✓</div>
-                        <div>
-                            <h4>No-Code Builder</h4>
-                            <p>Drag-and-drop interface—build complex automations in minutes</p>
-                        </div>
-                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Follow-Up Automatically:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Call leads who didn't answer, send estimates, check-in after jobs</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Re-Engage Cold Leads:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Reach out to past estimates that went cold with personalized pitches</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Send SMS & Voicemail:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> Drop voicemails, send text messages, all automated based on triggers</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: start; gap: 12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" style="flex-shrink: 0; margin-top: 2px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <div>
+                                <strong style="color: white; font-size: 16px;">Track Every Touchpoint:</strong>
+                                <span style="color: #94a3b8; font-size: 16px;"> See who answered, who's interested, who needs another call</span>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="workflow-cta">
-                <a href="/login" class="btn btn-primary">Try Workflow Builder →</a>
-                <p class="workflow-cta-note">No credit card required • 14-day free trial</p>
+            <!-- Complete Workflow -->
+            <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid #8b5cf6; border-radius: 20px; padding: 48px;">
+                <h3 style="font-size: 32px; font-weight: 900; color: white; margin-bottom: 32px; text-align: center;">Complete Project Lifecycle Management</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+                    <div style="text-align: center;">
+                        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <span style="font-size: 32px;">📋</span>
+                        </div>
+                        <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 8px;">Create Estimates</h4>
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Generate & send quotes automatically after site visits</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <span style="font-size: 32px;">📅</span>
+                        </div>
+                        <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 8px;">Schedule Jobs</h4>
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Book crews, manage calendars, send reminders</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <span style="font-size: 32px;">💰</span>
+                        </div>
+                        <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 8px;">Collect Payments</h4>
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Send invoices, process cards, track receivables</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <span style="font-size: 32px;">⭐</span>
+                        </div>
+                        <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 8px;">Request Reviews</h4>
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Auto-ask happy customers for 5-star Google reviews</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -3543,13 +4452,14 @@
     <section class="integrations" id="integrations">
         <div class="integrations-container">
             <div class="section-title">
-                <h2>Powerful Integrations</h2>
-                <p>Connect with the tools you already use. Seamlessly integrate voice AI with your entire business stack.</p>
+                <h2>Core Integrations Pre-Configured</h2>
+                <p>The essential tools contractors need, already set up and ready to use. No API keys, no setup, no headaches.</p>
             </div>
 
-            <div class="integrations-grid">
+            <div class="integrations-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; max-width: 1280px; margin: 0 auto;">
                 <!-- ElevenLabs -->
-                <div class="integration-card">
+                <div class="integration-card" style="border: 2px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);">
+                    <span class="integration-badge" style="background: #3b82f6;">PRE-CONFIGURED</span>
                     <div class="integration-header">
                         <div class="integration-logo">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
@@ -3558,148 +4468,63 @@
                                 <line x1="12" y1="19" x2="12" y2="22"/>
                             </svg>
                         </div>
-                        <h3 class="integration-name">ElevenLabs</h3>
+                        <h3 class="integration-name">ElevenLabs AI Voice</h3>
                     </div>
-                    <p class="integration-description">Lifelike AI voice agents with advanced conversational capabilities and natural speech synthesis.</p>
+                    <p class="integration-description">Industry-leading AI voice technology powers your agents with ultra-realistic conversations. Handles customer calls with emotional intelligence, natural speech patterns, and human-like responses.</p>
                     <ul class="integration-features">
-                        <li>Natural voice conversations</li>
-                        <li>Multi-language support</li>
+                        <li>Lifelike voice conversations</li>
+                        <li>Multi-language support (29+ languages)</li>
                         <li>Real-time call handling</li>
-                        <li>Custom voice training</li>
+                        <li>Custom voice cloning</li>
                     </ul>
-                    <a href="https://elevenlabs.io" target="_blank" class="integration-button">Learn More</a>
                 </div>
 
                 <!-- Twilio -->
-                <div class="integration-card">
+                <div class="integration-card" style="border: 2px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);">
+                    <span class="integration-badge" style="background: #10b981;">PRE-CONFIGURED</span>
                     <div class="integration-header">
                         <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                             </svg>
                         </div>
-                        <h3 class="integration-name">Twilio</h3>
+                        <h3 class="integration-name">Twilio Phone System</h3>
                     </div>
-                    <p class="integration-description">Enterprise-grade phone infrastructure for inbound and outbound calling with SMS capabilities.</p>
+                    <p class="integration-description">Enterprise-grade telecommunications infrastructure handles all your calling needs. Get local, toll-free, or international numbers instantly. All calls route automatically to your AI agents.</p>
                     <ul class="integration-features">
-                        <li>Global phone numbers</li>
-                        <li>SMS & voice calling</li>
-                        <li>Call routing & recording</li>
-                        <li>99.95% uptime SLA</li>
+                        <li>Global phone numbers (100+ countries)</li>
+                        <li>Inbound & outbound calling</li>
+                        <li>SMS & MMS messaging</li>
+                        <li>Call recording & transcription</li>
                     </ul>
-                    <a href="https://www.twilio.com" target="_blank" class="integration-button">Learn More</a>
-                </div>
-
-                <!-- Stripe -->
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                                <line x1="2" y1="10" x2="22" y2="10"/>
-                            </svg>
-                        </div>
-                        <h3 class="integration-name">Stripe</h3>
-                    </div>
-                    <p class="integration-description">Secure subscription billing and payment processing with automated invoicing.</p>
-                    <ul class="integration-features">
-                        <li>Subscription management</li>
-                        <li>Usage-based billing</li>
-                        <li>Automated invoicing</li>
-                        <li>PCI compliance</li>
-                    </ul>
-                    <a href="https://stripe.com" target="_blank" class="integration-button">Learn More</a>
-                </div>
-
-                <!-- Google -->
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                        </div>
-                        <h3 class="integration-name">Google</h3>
-                    </div>
-                    <p class="integration-description">OAuth authentication and calendar sync for seamless appointment scheduling.</p>
-                    <ul class="integration-features">
-                        <li>Single sign-on (SSO)</li>
-                        <li>Calendar integration</li>
-                        <li>Event scheduling</li>
-                        <li>Automatic reminders</li>
-                    </ul>
-                    <a href="https://workspace.google.com" target="_blank" class="integration-button">Learn More</a>
                 </div>
 
                 <!-- n8n -->
-                <div class="integration-card">
+                <div class="integration-card" style="border: 2px solid #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%);">
+                    <span class="integration-badge" style="background: #f59e0b;">PRE-CONFIGURED</span>
                     <div class="integration-header">
                         <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                             </svg>
                         </div>
-                        <h3 class="integration-name">n8n</h3>
+                        <h3 class="integration-name">n8n Workflow Engine</h3>
                     </div>
-                    <p class="integration-description">Visual workflow automation connecting voice agents to hundreds of apps and services.</p>
+                    <p class="integration-description">Visual no-code workflow automation connects your voice agents to 500+ apps. Build complex automations with drag-and-drop. Automatically sync data and trigger actions from calls.</p>
                     <ul class="integration-features">
-                        <li>No-code automation</li>
-                        <li>500+ integrations</li>
-                        <li>Custom workflows</li>
-                        <li>Event-driven triggers</li>
+                        <li>500+ pre-built app integrations</li>
+                        <li>Visual drag-and-drop builder</li>
+                        <li>Custom automation triggers</li>
+                        <li>Event-driven workflows</li>
                     </ul>
-                    <a href="https://n8n.io" target="_blank" class="integration-button">Learn More</a>
                 </div>
 
-                <!-- Slack -->
-                <div class="integration-card">
+                <!-- Built-in CRM -->
+                <div class="integration-card" style="border: 2px solid #0ea5e9; background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%);">
+                    <span class="integration-badge" style="background: #0ea5e9;">BUILT-IN</span>
                     <div class="integration-header">
                         <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                        </div>
-                        <h3 class="integration-name">Slack</h3>
-                    </div>
-                    <p class="integration-description">Team notifications and collaboration with real-time alerts for calls and leads.</p>
-                    <ul class="integration-features">
-                        <li>Real-time notifications</li>
-                        <li>Team collaboration</li>
-                        <li>Custom alerts</li>
-                        <li>Channel integration</li>
-                    </ul>
-                    <a href="https://slack.com" target="_blank" class="integration-button">Learn More</a>
-                </div>
-
-                <!-- SMTP/Email -->
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                <polyline points="22,6 12,13 2,6"/>
-                            </svg>
-                        </div>
-                        <h3 class="integration-name">SMTP / Email</h3>
-                    </div>
-                    <p class="integration-description">Automated email notifications and follow-ups for every customer interaction.</p>
-                    <ul class="integration-features">
-                        <li>Automated follow-ups</li>
-                        <li>Lead notifications</li>
-                        <li>Custom templates</li>
-                        <li>Delivery tracking</li>
-                    </ul>
-                    <a href="#" class="integration-button secondary">Built-in</a>
-                </div>
-
-                <!-- CRM Integration -->
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-logo">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                                 <circle cx="9" cy="7" r="4"/>
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -3708,15 +4533,24 @@
                         </div>
                         <h3 class="integration-name">Built-in CRM</h3>
                     </div>
-                    <p class="integration-description">Native lead management and customer tracking with full conversation history.</p>
+                    <p class="integration-description">Complete customer relationship management system included at no extra cost. Every call automatically creates leads, logs conversations, and tracks customer journeys from one unified dashboard.</p>
                     <ul class="integration-features">
-                        <li>Lead capture & tracking</li>
-                        <li>Call history & recordings</li>
+                        <li>Automatic lead capture</li>
+                        <li>Full call history & recordings</li>
                         <li>Contact management</li>
-                        <li>Analytics & reporting</li>
+                        <li>Deal pipeline tracking</li>
                     </ul>
-                    <a href="/login" class="integration-button secondary">Included Free</a>
                 </div>
+            </div>
+
+            <!-- Integration Footer -->
+            <div style="text-align: center; margin-top: 48px; padding: 32px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 16px;">
+                <h3 style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">500+ Additional Integrations Available</h3>
+                <p style="font-size: 16px; color: #64748b; margin-bottom: 24px;">
+                    Connect to QuickBooks, Salesforce, HubSpot, Facebook, Shopify, Zapier, and hundreds more through our built-in n8n workflow engine.
+                    If an app has an API, you can integrate it—no coding required.
+                </p>
+                <a href="/login" class="btn btn-primary">Explore All Integrations →</a>
             </div>
         </div>
     </section>
@@ -3785,8 +4619,13 @@
         <h2>Never Miss Another Call. Automate Everything.</h2>
         <p>Complete plug-and-play solution with ElevenLabs voice AI and n8n workflows built-in. Start answering calls, booking jobs, and running your business 24/7 - setup takes 5 minutes, no coding required. Perfect for contractors, field services, and any business that depends on phone calls.</p>
         <div class="cta-group">
-            <a href="/login" class="btn btn-primary btn-large">Start Free Trial - Setup in 5 Min →</a>
-            <button class="btn btn-secondary btn-large" onclick="openCalendarModal()">Watch 2-Min Demo</button>
+            <a href="/signup" class="btn btn-primary btn-large">Start Free Trial - Setup in 5 Min →</a>
+            <a href="tel:+16028334780" class="btn btn-secondary btn-large">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                Call (602) 833-4780 to Test AI
+            </a>
         </div>
         <div style="margin-top: 32px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; color: #94a3b8; font-size: 14px;">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -5104,5 +5943,23 @@
 
     <!-- Cookie Consent Banner -->
     <script src="/cookie-consent.js"></script>
+
+    <!-- ElevenLabs Chat Widget Script -->
+    <script>
+    (function() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/elevenlabs-convai-widget@latest/dist/index.umd.js';
+        script.onload = function() {
+            if (typeof window.ElevenLabsConvAI !== 'undefined') {
+                window.ElevenLabsConvAI.mount({
+                    agentId: '5001kaf95rrne51rrew7b65wkr1w',
+                    mode: 'iframe',
+                    iframeContainerId: 'chat-widget-container'
+                });
+            }
+        };
+        document.head.appendChild(script);
+    })();
+    </script>
 </body>
 </html>

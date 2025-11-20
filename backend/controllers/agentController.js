@@ -2,11 +2,14 @@ import VoiceAgent from '../models/VoiceAgent.js';
 import CallLog from '../models/CallLog.js';
 import User from '../models/User.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
+import VoiceAgentWorkflowService from '../services/voiceAgentWorkflowService.js';
 
 // Factory function to get ElevenLabs service with platform credentials
 const getElevenLabsService = () => {
   return new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 };
+
+const workflowService = new VoiceAgentWorkflowService();
 
 export const getAgents = async (req, res) => {
   try {
@@ -195,6 +198,30 @@ export const createAgent = async (req, res) => {
       voiceName: agent.voiceName,
       type: agent.type
     });
+
+    // Create n8n workflow for this agent
+    try {
+      console.log(`🔄 [CREATE AGENT] Creating n8n workflow for agent automation...`);
+      const workflowResult = await workflowService.createVoiceAgentWorkflow(agent, req.user._id);
+      console.log(`✅ [CREATE AGENT] n8n workflow created: ${workflowResult.workflowId}`);
+      console.log(`📞 [CREATE AGENT] Webhook URL: ${workflowResult.webhookUrl}`);
+
+      // Now assign phone number with the n8n webhook URL
+      if (phoneNumber && elevenLabsAgentId && !elevenLabsAgentId.startsWith('local_')) {
+        try {
+          const elevenLabsService = getElevenLabsService();
+          console.log(`📞 [CREATE AGENT] Assigning phone ${phoneNumber} to agent ${elevenLabsAgentId} with n8n webhook`);
+          await elevenLabsService.assignPhoneToAgent(phoneNumber, elevenLabsAgentId, workflowResult.webhookUrl);
+          console.log(`✅ [CREATE AGENT] Phone number assigned successfully with webhook: ${workflowResult.webhookUrl}`);
+        } catch (phoneError) {
+          console.error('⚠️  [CREATE AGENT] Failed to assign phone number:', phoneError.message);
+        }
+      }
+    } catch (workflowError) {
+      console.error('⚠️  [CREATE AGENT] Failed to create n8n workflow:', workflowError.message);
+      // Don't fail the whole request if workflow creation fails
+    }
+
     console.log('🎉 [CREATE AGENT] Sending response to client\n');
 
     res.status(201).json(agent);
@@ -236,8 +263,8 @@ export const updateAgent = async (req, res) => {
           console.log(`📞 Re-assigning phone ${agent.phoneNumber} to agent ${agent.elevenLabsAgentId}`);
 
           const webhookUrl = process.env.WEBHOOK_BASE_URL
-            ? `${process.env.WEBHOOK_BASE_URL}/api/webhooks/call-completed`
-            : `${req.protocol}://${req.get('host')}/api/webhooks/call-completed`;
+            ? `${process.env.WEBHOOK_BASE_URL}/api/webhooks/elevenlabs/call-completed`
+            : `${req.protocol}://${req.get('host')}/api/webhooks/elevenlabs/call-completed`;
 
           await elevenLabsService.assignPhoneToAgent(agent.phoneNumber, agent.elevenLabsAgentId, webhookUrl);
           console.log(`✅ Phone number re-assigned successfully with webhook: ${webhookUrl}`);
@@ -1397,11 +1424,17 @@ export const getVoiceLibrary = async (req, res) => {
     const requestedPage = parseInt(page);
     const requestedLimit = parseInt(limit);
 
-    console.log(`\n📚 [VOICE LIBRARY] Fetching page ${requestedPage} (limit: ${requestedLimit})...`);
+    console.log('\n========================================');
+    console.log('📚 [VOICE LIBRARY] API CALL RECEIVED');
+    console.log(`📊 Request from: ${req.user?.email || 'Unknown user'}`);
+    console.log(`📊 Page: ${requestedPage}, Limit: ${requestedLimit}`);
+    console.log('🔑 ElevenLabs API Key exists:', !!process.env.ELEVENLABS_API_KEY);
 
     const elevenLabsService = getElevenLabsService();
+    console.log('✅ ElevenLabs service initialized');
 
     // Fetch only the requested page from ElevenLabs
+    console.log('🌐 Calling ElevenLabs /shared-voices endpoint...');
     const response = await elevenLabsService.client.get('/shared-voices', {
       params: {
         page_size: requestedLimit,
@@ -1412,7 +1445,16 @@ export const getVoiceLibrary = async (req, res) => {
     const voices = response.data.voices || [];
     const hasMore = response.data.has_more || false;
 
-    console.log(`✅ [VOICE LIBRARY] Page ${requestedPage}: ${voices.length} voices fetched`);
+    console.log(`✅ [VOICE LIBRARY] Successfully fetched ${voices.length} voices from ElevenLabs`);
+    if (voices.length > 0) {
+      console.log(`📋 Sample voice structure:`, {
+        voice_id: voices[0].voice_id,
+        name: voices[0].name,
+        language: voices[0].language,
+        accent: voices[0].accent,
+        gender: voices[0].gender
+      });
+    }
 
     // Get user's saved voices to check which ones are already in library
     const userId = req.user?.id || req.user?._id;
@@ -1449,6 +1491,11 @@ export const getVoiceLibrary = async (req, res) => {
       hasMore: hasMore
     };
 
+    console.log(`📤 [VOICE LIBRARY] Sending response to frontend:`);
+    console.log(`   - Total voices: ${formattedVoices.length}`);
+    console.log(`   - Has more pages: ${hasMore}`);
+    console.log('========================================\n');
+
     res.json({
       success: true,
       voices: formattedVoices,
@@ -1457,7 +1504,15 @@ export const getVoiceLibrary = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ [VOICE LIBRARY] Error:', error.response?.data || error.message);
+    console.error('\n========================================');
+    console.error('❌ [VOICE LIBRARY] ERROR OCCURRED');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    console.error('ElevenLabs response:', error.response?.data);
+    console.error('Status code:', error.response?.status);
+    console.error('Full error:', error);
+    console.error('========================================\n');
+
     res.status(500).json({
       success: false,
       message: 'Failed to fetch voice library',

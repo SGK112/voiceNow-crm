@@ -5,32 +5,79 @@ import Campaign from '../models/Campaign.js';
 import TwilioService from '../services/twilioService.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
 import callMonitorService from '../services/callMonitorService.js';
+import callRoutingService from '../services/callRoutingService.js';
 
 const twilioService = new TwilioService();
 const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
-// Handle incoming Twilio voice calls
+// Handle incoming Twilio voice calls with multi-agent routing
 export const handleTwilioVoice = async (req, res) => {
   try {
-    const { From, To, CallSid } = req.body;
+    const { From, To, CallSid, Digits } = req.body;
 
     console.log(`📞 Incoming call from ${From} to ${To} (CallSid: ${CallSid})`);
 
-    // Find agent associated with this phone number
-    const agent = await VoiceAgent.findOne({
+    // Find all agents associated with this phone number
+    const agents = await VoiceAgent.find({
       phoneNumber: To,
-      enabled: true
-    });
+      enabled: true,
+      status: 'active'
+    }).sort({ priority: -1 });
 
-    if (!agent) {
-      console.log(`❌ No agent found for number ${To}`);
+    if (agents.length === 0) {
+      console.log(`❌ No agents found for number ${To}`);
 
-      // Return TwiML to reject call
       const VoiceResponse = twilio.twiml.VoiceResponse;
       const response = new VoiceResponse();
       response.say({
         voice: 'alice'
       }, 'Sorry, this number is not configured. Please contact support.');
+      response.hangup();
+
+      res.type('text/xml');
+      return res.send(response.toString());
+    }
+
+    // If multiple agents exist for this number, show IVR menu or route intelligently
+    let agent;
+
+    if (agents.length > 1) {
+      // Check if this is a routing callback (after IVR selection)
+      if (Digits) {
+        // Route based on IVR selection
+        agent = await callRoutingService.routeCall(To, From, {
+          userInput: Digits,
+          routingStrategy: 'ivr'
+        });
+      } else {
+        // Check if any agents have IVR routing configured
+        const hasIVRAgents = agents.some(a => a.routingConfig?.ivrOption);
+
+        if (hasIVRAgents) {
+          // Generate IVR menu
+          const ivrMenu = callRoutingService.generateIVRMenu(To, agents);
+          res.type('text/xml');
+          return res.send(ivrMenu);
+        } else {
+          // Use intelligent routing (time-based, caller-based, or load-based)
+          agent = await callRoutingService.routeCall(To, From, {
+            time: new Date(),
+            routingStrategy: 'caller' // Default to caller-based routing
+          });
+        }
+      }
+    } else {
+      // Single agent, use it directly
+      agent = agents[0];
+    }
+
+    if (!agent) {
+      console.log(`❌ No suitable agent found after routing`);
+      const VoiceResponse = twilio.twiml.VoiceResponse;
+      const response = new VoiceResponse();
+      response.say({
+        voice: 'alice'
+      }, 'Sorry, no agent is available at this time. Please try again later.');
       response.hangup();
 
       res.type('text/xml');

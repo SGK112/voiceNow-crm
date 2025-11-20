@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dealApi, leadApi } from '@/services/api';
@@ -168,70 +168,81 @@ export default function CRM() {
     },
   });
 
-  // Handlers
-  const handleAddLead = (e) => {
+  // Handlers - Memoized to prevent re-creation on every render
+  const handleAddLead = useCallback((e) => {
     e.preventDefault();
     createLeadMutation.mutate(newLead);
-  };
+  }, [createLeadMutation, newLead]);
 
-  const handleAddDeal = (e) => {
+  const handleAddDeal = useCallback((e) => {
     e.preventDefault();
     const dealData = {
       ...newDeal,
       contact: newDeal.contact === 'none' ? undefined : newDeal.contact,
     };
     createDealMutation.mutate(dealData);
-  };
+  }, [createDealMutation, newDeal]);
 
-  const handleAssignAgent = (agentId) => {
+  const handleAssignAgent = useCallback((agentId) => {
     assignAgentMutation.mutate({ leadId: selectedLead._id, agentId });
-  };
+  }, [assignAgentMutation, selectedLead]);
 
-  const handleDeleteLead = (leadId) => {
+  const handleDeleteLead = useCallback((leadId) => {
     if (confirm('Are you sure you want to delete this lead?')) {
       deleteLeadMutation.mutate(leadId);
     }
-  };
+  }, [deleteLeadMutation]);
 
-  // Filtering
-  const filteredLeads = leads.filter(lead =>
-    lead.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lead.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lead.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lead.company?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtering - Memoized for performance
+  const filteredLeads = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    if (!query) return leads;
 
-  const filteredDeals = deals.filter(deal =>
-    deal.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    deal.contact?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    deal.contact?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    return leads.filter(lead =>
+      lead.name?.toLowerCase().includes(query) ||
+      lead.email?.toLowerCase().includes(query) ||
+      lead.phone?.toLowerCase().includes(query) ||
+      lead.company?.toLowerCase().includes(query)
+    );
+  }, [leads, searchQuery]);
 
-  const getLeadsByStage = (stageId) => {
+  const filteredDeals = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    if (!query) return deals;
+
+    return deals.filter(deal =>
+      deal.title?.toLowerCase().includes(query) ||
+      deal.contact?.name?.toLowerCase().includes(query) ||
+      deal.contact?.email?.toLowerCase().includes(query)
+    );
+  }, [deals, searchQuery]);
+
+  // Memoized stage filtering functions
+  const getLeadsByStage = useCallback((stageId) => {
     return filteredLeads.filter(lead => (lead.stage || 'new') === stageId);
-  };
+  }, [filteredLeads]);
 
-  const getDealsByStage = (stageValue) => {
+  const getDealsByStage = useCallback((stageValue) => {
     return filteredDeals.filter(deal => (deal.stage || 'lead') === stageValue);
-  };
+  }, [filteredDeals]);
 
-  // Stats
-  const leadStats = {
+  // Stats - Memoized to avoid recalculation on every render
+  const leadStats = useMemo(() => ({
     total: leads.length,
     new: leads.filter(l => l.stage === 'new').length,
     inProgress: leads.filter(l => ['contacted', 'qualified', 'proposal'].includes(l.stage)).length,
     won: leads.filter(l => l.stage === 'won').length,
     aiAssigned: leads.filter(l => l.aiAssigned || l.assignedAgent).length,
     totalValue: leads.reduce((sum, l) => sum + (parseFloat(l.value) || 0), 0)
-  };
+  }), [leads]);
 
-  const dealStats = {
+  const dealStats = useMemo(() => ({
     total: deals.length,
     totalValue: dealSummary?.overall?.totalValue || 0,
     weightedValue: dealSummary?.overall?.weightedValue || 0,
     wonValue: dealSummary?.stages?.won?.totalValue || 0,
     wonCount: dealSummary?.stages?.won?.count || 0
-  };
+  }), [deals, dealSummary]);
 
   const isLoading = leadsLoading || dealsLoading;
 

@@ -84,6 +84,34 @@ const voiceAgentSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'testing'],
+    default: 'active'
+  },
+  callDirection: {
+    type: String,
+    enum: ['inbound', 'outbound', 'both'],
+    default: 'inbound'
+  },
+  priority: {
+    type: Number,
+    default: 0 // Higher number = higher priority for routing
+  },
+  routingConfig: {
+    ivrOption: String, // IVR menu digit (e.g., "1" for sales)
+    ivrPrompt: String, // Prompt text for IVR menu
+    timeBasedRouting: {
+      enabled: { type: Boolean, default: false },
+      days: [Number], // 0=Sunday, 6=Saturday
+      startHour: Number,
+      endHour: Number
+    },
+    callerBased: {
+      existingCustomers: { type: Boolean, default: false },
+      newCallers: { type: Boolean, default: false }
+    }
+  },
   configuration: {
     temperature: { type: Number, default: 0.8 },
     maxDuration: { type: Number, default: 300 },

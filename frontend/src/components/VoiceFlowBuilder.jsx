@@ -22,7 +22,7 @@ import {
   ChevronDown, ChevronUp, ChevronLeft, Menu, Webhook, Zap,
   CheckCircle, AlertCircle, Loader2, PhoneCall, Send, Image, Key,
   Brain, GitBranch, FileSearch, Target, Users, PhoneForwarded, Calendar,
-  PhoneIncoming, PhoneOutgoing
+  PhoneIncoming, PhoneOutgoing, Rocket
 } from 'lucide-react';
 import VoiceLibraryBrowser from './VoiceLibraryBrowser';
 import { ZoomSlider } from './ui/zoom-slider';
@@ -673,6 +673,11 @@ function VisualAgentBuilderContent() {
   const [showExecutions, setShowExecutions] = useState(false);
   const [executions, setExecutions] = useState([]);
 
+  // Deployment state
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deploymentResult, setDeploymentResult] = useState(null);
+  const [showDeployModal, setShowDeployModal] = useState(false);
+
   // Console/Debug state
   const [consoleLogs, setConsoleLogs] = useState([]);
   const [consoleExpanded, setConsoleExpanded] = useState(true); // true = expanded, false = minimized
@@ -1037,6 +1042,51 @@ function VisualAgentBuilderContent() {
     }
   };
 
+  // Deploy workflow
+  const handleDeploy = async () => {
+    if (!workflowId) {
+      addLog('error', 'No workflow ID', 'Please save the workflow first');
+      alert('Please save the workflow before deploying');
+      return;
+    }
+
+    const hasVoice = nodes.some(n => n.type === 'voice' && n.data.voiceId);
+    const hasPrompt = nodes.some(n => n.type === 'prompt' && n.data.prompt);
+
+    if (!hasVoice) {
+      addLog('error', 'Missing Voice node', 'Add and configure a Voice node');
+      alert('Please add and configure a Voice node before deploying');
+      return;
+    }
+    if (!hasPrompt) {
+      addLog('error', 'Missing Prompt node', 'Add and configure a Prompt node');
+      alert('Please add and configure a Prompt node before deploying');
+      return;
+    }
+
+    try {
+      setIsDeploying(true);
+      addLog('info', `Deploying workflow ${workflowId}...`);
+
+      const response = await api.post(`/voiceflow/deploy/${workflowId}`);
+
+      addLog('success', 'Workflow deployed successfully!');
+      addLog('info', `Agent: ${response.data.agent.name}`);
+      addLog('info', `ElevenLabs Agent ID: ${response.data.agent.elevenLabsAgentId}`);
+      addLog('info', `Webhook URL: ${response.data.webhookUrl}`);
+
+      setDeploymentResult(response.data);
+      setShowDeployModal(true);
+
+    } catch (error) {
+      console.error('Deployment error:', error);
+      addLog('error', 'Deployment failed', error.response?.data?.message || error.message);
+      alert(`Deployment failed: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   // AI Copilot handler
   const handleCopilotMessage = async () => {
     if (!copilotInput.trim()) return;
@@ -1226,6 +1276,19 @@ function VisualAgentBuilderContent() {
           >
             <Save className="h-4 w-4" />
             <span className="hidden sm:inline">Save</span>
+          </button>
+          <button
+            onClick={handleDeploy}
+            disabled={isDeploying || !workflowId}
+            className="px-2 sm:px-4 py-1.5 sm:py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-1 sm:gap-2 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Deploy to ElevenLabs"
+          >
+            {isDeploying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Rocket className="h-4 w-4" />
+            )}
+            <span className="hidden sm:inline">{isDeploying ? 'Deploying...' : 'Deploy'}</span>
           </button>
           <button
             onClick={handleTest}
@@ -4833,6 +4896,138 @@ function TestConfig({ formData, setFormData, addLog }) {
             <span className={testResult.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}>
               {testResult.message}
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Deployment Success Modal */}
+      {showDeployModal && deploymentResult && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 p-3 rounded-full">
+                    <Rocket className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Deployment Successful!</h2>
+                    <p className="text-purple-100">Your workflow is now live</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowDeployModal(false)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5 text-white" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Agent Info */}
+              <div className="bg-green-50 dark:bg-green-950/30 border-2 border-green-500 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                  <h3 className="font-semibold text-lg text-foreground">Agent Deployed</h3>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Agent Name:</span>
+                    <span className="font-medium text-foreground">{deploymentResult.agent.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Agent ID:</span>
+                    <span className="font-mono text-xs text-foreground">{deploymentResult.agent._id}</span>
+                  </div>
+                  {deploymentResult.agent.phoneNumber && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Phone Number:</span>
+                      <span className="font-medium text-foreground">{deploymentResult.agent.phoneNumber}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ElevenLabs Info */}
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-blue-600" />
+                  ElevenLabs Configuration
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ElevenLabs Agent ID:</span>
+                    <span className="font-mono text-xs text-foreground">{deploymentResult.agent.elevenLabsAgentId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Voice ID:</span>
+                    <span className="font-mono text-xs text-foreground">{deploymentResult.agent.voiceId}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Webhook URL */}
+              <div className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                  <Webhook className="h-5 w-5 text-purple-600" />
+                  Webhook Configuration
+                </h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Calls will automatically create leads in your CRM:
+                </p>
+                <div className="bg-background border border-border rounded p-2">
+                  <code className="text-xs text-foreground break-all">
+                    {deploymentResult.webhookUrl}
+                  </code>
+                </div>
+              </div>
+
+              {/* Next Steps */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                  <Info className="h-5 w-5 text-amber-600" />
+                  What Happens Next
+                </h3>
+                <ul className="space-y-2 text-sm text-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>When someone calls, ElevenLabs will use your configured voice and prompt</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Call transcripts are automatically saved to the database</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Leads are automatically created or updated in your CRM</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Follow-up workflows can be triggered automatically</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <a
+                  href={deploymentResult.frontendUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                >
+                  <PhoneCall className="h-5 w-5" />
+                  View Agent
+                </a>
+                <button
+                  onClick={() => setShowDeployModal(false)}
+                  className="flex-1 px-4 py-3 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

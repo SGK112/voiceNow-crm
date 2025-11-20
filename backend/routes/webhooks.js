@@ -15,7 +15,8 @@ import {
   sendSignupLinkAction,
   handlePostCallFollowUp,
   handleConversationEvent,
-  testWebhook
+  testWebhook,
+  handleCallComplete
 } from '../controllers/elevenLabsWebhookController.js';
 import { webhookLimiter } from '../middleware/rateLimiter.js';
 
@@ -25,6 +26,9 @@ const router = express.Router();
 router.post('/elevenlabs', webhookLimiter, handleElevenLabsWebhook);
 router.post('/elevenlabs/call-completed', webhookLimiter, handleCallCompletion);
 router.post('/elevenlabs/call-event', webhookLimiter, handleCallEvent);
+
+// ElevenLabs CRM auto-population webhook (per-agent)
+router.post('/elevenlabs/:agentId', webhookLimiter, handleCallComplete);
 
 // ElevenLabs real-time action webhooks
 router.post('/elevenlabs/send-signup-link', sendSignupLinkAction);

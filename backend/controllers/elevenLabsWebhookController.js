@@ -2,10 +2,269 @@ import TwilioService from '../services/twilioService.js';
 import emailService from '../services/emailService.js';
 import AIService from '../services/aiService.js';
 import WorkflowEngine from '../services/workflowEngine.js';
+import CallLog from '../models/CallLog.js';
+import Lead from '../models/Lead.js';
+import VoiceAgent from '../models/VoiceAgent.js';
 
 const twilioService = new TwilioService();
 const aiService = new AIService();
 const workflowEngine = new WorkflowEngine();
+
+/**
+ * Handle call completion webhook from ElevenLabs
+ * This endpoint automatically populates the CRM with call data
+ *
+ * Endpoint: POST /api/webhooks/elevenlabs/:agentId
+ */
+export const handleCallComplete = async (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const callData = req.body;
+
+    console.log(`📞 Call completion webhook received for agent: ${agentId}`);
+    console.log(`   Call ID: ${callData.call_id || callData.conversation_id}`);
+
+    // Get agent from database
+    const agent = await VoiceAgent.findById(agentId);
+
+    if (!agent) {
+      console.error(`❌ Agent not found: ${agentId}`);
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    // Extract call information
+    const phoneNumber = callData.caller_phone || callData.phone_number || callData.metadata?.customer_phone;
+    const transcript = callData.transcript || '';
+    const duration = callData.duration || 0;
+    const elevenLabsCallId = callData.call_id || callData.conversation_id;
+
+    console.log(`   Phone: ${phoneNumber || 'Unknown'}`);
+    console.log(`   Duration: ${duration}s`);
+    console.log(`   Transcript length: ${transcript.length} chars`);
+
+    // 1. Save call log
+    const callLog = await CallLog.create({
+      agentId: agent._id,
+      userId: agent.userId,
+      direction: 'inbound',
+      phoneNumber: phoneNumber,
+      duration: duration,
+      transcript: transcript,
+      status: 'completed',
+      elevenLabsCallId: elevenLabsCallId,
+      metadata: new Map(Object.entries({
+        dynamicVariables: callData.dynamic_variables || callData.metadata || {},
+        rawWebhookData: callData
+      }))
+    });
+
+    console.log(`✅ CallLog created: ${callLog._id}`);
+
+    // 2. Extract lead info from transcript using AI
+    let leadInfo = {};
+
+    if (transcript && aiService.isAvailable()) {
+      try {
+        leadInfo = await extractLeadInfoWithAI(transcript);
+        console.log(`🤖 AI extracted lead info:`, leadInfo);
+      } catch (aiError) {
+        console.error('Failed to extract lead info:', aiError);
+        leadInfo = {};
+      }
+    }
+
+    // Fallback to metadata if AI extraction didn't work
+    const extractedName = leadInfo.name || callData.metadata?.customer_name || callData.metadata?.lead_name;
+    const extractedEmail = leadInfo.email || callData.metadata?.customer_email || callData.metadata?.lead_email;
+
+    // 3. Create or update lead in CRM
+    let lead = phoneNumber ? await Lead.findOne({ phone: phoneNumber }) : null;
+
+    if (!lead && phoneNumber) {
+      // Create new lead
+      lead = await Lead.create({
+        userId: agent.userId,
+        name: extractedName || 'Unknown Caller',
+        phone: phoneNumber,
+        email: extractedEmail,
+        source: 'voice_call',
+        status: 'new',
+        assignedTo: agent.userId,
+        notes: `Call transcript (${new Date().toLocaleDateString()}):\n${transcript}`,
+        lastContactDate: new Date()
+      });
+
+      console.log(`✨ New lead created: ${lead._id} - ${lead.name}`);
+    } else if (lead) {
+      // Update existing lead
+      lead.notes += `\n\n--- Call on ${new Date().toLocaleString()} ---\n${transcript}`;
+      lead.lastContactDate = new Date();
+
+      // Update name/email if we have better info
+      if (extractedName && lead.name === 'Unknown Caller') {
+        lead.name = extractedName;
+      }
+      if (extractedEmail && !lead.email) {
+        lead.email = extractedEmail;
+      }
+
+      await lead.save();
+      console.log(`📝 Lead updated: ${lead._id} - ${lead.name}`);
+    }
+
+    // 4. Link call to lead
+    if (lead) {
+      callLog.leadId = lead._id;
+      await callLog.save();
+      console.log(`🔗 Call linked to lead: ${lead._id}`);
+    }
+
+    // 5. Analyze sentiment
+    const sentiment = analyzeSentiment(transcript);
+    console.log(`💬 Sentiment: ${sentiment}`);
+
+    // 6. Detect intents (appointment booking, follow-up needed, etc.)
+    const intents = await detectIntents(transcript);
+    console.log(`🎯 Intents detected:`, intents);
+
+    // 7. Trigger follow-up workflows if configured
+    try {
+      await workflowEngine.handleTrigger('call_completed', {
+        callLog: {
+          id: callLog._id,
+          phoneNumber,
+          duration,
+          transcript,
+          sentiment
+        },
+        lead: lead ? {
+          id: lead._id,
+          name: lead.name,
+          phone: lead.phone,
+          email: lead.email,
+          status: lead.status
+        } : null,
+        agent: {
+          id: agent._id,
+          name: agent.name
+        },
+        intents
+      });
+      console.log(`✅ Workflows triggered for call completion`);
+    } catch (workflowError) {
+      console.error('Failed to trigger workflows:', workflowError);
+    }
+
+    // Return success
+    res.json({
+      success: true,
+      message: 'Call processed and CRM updated',
+      callLog: { _id: callLog._id },
+      lead: lead ? { _id: lead._id, name: lead.name } : null,
+      sentiment,
+      intents
+    });
+
+  } catch (error) {
+    console.error('❌ Call completion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process call completion',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Extract lead information from transcript using AI
+ */
+async function extractLeadInfoWithAI(transcript) {
+  if (!aiService.isAvailable()) {
+    return {};
+  }
+
+  const prompt = `Extract contact information from this call transcript. Return ONLY valid JSON with these fields:
+{
+  "name": "person's full name or null",
+  "email": "email address or null",
+  "phone": "phone number or null",
+  "intent": "what they wanted (brief description)"
+}
+
+Transcript:
+${transcript}
+
+Return only the JSON object, nothing else.`;
+
+  try {
+    const response = await aiService.chat([
+      { role: 'user', content: prompt }
+    ], {
+      model: 'gpt-4o-mini',
+      temperature: 0.1,
+      maxTokens: 200
+    });
+
+    // Try to parse JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+
+    return {};
+  } catch (error) {
+    console.error('AI extraction error:', error);
+    return {};
+  }
+}
+
+/**
+ * Analyze sentiment of transcript
+ */
+function analyzeSentiment(transcript) {
+  if (!transcript) return 'neutral';
+
+  const lower = transcript.toLowerCase();
+
+  const positive = ['great', 'thank', 'thanks', 'awesome', 'perfect', 'yes', 'appreciate', 'love', 'excellent', 'wonderful'];
+  const negative = ['no', 'angry', 'frustrated', 'terrible', 'bad', 'upset', 'disappointed', 'cancel', 'refund'];
+
+  const posCount = positive.filter(w => lower.includes(w)).length;
+  const negCount = negative.filter(w => lower.includes(w)).length;
+
+  if (posCount > negCount + 1) return 'positive';
+  if (negCount > posCount + 1) return 'negative';
+  return 'neutral';
+}
+
+/**
+ * Detect intents from transcript
+ */
+async function detectIntents(transcript) {
+  if (!transcript) return [];
+
+  const intents = [];
+  const lower = transcript.toLowerCase();
+
+  // Simple keyword-based intent detection
+  if (lower.includes('appointment') || lower.includes('schedule') || lower.includes('book')) {
+    intents.push('appointment_request');
+  }
+
+  if (lower.includes('quote') || lower.includes('price') || lower.includes('cost')) {
+    intents.push('pricing_inquiry');
+  }
+
+  if (lower.includes('support') || lower.includes('help') || lower.includes('issue') || lower.includes('problem')) {
+    intents.push('support_request');
+  }
+
+  if (lower.includes('cancel') || lower.includes('refund')) {
+    intents.push('cancellation_request');
+  }
+
+  return intents;
+}
 
 // Handle agent action: Send signup link via MMS with image during call
 export const sendSignupLinkAction = async (req, res) => {

@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import AgentsUnified from './pages/AgentsUnified';
 import AgentDetail from './pages/AgentDetail';
 import VoiceFlowBuilder from './components/VoiceFlowBuilder';
+import VoiceFlowBuilderResponsive from './components/VoiceFlowBuilderResponsive';
 import Conversations from './pages/Conversations';
 import CRM from './pages/CRM';
 import LeadDetail from './pages/LeadDetail';
@@ -108,8 +109,8 @@ function App() {
         <Route path="voice-library" element={<VoiceLibraryBrowser />} />
         <Route path="my-voices" element={<MyVoices />} />
         {/* UNIFIED VoiceFlow Builder - consolidates agent studio and workflow builder */}
-        <Route path="voiceflow-builder" element={<VoiceFlowBuilder />} />
-        <Route path="voiceflow-builder/:id" element={<VoiceFlowBuilder />} />
+        <Route path="voiceflow-builder" element={<VoiceFlowBuilderResponsive />} />
+        <Route path="voiceflow-builder/:id" element={<VoiceFlowBuilderResponsive />} />
 
         {/* Redirects from old separate builders to unified VoiceFlow Builder */}
         <Route path="agent-studio" element={<Navigate to="/app/voiceflow-builder" replace />} />
