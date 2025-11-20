@@ -79,7 +79,7 @@
     min-height: 90vh !important;
     display: flex !important;
     align-items: center !important;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%) !important;
     overflow: hidden !important;
 }
 
@@ -133,7 +133,7 @@
     position: relative !important;
     z-index: 1 !important;
     text-align: center !important;
-    color: white !important;
+    color: #0f172a !important;
     max-width: 1200px !important;
     margin: 0 auto !important;
     padding: 80px 24px !important;
@@ -144,7 +144,7 @@
     font-weight: 900 !important;
     line-height: 1.1 !important;
     margin-bottom: 24px !important;
-    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%) !important;
+    background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -166,7 +166,7 @@
 .hero p {
     font-size: clamp(18px, 4vw, 24px) !important;
     line-height: 1.6 !important;
-    color: #e0e7ff !important;
+    color: #64748b !important;
     margin-bottom: 40px !important;
     animation: fade-in-up 0.8s ease-out 0.2s backwards !important;
 }
@@ -181,7 +181,7 @@
     flex-direction: column !important;
     align-items: center !important;
     gap: 8px !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: #64748b !important;
     animation: bounce 2s infinite !important;
     z-index: 10 !important;
 }
@@ -254,14 +254,16 @@ button.btn-primary {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 2px solid rgba(255, 255, 255, 0.3) !important;
-    backdrop-filter: blur(10px) !important;
+    background: white !important;
+    border: 2px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ============================================
