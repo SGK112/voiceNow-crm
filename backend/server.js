@@ -202,14 +202,41 @@ app.use('/api', apiLimiter);
 // Serve static frontend files in production
 if (process.env.NODE_ENV === 'production') {
   const frontendDistPath = join(__dirname, '../frontend/dist');
+  const frontendPublicPath = join(__dirname, '../frontend/public');
 
-  // Serve static files (CSS, JS, images, etc.)
+  // Serve marketing page from frontend/public (before React app)
+  app.get('/', (req, res) => {
+    res.sendFile(join(frontendPublicPath, 'index.html'));
+  });
+
+  app.get('/marketing', (req, res) => {
+    res.sendFile(join(frontendPublicPath, 'marketing.html'));
+  });
+
+  // Serve static files from frontend/public (images, CSS, JS for marketing page)
+  app.use(express.static(frontendPublicPath));
+
+  // Serve static files from build (CSS, JS, images for React app)
   app.use(express.static(frontendDistPath));
 
-  // Serve React app for all other non-API routes (SPA fallback)
-  // This must come AFTER all API routes to avoid catching them
-  app.get(/^(?!\/api).*/, (req, res) => {
-    res.sendFile(join(frontendDistPath, 'index.html'));
+  // Serve React app for app routes (everything except root and marketing)
+  app.get(/^\/(?!api|marketing).*/, (req, res) => {
+    const requestPath = req.path;
+    // If it's a React app route (starts with /login, /dashboard, etc.)
+    if (requestPath.startsWith('/login') || requestPath.startsWith('/dashboard') ||
+        requestPath.startsWith('/leads') || requestPath.startsWith('/calls') ||
+        requestPath.startsWith('/agents') || requestPath.startsWith('/workflows') ||
+        requestPath.startsWith('/settings')) {
+      res.sendFile(join(frontendDistPath, 'index.html'));
+    } else {
+      // For other routes, try to serve from public first, then fall back to React
+      const publicFilePath = join(frontendPublicPath, requestPath);
+      if (require('fs').existsSync(publicFilePath) && require('fs').statSync(publicFilePath).isFile()) {
+        res.sendFile(publicFilePath);
+      } else {
+        res.sendFile(join(frontendDistPath, 'index.html'));
+      }
+    }
   });
 }
 
