@@ -2886,17 +2886,31 @@
         </span>
     </div>
 
-    <!-- Minimal Navigation -->
-    <nav class="navbar" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(226, 232, 240, 0.5); padding: 12px 24px; position: fixed; top: 40px; left: 0; right: 0; z-index: 1000;">
+    <!-- Navigation -->
+    <nav class="navbar" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(226, 232, 240, 0.8); padding: 14px 24px; position: fixed; top: 40px; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
         <div class="navbar-container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
-            <a href="/" class="logo">
-                <span style="color: #0f172a; font-size: 18px; font-weight: 800; letter-spacing: -0.5px;">Remodely AI</span>
+            <a href="/" class="logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; transition: transform 0.2s;">
+                <span style="font-size: 28px;">🎙️</span>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 18px; font-weight: 900; letter-spacing: -0.03em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;">Remodely</span>
+                    <span style="font-size: 10px; font-weight: 600; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1;">VoiceFlow CRM</span>
+                </div>
             </a>
-            <a href="/login" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 10px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s; display: inline-block;">
+            <a href="/login" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 11px 28px; border-radius: 50px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35); transition: all 0.3s ease; display: inline-block; border: 2px solid transparent;">
                 Start Now
             </a>
         </div>
     </nav>
+
+    <style>
+        .navbar a.logo:hover {
+            transform: translateY(-1px);
+        }
+        .navbar a[href="/login"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+        }
+    </style>
 
     <!-- Sticky Phone Bar (appears on scroll) -->
     <div class="sticky-phone-bar" id="stickyPhoneBar">
