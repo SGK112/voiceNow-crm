@@ -463,6 +463,83 @@ export const googleAuth = async (req, res) => {
   }
 };
 
+// Google OAuth Callback Handler (GET route)
+export const googleAuthCallback = async (req, res) => {
+  try {
+    const { code } = req.query;
+    console.log('🔗 OAuth callback received:', { hasCode: !!code });
+
+    if (!code) {
+      return res.status(400).json({ message: 'No authorization code provided' });
+    }
+
+    // Get the frontend URL for redirect
+    const frontendUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectUri = `${frontendUrl}/auth/google/callback`;
+
+    // Exchange code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      })
+    });
+
+    const tokens = await tokenResponse.json();
+
+    if (!tokens.id_token) {
+      console.error('❌ No ID token:', tokens);
+      return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
+    }
+
+    // Verify and decode ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    const googleId = payload.sub;
+    const email = payload.email;
+    const name = payload.name;
+
+    // Find or create user
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user
+      user = await User.create({
+        email,
+        company: name || email.split('@')[0],
+        googleId,
+        plan: 'trial',
+        subscriptionStatus: 'trialing',
+        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      });
+    } else if (!user.googleId) {
+      // Link Google account
+      user.googleId = googleId;
+      await user.save();
+    }
+
+    // Generate JWT
+    const token = generateToken(user._id);
+
+    // Redirect to frontend with token
+    res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+
+  } catch (error) {
+    console.error('❌ OAuth callback error:', error);
+    const frontendUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/login?error=oauth_error`);
+  }
+};
+
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
