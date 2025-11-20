@@ -1,0 +1,458 @@
+/**
+ * PROFESSIONAL GALLERY SLIDERS
+ * Designed for contractors - clean, modern, builder-focused
+ * No scrollbars, smooth touch interactions
+ */
+
+/* ============================================
+   SCREENSHOT GALLERY SLIDER
+   ============================================ */
+
+.screenshot-gallery {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 1280px !important;
+    margin: 60px auto !important;
+    overflow: hidden !important;
+}
+
+.screenshot-slider {
+    display: flex !important;
+    gap: 24px !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 20px 24px !important;
+
+    /* Hide scrollbar */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.screenshot-slider::-webkit-scrollbar {
+    display: none !important;
+}
+
+.screenshot-slide {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    scroll-snap-align: center !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: white !important;
+}
+
+.screenshot-slide:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 24px 80px rgba(59, 130, 246, 0.2) !important;
+}
+
+.screenshot-slide img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+/* Gradient fade edges */
+.screenshot-gallery::before,
+.screenshot-gallery::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 100px !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+}
+
+.screenshot-gallery::before {
+    left: 0 !important;
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0) 100%) !important;
+}
+
+.screenshot-gallery::after {
+    right: 0 !important;
+    background: linear-gradient(270deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0) 100%) !important;
+}
+
+/* Navigation dots */
+.slider-dots {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    margin-top: 32px !important;
+}
+
+.slider-dot {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    background: rgba(15, 23, 42, 0.2) !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.slider-dot.active {
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    width: 32px !important;
+    border-radius: 6px !important;
+}
+
+/* ============================================
+   FEATURE SHOWCASE SLIDER
+   Builder-focused design elements
+   ============================================ */
+
+.feature-showcase {
+    position: relative !important;
+    width: 100% !important;
+    padding: 80px 0 !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    overflow: hidden !important;
+}
+
+/* Construction blueprint pattern overlay */
+.feature-showcase::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(59, 130, 246, 0.03) 48px, rgba(59, 130, 246, 0.03) 50px),
+        repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(59, 130, 246, 0.03) 48px, rgba(59, 130, 246, 0.03) 50px) !important;
+    opacity: 0.5 !important;
+    z-index: 0 !important;
+}
+
+.feature-slider {
+    position: relative !important;
+    z-index: 1 !important;
+    display: flex !important;
+    gap: 32px !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 40px 24px !important;
+
+    /* Hide scrollbar */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.feature-slider::-webkit-scrollbar {
+    display: none !important;
+}
+
+.feature-slide {
+    flex: 0 0 auto !important;
+    width: 350px !important;
+    scroll-snap-align: center !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.feature-slide::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 4px !important;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6) !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s !important;
+}
+
+.feature-slide:hover {
+    transform: translateY(-8px) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3) !important;
+}
+
+.feature-slide:hover::before {
+    opacity: 1 !important;
+}
+
+.feature-icon {
+    width: 80px !important;
+    height: 80px !important;
+    margin: 0 auto 24px !important;
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 40px !important;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4) !important;
+    transition: all 0.3s !important;
+}
+
+.feature-slide:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg) !important;
+    box-shadow: 0 12px 48px rgba(59, 130, 246, 0.6) !important;
+}
+
+.feature-slide h3 {
+    color: white !important;
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    margin-bottom: 16px !important;
+    text-align: center !important;
+}
+
+.feature-slide p {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    text-align: center !important;
+}
+
+/* ============================================
+   TESTIMONIAL SLIDER
+   Social proof for contractors
+   ============================================ */
+
+.testimonial-slider {
+    display: flex !important;
+    gap: 24px !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 40px 24px !important;
+
+    /* Hide scrollbar */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.testimonial-slider::-webkit-scrollbar {
+    display: none !important;
+}
+
+.testimonial-card {
+    flex: 0 0 auto !important;
+    width: 90% !important;
+    max-width: 600px !important;
+    scroll-snap-align: center !important;
+    background: white !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Quote icon */
+.testimonial-card::before {
+    content: '"' !important;
+    position: absolute !important;
+    top: 20px !important;
+    left: 30px !important;
+    font-size: 120px !important;
+    font-family: Georgia, serif !important;
+    color: rgba(59, 130, 246, 0.1) !important;
+    line-height: 1 !important;
+}
+
+.testimonial-content {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.testimonial-quote {
+    font-size: 20px !important;
+    line-height: 1.6 !important;
+    color: #0f172a !important;
+    margin-bottom: 24px !important;
+    font-style: italic !important;
+}
+
+.testimonial-author {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.testimonial-avatar {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+}
+
+.testimonial-info h4 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-bottom: 4px !important;
+}
+
+.testimonial-info p {
+    font-size: 14px !important;
+    color: #64748b !important;
+}
+
+.testimonial-rating {
+    display: flex !important;
+    gap: 4px !important;
+    margin-top: 8px !important;
+}
+
+.testimonial-rating::before {
+    content: '⭐⭐⭐⭐⭐' !important;
+    font-size: 16px !important;
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .screenshot-slide {
+        max-width: 90vw !important;
+    }
+
+    .feature-slide {
+        width: 280px !important;
+        padding: 32px 24px !important;
+    }
+
+    .feature-icon {
+        width: 64px !important;
+        height: 64px !important;
+        font-size: 32px !important;
+    }
+
+    .testimonial-card {
+        width: 85vw !important;
+        padding: 32px 24px !important;
+    }
+
+    .testimonial-quote {
+        font-size: 18px !important;
+    }
+
+    .screenshot-gallery::before,
+    .screenshot-gallery::after {
+        width: 40px !important;
+    }
+}
+
+/* ============================================
+   SWIPE HINT INDICATOR
+   ============================================ */
+
+.swipe-hint {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    color: #64748b !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin-top: 24px !important;
+    animation: fade-pulse 2s infinite !important;
+}
+
+.swipe-hint::before {
+    content: '👉' !important;
+    font-size: 20px !important;
+}
+
+.swipe-hint::after {
+    content: 'Swipe to explore' !important;
+}
+
+@keyframes fade-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@media (min-width: 1024px) {
+    .swipe-hint {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   SMOOTH SCROLL BUTTONS (Desktop)
+   ============================================ */
+
+.slider-nav {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 20 !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    cursor: pointer !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s !important;
+}
+
+.slider-nav:hover {
+    background: white !important;
+    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.3) !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+.slider-nav-prev {
+    left: 20px !important;
+}
+
+.slider-nav-next {
+    right: 20px !important;
+}
+
+.slider-nav::before {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+}
+
+.slider-nav-prev::before {
+    content: '←' !important;
+}
+
+.slider-nav-next::before {
+    content: '→' !important;
+}
+
+@media (min-width: 1024px) {
+    .slider-nav {
+        display: flex !important;
+    }
+}

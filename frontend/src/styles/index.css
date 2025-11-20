@@ -239,30 +239,30 @@ iframe {
 /* Hide CRM sidebar on mobile, show as dropdown instead */
 @media (max-width: 1024px) {
   /* Main CRM container - remove flex, stack vertically */
-  .flex.h-\\[calc\\(100vh-4rem\\)\\] {
+  [class*="h-"][class*="calc"] {
     display: block !important;
     height: auto !important;
     min-height: 100vh !important;
   }
 
   /* CRM Sidebar - hide on mobile */
-  .flex.h-\\[calc\\(100vh-4rem\\)\\] > .w-64 {
+  .w-64 {
     display: none !important;
   }
 
   /* CRM main content - full width on mobile */
-  .flex.h-\\[calc\\(100vh-4rem\\)\\] > .flex-1 {
+  .flex-1 {
     width: 100% !important;
     padding: 16px !important;
   }
 
   /* Pipeline columns - horizontal scroll */
-  .flex.gap-4.overflow-x-auto {
+  .overflow-x-auto {
     -webkit-overflow-scrolling: touch !important;
     scroll-snap-type: x mandatory !important;
   }
 
-  .flex.gap-4.overflow-x-auto > div {
+  .overflow-x-auto > div {
     min-width: 280px !important;
     flex-shrink: 0 !important;
     scroll-snap-align: start !important;
