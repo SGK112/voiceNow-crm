@@ -217,7 +217,7 @@ if (process.env.NODE_ENV === 'production') {
 
   // Serve marketing page from frontend/public (before React app)
   app.get('/', (req, res) => {
-    res.sendFile(join(frontendPublicPath, 'index.html'));
+    res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
   app.get('/marketing', (req, res) => {
