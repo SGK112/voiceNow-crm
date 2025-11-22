@@ -550,7 +550,7 @@ function WorkflowStudioContent() {
   const fetchWorkflows = async () => {
     try {
       const response = await api.get('/crm-workflows');
-      const workflowData = response.data || [];
+      const workflowData = response.data?.workflows || [];
       setWorkflows(workflowData);
 
       const active = workflowData.filter(w => w.enabled).length;
@@ -2043,7 +2043,7 @@ Example: "Send a text message to the customer confirming their appointment"`;
           setShowAIWizard(open);
           if (!open) {
             // Reload workflows when modal closes
-            loadWorkflows();
+            fetchWorkflows();
           }
         }}
         mode="workflow"

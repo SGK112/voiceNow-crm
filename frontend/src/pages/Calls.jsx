@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { callApi } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDuration, formatDateTime, formatPhoneNumber } from '@/lib/utils';
-import { PhoneIncoming, PhoneOutgoing, Filter, X } from 'lucide-react';
+import { PhoneIncoming, PhoneOutgoing, Filter, X, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Calls() {
   const [filters, setFilters] = useState({
@@ -17,6 +18,7 @@ export default function Calls() {
     search: ''
   });
   const [showFilters, setShowFilters] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['calls'],
@@ -24,6 +26,18 @@ export default function Calls() {
       const res = await callApi.getCalls();
       return res.data;
     },
+  });
+
+  // Sync mutation
+  const syncMutation = useMutation({
+    mutationFn: () => callApi.syncConversations(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['calls']);
+      toast.success(`Synced ${data.data.synced} conversations from ElevenLabs`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to sync: ${error.message}`);
+    }
   });
 
   const calls = data?.calls && Array.isArray(data.calls) ? data.calls : [];
@@ -110,19 +124,30 @@ export default function Calls() {
             View all voice agent calls ({filteredCalls.length} {filteredCalls.length === 1 ? 'call' : 'calls'})
           </p>
         </div>
-        <Button
-          variant={showFilters ? 'default' : 'outline'}
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2"
-        >
-          <Filter className="h-4 w-4" />
-          <span className="hidden sm:inline">Filters</span>
-          {hasActiveFilters && (
-            <Badge variant="secondary" className="ml-1">
-              {[filters.direction !== 'all', filters.status !== 'all', filters.search !== ''].filter(Boolean).length}
-            </Badge>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => syncMutation.mutate()}
+            disabled={syncMutation.isPending}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Sync from ElevenLabs</span>
+          </Button>
+          <Button
+            variant={showFilters ? 'default' : 'outline'}
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            <span className="hidden sm:inline">Filters</span>
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-1">
+                {[filters.direction !== 'all', filters.status !== 'all', filters.search !== ''].filter(Boolean).length}
+              </Badge>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Filters Panel */}

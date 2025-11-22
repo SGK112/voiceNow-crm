@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, CreditCard, Activity, User, Settings as SettingsIcon, Shield } from 'lucide-react';
 import BusinessProfileTab from '@/components/settings/BusinessProfileTab';
@@ -9,8 +10,17 @@ import MonitoringTab from '@/components/settings/MonitoringTab';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState('account');
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'account');
   const { user } = useAuth();
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   // Check if user is admin (only help.remodely@gmail.com for now)
   const isAdmin = user?.email === 'help.remodely@gmail.com';

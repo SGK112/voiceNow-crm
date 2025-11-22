@@ -476,7 +476,7 @@ export default function CRM() {
                       <div className={`rounded-t-lg border-2 ${stage.color} p-3 mb-3`}>
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-foreground">{stage.name}</h3>
-                          <Badge className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold">{stageLeads.length}</Badge>
+                          <Badge className="bg-gray-700 dark:bg-gray-600 text-white font-bold">{stageLeads.length}</Badge>
                         </div>
                       </div>
                       <div className="space-y-3 min-h-[500px]">
@@ -664,7 +664,7 @@ export default function CRM() {
                       <div className={`rounded-t-lg border-2 ${stage.color} p-3 mb-3`}>
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-foreground">{stage.label}</h3>
-                          <Badge className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold">{stageDeals.length}</Badge>
+                          <Badge className="bg-gray-700 dark:bg-gray-600 text-white font-bold">{stageDeals.length}</Badge>
                         </div>
                       </div>
                       <div className="space-y-3 min-h-[500px]">

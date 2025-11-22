@@ -764,7 +764,7 @@ export default function WorkflowBuilderEnhanced({ workflowId, onSave }) {
             type="text"
             value={workflowName}
             onChange={(e) => setWorkflowName(e.target.value)}
-            className="text-lg font-semibold bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none dark:text-white px-2 py-1"
+            className="text-lg font-semibold bg-transparent border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:outline-none text-gray-900 dark:text-white px-2 py-1"
             placeholder="Workflow Name"
           />
           <span className="text-sm text-foreground hidden sm:inline">
@@ -878,7 +878,7 @@ export default function WorkflowBuilderEnhanced({ workflowId, onSave }) {
                   <h3 className="font-semibold text-foreground text-sm">Add a Step</h3>
                   <button
                     onClick={() => setShowNodePalette(false)}
-                    className="text-gray-600 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-700 dark:text-gray-100"
+                    className="text-gray-600 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -925,7 +925,7 @@ export default function WorkflowBuilderEnhanced({ workflowId, onSave }) {
                 </button>
                 <button
                   onClick={() => setSelectedNode(null)}
-                  className="p-2 text-gray-600 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-700 dark:text-gray-100"
+                  className="p-2 text-gray-600 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white"
                 >
                   <X className="w-4 h-4" />
                 </button>

@@ -1785,7 +1785,7 @@ Example: "Send a text message to the customer confirming their appointment"`;
 
         {executions.length === 0 ? (
           <div className="text-center py-12 bg-card border border-border rounded-lg border border-border">
-            <History className="w-16 h-16 text-gray-700 dark:text-gray-100 dark:text-gray-600 mx-auto mb-4" />
+            <History className="w-16 h-16 text-gray-700 dark:text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">No executions yet</h3>
             <p className="text-muted-foreground">This workflow hasn't been run yet</p>
           </div>
@@ -2003,7 +2003,7 @@ Example: "Send a text message to the customer confirming their appointment"`;
         {!currentWorkflow ? (
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="text-center max-w-md">
-              <WorkflowIcon className="w-20 h-20 text-gray-700 dark:text-gray-100 dark:text-gray-600 mx-auto mb-4" />
+              <WorkflowIcon className="w-20 h-20 text-gray-700 dark:text-gray-300 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 Welcome to Workflow Studio
               </h2>

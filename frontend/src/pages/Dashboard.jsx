@@ -60,16 +60,19 @@ export default function Dashboard() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
+  // Loading state at the top with navigation still visible
+  const renderLoadingState = () => (
+    <div className="flex-1 overflow-auto p-6">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading dashboard...</p>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
   const quickActions = [
     { label: 'Deploy AI Agent', icon: Library, path: '/app/agents', color: 'bg-blue-500' },
@@ -120,6 +123,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Dashboard Content Area */}
+      {isLoading ? renderLoadingState() : (
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-[1600px] mx-auto space-y-6">
 
@@ -164,7 +168,7 @@ export default function Dashboard() {
               </p>
               {metrics?.thisMonth?.callsGrowth !== undefined && (
                 <div className={`flex items-center gap-0.5 text-xs font-medium ${
-                  metrics.thisMonth.callsGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                  metrics.thisMonth.callsGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   {metrics.thisMonth.callsGrowth >= 0 ? (
                     <TrendingUp className="h-3 w-3" />
@@ -201,7 +205,7 @@ export default function Dashboard() {
               </p>
               {metrics?.thisMonth?.leadsGrowth !== undefined && (
                 <div className={`flex items-center gap-0.5 text-xs font-medium ${
-                  metrics.thisMonth.leadsGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                  metrics.thisMonth.leadsGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   {metrics.thisMonth.leadsGrowth >= 0 ? (
                     <TrendingUp className="h-3 w-3" />
@@ -520,6 +524,7 @@ export default function Dashboard() {
       </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

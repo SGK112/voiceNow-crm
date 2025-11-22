@@ -174,7 +174,7 @@ const VoiceLibrary = ({ open, onOpenChange, onSelectVoice, selectedVoiceId }) =>
         {/* Search and Filters */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600 dark:text-gray-200" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600 dark:text-gray-300" />
             <Input
               placeholder="Search voices by name or description..."
               value={searchQuery}
@@ -212,8 +212,8 @@ const VoiceLibrary = ({ open, onOpenChange, onSelectVoice, selectedVoiceId }) =>
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-200" />
-              <span className="ml-3 text-gray-500">Loading voices...</span>
+              <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-300" />
+              <span className="ml-3 text-gray-500 dark:text-gray-400">Loading voices...</span>
             </div>
           ) : error ? (
             <div className="text-center py-12">

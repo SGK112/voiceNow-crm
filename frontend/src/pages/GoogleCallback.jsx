@@ -47,6 +47,9 @@ export default function GoogleCallback() {
 
         console.log('✅ [GoogleCallback] Login successful:', userData);
         toast.success('Successfully signed in with Google!');
+
+        // Skip onboarding - all users go directly to dashboard
+        // Profile can be completed later in Settings
         navigate('/app/dashboard');
       } catch (error) {
         console.error('❌ [GoogleCallback] Login failed:', error);

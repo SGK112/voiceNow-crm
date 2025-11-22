@@ -36,6 +36,12 @@ const OPTIONAL_ENV_VARS = {
   STRIPE_PROFESSIONAL_PRICE_ID: 'string',
   STRIPE_ENTERPRISE_PRICE_ID: 'string',
 
+  // Stripe Credit Packages (optional)
+  STRIPE_CREDIT_STARTER_PRICE_ID: 'string',
+  STRIPE_CREDIT_PROFESSIONAL_PRICE_ID: 'string',
+  STRIPE_CREDIT_ENTERPRISE_PRICE_ID: 'string',
+  STRIPE_CREDIT_MEGA_PRICE_ID: 'string',
+
   // ElevenLabs (optional, can be configured per user)
   ELEVENLABS_API_KEY: 'string',
 

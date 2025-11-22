@@ -271,7 +271,7 @@ Remember: You represent VoiceFlow CRM and our customer's business. Be excellent!
                       ? 'bg-blue-600 text-white'
                       : currentStep > step.number
                       ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
                   }`}
                 >
                   {currentStep > step.number ? (
@@ -281,10 +281,10 @@ Remember: You represent VoiceFlow CRM and our customer's business. Be excellent!
                   )}
                 </div>
                 <p className="text-xs font-medium mt-2">{step.name}</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">{step.description}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">{step.description}</p>
               </div>
               {idx < steps.length - 1 && (
-                <div className={`h-1 flex-1 mx-2 ${currentStep > step.number ? 'bg-green-600' : 'bg-gray-200'}`} />
+                <div className={`h-1 flex-1 mx-2 ${currentStep > step.number ? 'bg-green-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
               )}
             </div>
           ))}
@@ -524,7 +524,7 @@ Remember: You represent VoiceFlow CRM and our customer's business. Be excellent!
 
               {/* FAQs */}
               <TabsContent value="faqs" className="space-y-4 mt-6">
-                <p className="text-sm text-gray-600">Teach your agent how to answer common questions</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Teach your agent how to answer common questions</p>
 
                 {config.knowledge.faqs.map((faq, index) => (
                   <div key={index} className="border rounded-lg p-4 space-y-3">
@@ -595,12 +595,12 @@ Remember: You represent VoiceFlow CRM and our customer's business. Be excellent!
           <CardContent className="space-y-6">
             <div>
               <Label>Assign to Workflows</Label>
-              <p className="text-sm text-gray-500 mb-3">Select which n8n workflows this agent should trigger</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Select which n8n workflows this agent should trigger</p>
 
               {workflows.length === 0 ? (
                 <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                  <Workflow className="w-12 h-12 text-gray-600 dark:text-gray-200 mx-auto mb-3" />
-                  <p className="text-sm text-gray-600 mb-4">No workflows yet</p>
+                  <Workflow className="w-12 h-12 text-gray-600 dark:text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">No workflows yet</p>
                   <Button variant="outline" onClick={() => navigate('/workflows')}>
                     Create Your First Workflow
                   </Button>

@@ -172,17 +172,6 @@ export default function Agents() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading agents...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header */}
@@ -190,7 +179,7 @@ export default function Agents() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Voice Agents</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {agents.length} {agents.length === 1 ? 'agent' : 'agents'}
+            {isLoading ? 'Loading...' : `${agents.length} ${agents.length === 1 ? 'agent' : 'agents'}`}
           </p>
         </div>
 
@@ -352,6 +341,13 @@ export default function Agents() {
             <Plus className="h-4 w-4 mr-2" />
             Create Your First Agent
           </Button>
+        </div>
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading agents...</p>
+          </div>
         </div>
       ) : (
         <div className="border rounded-lg overflow-hidden bg-card">

@@ -35,9 +35,9 @@ export default function AIInsightsCard() {
   });
 
   const getTrendIcon = (trend) => {
-    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-600" />;
-    return <Minus className="h-4 w-4 text-gray-600 dark:text-gray-200" />;
+    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />;
+    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />;
+    return <Minus className="h-4 w-4 text-gray-600 dark:text-gray-300" />;
   };
 
   if (!aiAvailable) {
@@ -45,7 +45,7 @@ export default function AIInsightsCard() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
+            <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             <CardTitle>AI Insights</CardTitle>
           </div>
           <CardDescription>Get AI-powered recommendations</CardDescription>
@@ -67,13 +67,13 @@ export default function AIInsightsCard() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
+            <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             <CardTitle>AI Insights</CardTitle>
           </div>
           <CardDescription>Analyzing your call data...</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-32">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600 dark:text-purple-400" />
         </CardContent>
       </Card>
     );
@@ -84,7 +84,7 @@ export default function AIInsightsCard() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
+            <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             <CardTitle>AI Insights</CardTitle>
           </div>
         </CardHeader>
@@ -107,7 +107,7 @@ export default function AIInsightsCard() {
             <Sparkles className="h-5 w-5 text-purple-400" />
             <CardTitle>AI Insights</CardTitle>
           </div>
-          <Badge variant="secondary" className="text-xs bg-purple-500/20 text-purple-300 border-purple-500/30">
+          <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30">
             Powered by {insights.provider || 'openai'}
           </Badge>
         </div>

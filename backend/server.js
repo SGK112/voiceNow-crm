@@ -90,6 +90,11 @@ import usageCreditsRoutes from './routes/usageCredits.js';
 import conversationalAgentsRoutes from './routes/conversationalAgents.js';
 import elevenLabsWebhookRoutes from './routes/elevenLabsWebhook.js';
 import surpriseGraniteWebhookRoutes from './routes/surpriseGraniteWebhook.js';
+import mediaRoutes from './routes/media.js';
+import mediaLibraryRoutes from './routes/mediaLibrary.js';
+import imageManipulationRoutes from './routes/imageManipulation.js';
+import voiceImageRoutes from './routes/voiceImageGeneration.js';
+import { setupVoiceImageWebSocket } from './routes/voiceImageWebSocket.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -207,6 +212,10 @@ app.use('/api/call-initiation', callInitiationRoutes);
 app.use('/api/conversational-agents', conversationalAgentsRoutes);
 app.use('/api/elevenlabs-webhook', elevenLabsWebhookRoutes);
 app.use('/api/surprise-granite', surpriseGraniteWebhookRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/media-library', mediaLibraryRoutes);
+app.use('/api/image-transform', imageManipulationRoutes);
+app.use('/api/voice-images', voiceImageRoutes);
 
 app.use('/api', apiLimiter);
 
@@ -277,6 +286,7 @@ const server = app.listen(PORT, () => {
   ║   Port: ${PORT}                        ║
   ║   Environment: ${process.env.NODE_ENV || 'development'}            ║
   ║   API: http://localhost:${PORT}/api    ║
+  ║   WS: ws://localhost:${PORT}/ws        ║
   ╚════════════════════════════════════════╝
   `);
 
@@ -285,6 +295,13 @@ const server = app.listen(PORT, () => {
     startOverageBillingCron();
   } catch (error) {
     console.error('⚠️  Failed to start cron job:', error.message);
+  }
+
+  // Initialize Voice-Image WebSocket server
+  try {
+    setupVoiceImageWebSocket(server);
+  } catch (error) {
+    console.error('⚠️  Failed to start WebSocket server:', error.message);
   }
 });
 

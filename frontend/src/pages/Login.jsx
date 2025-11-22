@@ -22,7 +22,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      const userData = await login(email, password);
+
+      // Skip onboarding - users can complete profile later in Settings
+      // All users go directly to dashboard for quick access
       navigate('/app/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login');

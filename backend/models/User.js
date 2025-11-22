@@ -150,6 +150,109 @@ const userSchema = new mongoose.Schema({
       slack: { type: Boolean, default: false },
       slackWebhook: String
     }
+  },
+  // Onboarding & Profile Data for AI Personalization
+  profile: {
+    // Onboarding Status
+    onboardingCompleted: { type: Boolean, default: false },
+    onboardingStep: { type: Number, default: 0 },
+    onboardingSkipped: { type: Boolean, default: false },
+
+    // Business Information
+    businessName: String,
+    industry: {
+      type: String,
+      enum: ['Real Estate', 'Insurance', 'Healthcare', 'Legal', 'Finance', 'E-commerce', 'SaaS', 'Automotive', 'Home Services', 'Retail', 'Other']
+    },
+    businessSize: {
+      type: String,
+      enum: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+']
+    },
+    website: String,
+    timezone: { type: String, default: 'America/New_York' },
+
+    // Contact & Location
+    firstName: String,
+    lastName: String,
+    jobTitle: String,
+    phoneNumber: String,
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: { type: String, default: 'United States' }
+    },
+
+    // Use Case & Goals
+    primaryUseCase: {
+      type: String,
+      enum: ['Lead Qualification', 'Appointment Setting', 'Customer Support', 'Follow-ups', 'Surveys', 'Outbound Sales', 'Other']
+    },
+    targetAudience: String, // e.g., "homeowners", "small businesses"
+    monthlyCallVolume: {
+      type: String,
+      enum: ['0-100', '101-500', '501-1000', '1001-5000', '5000+']
+    },
+
+    // Brand Voice & Messaging
+    brandVoice: {
+      type: String,
+      enum: ['Professional', 'Friendly', 'Casual', 'Authoritative', 'Empathetic']
+    },
+    companyDescription: String, // AI uses this for context
+    valuePropositio: String, // What makes their business unique
+    keyProducts: [String], // Products/services they offer
+
+    // Agent Preferences
+    preferredVoiceGender: {
+      type: String,
+      enum: ['Male', 'Female', 'No Preference']
+    },
+    preferredVoiceAccent: String,
+    agentPersonality: String, // e.g., "professional but warm"
+
+    // Integration Preferences
+    existingCRM: {
+      type: String,
+      enum: ['Salesforce', 'HubSpot', 'Pipedrive', 'Zoho', 'Close', 'None', 'Other']
+    },
+    existingTools: [String], // Slack, Google Calendar, etc.
+
+    // Custom Variables (user-defined data for AI)
+    customVariables: {
+      type: Map,
+      of: String,
+      default: {}
+    },
+
+    // AI Context & Preferences
+    aiInstructions: String, // Global AI instructions for this user
+    complianceRequirements: String, // Legal/compliance notes
+    doNotMention: [String], // Topics to avoid
+
+    // Onboarding metadata
+    completedAt: Date,
+    lastUpdated: Date
+  },
+
+  // Media Generation Credits (Replicate AI)
+  mediaCredits: {
+    balance: {
+      type: Number,
+      default: 10, // Free starter credits
+      min: 0
+    },
+    used: {
+      type: Number,
+      default: 0
+    },
+    purchased: {
+      type: Number,
+      default: 0
+    },
+    lastPurchaseDate: Date,
+    lastUsageDate: Date
   }
 }, {
   timestamps: true

@@ -105,7 +105,65 @@ id_dsa*
 api-keys.txt
 tokens.txt
 
+# Stripe keys (live and test)
+sk_live_*
+sk_test_*
+pk_live_*
+pk_test_*
+*stripe_secret*
+*stripe_key*
+whsec_*
+
+# OpenAI keys
+sk-proj-*
+sk-*
+*openai_key*
+*openai-api-key*
+
+# Anthropic (Claude) keys
+sk-ant-*
+*anthropic_key*
+*claude_key*
+
+# ElevenLabs keys
+*elevenlabs_key*
+*elevenlabs-api-key*
+
+# Google AI keys
+AIzaSy*
+*google_ai_key*
+
+# Twilio keys
+AC*
+*twilio_auth*
+*twilio_token*
+
+# MongoDB connection strings
+mongodb+srv://*
+*mongodb_uri*
+*mongo_uri*
+
+# JWT secrets
+*jwt_secret*
+*jwt-secret*
+
+# Generic secret key patterns
+sk_*
+pk_*
+*_secret_key*
+*_api_key*
+*_auth_token*
+*SECRET*
+*TOKEN*
+*KEY*
+
 # OAuth configuration files with secrets
 OAUTH_DO_NOT_MODIFY.md
 *OAUTH*.md
 GOOGLE_OAUTH_FIX_REQUIRED.md
+
+# Documentation that might contain secrets
+*_AUDIT.md
+*RENDER_ENV*.md
+PRODUCTION_ENV_AUDIT.md
+RENDER_ENV_UPDATES_NEEDED.md

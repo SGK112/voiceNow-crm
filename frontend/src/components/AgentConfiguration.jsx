@@ -91,9 +91,9 @@ const AgentConfiguration = ({ agentId }) => {
         </div>
 
         <div className="mb-4">
-          <p className="text-sm font-medium text-gray-500 mb-2">Current Prompt</p>
-          <div className="bg-gray-50 rounded-md p-4 max-h-48 overflow-y-auto">
-            <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Current Prompt</p>
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-4 max-h-48 overflow-y-auto">
+            <pre className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
               {agent.conversation_config?.agent?.prompt?.prompt || 'No prompt configured'}
             </pre>
           </div>
@@ -101,12 +101,12 @@ const AgentConfiguration = ({ agentId }) => {
       </div>
 
       {/* Webhook URLs Card */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Pre-configured Webhook URLs
         </h3>
 
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
           Copy these URLs to configure your agent's webhooks in the ElevenLabs dashboard:
         </p>
 
@@ -114,21 +114,21 @@ const AgentConfiguration = ({ agentId }) => {
           {webhookUrls && Object.entries(webhookUrls).map(([key, url]) => (
             <div key={key} className="flex items-center gap-2">
               <div className="flex-1">
-                <p className="text-xs font-medium text-gray-700 mb-1">
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                 </p>
-                <div className="flex items-center gap-2 bg-gray-50 rounded px-3 py-2">
-                  <code className="text-xs text-gray-800 flex-1 overflow-x-auto">
+                <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 rounded px-3 py-2">
+                  <code className="text-xs text-gray-800 dark:text-gray-200 flex-1 overflow-x-auto">
                     {url}
                   </code>
                   <button
                     onClick={() => copyToClipboard(url, key)}
-                    className="p-1 hover:bg-gray-200 rounded transition-colors"
+                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                   >
                     {copied === key ? (
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
+                      <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     )}
                   </button>
                 </div>
@@ -139,7 +139,7 @@ const AgentConfiguration = ({ agentId }) => {
       </div>
 
       {/* Configuration Instructions */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
             <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -148,37 +148,37 @@ const AgentConfiguration = ({ agentId }) => {
           </div>
 
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Configure Your Agent in ElevenLabs
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Follow these steps to connect your webhooks and activate your voice agent:
             </p>
 
-            <div className="bg-white rounded-lg p-4 mb-4 space-y-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 space-y-3">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <p className="text-sm text-gray-700">Copy the webhook URLs from above (click the copy icon)</p>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Copy the webhook URLs from above (click the copy icon)</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <p className="text-sm text-gray-700">Click "Open ElevenLabs Dashboard" below (opens in new window)</p>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Click "Open ElevenLabs Dashboard" below (opens in new window)</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <p className="text-sm text-gray-700">In ElevenLabs, navigate to your agent settings → <strong>"Client Tools"</strong> tab</p>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">In ElevenLabs, navigate to your agent settings → <strong>"Client Tools"</strong> tab</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
-                <p className="text-sm text-gray-700">Add each webhook as a new tool and paste the corresponding URL</p>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Add each webhook as a new tool and paste the corresponding URL</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">5</div>
-                <p className="text-sm text-gray-700">Save your changes and test the agent by making a test call</p>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Save your changes and test the agent by making a test call</p>
               </div>
             </div>
 

@@ -57,6 +57,7 @@
     "openai": "^6.8.1",
     "pdf-text-extract": "^1.5.0",
     "redis": "^4.6.11",
+    "replicate": "^1.4.0",
     "stripe": "^14.9.0",
     "twilio": "^5.10.4",
     "uuid": "^9.0.1",

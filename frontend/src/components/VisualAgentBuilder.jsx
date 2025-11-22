@@ -1671,7 +1671,7 @@ function VisualAgentBuilderContent() {
                           placeholder="Ask AI or drop logs here..."
                           disabled={copilotLoading}
                           rows={3}
-                          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                          className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                         />
                         <div className="flex flex-col gap-2">
                           {copilotMessages.length > 0 && (
@@ -1826,7 +1826,7 @@ function VisualAgentBuilderContent() {
 
                     {/* Full Node Schema */}
                     <details className="mt-4">
-                      <summary className="text-xs text-gray-600 dark:text-gray-200 cursor-pointer hover:text-gray-700 dark:text-gray-100">
+                      <summary className="text-xs text-gray-600 dark:text-gray-100 cursor-pointer hover:text-gray-700 dark:hover:text-white">
                         View Complete Node Schema
                       </summary>
                       <pre className="mt-2 text-[10px] text-gray-600 dark:text-gray-200 bg-gray-900 p-3 rounded border border-gray-700 overflow-x-auto">
@@ -1959,7 +1959,7 @@ function VisualAgentBuilderContent() {
                       onKeyPress={(e) => e.key === 'Enter' && !copilotLoading && handleCopilotMessage()}
                       placeholder="Ask AI about your workflow..."
                       disabled={copilotLoading}
-                      className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                     {copilotMessages.length > 0 && (
                       <button

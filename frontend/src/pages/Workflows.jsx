@@ -299,7 +299,7 @@ export default function WorkflowsNew() {
         </div>
       ) : workflows.length === 0 ? (
         <div className="text-center py-12 bg-transparent border border-border rounded-lg shadow-sm border border-gray-200 border-border">
-          <WorkflowIcon className="w-16 h-16 text-gray-700 dark:text-gray-100 dark:text-gray-600 mx-auto mb-4" />
+          <WorkflowIcon className="w-16 h-16 text-gray-700 dark:text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">No workflows yet</h3>
           <p className="text-muted-foreground mb-6 px-4">
             Create your first workflow or browse the marketplace

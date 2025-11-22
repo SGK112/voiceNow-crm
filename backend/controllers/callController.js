@@ -77,6 +77,112 @@ export const deleteCall = async (req, res) => {
   }
 };
 
+/**
+ * Fetch conversations from ElevenLabs and sync to database
+ */
+export const syncConversations = async (req, res) => {
+  try {
+    const { agentId } = req.query;
+    const elevenLabsService = getElevenLabsService();
+
+    console.log('📥 Syncing conversations from ElevenLabs...');
+
+    // Fetch conversations from ElevenLabs API
+    const conversations = await elevenLabsService.getConversations({
+      agentId,
+      pageSize: 100
+    });
+
+    console.log(`✅ Found ${conversations.conversations?.length || 0} conversations from ElevenLabs`);
+
+    // Sync conversations to CallLog database
+    const syncedCalls = [];
+    for (const conv of conversations.conversations || []) {
+      try {
+        // Find matching agent in our database
+        const agent = await VoiceAgent.findOne({ elevenLabsAgentId: conv.agent_id });
+
+        if (!agent) {
+          console.log(`⚠️ No agent found for ${conv.agent_id}, skipping conversation ${conv.conversation_id}`);
+          continue;
+        }
+
+        // Check if call already exists
+        let existingCall = await CallLog.findOne({ elevenLabsCallId: conv.conversation_id });
+
+        // Calculate end time
+        const startTime = conv.start_time_unix_secs ? new Date(conv.start_time_unix_secs * 1000) : new Date();
+        const duration = conv.call_duration_secs || 0;
+        const endTime = new Date(startTime.getTime() + (duration * 1000));
+
+        if (existingCall) {
+          // Update existing call
+          existingCall.status = conv.call_successful === 'success' ? 'completed' : conv.status || 'completed';
+          existingCall.duration = duration;
+          existingCall.startTime = startTime;
+          existingCall.endTime = endTime;
+          existingCall.callerName = conv.call_summary_title || existingCall.callerName;
+          await existingCall.save();
+          syncedCalls.push(existingCall);
+        } else {
+          // Create new call log
+          const newCall = await CallLog.create({
+            userId: agent.userId,
+            agentId: agent._id,
+            elevenLabsCallId: conv.conversation_id,
+            phoneNumber: 'Unknown', // Phone number not in conversations list API
+            callerName: conv.call_summary_title || conv.agent_name,
+            direction: conv.direction || 'outbound',
+            status: conv.call_successful === 'success' ? 'completed' : 'failed',
+            duration: duration,
+            startTime: startTime,
+            endTime: endTime,
+            transcript: '', // Transcript not in list, need separate API call
+            recordingUrl: null,
+            cost: 0,
+            metadata: {
+              message_count: conv.message_count,
+              rating: conv.rating,
+              summary_title: conv.call_summary_title
+            }
+          });
+          syncedCalls.push(newCall);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to sync conversation ${conv.conversation_id}:`, error.message);
+      }
+    }
+
+    console.log(`✅ Successfully synced ${syncedCalls.length} conversations`);
+
+    res.json({
+      success: true,
+      synced: syncedCalls.length,
+      total: conversations.conversations?.length || 0,
+      calls: syncedCalls
+    });
+  } catch (error) {
+    console.error('❌ Sync conversations error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get conversation details from ElevenLabs
+ */
+export const getConversationDetails = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const elevenLabsService = getElevenLabsService();
+
+    const conversation = await elevenLabsService.getConversationById(conversationId);
+
+    res.json(conversation);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const initiateCall = async (req, res) => {
   try {
     const { leadId, agentId, phoneNumber } = req.body;

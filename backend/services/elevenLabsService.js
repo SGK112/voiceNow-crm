@@ -337,6 +337,60 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
     }
   }
 
+  /**
+   * Get all conversations from ElevenLabs
+   * @param {Object} options - Query options
+   * @param {string} options.agentId - Filter by agent ID (optional)
+   * @param {number} options.page - Page number (default: 1)
+   * @param {number} options.pageSize - Results per page (default: 100)
+   * @returns {Promise<Object>} Conversations list
+   */
+  async getConversations(options = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      if (options.agentId) params.append('agent_id', options.agentId);
+      if (options.page) params.append('page', options.page);
+      if (options.pageSize) params.append('page_size', options.pageSize);
+
+      const response = await this.client.get(`/convai/conversations?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('ElevenLabs API Error:', error.response?.data || error.message);
+      throw new Error('Failed to fetch conversations from ElevenLabs');
+    }
+  }
+
+  /**
+   * Get a specific conversation by ID
+   * @param {string} conversationId - The conversation ID
+   * @returns {Promise<Object>} Conversation details
+   */
+  async getConversationById(conversationId) {
+    try {
+      const response = await this.client.get(`/convai/conversations/${conversationId}`);
+      return response.data;
+    } catch (error) {
+      console.error('ElevenLabs API Error:', error.response?.data || error.message);
+      throw new Error('Failed to fetch conversation details');
+    }
+  }
+
+  /**
+   * Get conversation audio recording URL
+   * @param {string} conversationId - The conversation ID
+   * @returns {Promise<string>} Audio URL
+   */
+  async getConversationAudio(conversationId) {
+    try {
+      const response = await this.client.get(`/convai/conversations/${conversationId}/audio`);
+      return response.data;
+    } catch (error) {
+      console.error('ElevenLabs API Error:', error.response?.data || error.message);
+      throw new Error('Failed to fetch conversation audio');
+    }
+  }
+
   async getPhoneNumbers() {
     try {
       const response = await this.client.get('/convai/phone-numbers');

@@ -34,15 +34,15 @@ export default function HelpPopover({
 
   return (
     <div className={'fixed z-50 animate-in fade-in slide-in-from-bottom-2 duration-300 ' + positionClasses[position]}>
-      <div className="bg-white rounded-lg shadow-2xl border-2 border-blue-500 max-w-md p-5">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-2 border-blue-500 max-w-md p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-900">{title}</h3>
+            <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
           </div>
           <button
             onClick={handleDismiss}
-            className="text-gray-600 dark:text-gray-200 hover:text-gray-600 transition-colors"
+            className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -50,7 +50,7 @@ export default function HelpPopover({
 
         <div className="mb-4">
           {typeof content === 'string' ? (
-            <p className="text-gray-600 text-sm leading-relaxed">{content}</p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{content}</p>
           ) : (
             content
           )}
@@ -59,10 +59,10 @@ export default function HelpPopover({
             <ul className="mt-3 space-y-2">
               {steps.map((step, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-sm">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-semibold">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-semibold">
                     {idx + 1}
                   </span>
-                  <span className="text-gray-600">{step}</span>
+                  <span className="text-gray-600 dark:text-gray-300">{step}</span>
                 </li>
               ))}
             </ul>
@@ -71,13 +71,13 @@ export default function HelpPopover({
 
         {showProgress && totalSteps > 1 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
               <span>Progress</span>
               <span>{currentStep + 1} of {totalSteps}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: progressWidth + '%' }}
               />
             </div>
@@ -89,7 +89,7 @@ export default function HelpPopover({
             {onPrevious && currentStep > 0 && (
               <button
                 onClick={onPrevious}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Previous
               </button>
@@ -99,7 +99,7 @@ export default function HelpPopover({
           <div className="flex gap-2">
             <button
               onClick={handleDismiss}
-              className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Skip
             </button>

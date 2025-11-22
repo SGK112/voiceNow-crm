@@ -799,7 +799,7 @@ export default function AIVoiceAgentWizard({ onClose, onCreate }) {
                   {/* Voice Search and Filters */}
                   <div className="mb-4 space-y-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-200 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Search voices by name, tone, or accent..."
@@ -988,7 +988,7 @@ export default function AIVoiceAgentWizard({ onClose, onCreate }) {
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full px-4 py-8 border-2 border-dashed border-border rounded-lg hover:border-purple-400 transition-colors flex flex-col items-center gap-2"
                     >
-                      <Upload className="w-8 h-8 text-gray-600 dark:text-gray-200" />
+                      <Upload className="w-8 h-8 text-gray-600 dark:text-gray-300" />
                       <span className="text-sm font-medium text-foreground">Click to upload audio files</span>
                       <span className="text-xs text-foreground">MP3, WAV, M4A, OGG</span>
                     </button>

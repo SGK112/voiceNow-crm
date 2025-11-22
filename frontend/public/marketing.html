@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         * { font-family: 'Inter', sans-serif; }
         .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
@@ -17,9 +18,332 @@
         .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3); }
         .workflow-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
         .workflow-card:hover { border-left-color: #667eea; background: rgba(102, 126, 234, 0.05); }
+
+        /* Brand Intro Popup - Optimized for Clarity */
+        .brand-intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.6s ease;
+        }
+        .brand-intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .brand-intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Changed from cover to contain for better clarity */
+            max-width: 100%;
+            max-height: 100%;
+        }
+        /* On mobile, allow slight padding for better viewing */
+        @media (max-width: 768px) {
+            .brand-intro-video {
+                padding: 20px;
+            }
+        }
+        .skip-button {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .skip-button:hover {
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            border-color: rgba(255, 255, 255, 1);
+            transform: scale(1.08);
+            box-shadow: 0 6px 30px rgba(255, 255, 255, 0.3);
+        }
+        .skip-button:active {
+            transform: scale(1.0);
+        }
+        /* Progress indicator */
+        .video-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.1s linear;
+            z-index: 10000;
+        }
+        /* Loading state */
+        .brand-intro-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+        /* Text overlays - Enhanced and elegant */
+        .video-text-overlay {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 9998;
+        }
+        .video-text-overlay.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .value-statement {
+            bottom: 12%;
+            padding: 0 20px;
+        }
+        .value-statement h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin: 0;
+            color: #ffffff;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.95);
+            line-height: 1.3;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .value-statement p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin: 8px 0 0 0;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .remodely-brand {
+            bottom: 5%;
+            padding: 0 20px;
+        }
+        .remodely-brand p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 3px 0;
+            color: rgba(255, 255, 255, 1);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+            letter-spacing: 1px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .remodely-brand .powered-by {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 1.2px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            text-transform: uppercase;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .remodely-brand .brand-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .value-statement {
+                bottom: 10%;
+                padding: 0 15px;
+            }
+            .value-statement h2 {
+                font-size: 1.5rem;
+                letter-spacing: 0.3px;
+            }
+            .value-statement p {
+                font-size: 0.95rem;
+                letter-spacing: 0.3px;
+            }
+            .remodely-brand {
+                bottom: 4%;
+            }
+            .remodely-brand p {
+                font-size: 1rem;
+            }
+            .remodely-brand .powered-by {
+                font-size: 0.7rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .value-statement h2 {
+                font-size: 1.3rem;
+            }
+            .value-statement p {
+                font-size: 0.85rem;
+            }
+            .remodely-brand p {
+                font-size: 0.9rem;
+            }
+            .remodely-brand .powered-by {
+                font-size: 0.65rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Brand Intro Full-Screen Popup -->
+    <div id="brandIntroOverlay" class="brand-intro-overlay">
+        <div class="brand-intro-loading" id="loadingIndicator">
+            <i class="fas fa-circle-notch fa-spin mr-2"></i>Loading...
+        </div>
+        <button class="skip-button" onclick="dismissBrandIntro()" id="skipButton" style="display: none;">
+            SKIP <i class="fas fa-forward ml-2"></i>
+        </button>
+
+        <!-- Text Overlays -->
+        <div class="video-text-overlay value-statement" id="valueStatement">
+            <h2>Transform Conversations Into Revenue</h2>
+            <p>AI-Powered Voice Agents That Never Miss a Lead</p>
+        </div>
+
+        <div class="video-text-overlay remodely-brand" id="remodelyBrand">
+            <p class="powered-by">Powered by</p>
+            <p class="brand-name">Remodely.ai</p>
+        </div>
+
+        <video
+            id="brandIntroVideo"
+            autoplay
+            muted
+            playsinline
+            preload="auto"
+            class="brand-intro-video"
+            onloadeddata="onVideoLoaded()"
+            ontimeupdate="updateProgress()"
+            onended="dismissBrandIntro()"
+        >
+            <source src="/brand-intro-hd.mp4" type="video/mp4">
+        </video>
+        <div class="video-progress" id="videoProgress"></div>
+    </div>
+
+    <script>
+        let videoLoaded = false;
+
+        function onVideoLoaded() {
+            videoLoaded = true;
+            // Hide loading indicator
+            const loading = document.getElementById('loadingIndicator');
+            if (loading) loading.style.display = 'none';
+
+            // Show skip button
+            const skipBtn = document.getElementById('skipButton');
+            if (skipBtn) skipBtn.style.display = 'block';
+        }
+
+        function updateProgress() {
+            const video = document.getElementById('brandIntroVideo');
+            const progress = document.getElementById('videoProgress');
+            const valueStatement = document.getElementById('valueStatement');
+            const remodelyBrand = document.getElementById('remodelyBrand');
+
+            if (video && progress && video.duration) {
+                const percentage = (video.currentTime / video.duration) * 100;
+                progress.style.width = percentage + '%';
+
+                // Show value statement early (10% - 60% of video)
+                if (percentage >= 10 && percentage <= 60) {
+                    valueStatement.classList.add('show');
+                } else {
+                    valueStatement.classList.remove('show');
+                }
+
+                // Show Remodely brand near end (70% - 95% of video)
+                if (percentage >= 70 && percentage <= 95) {
+                    remodelyBrand.classList.add('show');
+                } else {
+                    remodelyBrand.classList.remove('show');
+                }
+            }
+        }
+
+        function dismissBrandIntro() {
+            const overlay = document.getElementById('brandIntroOverlay');
+            const video = document.getElementById('brandIntroVideo');
+
+            if (!overlay) return;
+
+            // Pause video
+            if (video) video.pause();
+
+            // Hide overlay with fade effect
+            overlay.classList.add('hidden');
+
+            // Remove from DOM after transition
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.remove();
+                }
+            }, 600);
+        }
+
+        // Allow ESC key to dismiss
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                dismissBrandIntro();
+            }
+        });
+
+        // Ensure video starts playing (some browsers need this)
+        setTimeout(() => {
+            const video = document.getElementById('brandIntroVideo');
+            if (video && video.paused) {
+                video.play().catch(err => {
+                    console.log('Auto-play prevented:', err);
+                    // Show a play button if autoplay fails
+                    const skipBtn = document.getElementById('skipButton');
+                    if (skipBtn) {
+                        skipBtn.textContent = 'CLICK TO START';
+                        skipBtn.onclick = function() {
+                            video.play();
+                            skipBtn.textContent = 'SKIP';
+                            skipBtn.onclick = dismissBrandIntro;
+                        };
+                    }
+                });
+            }
+        }, 100);
+    </script>
     <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -47,12 +371,20 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                        AI Voice Agents That <span class="gradient-text">Sound Human</span>
+                    <div class="inline-block bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                        <i class="fas fa-star mr-2"></i>10x Your Sales Team With AI
+                    </div>
+                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                        Replace 10 SDRs with One <span class="gradient-text">AI Voice Agent</span>
                     </h1>
-                    <p class="text-xl text-gray-600 mb-8">
-                        Transform your business with AI-powered voice agents. Automate calls, qualify leads, and scale outreach 24/7 with ElevenLabs.
+                    <p class="text-xl text-gray-600 mb-6 leading-relaxed">
+                        Stop losing deals to slow follow-ups. Our AI voice agents call, qualify, and book meetings 24/7—while you sleep. Built with ElevenLabs ultra-realistic voices and n8n workflow automation.
                     </p>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
+                        <p class="text-green-800 font-semibold">
+                            <i class="fas fa-chart-line mr-2"></i>Companies using VoiceFlow see 300% more qualified leads in the first 30 days
+                        </p>
+                    </div>
                     <div class="flex flex-col items-start gap-4">
                         <div class="flex flex-wrap gap-4">
                             <a href="/signup" class="gradient-bg text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
@@ -65,21 +397,38 @@
                         <div class="flex items-center gap-6 text-sm text-gray-600">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-check-circle text-green-500"></i>
-                                No credit card
+                                No credit card required
                             </div>
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-check-circle text-green-500"></i>
-                                50 free minutes
+                                50 free minutes included
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle text-green-500"></i>
+                                Setup in 5 minutes
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="relative">
-                    <div class="animate-float">
-                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
-                             alt="AI Voice Technology"
-                             class="w-full rounded-2xl shadow-2xl"
-                             onerror="this.src='https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=800&fit=crop&q=80'">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                        <video
+                            autoplay
+                            loop
+                            muted
+                            playsinline
+                            class="w-full rounded-2xl"
+                            poster="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
+                        >
+                            <source src="/demo-video.mp4" type="video/mp4">
+                            <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
+                                 alt="AI Voice Technology"
+                                 class="w-full rounded-2xl">
+                        </video>
+                        <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-700 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            Live Demo
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,45 +439,45 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    Everything You Need to <span class="gradient-text">Scale</span>
+                    Everything You Need to <span class="gradient-text">Dominate Your Market</span>
                 </h2>
-                <p class="text-xl text-gray-600">Build, deploy, and manage AI voice agents</p>
+                <p class="text-xl text-gray-600">The complete voice automation platform trusted by high-growth teams</p>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="feature-card bg-white p-8 rounded-2xl shadow-lg">
                     <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
                         <i class="fas fa-project-diagram text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Visual Builder</h3>
-                    <p class="text-gray-600 mb-4">Build complex conversation flows with drag-and-drop. No coding required.</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Visual Workflow Builder</h3>
+                    <p class="text-gray-600 mb-4">Launch your first agent in minutes, not weeks. No coding or technical skills required—just drag, drop, and deploy.</p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Drag-and-drop designer</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Pre-built templates</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Custom paths</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Industry-proven templates (Sales, Support, Scheduling)</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Visual flow designer with real-time preview</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Advanced logic & branching paths</li>
                     </ul>
                 </div>
                 <div class="feature-card bg-white p-8 rounded-2xl shadow-lg">
                     <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
                         <i class="fas fa-brain text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">AI Wizard</h3>
-                    <p class="text-gray-600 mb-4">Generate perfect agent scripts instantly. Customize for any industry.</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">AI Agent Generator</h3>
+                    <p class="text-gray-600 mb-4">Describe your ideal sales call, and our AI builds the entire workflow for you. From lead qualification to appointment booking—automatically.</p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>One-click generation</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Industry templates</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Dynamic variables</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>AI-powered script generation in seconds</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>50+ industry-specific templates</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Personalization with dynamic data</li>
                     </ul>
                 </div>
                 <div class="feature-card bg-white p-8 rounded-2xl shadow-lg">
                     <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
                         <i class="fas fa-microphone text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Voice Library</h3>
-                    <p class="text-gray-600 mb-4">100+ natural voices powered by ElevenLabs. Find the perfect voice.</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Ultra-Realistic Voices</h3>
+                    <p class="text-gray-600 mb-4">Powered by ElevenLabs—the #1 voice AI used by Fortune 500 companies. Your prospects won't believe they're talking to AI.</p>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>100+ voices</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Multiple languages</li>
-                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Preview before use</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>100+ professional voices (male, female, accents)</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>29+ languages for global reach</li>
+                        <li><i class="fas fa-check text-purple-600 mr-2"></i>Emotional intelligence & natural pauses</li>
                     </ul>
                 </div>
             </div>
@@ -139,9 +488,16 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    Powerful <span class="gradient-text">Workflow Integrations</span>
+                    <span class="gradient-text">Automated Workflows</span> That Run Your Business
                 </h2>
-                <p class="text-xl text-gray-600">Connect with 200+ apps through n8n automation</p>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Powered by n8n—the enterprise-grade automation platform. Connect your entire tech stack and let AI handle the repetitive work.</p>
+                <div class="mt-6 flex justify-center gap-4 flex-wrap">
+                    <span class="bg-white px-4 py-2 rounded-lg shadow text-sm font-semibold text-gray-700"><i class="fab fa-salesforce text-blue-500 mr-2"></i>Salesforce</span>
+                    <span class="bg-white px-4 py-2 rounded-lg shadow text-sm font-semibold text-gray-700"><i class="fab fa-hubspot text-orange-500 mr-2"></i>HubSpot</span>
+                    <span class="bg-white px-4 py-2 rounded-lg shadow text-sm font-semibold text-gray-700"><i class="fab fa-google text-blue-600 mr-2"></i>Google Sheets</span>
+                    <span class="bg-white px-4 py-2 rounded-lg shadow text-sm font-semibold text-gray-700"><i class="fab fa-slack text-purple-600 mr-2"></i>Slack</span>
+                    <span class="bg-white px-4 py-2 rounded-lg shadow text-sm font-semibold text-gray-700"><i class="fas fa-plus-circle text-purple-600 mr-2"></i>200+ More</span>
+                </div>
             </div>
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="workflow-card bg-white p-6 rounded-xl shadow-lg">
@@ -150,8 +506,8 @@
                             <i class="fas fa-user-plus text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Lead Capture</h3>
-                            <p class="text-gray-600">Auto-capture and qualify leads from calls with custom scoring.</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Intelligent Lead Capture</h3>
+                            <p class="text-gray-600">Every call automatically extracts contact info, company details, and pain points. Leads flow directly into your CRM with qualification scores.</p>
                         </div>
                     </div>
                 </div>
@@ -161,8 +517,8 @@
                             <i class="fas fa-calendar text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Appointments</h3>
-                            <p class="text-gray-600">Schedule appointments with calendar sync and SMS reminders.</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Smart Appointment Booking</h3>
+                            <p class="text-gray-600">AI checks your calendar availability, books meetings in real-time, and sends automatic confirmations + reminders via SMS and email.</p>
                         </div>
                     </div>
                 </div>
@@ -172,8 +528,8 @@
                             <i class="fas fa-envelope text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Follow-ups</h3>
-                            <p class="text-gray-600">Auto-send emails, SMS, or schedule callbacks based on outcomes.</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Automated Follow-Up Sequences</h3>
+                            <p class="text-gray-600">Based on call outcomes, trigger personalized email campaigns, SMS sequences, or schedule follow-up calls. Never let a hot lead go cold.</p>
                         </div>
                     </div>
                 </div>
@@ -183,8 +539,8 @@
                             <i class="fas fa-database text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Data Enrichment</h3>
-                            <p class="text-gray-600">Enhance profiles with Clearbit, LinkedIn, and more automatically.</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Real-Time Data Enrichment</h3>
+                            <p class="text-gray-600">Automatically enrich every lead with company size, revenue, tech stack, and social profiles using Clearbit, LinkedIn, and 50+ data sources.</p>
                         </div>
                     </div>
                 </div>
@@ -196,9 +552,12 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    Simple <span class="gradient-text">Pricing</span>
+                    Transparent <span class="gradient-text">Pricing</span> That Scales With You
                 </h2>
-                <p class="text-xl text-gray-600">Start free, scale as you grow</p>
+                <p class="text-xl text-gray-600 mb-2">Pay only for what you use. No hidden fees, no contracts.</p>
+                <p class="text-sm text-purple-600 font-semibold">
+                    <i class="fas fa-shield-alt mr-2"></i>Cancel anytime • Money-back guarantee • Enterprise plans available
+                </p>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="bg-white p-8 rounded-2xl shadow-lg">
@@ -208,9 +567,10 @@
                         <span class="text-gray-600">/month</span>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>50 free minutes</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>1 AI agent</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Basic CRM</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>50 free call minutes</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>1 voice agent</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Built-in CRM</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Email & SMS follow-ups</li>
                     </ul>
                     <a href="/signup" class="block w-full text-center bg-gray-100 py-3 rounded-full font-semibold hover:bg-gray-200 transition">Start Free</a>
                 </div>
@@ -224,9 +584,11 @@
                         <span class="text-gray-600">/month</span>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>500 minutes/month</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>5 agents</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Full CRM + n8n</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>500 call minutes/month</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>5 voice agents</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>n8n workflow automation</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>CRM + analytics dashboard</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Priority support</li>
                     </ul>
                     <a href="/signup" class="block w-full text-center gradient-bg text-white py-3 rounded-full font-semibold hover:shadow-xl transition">Get Started</a>
                 </div>
@@ -237,9 +599,11 @@
                         <span class="text-gray-600">/month</span>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>2000 minutes</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Unlimited agents</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Advanced analytics</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>2000 call minutes/month</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Unlimited voice agents</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Advanced analytics & reporting</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Custom integrations</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Dedicated account manager</li>
                     </ul>
                     <a href="/signup" class="block w-full text-center bg-gray-100 py-3 rounded-full font-semibold hover:bg-gray-200 transition">Get Started</a>
                 </div>
@@ -249,11 +613,20 @@
 
     <section class="py-20 px-4 gradient-bg text-white">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Transform Your Business?</h2>
-            <p class="text-xl mb-8 opacity-90">Join hundreds using AI voice agents to scale operations</p>
-            <a href="/signup" class="bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
-                Start Free Trial
-            </a>
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Stop Leaving Money on the Table</h2>
+            <p class="text-xl mb-4 opacity-90">While you're manually calling leads, your competitors are using AI to make 10x more calls in half the time.</p>
+            <p class="text-lg mb-8 opacity-80">Join 500+ companies using VoiceFlow to automate their sales process and close more deals.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/signup" class="bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
+                    Start Free Trial - 50 Minutes Free
+                </a>
+                <button onclick="window.open('tel:+16028334780', '_self')" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white/10 transition">
+                    <i class="fas fa-phone mr-2"></i>Talk to Our AI Now
+                </button>
+            </div>
+            <p class="text-sm mt-6 opacity-75">
+                <i class="fas fa-lock mr-2"></i>No credit card required • Setup in 5 minutes • Cancel anytime
+            </p>
         </div>
     </section>
 

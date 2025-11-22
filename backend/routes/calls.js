@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCalls, getCallById, deleteCall, initiateCall } from '../controllers/callController.js';
+import { getCalls, getCallById, deleteCall, initiateCall, syncConversations, getConversationDetails } from '../controllers/callController.js';
 import { protect } from '../middleware/auth.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
 import CallLog from '../models/CallLog.js';
@@ -9,6 +9,10 @@ const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
 router.get('/', protect, getCalls);
 router.post('/initiate', protect, initiateCall);
+
+// NEW: Sync conversations from ElevenLabs
+router.post('/sync', protect, syncConversations);
+router.get('/conversations/:conversationId', protect, getConversationDetails);
 
 /**
  * @route   POST /api/calls/test

@@ -277,6 +277,7 @@ export const signup = async (req, res) => {
       email: user.email,
       company: user.company,
       plan: user.plan,
+      profile: user.profile || {},
       token
     });
   } catch (error) {
@@ -310,6 +311,7 @@ export const login = async (req, res) => {
       company: user.company,
       plan: user.plan,
       subscriptionStatus: user.subscriptionStatus,
+      profile: user.profile || {},
       token
     });
   } catch (error) {
@@ -470,6 +472,7 @@ export const googleAuth = async (req, res) => {
       company: user.company,
       plan: user.plan,
       subscriptionStatus: user.subscriptionStatus,
+      profile: user.profile || {},
       token
     });
   } catch (error) {
@@ -491,5 +494,96 @@ export const getMe = async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @route   GET /api/auth/profile
+ * @desc    Get user profile data
+ * @access  Private
+ */
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('profile');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      profile: user.profile || {},
+      message: 'Profile retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ message: 'Failed to get profile', error: error.message });
+  }
+};
+
+/**
+ * @route   PUT /api/auth/profile
+ * @desc    Update user profile data (onboarding or later)
+ * @body    { profile: {...profileData}, onboardingCompleted: true/false }
+ * @access  Private
+ */
+export const updateProfile = async (req, res) => {
+  try {
+    const { profile: profileData } = req.body;
+
+    if (!profileData) {
+      return res.status(400).json({ message: 'Profile data is required' });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Merge new profile data with existing profile
+    const updatedProfile = {
+      ...(user.profile || {}),
+      ...profileData,
+      lastUpdated: new Date()
+    };
+
+    // Mark onboarding as complete if all required fields are filled
+    const isOnboardingComplete = !!(
+      profileData.businessName &&
+      profileData.industry &&
+      profileData.firstName &&
+      profileData.lastName &&
+      profileData.primaryUseCase
+    );
+
+    if (isOnboardingComplete && !user.profile?.onboardingCompleted) {
+      updatedProfile.onboardingCompleted = true;
+      updatedProfile.completedAt = new Date();
+    }
+
+    // If user skipped onboarding, mark it
+    if (profileData.onboardingSkipped) {
+      updatedProfile.onboardingSkipped = true;
+      updatedProfile.onboardingCompleted = false;
+    }
+
+    // Update user profile
+    user.profile = updatedProfile;
+    await user.save();
+
+    console.log(`✅ Profile updated for user ${user.email}:`, {
+      onboardingCompleted: updatedProfile.onboardingCompleted,
+      skipped: updatedProfile.onboardingSkipped,
+      businessName: updatedProfile.businessName,
+      industry: updatedProfile.industry
+    });
+
+    res.json({
+      profile: user.profile,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Failed to update profile', error: error.message });
   }
 };

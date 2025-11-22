@@ -54,7 +54,7 @@ export default function Tooltip({
       <div className="relative inline-block">
         <button
           type="button"
-          className="text-gray-600 dark:text-gray-200 hover:text-gray-600 transition-colors"
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onClick={(e) => {
@@ -87,7 +87,7 @@ export default function Tooltip({
       <div className="flex items-center gap-2">
         {children}
         {showIcon && (
-          <HelpCircle className="w-4 h-4 text-gray-600 dark:text-gray-200" />
+          <HelpCircle className="w-4 h-4 text-gray-600 dark:text-gray-300" />
         )}
       </div>
 
