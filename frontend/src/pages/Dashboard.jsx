@@ -25,7 +25,7 @@ import {
 import { formatCurrency, formatDuration, formatPhoneNumber, cn } from '@/lib/utils';
 import AIInsightsCard from '@/components/AIInsightsCard';
 
-// CSS Voice Icon Component
+// CSS Voice Icon Component - Three Voice Waves
 const VoiceIcon = ({ size = 'default' }) => {
   const sizeClasses = {
     small: 'w-6 h-6',
@@ -38,10 +38,12 @@ const VoiceIcon = ({ size = 'default' }) => {
       'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative flex-shrink-0',
       sizeClasses[size]
     )}>
-      {/* Microphone capsule */}
-      <div className="absolute w-2.5 h-5 bg-white rounded-t-full" style={{ top: '6px' }} />
-      {/* Microphone stand */}
-      <div className="absolute w-4 h-3 border-2 border-white border-t-0 rounded-b-lg" style={{ bottom: '6px' }} />
+      {/* Left wave (short) */}
+      <div className="absolute w-0.5 h-3 bg-white rounded-full" style={{ left: '13px' }} />
+      {/* Center wave (tall) */}
+      <div className="absolute w-0.5 h-5 bg-white rounded-full" />
+      {/* Right wave (short) */}
+      <div className="absolute w-0.5 h-3 bg-white rounded-full" style={{ right: '13px' }} />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Setting
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
-// CSS Voice Icon Component
+// CSS Voice Icon Component - Three Voice Waves
 const VoiceIcon = ({ size = 'default' }) => {
   const sizeClasses = {
     small: 'w-6 h-6',
@@ -16,10 +16,12 @@ const VoiceIcon = ({ size = 'default' }) => {
       'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative',
       sizeClasses[size]
     )}>
-      {/* Microphone capsule */}
-      <div className="absolute w-2 h-4 bg-white rounded-t-full top-1.5" />
-      {/* Microphone stand */}
-      <div className="absolute w-3 h-2.5 border-2 border-white border-t-0 rounded-b-md bottom-1.5" />
+      {/* Left wave (short) */}
+      <div className="absolute w-0.5 h-2.5 bg-white rounded-full" style={{ left: '10px' }} />
+      {/* Center wave (tall) */}
+      <div className="absolute w-0.5 h-4 bg-white rounded-full" />
+      {/* Right wave (short) */}
+      <div className="absolute w-0.5 h-2.5 bg-white rounded-full" style={{ right: '10px' }} />
     </div>
   );
 };
