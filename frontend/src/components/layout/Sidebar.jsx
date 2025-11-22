@@ -3,6 +3,27 @@ import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Setting
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
+// CSS Voice Icon Component
+const VoiceIcon = ({ size = 'default' }) => {
+  const sizeClasses = {
+    small: 'w-6 h-6',
+    default: 'w-8 h-8',
+    large: 'w-10 h-10'
+  };
+
+  return (
+    <div className={cn(
+      'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative',
+      sizeClasses[size]
+    )}>
+      {/* Microphone capsule */}
+      <div className="absolute w-2 h-4 bg-white rounded-t-full top-1.5" />
+      {/* Microphone stand */}
+      <div className="absolute w-3 h-2.5 border-2 border-white border-t-0 rounded-b-md bottom-1.5" />
+    </div>
+  );
+};
+
 // Core sections - Voice Workflow CRM focused navigation
 const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
@@ -79,13 +100,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             isCollapsed ? 'w-0 opacity-0' : 'opacity-100'
           )}>
             <h1 className="text-lg font-bold whitespace-nowrap flex items-center gap-2">
-              <img src="/logo.png" alt="VoiceFlow" className="h-8 w-8 object-contain" />
+              <VoiceIcon size="default" />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">VoiceFlow CRM</span>
             </h1>
           </div>
 
           {isCollapsed && (
-            <img src="/logo.png" alt="VoiceFlow" className="h-10 w-10 object-contain rounded-lg" />
+            <VoiceIcon size="large" />
           )}
 
           {/* Mobile Close Button */}

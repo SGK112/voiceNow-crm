@@ -22,8 +22,29 @@ import {
   Activity,
   LayoutDashboard
 } from 'lucide-react';
-import { formatCurrency, formatDuration, formatPhoneNumber } from '@/lib/utils';
+import { formatCurrency, formatDuration, formatPhoneNumber, cn } from '@/lib/utils';
 import AIInsightsCard from '@/components/AIInsightsCard';
+
+// CSS Voice Icon Component
+const VoiceIcon = ({ size = 'default' }) => {
+  const sizeClasses = {
+    small: 'w-6 h-6',
+    default: 'w-10 h-10',
+    large: 'w-12 h-12'
+  };
+
+  return (
+    <div className={cn(
+      'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative flex-shrink-0',
+      sizeClasses[size]
+    )}>
+      {/* Microphone capsule */}
+      <div className="absolute w-2.5 h-5 bg-white rounded-t-full" style={{ top: '6px' }} />
+      {/* Microphone stand */}
+      <div className="absolute w-4 h-3 border-2 border-white border-t-0 rounded-b-lg" style={{ bottom: '6px' }} />
+    </div>
+  );
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -87,7 +108,7 @@ export default function Dashboard() {
       <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="VoiceFlow" className="w-10 h-10 object-contain" />
+            <VoiceIcon size="default" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
               <p className="text-xs text-muted-foreground">Real-time analytics and insights</p>
