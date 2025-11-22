@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import api from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 import VoiceLibrary from './VoiceLibrary';
+import { useProfile } from '@/context/ProfileContext';
+import { buildAgentSystemPrompt } from '@/utils/promptBuilder';
 
 /**
  * AIConversationalAgentBuilder - Chat with AI to build voice agents
@@ -18,6 +20,7 @@ import VoiceLibrary from './VoiceLibrary';
  */
 const AIConversationalAgentBuilder = () => {
   const navigate = useNavigate();
+  const profileHelpers = useProfile();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -185,23 +188,15 @@ Ready to create this agent? It will be available immediately for making calls!`)
     try {
       addMessage('assistant', '🚀 Creating your voice agent...');
 
-      // Build comprehensive system prompt
-      const systemPrompt = `You are ${agentConfig.name}, an AI voice agent for VoiceFlow CRM.
-
-PURPOSE: ${agentConfig.purpose}
-
-MAIN MESSAGE: ${agentConfig.main_message}
-
-TONE & PERSONALITY: ${agentConfig.tone || 'Professional and friendly'}
-
-CONVERSATION GUIDELINES:
-- Greet the person warmly
-- Clearly communicate: ${agentConfig.main_message}
-${agentConfig.specific_details ? `- Mention these details: ${agentConfig.specific_details}` : ''}
-- Answer any questions they have
-- End the call professionally
-
-Remember: Be concise, friendly, and stay on message. This is a ${selectedTopic.title.replace(/[📣🏢📅👤🎯✨]/g, '').trim()}.`;
+      // Build comprehensive system prompt with profile context using utility
+      const systemPrompt = buildAgentSystemPrompt({
+        agentName: agentConfig.name,
+        purpose: agentConfig.purpose,
+        mainMessage: agentConfig.main_message,
+        tone: agentConfig.tone,
+        specificDetails: agentConfig.specific_details,
+        conversationType: selectedTopic.title.replace(/[📣🏢📅👤🎯✨]/g, '').trim()
+      }, profileHelpers);
 
       // Create agent in VoiceFlow CRM database (not just ElevenLabs)
       const response = await api.post('/agents', {

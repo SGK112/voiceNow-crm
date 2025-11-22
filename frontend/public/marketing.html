@@ -19,330 +19,127 @@
         .workflow-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
         .workflow-card:hover { border-left-color: #667eea; background: rgba(102, 126, 234, 0.05); }
 
-        /* Brand Intro Popup - Optimized for Clarity */
+        /* Brand Intro - Seamless Fullscreen */
         .brand-intro-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
+            width: 100%;
             height: 100vh;
-            background: #000;
+            background: #fbfbfe;
             z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 1;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.8s ease;
         }
         .brand-intro-overlay.hidden {
             opacity: 0;
             pointer-events: none;
         }
+        .brand-intro-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .brand-intro-video {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Changed from cover to contain for better clarity */
-            max-width: 100%;
-            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            animation: subtleZoomIn 1s ease-out forwards;
         }
-        /* On mobile, allow slight padding for better viewing */
+        /* Mobile: smaller video */
         @media (max-width: 768px) {
             .brand-intro-video {
-                padding: 20px;
+                width: 100%;
+                height: 100%;
+                max-width: 90%;
+                max-height: 70vh;
+                object-fit: contain;
             }
         }
-        .skip-button {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            padding: 12px 28px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 15px;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            z-index: 10000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        .brand-intro-video.ending {
+            animation: subtleFadeOut 0.6s ease-in forwards;
         }
-        .skip-button:hover {
-            background: rgba(255, 255, 255, 0.95);
-            color: #000;
-            border-color: rgba(255, 255, 255, 1);
-            transform: scale(1.08);
-            box-shadow: 0 6px 30px rgba(255, 255, 255, 0.3);
-        }
-        .skip-button:active {
-            transform: scale(1.0);
-        }
-        /* Progress indicator */
-        .video-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.1s linear;
-            z-index: 10000;
-        }
-        /* Loading state */
-        .brand-intro-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-        /* Text overlays - Enhanced and elegant */
-        .video-text-overlay {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            color: white;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-            z-index: 9998;
-        }
-        .video-text-overlay.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .value-statement {
-            bottom: 12%;
-            padding: 0 20px;
-        }
-        .value-statement h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin: 0;
-            color: #ffffff;
-            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.95);
-            line-height: 1.3;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .value-statement p {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 500;
-            margin: 8px 0 0 0;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
-            letter-spacing: 0.5px;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .remodely-brand {
-            bottom: 5%;
-            padding: 0 20px;
-        }
-        .remodely-brand p {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin: 3px 0;
-            color: rgba(255, 255, 255, 1);
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-            letter-spacing: 1px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .remodely-brand .powered-by {
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.75);
-            letter-spacing: 1.2px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-            text-transform: uppercase;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .remodely-brand .brand-name {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            color: #ffffff;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .value-statement {
-                bottom: 10%;
-                padding: 0 15px;
+        @keyframes subtleZoomIn {
+            0% {
+                transform: scale(0.92);
+                opacity: 0;
             }
-            .value-statement h2 {
-                font-size: 1.5rem;
-                letter-spacing: 0.3px;
-            }
-            .value-statement p {
-                font-size: 0.95rem;
-                letter-spacing: 0.3px;
-            }
-            .remodely-brand {
-                bottom: 4%;
-            }
-            .remodely-brand p {
-                font-size: 1rem;
-            }
-            .remodely-brand .powered-by {
-                font-size: 0.7rem;
+            100% {
+                transform: scale(1);
+                opacity: 1;
             }
         }
-        @media (max-width: 480px) {
-            .value-statement h2 {
-                font-size: 1.3rem;
+        @keyframes subtleFadeOut {
+            0% {
+                transform: scale(1);
+                opacity: 1;
             }
-            .value-statement p {
-                font-size: 0.85rem;
-            }
-            .remodely-brand p {
-                font-size: 0.9rem;
-            }
-            .remodely-brand .powered-by {
-                font-size: 0.65rem;
+            100% {
+                transform: scale(1.05);
+                opacity: 0;
             }
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Brand Intro Full-Screen Popup -->
+    <!-- Brand Intro - Clean Video -->
     <div id="brandIntroOverlay" class="brand-intro-overlay">
-        <div class="brand-intro-loading" id="loadingIndicator">
-            <i class="fas fa-circle-notch fa-spin mr-2"></i>Loading...
+        <div class="brand-intro-container">
+            <video
+                id="brandIntroVideo"
+                autoplay
+                muted
+                playsinline
+                preload="auto"
+                class="brand-intro-video"
+                onended="onVideoEnded()"
+            >
+                <source src="/videos/intro.mp4" type="video/mp4">
+            </video>
         </div>
-        <button class="skip-button" onclick="dismissBrandIntro()" id="skipButton" style="display: none;">
-            SKIP <i class="fas fa-forward ml-2"></i>
-        </button>
-
-        <!-- Text Overlays -->
-        <div class="video-text-overlay value-statement" id="valueStatement">
-            <h2>Transform Conversations Into Revenue</h2>
-            <p>AI-Powered Voice Agents That Never Miss a Lead</p>
-        </div>
-
-        <div class="video-text-overlay remodely-brand" id="remodelyBrand">
-            <p class="powered-by">Powered by</p>
-            <p class="brand-name">Remodely.ai</p>
-        </div>
-
-        <video
-            id="brandIntroVideo"
-            autoplay
-            muted
-            playsinline
-            preload="auto"
-            class="brand-intro-video"
-            onloadeddata="onVideoLoaded()"
-            ontimeupdate="updateProgress()"
-            onended="dismissBrandIntro()"
-        >
-            <source src="/brand-intro-hd.mp4" type="video/mp4">
-        </video>
-        <div class="video-progress" id="videoProgress"></div>
     </div>
 
     <script>
-        let videoLoaded = false;
-
-        function onVideoLoaded() {
-            videoLoaded = true;
-            // Hide loading indicator
-            const loading = document.getElementById('loadingIndicator');
-            if (loading) loading.style.display = 'none';
-
-            // Show skip button
-            const skipBtn = document.getElementById('skipButton');
-            if (skipBtn) skipBtn.style.display = 'block';
-        }
-
-        function updateProgress() {
-            const video = document.getElementById('brandIntroVideo');
-            const progress = document.getElementById('videoProgress');
-            const valueStatement = document.getElementById('valueStatement');
-            const remodelyBrand = document.getElementById('remodelyBrand');
-
-            if (video && progress && video.duration) {
-                const percentage = (video.currentTime / video.duration) * 100;
-                progress.style.width = percentage + '%';
-
-                // Show value statement early (10% - 60% of video)
-                if (percentage >= 10 && percentage <= 60) {
-                    valueStatement.classList.add('show');
-                } else {
-                    valueStatement.classList.remove('show');
-                }
-
-                // Show Remodely brand near end (70% - 95% of video)
-                if (percentage >= 70 && percentage <= 95) {
-                    remodelyBrand.classList.add('show');
-                } else {
-                    remodelyBrand.classList.remove('show');
-                }
-            }
-        }
-
-        function dismissBrandIntro() {
+        function onVideoEnded() {
             const overlay = document.getElementById('brandIntroOverlay');
             const video = document.getElementById('brandIntroVideo');
 
-            if (!overlay) return;
+            if (overlay && video) {
+                // Add ending animation to video
+                video.classList.add('ending');
 
-            // Pause video
-            if (video) video.pause();
-
-            // Hide overlay with fade effect
-            overlay.classList.add('hidden');
-
-            // Remove from DOM after transition
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.remove();
-                }
-            }, 600);
+                // Wait for video exit animation, then hide overlay
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 600);
+            }
         }
 
-        // Allow ESC key to dismiss
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                dismissBrandIntro();
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            const video = document.getElementById('brandIntroVideo');
+            const overlay = document.getElementById('brandIntroOverlay');
+
+            if (video && overlay) {
+                // Try to play the video
+                video.play().catch(err => {
+                    console.log('Auto-play prevented, skipping intro:', err);
+                    // If autoplay fails, hide immediately
+                    overlay.classList.add('hidden');
+                });
             }
         });
 
-        // Ensure video starts playing (some browsers need this)
-        setTimeout(() => {
-            const video = document.getElementById('brandIntroVideo');
-            if (video && video.paused) {
-                video.play().catch(err => {
-                    console.log('Auto-play prevented:', err);
-                    // Show a play button if autoplay fails
-                    const skipBtn = document.getElementById('skipButton');
-                    if (skipBtn) {
-                        skipBtn.textContent = 'CLICK TO START';
-                        skipBtn.onclick = function() {
-                            video.play();
-                            skipBtn.textContent = 'SKIP';
-                            skipBtn.onclick = dismissBrandIntro;
-                        };
-                    }
-                });
-            }
-        }, 100);
+        // Skip intro on click
+        document.getElementById('brandIntroOverlay')?.addEventListener('click', function() {
+            onVideoEnded();
+        });
     </script>
     <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -350,7 +147,7 @@
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
-                            <span class="text-2xl">🎙️</span>
+                            <img src="/logo.png" alt="VoiceFlow" class="h-8 w-8 object-contain" />
                             <span class="text-xl font-bold gradient-text">VoiceFlow CRM</span>
                         </div>
                         <span class="text-xs text-gray-500 ml-9">Powered by Remodely AI</span>

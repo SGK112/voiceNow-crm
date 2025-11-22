@@ -87,9 +87,7 @@ export default function Dashboard() {
       <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
-              <LayoutDashboard className="h-5 w-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="VoiceFlow" className="w-10 h-10 object-contain" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
               <p className="text-xs text-muted-foreground">Real-time analytics and insights</p>

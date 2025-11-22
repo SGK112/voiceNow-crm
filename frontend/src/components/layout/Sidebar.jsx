@@ -79,15 +79,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             isCollapsed ? 'w-0 opacity-0' : 'opacity-100'
           )}>
             <h1 className="text-lg font-bold whitespace-nowrap flex items-center gap-2">
-              <span className="text-xl">🎙️</span>
-              <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">VoiceFlow CRM</span>
+              <img src="/logo.png" alt="VoiceFlow" className="h-8 w-8 object-contain" />
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">VoiceFlow CRM</span>
             </h1>
           </div>
 
           {isCollapsed && (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center text-xl shadow-md">
-              🎙️
-            </div>
+            <img src="/logo.png" alt="VoiceFlow" className="h-10 w-10 object-contain rounded-lg" />
           )}
 
           {/* Mobile Close Button */}

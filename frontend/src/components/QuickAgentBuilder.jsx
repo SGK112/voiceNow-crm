@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Phone, Users, Zap, Settings } from 'lucide-react';
 import api from '../services/api';
+import { useProfile } from '@/context/ProfileContext';
+import { buildProfileContextPrompt } from '@/utils/promptBuilder';
 
 export default function QuickAgentBuilder({ voice, onClose, onSuccess }) {
+  const profileHelpers = useProfile();
   const [step, setStep] = useState(1); // 1: Basic Info, 2: Action (Call/Assign)
+
   const [agentData, setAgentData] = useState({
     name: `${voice.name} Agent`,
-    prompt: '',
+    prompt: buildProfileContextPrompt(profileHelpers),
     firstMessage: 'Hello! How can I help you today?',
     language: voice.language || 'en'
   });
