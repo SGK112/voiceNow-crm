@@ -13,6 +13,12 @@ export default function GoogleCallback() {
       const code = searchParams.get('code');
       const error = searchParams.get('error');
 
+      console.log('🔍 [GoogleCallback] Callback triggered:', {
+        hasCode: !!code,
+        hasError: !!error,
+        fullUrl: window.location.href
+      });
+
       if (error) {
         console.error('Google OAuth error:', error);
         toast.error('Google sign-in was cancelled or failed');
@@ -21,23 +27,34 @@ export default function GoogleCallback() {
       }
 
       if (!code) {
+        console.error('❌ No authorization code in URL');
         toast.error('No authorization code received');
         navigate('/login');
         return;
       }
 
+      const payload = {
+        code: code,
+        tokenType: 'authorization_code',
+        redirectUri: `${window.location.origin}/auth/google/callback`
+      };
+
+      console.log('📤 [GoogleCallback] Sending to backend:', payload);
+
       try {
         // Send the authorization code to the backend
-        const userData = await googleLogin({
-          code: code,
-          tokenType: 'authorization_code',
-          redirectUri: `${window.location.origin}/auth/google/callback`
-        });
+        const userData = await googleLogin(payload);
 
+        console.log('✅ [GoogleCallback] Login successful:', userData);
         toast.success('Successfully signed in with Google!');
         navigate('/app/dashboard');
       } catch (error) {
-        console.error('Google sign-in error:', error);
+        console.error('❌ [GoogleCallback] Login failed:', error);
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
         toast.error(error.response?.data?.message || 'Failed to sign in with Google');
         navigate('/login');
       }

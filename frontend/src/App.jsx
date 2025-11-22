@@ -39,6 +39,7 @@ import WorkflowMarketplace from './pages/WorkflowMarketplace';
 import CustomizableDashboard from './pages/CustomizableDashboard';
 import CRMWorkflowBuilder from './pages/CRMWorkflowBuilder';
 import CRMWorkflowBuilderHybrid from './pages/CRMWorkflowBuilderHybrid';
+import CRMWorkflowStudio from './pages/CRMWorkflowStudio';
 import CollaborativeAgentBuilder from './components/CollaborativeAgentBuilder';
 import AgentDashboardResponsive from './components/AgentDashboardResponsive';
 import AgentsListSimple from './pages/AgentsListSimple';
@@ -135,7 +136,7 @@ function App() {
         <Route path="multimodal-agent" element={<MultimodalAgentDemo />} />
         <Route path="crm" element={<CRM />} />
         <Route path="crm/leads/:id" element={<LeadDetail />} />
-        <Route path="crm/workflows" element={<CRMWorkflowBuilderHybrid />} />
+        <Route path="crm/workflows" element={<CRMWorkflowStudio />} />
         <Route path="crm/workflows/basic" element={<CRMWorkflowBuilder />} />
         <Route path="marketplace" element={<UnifiedMarketplace />} />
         <Route path="marketplace-agents-old" element={<AgentMarketplace />} />

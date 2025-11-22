@@ -19,7 +19,9 @@ import {
   Zap,
   ChevronRight,
   Building2,
-  Calendar
+  Calendar,
+  Menu,
+  X
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +60,7 @@ export default function CRM() {
   const [showAddDealModal, setShowAddDealModal] = useState(false);
   const [showAssignAgentModal, setShowAssignAgentModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [newLead, setNewLead] = useState({
     name: '',
     email: '',
@@ -246,19 +249,55 @@ export default function CRM() {
 
   const isLoading = leadsLoading || dealsLoading;
 
+  // Close sidebar on window resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarOpen]);
+
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-[calc(100vh-4rem)] relative">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar - WorkflowStudio style */}
-      <div className="w-64 border-r border-border bg-card flex flex-col">
+      <div className={`
+        w-64 border-r border-border bg-card flex flex-col
+        fixed md:relative inset-y-0 left-0 z-50
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
         {/* Header */}
         <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
-            CRM
-          </h2>
-          <p className="text-xs text-gray-800 text-foreground mt-1">
-            Leads & Deals Management
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
+                CRM
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Leads & Deals Management
+              </p>
+            </div>
+            {/* Close button for mobile */}
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden p-1 hover:bg-accent rounded"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -268,7 +307,7 @@ export default function CRM() {
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === 'leads'
                 ? 'bg-primary/10 text-primary border-b-2 border-primary'
-                : 'text-gray-800 text-foreground hover:bg-accent'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             }`}
           >
             Leads ({leads.length})
@@ -278,7 +317,7 @@ export default function CRM() {
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === 'deals'
                 ? 'bg-primary/10 text-primary border-b-2 border-primary'
-                : 'text-gray-800 text-foreground hover:bg-accent'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             }`}
           >
             Deals ({deals.length})
@@ -290,44 +329,44 @@ export default function CRM() {
           {activeTab === 'leads' ? (
             <>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">New</span>
-                <Badge className="bg-gray-700 text-white dark:bg-gray-300 dark:text-gray-900">{leadStats.new}</Badge>
+                <span className="text-muted-foreground">New</span>
+                <Badge className="bg-gray-700 text-white dark:bg-gray-600 dark:text-white">{leadStats.new}</Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">In Progress</span>
-                <Badge className="bg-gray-700 text-white dark:bg-gray-300 dark:text-gray-900">{leadStats.inProgress}</Badge>
+                <span className="text-muted-foreground">In Progress</span>
+                <Badge className="bg-gray-700 text-white dark:bg-gray-600 dark:text-white">{leadStats.inProgress}</Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">Won</span>
+                <span className="text-muted-foreground">Won</span>
                 <Badge className="bg-green-600 text-white">{leadStats.won}</Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">AI Assigned</span>
+                <span className="text-muted-foreground">AI Assigned</span>
                 <Badge className="bg-purple-600 text-white">{leadStats.aiAssigned}</Badge>
               </div>
               <div className="pt-2 border-t border-border">
-                <div className="text-xs text-gray-800 text-foreground">Total Value</div>
-                <div className="text-lg font-bold text-gray-900 dark:text-white">${leadStats.totalValue.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Total Value</div>
+                <div className="text-lg font-bold text-foreground">${leadStats.totalValue.toLocaleString()}</div>
               </div>
             </>
           ) : (
             <>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">Active Deals</span>
+                <span className="text-muted-foreground">Active Deals</span>
                 <Badge className="bg-gray-700 text-white dark:bg-gray-300 dark:text-gray-900">{dealStats.total}</Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-800 text-foreground">Won This Month</span>
+                <span className="text-muted-foreground">Won This Month</span>
                 <Badge className="bg-green-600 text-white">{dealStats.wonCount}</Badge>
               </div>
               <div className="pt-2 border-t border-border space-y-2">
                 <div>
-                  <div className="text-xs text-gray-800 text-foreground">Pipeline Value</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(dealStats.totalValue)}</div>
+                  <div className="text-xs text-muted-foreground">Pipeline Value</div>
+                  <div className="text-lg font-bold text-foreground">{formatCurrency(dealStats.totalValue)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-800 text-foreground">Won Value</div>
-                  <div className="text-sm font-semibold text-green-600">{formatCurrency(dealStats.wonValue)}</div>
+                  <div className="text-xs text-muted-foreground">Won Value</div>
+                  <div className="text-sm font-semibold text-green-600 dark:text-green-400">{formatCurrency(dealStats.wonValue)}</div>
                 </div>
               </div>
             </>
@@ -371,9 +410,17 @@ export default function CRM() {
         {/* Top Bar */}
         <div className="border-b border-border bg-card p-4">
           <div className="flex items-center justify-between gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 hover:bg-accent rounded-lg"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-800 text-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder={`Search ${activeTab}...`}
@@ -389,8 +436,8 @@ export default function CRM() {
                 onClick={() => setViewMode('pipeline')}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors rounded ${
                   viewMode === 'pipeline'
-                    ? 'bg-background shadow-sm'
-                    : 'text-gray-800 text-foreground hover:text-foreground'
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -399,8 +446,8 @@ export default function CRM() {
                 onClick={() => setViewMode('table')}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors rounded ${
                   viewMode === 'table'
-                    ? 'bg-background shadow-sm'
-                    : 'text-gray-800 text-foreground hover:text-foreground'
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <LayoutList className="w-4 h-4" />
@@ -415,7 +462,7 @@ export default function CRM() {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-gray-800 text-foreground">Loading {activeTab}...</p>
+                <p className="text-muted-foreground">Loading {activeTab}...</p>
               </div>
             </div>
           ) : activeTab === 'leads' ? (
@@ -428,7 +475,7 @@ export default function CRM() {
                     <div key={stage.id} className="flex-shrink-0 w-80">
                       <div className={`rounded-t-lg border-2 ${stage.color} p-3 mb-3`}>
                         <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-gray-900 text-foreground">{stage.name}</h3>
+                          <h3 className="font-semibold text-foreground">{stage.name}</h3>
                           <Badge className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold">{stageLeads.length}</Badge>
                         </div>
                       </div>
@@ -447,7 +494,7 @@ export default function CRM() {
                                 </Badge>
                               )}
                               <h4 className="font-semibold mb-2">{lead.name}</h4>
-                              <div className="space-y-1 text-sm text-gray-800 text-foreground mb-3">
+                              <div className="space-y-1 text-sm text-muted-foreground mb-3">
                                 {lead.company && (
                                   <div className="flex items-center gap-2">
                                     <Building2 className="w-4 h-4" />
@@ -518,7 +565,7 @@ export default function CRM() {
                           </Card>
                         ))}
                         {stageLeads.length === 0 && (
-                          <div className="text-center py-8 text-gray-800 text-foreground text-sm">
+                          <div className="text-center py-8 text-muted-foreground text-sm">
                             No leads in this stage
                           </div>
                         )}
@@ -535,24 +582,24 @@ export default function CRM() {
                     <table className="w-full">
                       <thead className="bg-muted">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Name</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Contact</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Company</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Value</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Stage</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">AI Status</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Actions</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Contact</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Company</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Value</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Stage</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">AI Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
                         {filteredLeads.map(lead => (
                           <tr key={lead._id} className="hover:bg-muted/50">
                             <td className="px-6 py-4 text-sm font-medium">{lead.name}</td>
-                            <td className="px-6 py-4 text-sm text-gray-800 text-foreground">
+                            <td className="px-6 py-4 text-sm text-muted-foreground">
                               <div>{lead.email}</div>
                               <div>{lead.phone}</div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-800 text-foreground">{lead.company || '-'}</td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">{lead.company || '-'}</td>
                             <td className="px-6 py-4 text-sm font-semibold">
                               {lead.value ? `$${parseFloat(lead.value).toLocaleString()}` : '-'}
                             </td>
@@ -568,7 +615,7 @@ export default function CRM() {
                                   AI Assigned
                                 </Badge>
                               ) : (
-                                <span className="text-gray-800 text-foreground">Manual</span>
+                                <span className="text-muted-foreground">Manual</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-sm">
@@ -598,7 +645,7 @@ export default function CRM() {
                       </tbody>
                     </table>
                     {filteredLeads.length === 0 && (
-                      <div className="text-center py-12 text-gray-800 text-foreground">
+                      <div className="text-center py-12 text-muted-foreground">
                         No leads found
                       </div>
                     )}
@@ -625,7 +672,7 @@ export default function CRM() {
                           <Card key={deal._id} className="hover:shadow-md transition-shadow">
                             <CardContent className="p-4">
                               <h4 className="font-semibold mb-2">{deal.title}</h4>
-                              <div className="space-y-1 text-sm text-gray-800 text-foreground mb-3">
+                              <div className="space-y-1 text-sm text-muted-foreground mb-3">
                                 {deal.contact && (
                                   <div className="flex items-center gap-2">
                                     <User className="w-4 h-4" />
@@ -665,7 +712,7 @@ export default function CRM() {
                           </Card>
                         ))}
                         {stageDeals.length === 0 && (
-                          <div className="text-center py-8 text-gray-800 text-foreground text-sm">
+                          <div className="text-center py-8 text-muted-foreground text-sm">
                             No deals in this stage
                           </div>
                         )}
@@ -682,20 +729,20 @@ export default function CRM() {
                     <table className="w-full">
                       <thead className="bg-muted">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Title</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Contact</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Value</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Stage</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Priority</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Expected Close</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 text-foreground uppercase">Actions</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Title</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Contact</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Value</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Stage</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Priority</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Expected Close</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
                         {filteredDeals.map(deal => (
                           <tr key={deal._id} className="hover:bg-muted/50">
                             <td className="px-6 py-4 text-sm font-medium">{deal.title}</td>
-                            <td className="px-6 py-4 text-sm text-gray-800 text-foreground">{deal.contact?.name || 'N/A'}</td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">{deal.contact?.name || 'N/A'}</td>
                             <td className="px-6 py-4 text-sm font-semibold">{formatCurrency(deal.value)}</td>
                             <td className="px-6 py-4 text-sm">
                               <Badge className={DEAL_STAGES.find(s => s.value === deal.stage)?.color}>
@@ -728,7 +775,7 @@ export default function CRM() {
                       </tbody>
                     </table>
                     {filteredDeals.length === 0 && (
-                      <div className="text-center py-12 text-gray-800 text-foreground">
+                      <div className="text-center py-12 text-muted-foreground">
                         No deals found
                       </div>
                     )}
@@ -937,13 +984,13 @@ export default function CRM() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">{agent.name}</h3>
-                  <p className="text-sm text-gray-800 text-foreground">{agent.description || 'Voice agent'}</p>
+                  <p className="text-sm text-muted-foreground">{agent.description || 'Voice agent'}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-800 text-foreground" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
             ))}
             {agents.filter(a => a.enabled).length === 0 && (
-              <div className="text-center py-8 text-gray-800 text-foreground">
+              <div className="text-center py-8 text-muted-foreground">
                 No active agents available. Deploy an agent first.
               </div>
             )}
