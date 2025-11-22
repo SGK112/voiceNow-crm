@@ -26,7 +26,7 @@
         .text-dark { color: #f9fafb; }
         .text-muted { color: #9ca3af; }
 
-        /* CSS Voice Icon with Gradient */
+        /* CSS Voice Icon with Gradient - Volume Symbol */
         .voice-icon {
             display: inline-flex;
             align-items: center;
@@ -37,24 +37,25 @@
             border-radius: 8px;
             position: relative;
         }
+        /* Speaker cone */
         .voice-icon::before {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 16px;
-            background: white;
-            border-radius: 4px 4px 0 0;
-            top: 6px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 5px 0 5px 6px;
+            border-color: transparent transparent transparent white;
+            left: 8px;
         }
+        /* Speaker box */
         .voice-icon::after {
             content: '';
             position: absolute;
-            width: 12px;
-            height: 10px;
-            border: 2px solid white;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            bottom: 6px;
+            width: 4px;
+            height: 8px;
+            background: white;
+            left: 6px;
         }
 
         /* Brand Intro - Seamless Fullscreen */

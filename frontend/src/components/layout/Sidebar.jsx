@@ -3,7 +3,7 @@ import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Setting
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
-// CSS Voice Icon Component
+// CSS Voice Icon Component - Volume Symbol
 const VoiceIcon = ({ size = 'default' }) => {
   const sizeClasses = {
     small: 'w-6 h-6',
@@ -16,10 +16,23 @@ const VoiceIcon = ({ size = 'default' }) => {
       'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative',
       sizeClasses[size]
     )}>
-      {/* Microphone capsule */}
-      <div className="absolute w-2 h-4 bg-white rounded-t-full top-1.5" />
-      {/* Microphone stand */}
-      <div className="absolute w-3 h-2.5 border-2 border-white border-t-0 rounded-b-md bottom-1.5" />
+      {/* Speaker box */}
+      <div className="absolute w-1.5 h-3 bg-white" style={{ left: '10px' }} />
+      {/* Speaker cone - triangle */}
+      <div
+        className="absolute"
+        style={{
+          left: '11.5px',
+          width: 0,
+          height: 0,
+          borderStyle: 'solid',
+          borderWidth: '6px 0 6px 7px',
+          borderColor: 'transparent transparent transparent white'
+        }}
+      />
+      {/* Sound waves */}
+      <div className="absolute w-1 h-2 border-2 border-white border-l-0 rounded-r-full" style={{ right: '8px' }} />
+      <div className="absolute w-1.5 h-3.5 border-2 border-white border-l-0 rounded-r-full" style={{ right: '5px' }} />
     </div>
   );
 };

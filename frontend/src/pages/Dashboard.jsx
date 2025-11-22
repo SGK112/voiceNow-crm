@@ -25,7 +25,7 @@ import {
 import { formatCurrency, formatDuration, formatPhoneNumber, cn } from '@/lib/utils';
 import AIInsightsCard from '@/components/AIInsightsCard';
 
-// CSS Voice Icon Component
+// CSS Voice Icon Component - Volume Symbol
 const VoiceIcon = ({ size = 'default' }) => {
   const sizeClasses = {
     small: 'w-6 h-6',
@@ -38,10 +38,23 @@ const VoiceIcon = ({ size = 'default' }) => {
       'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative flex-shrink-0',
       sizeClasses[size]
     )}>
-      {/* Microphone capsule */}
-      <div className="absolute w-2.5 h-5 bg-white rounded-t-full" style={{ top: '6px' }} />
-      {/* Microphone stand */}
-      <div className="absolute w-4 h-3 border-2 border-white border-t-0 rounded-b-lg" style={{ bottom: '6px' }} />
+      {/* Speaker box */}
+      <div className="absolute w-2 h-4 bg-white" style={{ left: '13px' }} />
+      {/* Speaker cone - triangle */}
+      <div
+        className="absolute"
+        style={{
+          left: '15px',
+          width: 0,
+          height: 0,
+          borderStyle: 'solid',
+          borderWidth: '7px 0 7px 9px',
+          borderColor: 'transparent transparent transparent white'
+        }}
+      />
+      {/* Sound waves */}
+      <div className="absolute w-1.5 h-2.5 border-2 border-white border-l-0 rounded-r-full" style={{ right: '10px' }} />
+      <div className="absolute w-2 h-4 border-2 border-white border-l-0 rounded-r-full" style={{ right: '6px' }} />
     </div>
   );
 };
