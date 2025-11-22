@@ -7,7 +7,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # Install frontend dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy frontend source
 COPY frontend/ ./
@@ -22,7 +22,7 @@ WORKDIR /app
 
 # Install production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Copy backend source
 COPY backend/ ./backend/
