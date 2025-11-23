@@ -98,8 +98,11 @@ import { setupVoiceImageWebSocket } from './routes/voiceImageWebSocket.js';
 import voiceMediaCopilotRoutes from './routes/voiceMediaCopilot.js';
 import { setupVoiceMediaCopilotWebSocket } from './routes/voiceMediaCopilotWebSocket.js';
 import voicemailAgentRoutes from './routes/voicemailAgent.js';
+import copilotRoutes from './routes/copilot.js';
 import demoRoutes from './routes/demo.js';
 import studioRoutes from './routes/studio.js';
+import voiceEstimateRoutes from './routes/voiceEstimates.js';
+import socialMediaAIRoutes from './routes/socialMediaAI.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -225,6 +228,9 @@ app.use('/api/voice-copilot', voiceMediaCopilotRoutes);
 app.use('/api/demo', demoRoutes); // Demo routes - no auth required
 app.use('/api/studio', studioRoutes); // Studio routes - social media staging
 app.use('/api/voicemail-agent', voicemailAgentRoutes); // Voicemail agent demo routes
+app.use('/api/copilot', copilotRoutes); // Full-featured Co-Pilot with system integrations
+app.use('/api/voice-estimates', voiceEstimateRoutes); // Voice estimate builder routes
+app.use('/api/social-media', socialMediaAIRoutes); // AI Social Media Post Writer
 
 app.use('/api', apiLimiter);
 

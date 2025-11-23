@@ -246,6 +246,43 @@ const ImageTransform = ({ onClose, onSave, initialImage = null }) => {
           placeholder: 'old furniture and clutter'
         }
       ]
+    },
+    {
+      id: 'add_stickers',
+      name: 'Add Stickers',
+      icon: Sparkles,
+      credits: 1,
+      description: 'Add decorative stickers and overlays',
+      color: 'teal',
+      options: [
+        {
+          key: 'stickerCategory',
+          label: 'Sticker category',
+          type: 'select',
+          choices: [
+            'before-after-badges',
+            'price-tags',
+            'sale-banners',
+            'emoji-reactions',
+            'geometric-shapes',
+            'decorative-frames',
+            'text-callouts',
+            'brand-logos'
+          ]
+        },
+        {
+          key: 'stickerText',
+          label: 'Custom text (optional)',
+          type: 'text',
+          placeholder: 'SALE! or New!'
+        },
+        {
+          key: 'position',
+          label: 'Position',
+          type: 'select',
+          choices: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'center']
+        }
+      ]
     }
   ];
 

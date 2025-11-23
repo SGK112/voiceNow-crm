@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v25-clean-hero-sticky-cards';
+        const CURRENT_VERSION = '2025-11-23-v27-pricing-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -35,7 +35,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v4-cache-fix -->
+    <!-- Version: 2025-11-23-v27-pricing-fix -->
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
@@ -97,6 +97,8 @@
             scroll-behavior: smooth;
             background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%);
             background-attachment: fixed;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         /* Optimize scrolling on mobile */
@@ -246,6 +248,18 @@
             left: 0;
             right: 0;
             z-index: 1000 !important;
+            width: 100%;
+        }
+
+        /* Desktop optimizations */
+        @media (min-width: 1024px) {
+            section {
+                overflow-x: hidden;
+            }
+
+            .max-w-7xl {
+                max-width: 80rem;
+            }
         }
 
         /* Prevent nav from being hidden on mobile scroll */
@@ -1292,20 +1306,30 @@
     <nav class="fixed w-full z-50 bg-[#0a0a0b]/95 backdrop-blur-md border-b border-gray-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-2 logo-container">
-                    <div class="flex items-center gap-2">
-                        <span class="voice-icon" style="display: flex; align-items: center; gap: 2px; height: 24px; padding: 4px 6px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 6px;">
-                            <span style="width: 3px; height: 10px; background: white; border-radius: 2px;"></span>
-                            <span style="width: 3px; height: 16px; background: white; border-radius: 2px;"></span>
-                            <span style="width: 3px; height: 10px; background: white; border-radius: 2px;"></span>
-                        </span>
-                        <div class="flex flex-col">
-                            <span class="text-lg sm:text-xl font-bold gradient-text">VoiceFlow CRM</span>
-                            <span class="hidden sm:inline text-[10px] text-gray-500">by Remodely AI</span>
+                <!-- Logo - Matches Footer -->
+                <a href="#hero" class="flex items-center gap-3 logo-container group cursor-pointer">
+                    <!-- Enhanced Voice Icon -->
+                    <span class="flex items-center gap-1 h-10 px-3 bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
+                        <span class="w-1 h-3 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0s;"></span>
+                        <span class="w-1 h-5 bg-white rounded-full animate-pulse" style="animation-delay: 0.1s;"></span>
+                        <span class="w-1 h-4 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                        <span class="w-1 h-6 bg-white rounded-full animate-pulse" style="animation-delay: 0.3s;"></span>
+                        <span class="w-1 h-3 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
+                    </span>
+
+                    <!-- Text Logo -->
+                    <div class="flex flex-col leading-tight">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl sm:text-2xl font-black bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
+                                VoiceFlow
+                            </span>
+                            <span class="text-xl sm:text-2xl font-black text-white tracking-tight">CRM</span>
                         </div>
+                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide">
+                            by <span class="text-purple-400 font-semibold">Remodely AI</span>
+                        </span>
                     </div>
-                </div>
+                </a>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center gap-8">
@@ -2437,23 +2461,27 @@
                     <i class="fas fa-shield-alt mr-2"></i>Cancel anytime • Money-back guarantee • Enterprise plans available
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+                <!-- Trial Plan -->
+                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg h-full flex flex-col">
                     <h3 class="text-2xl font-bold text-white mb-3">Trial</h3>
                     <div class="mb-6">
                         <span class="text-4xl font-bold text-white">$0</span>
                         <span class="text-gray-400">/month</span>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>50 free call minutes</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>1 voice agent</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Built-in CRM</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Email & SMS follow-ups</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Basic analytics</span></li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition">Start Free</a>
+                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all hover:scale-105">Start Free</a>
                 </div>
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-blue-500 relative md:scale-105">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+
+                <!-- Starter Plan - Most Popular -->
+                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-2xl border-2 border-blue-500 relative h-full flex flex-col transform md:scale-105 z-10">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
                         Most Popular
                     </div>
                     <h3 class="text-2xl font-bold text-white mb-3">Starter</h3>
@@ -2461,29 +2489,31 @@
                         <span class="text-4xl font-bold text-white">$99</span>
                         <span class="text-gray-400">/month</span>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>500 call minutes/month</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>5 voice agents</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>n8n workflow automation</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>CRM + analytics dashboard</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Priority support</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Priority email support</span></li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-500/50 transition">Get Started</a>
+                    <a href="/signup" class="block w-full text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/50 transition-all hover:scale-105">Get Started</a>
                 </div>
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg">
+
+                <!-- Pro Plan -->
+                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg h-full flex flex-col">
                     <h3 class="text-2xl font-bold text-white mb-3">Pro</h3>
                     <div class="mb-6">
                         <span class="text-4xl font-bold text-white">$299</span>
                         <span class="text-gray-400">/month</span>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>2000 call minutes/month</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Unlimited voice agents</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Advanced analytics & reporting</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Custom integrations</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Custom integrations (QuickBooks, etc.)</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Dedicated account manager</span></li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition">Get Started</a>
+                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all hover:scale-105">Get Started</a>
                 </div>
             </div>
         </div>
@@ -2510,14 +2540,33 @@
 
     <footer class="bg-[#0a0a0b] border-t border-gray-800 text-gray-400 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-                <span class="voice-icon">
-                    <span style="position: absolute; width: 3px; height: 16px; background: white; border-radius: 3px;"></span>
+            <!-- Upgraded Footer Logo -->
+            <div class="flex items-center justify-center gap-3 mb-6 sm:mb-8 group">
+                <!-- Enhanced Voice Icon -->
+                <span class="flex items-center gap-1 h-10 px-3 bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
+                    <span class="w-1 h-3 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0s;"></span>
+                    <span class="w-1 h-5 bg-white rounded-full animate-pulse" style="animation-delay: 0.1s;"></span>
+                    <span class="w-1 h-4 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                    <span class="w-1 h-6 bg-white rounded-full animate-pulse" style="animation-delay: 0.3s;"></span>
+                    <span class="w-1 h-3 bg-white/90 rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
                 </span>
-                <span class="text-xl sm:text-2xl font-bold text-white">VoiceFlow CRM</span>
+
+                <!-- Text Logo -->
+                <div class="flex flex-col leading-tight">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
+                            VoiceFlow
+                        </span>
+                        <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">CRM</span>
+                    </div>
+                    <span class="text-xs text-gray-400 font-medium tracking-wide">
+                        by <span class="text-purple-400 font-semibold">Remodely AI</span>
+                    </span>
+                </div>
             </div>
+
             <p class="text-sm sm:text-base mb-4 sm:mb-6 text-gray-400">AI-powered voice agents for modern businesses</p>
-            <p class="text-xs sm:text-sm text-gray-500">&copy; 2025 VoiceFlow CRM. All rights reserved.</p>
+            <p class="text-xs sm:text-sm text-gray-500">&copy; 2025 VoiceFlow CRM by Remodely AI. All rights reserved.</p>
         </div>
     </footer>
 

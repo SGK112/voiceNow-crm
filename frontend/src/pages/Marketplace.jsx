@@ -182,6 +182,18 @@ const MARKETPLACE_ITEMS = {
   // RAG Agents (AI with Knowledge Base)
   rag: [
     {
+      id: 'ai-social-media-writer',
+      name: 'AI Social Media Post Writer',
+      description: 'Generate engaging social media posts for all platforms with AI',
+      icon: Sparkles,
+      tier: 'pro',
+      rating: 4.9,
+      downloads: 1850,
+      badge: 'AI Powered',
+      features: ['Multi-platform support', 'Custom tone & style', 'Hashtag generation', 'Best time suggestions', 'Image analysis'],
+      integrations: ['Instagram', 'Facebook', 'Twitter', 'LinkedIn']
+    },
+    {
       id: 'knowledge-base-support',
       name: 'Knowledge Base Support',
       description: 'AI agent with access to your company docs, manuals, and SOPs',

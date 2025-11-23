@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import AISocialMediaPostWriter from '../components/AISocialMediaPostWriter';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -14,6 +15,7 @@ export default function MultimodalAgentDemo() {
   const [inputMessage, setInputMessage] = useState('');
   const [error, setError] = useState(null);
   const [widgetCode, setWidgetCode] = useState('');
+  const [showSocialWriter, setShowSocialWriter] = useState(false);
 
   const wsRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -217,6 +219,12 @@ export default function MultimodalAgentDemo() {
             <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-full text-sm font-semibold">
               🔄 Context Aware
             </span>
+            <button
+              onClick={() => setShowSocialWriter(true)}
+              className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full text-sm font-semibold hover:shadow-lg transition-shadow"
+            >
+              ✨ AI Social Post Writer
+            </button>
           </div>
 
           {/* Status */}
@@ -390,6 +398,17 @@ export default function MultimodalAgentDemo() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* AI Social Media Post Writer Modal */}
+        {showSocialWriter && (
+          <AISocialMediaPostWriter
+            onClose={() => setShowSocialWriter(false)}
+            projectDetails={{
+              title: 'Multimodal AI Agent Demo',
+              description: 'Voice and text conversational AI demonstration'
+            }}
+          />
         )}
       </div>
     </div>
