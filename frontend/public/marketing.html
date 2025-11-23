@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v37-fix-copilot-mobile';
+        const CURRENT_VERSION = '2025-11-23-v38-copilot-vertical-buttons';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -346,9 +346,17 @@
                 margin-right: 0 !important;
             }
 
+            /* Stack quick actions vertically on mobile */
+            #copilot-quick-actions {
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+            }
+
             .copilot-quick-btn {
-                font-size: 0.7rem !important;
-                padding: 0.5rem 0.5rem !important;
+                font-size: 0.875rem !important;
+                padding: 0.75rem 1rem !important;
+                width: 100% !important;
+                text-align: left !important;
             }
 
             #copilot-send span {
@@ -383,12 +391,7 @@
                 font-size: 2.25rem !important; /* 36px instead of 48px */
             }
 
-            /* Fix copilot quick buttons on small phones */
-            .copilot-quick-btn {
-                font-size: 0.65rem !important;
-                padding: 0.4rem 0.3rem !important;
-            }
-
+            /* Fix copilot input on small phones */
             #copilot-input {
                 font-size: 0.875rem !important;
                 padding: 0.5rem 0.75rem !important;
@@ -2509,7 +2512,7 @@
             <!-- Input Area -->
             <div class="p-4 bg-gray-900 border-t border-gray-800">
                 <!-- Quick Actions -->
-                <div class="grid grid-cols-3 gap-2 mb-3">
+                <div id="copilot-quick-actions" class="grid grid-cols-3 gap-2 mb-3">
                     <button class="copilot-quick-btn text-xs px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors border border-gray-700">
                         📸 Image
                     </button>
