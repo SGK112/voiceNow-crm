@@ -528,71 +528,68 @@
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing intro');
             const video = document.getElementById('brandIntroVideo');
             const overlay = document.getElementById('brandIntroOverlay');
 
             // Prevent scrolling during intro
             document.body.style.overflow = 'hidden';
 
-            if (video && overlay) {
-                // Skip intro if user prefers reduced motion
-                if (prefersReducedMotion) {
-                    console.log('User prefers reduced motion, skipping intro');
+            if (!video || !overlay) {
+                console.error('Video or overlay not found!');
+                document.body.style.overflow = 'auto';
+                return;
+            }
+
+            // Skip intro if user prefers reduced motion
+            if (prefersReducedMotion) {
+                console.log('User prefers reduced motion, skipping intro');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                return;
+            }
+
+            // On mobile, skip intro if battery saver or slow connection detected
+            if (isMobile && (navigator.connection?.saveData ||
+                navigator.connection?.effectiveType === 'slow-2g' ||
+                navigator.connection?.effectiveType === '2g' ||
+                navigator.connection?.effectiveType === '3g')) {
+                console.log('Slow connection or data saver detected, skipping intro');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                return;
+            }
+
+            // Try to play the video
+            const playPromise = video.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Intro video playing');
+                }).catch(err => {
+                    console.log('Auto-play prevented, skipping intro:', err);
                     overlay.classList.add('hidden');
                     document.body.style.overflow = 'auto';
-                    return;
-                }
-
-                // On mobile, skip intro if battery saver or slow connection detected
-                if (isMobile && (navigator.connection?.saveData ||
-                    navigator.connection?.effectiveType === 'slow-2g' ||
-                    navigator.connection?.effectiveType === '2g' ||
-                    navigator.connection?.effectiveType === '3g')) {
-                    console.log('Slow connection or data saver detected, skipping intro');
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
-                    return;
-                }
-
-                // Set video playback rate based on device
-                if (!isMobile) {
-                    video.playbackRate = 1.0; // Normal speed on desktop
-                } else {
-                    video.playbackRate = 1.2; // Slightly faster on mobile
-                }
-
-                // Try to play the video
-                const playPromise = video.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        // Video started playing successfully
-                        console.log('Intro video playing');
-                    }).catch(err => {
-                        console.log('Auto-play prevented, skipping intro:', err);
-                        // If autoplay fails, hide immediately
-                        overlay.classList.add('hidden');
-                        document.body.style.overflow = 'auto';
-                    });
-                }
-
-                // Video will loop until user interaction
-
-                // Pause video when tab is not visible (battery saving)
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        video.pause();
-                    } else if (!overlay.classList.contains('hidden')) {
-                        video.play();
-                    }
                 });
             }
-            // Set up interaction listeners
-            setupInteractionListeners();
+
+            // Pause video when tab is not visible (battery saving)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    video.pause();
+                } else if (!overlay.classList.contains('hidden')) {
+                    video.play();
+                }
+            });
+
+            // Set up interaction listeners - moved inside DOMContentLoaded
+            setupInteractionListeners(overlay);
         });
 
         // Setup all interaction listeners
-        function setupInteractionListeners() {
+        function setupInteractionListeners(overlay) {
+            console.log('Setting up interaction listeners');
+
             // Transition on scroll
             window.addEventListener('scroll', function() {
                 console.log('Scroll detected');
@@ -603,7 +600,7 @@
             window.addEventListener('wheel', function(e) {
                 console.log('Wheel detected');
                 transitionToLandingPage();
-            }, { once: true });
+            }, { once: true, passive: true });
 
             // Transition on touch
             window.addEventListener('touchstart', function(e) {
@@ -613,19 +610,18 @@
                 }
                 console.log('Touch detected');
                 transitionToLandingPage();
-            }, { once: true });
+            }, { once: true, passive: true });
 
-            // Skip intro on click anywhere
-            const overlay = document.getElementById('brandIntroOverlay');
+            // Skip intro on click anywhere on overlay
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
                     // If clicking the Get Started button, let it navigate naturally
                     if (e.target.closest('.intro-signup-btn')) {
                         return;
                     }
-                    console.log('Click detected');
+                    console.log('Click detected on overlay');
                     transitionToLandingPage();
-                });
+                }, { once: true });
             }
 
             // Add tap indicator for mobile users
