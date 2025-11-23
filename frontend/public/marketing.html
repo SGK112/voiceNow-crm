@@ -1500,120 +1500,155 @@
     </nav>
 
 
-    <section id="hero" class="hero-minimal relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-3 sm:px-4 min-h-screen flex items-center overflow-hidden scroll-section">
+    <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] min-h-screen flex items-center overflow-hidden scroll-section">
+        <div class="max-w-6xl mx-auto relative z-10 w-full">
+            <div class="text-center mb-12 sm:mb-16">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
+                    Try It Live
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto">
+                    Experience our AI voice agent in action
+                </p>
+            </div>
 
-        <div class="max-w-7xl mx-auto relative z-10 w-full">
-            <!-- Hero Content - Grid Layout -->
-            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8 sm:gap-10 md:gap-12 items-center">
+                <!-- Phone Mockup with SMS Demo -->
+                <div class="md:col-span-2 order-2 md:order-1 phone-entrance">
+                    <div class="mx-auto" style="max-width: 340px;">
+                        <!-- iPhone Frame -->
+                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
+                            <!-- Notch -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
 
-                <!-- Left Column - Text Content -->
-                <div class="hero-content-card">
-                    <!-- Urgency Badge -->
-                    <div class="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 px-4 py-2 rounded-full text-sm font-semibold mb-6 animate-pulse">
-                        <i class="fas fa-fire text-orange-400"></i>
-                        <span class="text-orange-300">500+ Companies Already Automated</span>
-                    </div>
-
-                    <!-- Main Headline - More Direct -->
-                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-                        Get <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-400 to-purple-400">300% More Leads</span> in 30 Days
-                    </h1>
-
-                    <!-- Subheadline - Benefit Focused -->
-                    <p class="text-xl sm:text-2xl text-gray-200 mb-8 leading-relaxed font-medium">
-                        AI voice agents that call, qualify, and book meetings 24/7. While you sleep, we're closing deals.
-                    </p>
-
-                    <!-- Prominent CTA Buttons -->
-                    <div class="flex flex-col gap-4 mb-8">
-                        <a href="/signup" class="group relative bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-5 rounded-2xl font-bold text-lg sm:text-xl text-center shadow-2xl shadow-green-500/50 hover:shadow-green-500/70 transition-all transform hover:scale-105">
-                            <span class="flex items-center justify-center gap-3">
-                                <i class="fas fa-rocket text-2xl"></i>
-                                Start Free Trial - 50 Minutes Free
-                            </span>
-                            <div class="text-xs font-normal mt-1 text-green-100">No credit card required • Setup in 2 minutes</div>
-                        </a>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <a href="#sms-demo" class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-semibold text-center shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-mobile-alt"></i>
-                                Try Live Demo
-                            </a>
-                            <button onclick="window.open('tel:+16028334780', '_self')" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-purple-400/50 text-purple-300 px-6 py-4 rounded-xl font-semibold text-center shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-phone"></i>
-                                Talk to AI Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Social Proof Stats -->
-                    <div class="grid grid-cols-3 gap-4 p-6 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-xl">
-                        <div class="text-center">
-                            <div class="text-3xl font-black text-green-400">300%</div>
-                            <div class="text-xs text-gray-400 mt-1">More Leads</div>
-                        </div>
-                        <div class="text-center border-l border-r border-gray-700/50">
-                            <div class="text-3xl font-black text-purple-400">24/7</div>
-                            <div class="text-xs text-gray-400 mt-1">Always On</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-black text-blue-400">2min</div>
-                            <div class="text-xs text-gray-400 mt-1">Setup</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column - Hero Image -->
-                <div class="relative lg:block hidden">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                        <!-- Image -->
-                        <img
-                            src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1200&auto=format&fit=crop"
-                            alt="Team working with VoiceFlow AI voice agents"
-                            class="w-full h-auto object-cover"
-                            loading="lazy"
-                        />
-
-                        <!-- Overlay gradient for better blending -->
-                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-transparent to-blue-900/20 pointer-events-none"></div>
-
-                        <!-- Floating stats card -->
-                        <div class="absolute bottom-6 left-6 right-6 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4">
-                            <div class="flex items-center justify-between text-white">
-                                <div class="flex-1">
-                                    <div class="text-2xl font-bold text-green-400">300%</div>
-                                    <div class="text-xs text-gray-300">More Leads</div>
+                            <!-- Screen -->
+                            <div class="bg-white rounded-[2.5rem] overflow-hidden relative" style="height: 667px;">
+                                <!-- Status Bar -->
+                                <div class="bg-white px-6 py-3 flex justify-between items-center text-xs font-semibold text-black border-b border-gray-200">
+                                    <span>9:41 AM</span>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-signal text-xs"></i>
+                                        <i class="fas fa-wifi text-xs"></i>
+                                        <i class="fas fa-battery-full text-xs"></i>
+                                    </div>
                                 </div>
-                                <div class="flex-1 border-l border-gray-700 pl-4">
-                                    <div class="text-2xl font-bold text-purple-400">24/7</div>
-                                    <div class="text-xs text-gray-300">Always On</div>
+
+                                <!-- SMS Header -->
+                                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between text-sm border-b border-gray-200">
+                                    <i class="fas fa-chevron-left text-blue-500"></i>
+                                    <div class="flex-1 text-center">
+                                        <div class="font-semibold text-black">(602) 833-7194</div>
+                                    </div>
+                                    <i class="fas fa-info-circle text-blue-500"></i>
                                 </div>
-                                <div class="flex-1 border-l border-gray-700 pl-4">
-                                    <div class="text-2xl font-bold text-blue-400">5min</div>
-                                    <div class="text-xs text-gray-300">Setup Time</div>
+
+                                <!-- SMS Messages / Placeholder -->
+                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto flex items-center justify-center" style="height: 540px;">
+                                    <!-- Placeholder Screen -->
+                                    <div id="phone-placeholder" class="text-center">
+                                        <div class="mb-6">
+                                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                                <i class="fas fa-comment-dots text-white text-4xl"></i>
+                                            </div>
+                                            <h3 class="text-xl font-bold text-gray-800 mb-2">See It In Action</h3>
+                                            <p class="text-sm text-gray-500 mb-6">Watch our AI agent respond in real-time</p>
+                                        </div>
+                                        <button id="show-demo-form-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                                            Try Me
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Input Area -->
+                                <div class="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 flex items-center gap-2">
+                                    <div class="flex-1 bg-white rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            id="sms-input"
+                                            placeholder="Text Message"
+                                            class="flex-1 text-sm outline-none"
+                                        >
+                                    </div>
+                                    <button
+                                        id="sms-send"
+                                        class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white"
+                                    >
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Decorative elements -->
-                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl"></div>
-                    <div class="absolute -bottom-4 -left-4 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
                 </div>
 
-                <!-- Mobile Image - Shown only on smaller screens -->
-                <div class="lg:hidden mt-8">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                        <img
-                            src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=800&auto=format&fit=crop"
-                            alt="Team working with VoiceFlow AI voice agents"
-                            class="w-full h-auto object-cover"
-                            loading="lazy"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-transparent to-blue-900/20"></div>
+                <!-- Demo Form -->
+                <div class="md:col-span-3 order-1 md:order-2">
+                    <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
+                        <!-- Toggle Switch -->
+                        <div class="flex items-center justify-center gap-4 mb-6">
+                            <button id="toggle-voice" class="demo-toggle active px-6 py-3 rounded-xl font-semibold transition-all">
+                                <i class="fas fa-phone mr-2"></i>Voice Call
+                            </button>
+                            <button id="toggle-sms" class="demo-toggle px-6 py-3 rounded-xl font-semibold transition-all">
+                                <i class="fas fa-comment-dots mr-2"></i>SMS
+                            </button>
+                        </div>
+
+                        <form id="demo-form" class="space-y-4">
+                            <input
+                                type="text"
+                                id="demo-name"
+                                placeholder="Name"
+                                required
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
+                            <input
+                                type="tel"
+                                id="demo-phone"
+                                placeholder="Phone Number"
+                                required
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
+                            <input
+                                type="email"
+                                id="demo-email"
+                                placeholder="Email (optional)"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
+
+                            <!-- Submit Button -->
+                            <button
+                                type="button"
+                                id="submit-demo-btn"
+                                class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg"
+                            >
+                                <i class="fas fa-phone mr-2"></i>
+                                <span id="submit-btn-text">Start Voice Demo</span>
+                            </button>
+
+                            <!-- Status Message -->
+                            <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
+
+                            <p class="text-center text-sm text-gray-500 pt-2">
+                                <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
+                            </p>
+                        </form>
                     </div>
-                </div>
 
+                    <!-- Initial CTA (shown before form) -->
+                    <div id="initial-cta" class="max-w-md mx-auto md:mx-0 text-center cta-entrance">
+                        <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
+                        <p class="text-lg text-gray-400 mb-8">Get a live demo in seconds. No credit card required.</p>
+                        <button id="show-form-btn" class="bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg cta-button-pulse">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Try It Now
+                        </button>
+                    </div>
+
+                    <!-- Hidden select for interest -->
+                    <select id="demo-interest" class="hidden">
+                        <option value="demo">Demo Request</option>
+                    </select>
+                </div>
             </div>
         </div>
     </section>
