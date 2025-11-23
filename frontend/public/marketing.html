@@ -695,6 +695,7 @@
                 <div class="hidden md:flex items-center gap-8">
                     <a href="#hero" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-section="hero">Home</a>
                     <a href="#features" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-section="features">Features</a>
+                    <a href="#sms-demo" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-section="sms-demo">Demo</a>
                     <a href="#workflows" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-section="workflows">Workflows</a>
                     <a href="#pricing" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-section="pricing">Pricing</a>
                     <a href="/login" class="text-sm text-gray-300 hover:text-white transition-colors">Login</a>
@@ -824,6 +825,130 @@
                         <li><i class="fas fa-check text-purple-400 mr-2"></i>29+ languages for global reach</li>
                         <li><i class="fas fa-check text-purple-400 mr-2"></i>Emotional intelligence & natural pauses</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SMS Demo Section -->
+    <section id="sms-demo" class="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-gradient-to-br from-[#141416] to-[#0a0a0b] scroll-section">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-10 sm:mb-12 md:mb-16">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
+                    See It In <span class="gradient-text">Action</span>
+                </h2>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">
+                    Watch how our AI agent handles real conversations. Try the interactive demo below!
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-start max-w-6xl mx-auto">
+                <!-- Phone Mockup with SMS Demo -->
+                <div class="relative">
+                    <div class="mx-auto" style="max-width: 375px;">
+                        <!-- iPhone Frame -->
+                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900">
+                            <!-- Notch -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
+
+                            <!-- Screen -->
+                            <div class="bg-white rounded-[2.5rem] overflow-hidden relative" style="height: 667px;">
+                                <!-- Status Bar -->
+                                <div class="bg-white px-6 py-3 flex justify-between items-center text-xs font-semibold text-black border-b border-gray-200">
+                                    <span>9:41 AM</span>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-signal text-xs"></i>
+                                        <i class="fas fa-wifi text-xs"></i>
+                                        <i class="fas fa-battery-full text-xs"></i>
+                                    </div>
+                                </div>
+
+                                <!-- SMS Header -->
+                                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between text-sm border-b border-gray-200">
+                                    <i class="fas fa-chevron-left text-blue-500"></i>
+                                    <div class="flex-1 text-center">
+                                        <div class="font-semibold text-black">(602) 833-7194</div>
+                                    </div>
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                </div>
+
+                                <!-- SMS Messages -->
+                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto" style="height: 540px;">
+                                    <!-- Messages will be added here dynamically -->
+                                </div>
+
+                                <!-- Input Area -->
+                                <div class="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 flex items-center gap-2">
+                                    <div class="flex-1 bg-white rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            id="sms-input"
+                                            placeholder="Text Message"
+                                            class="flex-1 text-sm outline-none"
+                                        >
+                                    </div>
+                                    <button
+                                        id="sms-send"
+                                        class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white"
+                                    >
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Controls & Info -->
+                <div class="space-y-6">
+                    <div class="bg-[#0a0a0b] border border-gray-800 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold text-white mb-4">Try It Yourself</h3>
+                        <p class="text-gray-300 mb-6">
+                            Experience our AI voice agent in action. Click to send "DEMO" and see what happens!
+                        </p>
+
+                        <div class="space-y-3">
+                            <button class="demo-suggestion w-full text-left bg-green-900/30 hover:bg-green-900/50 border border-green-700/50 rounded-lg px-4 py-3 text-white transition">
+                                <i class="fas fa-mobile-alt mr-2 text-green-400"></i>
+                                Send "DEMO"
+                            </button>
+                            <button class="demo-suggestion w-full text-left bg-purple-900/30 hover:bg-purple-900/50 border border-purple-700/50 rounded-lg px-4 py-3 text-white transition">
+                                <i class="fas fa-phone mr-2 text-purple-400"></i>
+                                "Call me"
+                            </button>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                            <p class="text-sm text-gray-300">
+                                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                                Try it on your phone: Text <strong>DEMO</strong> to <strong>(602) 833-7194</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-900/20 border border-green-700/50 rounded-xl p-6">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-bolt text-green-400 text-2xl mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-white mb-2">Instant Response</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Our AI calls you within 5 seconds of texting "DEMO". No wait times, no human delays.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-900/20 border border-purple-700/50 rounded-xl p-6">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-robot text-purple-400 text-2xl mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-white mb-2">Powered by ElevenLabs</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Ultra-realistic voice synthesis. You won't believe it's AI until we tell you.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1312,6 +1437,160 @@
         });
 
         console.log('Scroll enhancements loaded: Progress bar, Section nav, Smooth scroll, Animations');
+
+        // ===== SMS DEMO FUNCTIONALITY =====
+
+        const smsMessages = document.getElementById('sms-messages');
+        const smsInput = document.getElementById('sms-input');
+        const smsSend = document.getElementById('sms-send');
+        const demoSuggestions = document.querySelectorAll('.demo-suggestion');
+
+        // SMS Response based on actual VoiceFlow demo agent
+        const smsResponses = {
+            'demo': {
+                immediate: "🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that'll blow your mind!",
+                followUp: "📞 Calling you now..."
+            },
+            'call me': {
+                immediate: "👋 Hey! I can definitely call you. Just text DEMO and I'll ring your phone in seconds!"
+            },
+            'default': {
+                immediate: "👋 Hi! Text DEMO to experience our AI voice agent in action - you'll get a call in seconds!"
+            }
+        };
+
+        function addSMSMessage(type, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-3 animate-fade-in`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[75%] px-4 py-2 shadow-sm ${
+                type === 'user'
+                    ? 'bg-green-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm'
+                    : 'bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm'
+            }`;
+            bubble.style.fontSize = '15px';
+            bubble.style.lineHeight = '1.4';
+            bubble.textContent = text;
+
+            messageDiv.appendChild(bubble);
+            smsMessages.appendChild(messageDiv);
+            smsMessages.scrollTop = smsMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex justify-start mb-3';
+            typingDiv.innerHTML = `
+                <div class="bg-gray-200 rounded-t-2xl rounded-br-2xl rounded-bl-sm px-4 py-3">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+                    </div>
+                </div>
+            `;
+            smsMessages.appendChild(typingDiv);
+            smsMessages.scrollTop = smsMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        function getAIResponse(userMessage) {
+            const msg = userMessage.toLowerCase().trim();
+
+            if (msg === 'demo') {
+                return smsResponses.demo;
+            } else if (msg.includes('call me') || msg.includes('call')) {
+                return smsResponses['call me'];
+            } else {
+                return smsResponses.default;
+            }
+        }
+
+        function sendSMS(message) {
+            if (!message.trim()) return;
+
+            // Add user message
+            addSMSMessage('user', message);
+            smsInput.value = '';
+
+            // Show typing indicator
+            addTypingIndicator();
+
+            // Get response
+            const responses = getAIResponse(message);
+
+            // Simulate AI response delay (realistic SMS timing)
+            setTimeout(() => {
+                removeTypingIndicator();
+                addSMSMessage('ai', responses.immediate);
+
+                // If it's a DEMO message, show the follow-up
+                if (message.toLowerCase().trim() === 'demo' && responses.followUp) {
+                    setTimeout(() => {
+                        addTypingIndicator();
+                        setTimeout(() => {
+                            removeTypingIndicator();
+                            addSMSMessage('ai', responses.followUp);
+                        }, 1500);
+                    }, 2000);
+                }
+            }, 800 + Math.random() * 400);
+        }
+
+        // Event listeners
+        smsSend.addEventListener('click', () => {
+            sendSMS(smsInput.value);
+        });
+
+        smsInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendSMS(smsInput.value);
+            }
+        });
+
+        demoSuggestions.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const text = btn.textContent.trim();
+                // Extract just the text we want to send
+                let message = '';
+                if (text.includes('DEMO')) {
+                    message = 'DEMO';
+                } else if (text.includes('Call me')) {
+                    message = 'Call me';
+                }
+                if (message) {
+                    smsInput.value = message;
+                    sendSMS(message);
+                }
+            });
+        });
+
+        // Add fade-in animation
+        const smsStyle = document.createElement('style');
+        smsStyle.textContent = `
+            @keyframes fade-in {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .animate-fade-in {
+                animation: fade-in 0.3s ease-out;
+            }
+        `;
+        document.head.appendChild(smsStyle);
+
+        console.log('SMS Demo loaded');
     </script>
 </body>
 </html>
