@@ -39,7 +39,7 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4 py-8">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start">
         {/* Signup Form */}
-        <Card className="w-full shadow-xl bg-[#141416] border-gray-800">
+        <Card className="w-full shadow-xl bg-[#141416] border-gray-900">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create your account</CardTitle>
             <CardDescription className="text-gray-400">Get started with VoiceFlow CRM</CardDescription>
@@ -61,7 +61,7 @@ export default function Signup() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
+                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -74,7 +74,7 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
+                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -88,7 +88,7 @@ export default function Signup() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
+                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -103,7 +103,7 @@ export default function Signup() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-700" />
+                  <span className="w-full border-t border-gray-900" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-[#141416] px-2 text-gray-400">
@@ -129,7 +129,7 @@ export default function Signup() {
       {/* Pricing Information */}
       <div className="space-y-4">
         {/* Free Trial Card */}
-        <Card className="bg-gradient-to-br from-blue-900/20 to-blue-600/20 border-blue-700/30">
+        <Card className="bg-gradient-to-br from-blue-900/20 to-blue-600/20 border-blue-900/40">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3 mb-4">
               <div className="p-2 bg-blue-500/20 rounded-full">
@@ -162,7 +162,7 @@ export default function Signup() {
         </Card>
 
         {/* Pricing Options Card */}
-        <Card className="bg-[#141416] border-gray-800">
+        <Card className="bg-[#141416] border-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-white">Flexible Pricing After Trial</CardTitle>
             <CardDescription className="text-gray-400">Choose what works best for you</CardDescription>
@@ -172,7 +172,7 @@ export default function Signup() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-white">Pay-As-You-Go Credits</h4>
-                <Badge variant="outline" className="border-gray-700 text-gray-300">From $49</Badge>
+                <Badge variant="outline" className="border-gray-800 text-gray-300">From $49</Badge>
               </div>
               <p className="text-sm text-gray-400 mb-2">
                 Perfect for sporadic usage - credits never expire
@@ -184,10 +184,10 @@ export default function Signup() {
               </div>
             </div>
 
-            <div className="border-t border-gray-700 pt-4">
+            <div className="border-t border-gray-900 pt-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-white">Monthly Subscriptions</h4>
-                <Badge variant="outline" className="border-gray-700 text-gray-300">From $99/mo</Badge>
+                <Badge variant="outline" className="border-gray-800 text-gray-300">From $99/mo</Badge>
               </div>
               <p className="text-sm text-gray-400 mb-2">
                 Best for regular usage with CRM features included
@@ -199,7 +199,7 @@ export default function Signup() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-700">
+            <div className="pt-4 border-t border-gray-900">
               <Link to="/pricing">
                 <Button variant="link" className="w-full p-0 h-auto text-blue-400 hover:underline">
                   View detailed pricing comparison →
@@ -210,7 +210,7 @@ export default function Signup() {
         </Card>
 
         {/* Trust Badges */}
-        <Card className="bg-[#141416] border-gray-800">
+        <Card className="bg-[#141416] border-gray-900">
           <CardContent className="pt-6">
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">

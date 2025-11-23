@@ -36,7 +36,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4">
-      <Card className="w-full max-w-md shadow-xl bg-[#141416] border-gray-800">
+      <Card className="w-full max-w-md shadow-xl bg-[#141416] border-gray-900">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Welcome to VoiceFlow CRM</CardTitle>
           <CardDescription className="text-gray-400">Sign in to your account to continue</CardDescription>
@@ -58,7 +58,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
+                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -76,7 +76,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
+                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -91,7 +91,7 @@ export default function Login() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-700" />
+                  <span className="w-full border-t border-gray-900" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-[#141416] px-2 text-gray-400">
