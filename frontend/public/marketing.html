@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v5-mobile-modals';
+        const CURRENT_VERSION = '2025-11-23-v6-voicemail-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1830,6 +1830,7 @@
                 const voicemailModal = document.getElementById('voicemail-modal');
                 if (voicemailModal) {
                     voicemailModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
                 }
             };
             toolMenu.appendChild(voicemailBtn);
