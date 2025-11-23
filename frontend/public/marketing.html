@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v6-voicemail-fix';
+        const CURRENT_VERSION = '2025-11-23-v7-bottom-tray';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1680,19 +1680,81 @@
 
         // Add tool menu to main content
         window.addEventListener('DOMContentLoaded', () => {
-            // Create tool menu container
+            // Create tool menu trigger button
+            const triggerBtn = document.createElement('button');
+            triggerBtn.id = 'tool-menu-trigger';
+            triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
+            triggerBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                z-index: 10000;
+                transition: all 0.3s;
+            `;
+            triggerBtn.onmouseover = () => {
+                triggerBtn.style.transform = 'scale(1.1)';
+                triggerBtn.style.boxShadow = '0 6px 30px rgba(99, 102, 241, 0.7)';
+            };
+            triggerBtn.onmouseout = () => {
+                triggerBtn.style.transform = 'scale(1)';
+                triggerBtn.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.5)';
+            };
+
+            // Create sliding tool menu tray
             const toolMenu = document.createElement('div');
             toolMenu.id = 'floating-tool-menu';
             toolMenu.style.cssText = `
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 z-index: 9999;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-end;
+                background: linear-gradient(to top, rgba(10, 10, 11, 0.98), rgba(10, 10, 11, 0.95));
+                backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 20px;
+                transform: translateY(100%);
+                transition: transform 0.3s ease-in-out;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
             `;
+
+            // Create tools container
+            const toolsContainer = document.createElement('div');
+            toolsContainer.style.cssText = `
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                max-width: 600px;
+                margin: 0 auto;
+                flex-wrap: wrap;
+            `;
+            toolMenu.appendChild(toolsContainer);
+
+            // Toggle menu function
+            let isMenuOpen = false;
+            triggerBtn.onclick = () => {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    toolMenu.style.transform = 'translateY(0)';
+                    triggerBtn.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    toolMenu.style.transform = 'translateY(100%)';
+                    triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
+                }
+            };
 
             // Create share button
             if (navigator.share || navigator.clipboard) {
@@ -1718,7 +1780,7 @@
                 shareBtn.onmouseover = () => shareBtn.style.transform = 'scale(1.1)';
                 shareBtn.onmouseout = () => shareBtn.style.transform = 'scale(1)';
                 shareBtn.onclick = shareWebsite;
-                toolMenu.appendChild(shareBtn);
+                toolsContainer.appendChild(shareBtn);
             }
 
             // Create voice copilot button
@@ -1728,8 +1790,8 @@
             copilotBtn.innerHTML = '<i class="fas fa-microphone"></i>';
             copilotBtn.title = 'Voice AI Copilot';
             copilotBtn.style.cssText = `
-                width: 56px;
-                height: 56px;
+                width: 70px;
+                height: 70px;
                 border-radius: 50%;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
@@ -1739,9 +1801,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 22px;
+                font-size: 28px;
                 transition: all 0.3s;
-                animation: toolFadeIn 0.5s ease-out 0.3s both;
             `;
             copilotBtn.onmouseover = () => {
                 copilotBtn.style.transform = 'scale(1.1)';
@@ -1754,7 +1815,7 @@
             copilotBtn.onclick = () => {
                 document.getElementById('voice-copilot-modal').classList.remove('hidden');
             };
-            toolMenu.appendChild(copilotBtn);
+            toolsContainer.appendChild(copilotBtn);
 
             // Create AI Image Generator button
             const imageGenBtn = document.createElement('button');
@@ -1793,7 +1854,7 @@
                     aiChatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             };
-            toolMenu.appendChild(imageGenBtn);
+            toolsContainer.appendChild(imageGenBtn);
 
             // Create Voicemail Agent button
             const voicemailBtn = document.createElement('button');
@@ -1802,8 +1863,8 @@
             voicemailBtn.innerHTML = '<i class="fas fa-voicemail"></i>';
             voicemailBtn.title = 'Voicemail Agent Demo';
             voicemailBtn.style.cssText = `
-                width: 56px;
-                height: 56px;
+                width: 70px;
+                height: 70px;
                 border-radius: 50%;
                 background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
                 color: white;
@@ -1813,9 +1874,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 22px;
+                font-size: 28px;
                 transition: all 0.3s;
-                animation: toolFadeIn 0.5s ease-out 0.5s both;
             `;
             voicemailBtn.onmouseover = () => {
                 voicemailBtn.style.transform = 'scale(1.1)';
@@ -1833,30 +1893,11 @@
                     document.body.style.overflow = 'hidden';
                 }
             };
-            toolMenu.appendChild(voicemailBtn);
+            toolsContainer.appendChild(voicemailBtn);
 
-            // Add animation styles
-            const pulseStyle = document.createElement('style');
-            pulseStyle.textContent = `
-                @keyframes toolFadeIn {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                #floating-copilot-btn:active,
-                #floating-image-gen-btn:active,
-                #floating-voicemail-btn:active {
-                    transform: scale(0.95) !important;
-                }
-            `;
-            document.head.appendChild(pulseStyle);
-
+            // Append to body
             document.body.appendChild(toolMenu);
+            document.body.appendChild(triggerBtn);
         });
 
         // Animation for install banner
