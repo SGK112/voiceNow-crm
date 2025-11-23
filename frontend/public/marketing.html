@@ -98,6 +98,36 @@
         .text-dark { color: #f9fafb; }
         .text-muted { color: #9ca3af; }
 
+        /* Ensure nav stays visible on all devices */
+        nav {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000 !important;
+        }
+
+        /* Prevent nav from being hidden on mobile scroll */
+        @media (max-width: 768px) {
+            nav {
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0);
+            }
+
+            /* Ensure content doesn't hide under nav */
+            #mainContent {
+                padding-top: 0;
+            }
+        }
+
+        /* Prevent Safari mobile from hiding address bar affecting nav */
+        @supports (-webkit-touch-callout: none) {
+            nav {
+                position: sticky !important;
+                position: -webkit-sticky !important;
+            }
+        }
+
         /* CSS Voice Icon with Gradient - Three Voice Waves */
         .voice-icon {
             display: inline-flex;
@@ -182,17 +212,16 @@
         .brand-intro-video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
             animation: subtleZoomIn 1s ease-out forwards;
         }
-        /* Mobile: optimized video display */
+        /* Mobile: full screen video */
         @media (max-width: 768px) {
             .brand-intro-video {
-                width: 90%;
-                height: auto;
-                max-height: 60vh;
-                object-fit: contain;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
             /* Faster animations on mobile */
             .brand-intro-overlay {
