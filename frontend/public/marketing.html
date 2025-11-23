@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v36-comprehensive-mobile-fixes';
+        const CURRENT_VERSION = '2025-11-23-v37-fix-copilot-mobile';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -334,6 +334,26 @@
             .absolute.-top-4 {
                 top: -0.5rem !important;
             }
+
+            /* Fix copilot section on mobile */
+            #copilot-demo {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            #copilot-chat-container {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .copilot-quick-btn {
+                font-size: 0.7rem !important;
+                padding: 0.5rem 0.5rem !important;
+            }
+
+            #copilot-send span {
+                display: none !important;
+            }
         }
 
         /* Extra small phone fixes (iPhone SE, old Androids) */
@@ -361,6 +381,17 @@
 
             .text-5xl {
                 font-size: 2.25rem !important; /* 36px instead of 48px */
+            }
+
+            /* Fix copilot quick buttons on small phones */
+            .copilot-quick-btn {
+                font-size: 0.65rem !important;
+                padding: 0.4rem 0.3rem !important;
+            }
+
+            #copilot-input {
+                font-size: 0.875rem !important;
+                padding: 0.5rem 0.75rem !important;
             }
         }
 
@@ -2443,7 +2474,7 @@
 
             <!-- Embedded Co-Pilot Chat UI - Hidden by default, shown in section -->
             <div id="copilot-chat-container" class="hidden">
-                <div class="max-w-3xl mx-auto bg-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden flex flex-col h-[80vh] md:h-[600px]">
+                <div class="max-w-3xl mx-auto bg-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden flex flex-col h-[500px] sm:h-[600px] md:h-[650px]">
 
             <!-- Minimal Header -->
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900">
