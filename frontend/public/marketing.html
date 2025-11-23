@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
+    <!-- Prevent browser caching during development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Version: 2025-11-23-v2 -->
+
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
     <meta name="title" content="VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS">
@@ -255,7 +261,7 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%);
+            background: #000000;
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -506,6 +512,7 @@
                 webkit-playsinline
                 poster=""
             >
+                <source src="videos/intro.mp4" type="video/mp4">
                 <source src="/videos/intro.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -525,10 +532,7 @@
             </div>
         </div>
 
-        <!-- Intro Signup Button -->
-        <a href="/signup" class="intro-signup-btn gradient-bg text-white px-6 py-3 rounded-full font-semibold hover:shadow-xl transition text-sm md:text-base">
-            Get Started
-        </a>
+        <!-- Removed Get Started button - using tool menu instead -->
     </div>
 
     <script>
@@ -583,6 +587,20 @@
                 return;
             }
 
+            // Debug video source
+            console.log('Video src:', video.querySelector('source')?.src);
+            console.log('Video readyState:', video.readyState);
+
+            // Listen for video load errors
+            video.addEventListener('error', (e) => {
+                console.error('Video error:', e, video.error);
+                // Don't skip intro on error, show static overlay
+            });
+
+            video.addEventListener('loadeddata', () => {
+                console.log('Video loaded successfully');
+            });
+
             // Skip intro if user prefers reduced motion
             if (prefersReducedMotion) {
                 console.log('User prefers reduced motion, skipping intro');
@@ -602,16 +620,20 @@
                 return;
             }
 
+            // Force show overlay initially
+            overlay.classList.remove('hidden');
+            overlay.style.opacity = '1';
+
             // Try to play the video
             const playPromise = video.play();
 
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log('Intro video playing');
+                    console.log('Intro video playing successfully');
                 }).catch(err => {
-                    console.log('Auto-play prevented, skipping intro:', err);
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
+                    console.log('Auto-play prevented or error:', err);
+                    // Keep overlay visible even if autoplay fails
+                    // User can still see the text and click to continue
                 });
             }
 
@@ -720,7 +742,7 @@
     </nav>
 
     <!-- Scroll Progress Bar -->
-    <div id="scroll-progress" style="position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); z-index: 10001; transition: width 0.2s;"></div>
+    <div id="scroll-progress" style="position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); z-index: 10001; transition: width 0.2s; display: none;"></div>
 
     <!-- Section Navigation Dots -->
     <div id="section-nav" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); z-index: 9998; display: none;">
@@ -854,10 +876,10 @@
 
             <div class="grid md:grid-cols-5 gap-12 items-center">
                 <!-- Phone Mockup with SMS Demo -->
-                <div class="md:col-span-2 order-2 md:order-1">
+                <div class="md:col-span-2 order-2 md:order-1 phone-entrance">
                     <div class="mx-auto" style="max-width: 340px;">
                         <!-- iPhone Frame -->
-                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900">
+                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
                             <!-- Notch -->
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
 
@@ -882,20 +904,20 @@
                                     <i class="fas fa-info-circle text-blue-500"></i>
                                 </div>
 
-                                <!-- SMS Messages -->
-                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto" style="height: 540px;">
-                                    <!-- Animated demo conversation -->
-                                    <div class="demo-message user-message" style="animation-delay: 0.5s;">
-                                        <div class="message-bubble user-bubble">DEMO</div>
-                                    </div>
-                                    <div class="demo-message ai-message" style="animation-delay: 2s;">
-                                        <div class="message-bubble ai-bubble">🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that'll blow your mind!</div>
-                                    </div>
-                                    <div class="demo-message ai-message" style="animation-delay: 4.5s;">
-                                        <div class="message-bubble ai-bubble">📞 Calling you now...</div>
-                                    </div>
-                                    <div class="demo-message ai-message" style="animation-delay: 7s;">
-                                        <div class="message-bubble ai-bubble" style="background: #f0f0f0; color: #666; font-style: italic;">☎️ Call in progress...</div>
+                                <!-- SMS Messages / Placeholder -->
+                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto flex items-center justify-center" style="height: 540px;">
+                                    <!-- Placeholder Screen -->
+                                    <div id="phone-placeholder" class="text-center">
+                                        <div class="mb-6">
+                                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                                <i class="fas fa-comment-dots text-white text-4xl"></i>
+                                            </div>
+                                            <h3 class="text-xl font-bold text-gray-800 mb-2">See It In Action</h3>
+                                            <p class="text-sm text-gray-500 mb-6">Watch our AI agent respond in real-time</p>
+                                        </div>
+                                        <button id="show-demo-form-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                                            Try Me
+                                        </button>
                                     </div>
                                 </div>
 
@@ -923,60 +945,441 @@
 
                 <!-- Demo Form -->
                 <div class="md:col-span-3 order-1 md:order-2">
-                    <form id="demo-form" class="space-y-4 max-w-md mx-auto md:mx-0">
-                        <input
-                            type="text"
-                            id="demo-name"
-                            placeholder="Name"
-                            required
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                        />
-                        <input
-                            type="tel"
-                            id="demo-phone"
-                            placeholder="Phone Number"
-                            required
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                        />
-                        <input
-                            type="email"
-                            id="demo-email"
-                            placeholder="Email (optional)"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                        />
-
-                        <!-- Choice Buttons -->
-                        <div class="grid grid-cols-2 gap-4 pt-4">
-                            <button
-                                type="button"
-                                id="call-me-btn"
-                                class="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-6 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex flex-col items-center gap-3"
-                            >
-                                <i class="fas fa-phone text-3xl"></i>
-                                <span>Call Me</span>
+                    <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
+                        <!-- Toggle Switch -->
+                        <div class="flex items-center justify-center gap-4 mb-6">
+                            <button id="toggle-voice" class="demo-toggle active px-6 py-3 rounded-xl font-semibold transition-all">
+                                <i class="fas fa-phone mr-2"></i>Voice Call
                             </button>
-                            <button
-                                type="button"
-                                id="text-me-btn"
-                                class="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-6 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex flex-col items-center gap-3"
-                            >
-                                <i class="fas fa-comment-dots text-3xl"></i>
-                                <span>Text Me</span>
+                            <button id="toggle-sms" class="demo-toggle px-6 py-3 rounded-xl font-semibold transition-all">
+                                <i class="fas fa-comment-dots mr-2"></i>SMS
                             </button>
                         </div>
 
-                        <!-- Status Message -->
-                        <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
+                        <form id="demo-form" class="space-y-4">
+                            <input
+                                type="text"
+                                id="demo-name"
+                                placeholder="Name"
+                                required
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
+                            <input
+                                type="tel"
+                                id="demo-phone"
+                                placeholder="Phone Number"
+                                required
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
+                            <input
+                                type="email"
+                                id="demo-email"
+                                placeholder="Email (optional)"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                            />
 
-                        <p class="text-center text-sm text-gray-500 pt-2">
-                            <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
-                        </p>
-                    </form>
+                            <!-- Submit Button -->
+                            <button
+                                type="button"
+                                id="submit-demo-btn"
+                                class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg"
+                            >
+                                <i class="fas fa-phone mr-2"></i>
+                                <span id="submit-btn-text">Start Voice Demo</span>
+                            </button>
+
+                            <!-- Status Message -->
+                            <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
+
+                            <p class="text-center text-sm text-gray-500 pt-2">
+                                <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
+                            </p>
+                        </form>
+                    </div>
+
+                    <!-- Initial CTA (shown before form) -->
+                    <div id="initial-cta" class="max-w-md mx-auto md:mx-0 text-center cta-entrance">
+                        <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
+                        <p class="text-lg text-gray-400 mb-8">Get a live demo in seconds. No credit card required.</p>
+                        <button id="show-form-btn" class="bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg cta-button-pulse">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Try It Now
+                        </button>
+                    </div>
 
                     <!-- Hidden select for interest -->
                     <select id="demo-interest" class="hidden">
                         <option value="demo">Demo Request</option>
                     </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voicemail Agent Demo Section -->
+    <section id="voicemail-agent-demo" class="py-20 px-4 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e] scroll-section relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-green-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <div class="inline-block mb-4">
+                    <span class="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-green-400 text-sm font-semibold">
+                        AI VOICEMAIL ASSISTANT
+                    </span>
+                </div>
+                <h2 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                    Never Miss Another <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">Lead</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                    Your AI voicemail answers every call, qualifies leads, books appointments, and sends you instant SMS or email summaries—even when you're busy.
+                </p>
+            </div>
+
+            <!-- Main Demo Area -->
+            <div class="grid md:grid-cols-2 gap-16 items-center mb-20">
+                <!-- Left: Image & Stats -->
+                <div>
+                    <div class="relative">
+                        <img
+                            src="/voicemail-box.png"
+                            alt="AI Voicemail System"
+                            class="w-full max-w-md mx-auto drop-shadow-2xl"
+                            style="filter: drop-shadow(0 25px 50px rgba(34, 197, 94, 0.2));"
+                        />
+                        <!-- Floating badge -->
+                        <div class="absolute -top-4 -right-4 bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-xl animate-pulse">
+                            24/7 Active
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-3 gap-4 mt-8">
+                        <div class="text-center p-4 bg-white/5 rounded-xl border border-white/10">
+                            <div class="text-3xl font-bold text-green-400 mb-1">100%</div>
+                            <div class="text-xs text-gray-400">Calls Answered</div>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-xl border border-white/10">
+                            <div class="text-3xl font-bold text-blue-400 mb-1">60s</div>
+                            <div class="text-xs text-gray-400">Setup Time</div>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-xl border border-white/10">
+                            <div class="text-3xl font-bold text-purple-400 mb-1">5+</div>
+                            <div class="text-xs text-gray-400">Languages</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Features & CTA -->
+                <div>
+                    <div class="space-y-6 mb-8">
+                        <!-- Feature 1 -->
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-user-check text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-1">Auto-Qualify Leads</h4>
+                                <p class="text-gray-400 text-sm">Asks about budget, timeline, project scope—only sends you hot leads.</p>
+                            </div>
+                        </div>
+
+                        <!-- Feature 2 -->
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-1">Book Appointments</h4>
+                                <p class="text-gray-400 text-sm">Collects preferred dates/times and syncs with your calendar automatically.</p>
+                            </div>
+                        </div>
+
+                        <!-- Feature 3 -->
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-bell text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-1">Instant Notifications</h4>
+                                <p class="text-gray-400 text-sm">Get SMS or email with caller details and AI summary within seconds.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button
+                            id="open-voicemail-demo-btn"
+                            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg inline-flex items-center justify-center gap-3"
+                        >
+                            <i class="fas fa-play-circle text-2xl"></i>
+                            <span>Hear Demo Call</span>
+                        </button>
+                    </div>
+                    <p class="text-center sm:text-left text-sm text-gray-500 mt-4">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                        Free to try • No credit card required
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popup Modal for Demo & Form -->
+        <div id="voicemail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="sticky top-0 bg-gray-900/95 backdrop-blur-sm border-b border-gray-700 p-6 flex items-center justify-between">
+                    <h3 class="text-2xl font-bold text-white">AI Voicemail Demo</h3>
+                    <button id="close-voicemail-modal" class="text-gray-400 hover:text-white transition">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-8">
+                    <!-- Audio Player Section -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-bold text-white mb-4">Listen to a Sample Call</h4>
+                        <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                            <audio id="voicemail-demo-audio" class="w-full mb-4" controls>
+                                <source src="/demo-voicemail.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <p class="text-sm text-gray-400 text-center">
+                                <i class="fas fa-microphone mr-2"></i>
+                                Sample: Customer calling about a kitchen remodel
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-gray-700 my-8"></div>
+
+                    <!-- Create Your Agent Form -->
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4">Create Your Voicemail Agent</h4>
+                        <form id="voicemail-agent-form" class="space-y-4">
+                            <input
+                                type="text"
+                                id="vm-business-name"
+                                placeholder="Business Name"
+                                required
+                                class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition"
+                            />
+                            <input
+                                type="tel"
+                                id="vm-notify-phone"
+                                placeholder="Your Phone Number (for notifications)"
+                                required
+                                class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition"
+                            />
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <select
+                                    id="vm-business-type"
+                                    class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500 transition"
+                                    required
+                                >
+                                    <option value="" class="bg-gray-900">Industry...</option>
+                                    <option value="contractor" class="bg-gray-900">Contractor</option>
+                                    <option value="plumbing" class="bg-gray-900">Plumbing</option>
+                                    <option value="hvac" class="bg-gray-900">HVAC</option>
+                                    <option value="real-estate" class="bg-gray-900">Real Estate</option>
+                                    <option value="legal" class="bg-gray-900">Legal</option>
+                                    <option value="medical" class="bg-gray-900">Medical</option>
+                                    <option value="other" class="bg-gray-900">Other</option>
+                                </select>
+                                <select
+                                    id="vm-voice-language"
+                                    class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500 transition"
+                                    required
+                                >
+                                    <option value="en-US" class="bg-gray-900">🇺🇸 English</option>
+                                    <option value="es-US" class="bg-gray-900">🇲🇽 Spanish</option>
+                                    <option value="en-GB" class="bg-gray-900">🇬🇧 British</option>
+                                    <option value="fr-FR" class="bg-gray-900">🇫🇷 French</option>
+                                    <option value="de-DE" class="bg-gray-900">🇩🇪 German</option>
+                                </select>
+                            </div>
+
+                            <button
+                                type="submit"
+                                id="generate-voicemail-btn"
+                                class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 rounded-lg font-bold text-lg shadow-xl hover:shadow-2xl transition-all"
+                            >
+                                <i class="fas fa-rocket mr-2"></i>
+                                Create My Agent (Free)
+                            </button>
+
+                            <div id="vm-status" class="hidden p-4 rounded-lg text-center font-medium"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Image Generation Chat Demo Section - Contractor Focused -->
+    <section id="ai-chat-demo" class="py-16 px-4 bg-[#0a0a0b] scroll-section">
+        <div class="max-w-6xl mx-auto">
+            <!-- Minimalistic Header -->
+            <div class="mb-10">
+                <div class="inline-block bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-4">
+                    <span class="text-blue-400 text-sm font-semibold">FOR CONTRACTORS & REMODELERS</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">
+                    Turn Your Projects Into <span class="gradient-text">Social Media Gold</span>
+                </h2>
+                <p class="text-lg text-gray-400 max-w-2xl">
+                    Take a photo. Talk to AI. Get professional images for Instagram, Facebook, and your website in seconds.
+                </p>
+            </div>
+
+            <!-- Real Contractor Use Case -->
+            <div class="mb-8 bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-500/10 rounded-xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="bg-blue-500/10 rounded-lg p-3">
+                        <i class="fas fa-hard-hat text-blue-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg mb-1">Real Contractor Scenario</h3>
+                        <p class="text-gray-400 text-sm">
+                            You just finished a kitchen remodel. Customer loves it. But you need images for your Instagram and Facebook to get more leads. Instead of hiring a photographer or struggling with photo edits...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-6 items-start">
+                <!-- Simple Chat Demo -->
+                <div class="relative">
+                    <!-- Chat Container -->
+                    <div class="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+                        <!-- Simple Header -->
+                        <div class="border-b border-white/10 px-5 py-3 bg-white/5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-white font-medium text-sm">You → AI Copilot</span>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div id="demo-chat-messages" class="p-5 space-y-3 h-[420px] overflow-y-auto bg-black/20">
+                            <!-- Messages added by JS -->
+                        </div>
+
+                        <!-- Simple Input -->
+                        <div class="border-t border-white/10 px-5 py-3 bg-white/5">
+                            <div class="flex items-center gap-2 text-gray-500 text-sm">
+                                <i class="fas fa-microphone text-blue-400"></i>
+                                <span>Just talk naturally...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div class="mt-5">
+                        <button id="start-chat-demo" class="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all font-semibold text-base shadow-lg hover:shadow-xl">
+                            <i class="fas fa-play mr-2"></i> Watch How It Works
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Before/After Result -->
+                <div class="relative">
+                    <!-- Label -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-white font-medium text-sm">Your Result</span>
+                        <span id="demo-status" class="text-gray-500 text-xs">Ready to generate</span>
+                    </div>
+
+                    <!-- Image Display -->
+                    <div id="demo-generated-image" class="relative aspect-[4/3] bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
+                        <div class="text-center text-gray-600">
+                            <i class="fas fa-image text-5xl mb-3 opacity-20"></i>
+                            <p class="text-sm">Image appears here</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Info -->
+                    <div id="demo-image-info" class="mt-3 hidden">
+                        <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+                            <p class="text-gray-300 text-xs mb-2" id="demo-image-prompt"></p>
+                            <div class="flex items-center gap-3 text-xs">
+                                <span id="demo-image-time" class="text-green-400"></span>
+                                <span class="text-gray-500">•</span>
+                                <span id="demo-image-credits" class="text-gray-500"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What You Can Do -->
+                    <div class="mt-6 space-y-2.5">
+                        <div class="flex items-center gap-2.5 text-gray-300">
+                            <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                            <span class="text-sm">Upload your project photo</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-gray-300">
+                            <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                            <span class="text-sm">Tell AI what you want to change</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-gray-300">
+                            <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                            <span class="text-sm">Get Instagram-ready images instantly</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-gray-300">
+                            <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                            <span class="text-sm">Post & get more leads</span>
+                        </div>
+                    </div>
+
+                    <!-- Simple Stats -->
+                    <div class="mt-6 grid grid-cols-3 gap-3">
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                            <p class="text-2xl font-bold text-white">8s</p>
+                            <p class="text-gray-500 text-xs mt-0.5">Speed</p>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                            <p class="text-2xl font-bold text-white">$0.20</p>
+                            <p class="text-gray-500 text-xs mt-0.5">Per Image</p>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                            <p class="text-2xl font-bold text-white">∞</p>
+                            <p class="text-gray-500 text-xs mt-0.5">Variations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Studio CTA -->
+            <div class="mt-12 text-center">
+                <div class="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-500/20 rounded-2xl p-8">
+                    <div class="mb-6">
+                        <i class="fas fa-images text-5xl text-blue-400 mb-4"></i>
+                        <h3 class="text-2xl md:text-3xl font-bold text-white mb-3">
+                            Ready to Create <span class="gradient-text">Professional Content</span>?
+                        </h3>
+                        <p class="text-gray-400 max-w-xl mx-auto mb-6">
+                            Open Studio - your complete social media staging platform. Generate AI images, write captions, and share across all platforms.
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/studio.html" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl">
+                            <i class="fas fa-paint-brush mr-2"></i>Open Studio
+                        </a>
+                        <a href="/demo.html" class="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-all font-semibold text-lg">
+                            <i class="fas fa-play mr-2"></i>Try Demo First
+                        </a>
+                    </div>
+                    <p class="text-gray-500 text-sm mt-4">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i> No credit card required
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-mobile-alt text-blue-500 mr-1"></i> Works on mobile & desktop
+                    </p>
                 </div>
             </div>
         </div>
@@ -1255,16 +1658,29 @@
             }
         }
 
-        // Add share button to CTA section
+        // Add tool menu to main content
         window.addEventListener('DOMContentLoaded', () => {
-            // Add floating share button
+            // Create tool menu container
+            const toolMenu = document.createElement('div');
+            toolMenu.id = 'floating-tool-menu';
+            toolMenu.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-end;
+            `;
+
+            // Create share button
             if (navigator.share || navigator.clipboard) {
                 const shareBtn = document.createElement('button');
+                shareBtn.className = 'tool-menu-btn';
                 shareBtn.innerHTML = '<i class="fas fa-share-alt"></i>';
+                shareBtn.title = 'Share';
                 shareBtn.style.cssText = `
-                    position: fixed;
-                    bottom: 80px;
-                    right: 20px;
                     width: 56px;
                     height: 56px;
                     border-radius: 50%;
@@ -1273,18 +1689,73 @@
                     border: none;
                     box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
                     cursor: pointer;
-                    z-index: 9999;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 20px;
-                    transition: transform 0.2s;
+                    transition: all 0.3s;
                 `;
                 shareBtn.onmouseover = () => shareBtn.style.transform = 'scale(1.1)';
                 shareBtn.onmouseout = () => shareBtn.style.transform = 'scale(1)';
                 shareBtn.onclick = shareWebsite;
-                document.body.appendChild(shareBtn);
+                toolMenu.appendChild(shareBtn);
             }
+
+            // Create voice copilot button
+            const copilotBtn = document.createElement('button');
+            copilotBtn.id = 'floating-copilot-btn';
+            copilotBtn.className = 'tool-menu-btn';
+            copilotBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            copilotBtn.title = 'Voice AI Copilot';
+            copilotBtn.style.cssText = `
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                transition: all 0.3s;
+                animation: toolFadeIn 0.5s ease-out 0.3s both;
+            `;
+            copilotBtn.onmouseover = () => {
+                copilotBtn.style.transform = 'scale(1.1)';
+                copilotBtn.style.boxShadow = '0 6px 30px rgba(102, 126, 234, 0.6)';
+            };
+            copilotBtn.onmouseout = () => {
+                copilotBtn.style.transform = 'scale(1)';
+                copilotBtn.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.4)';
+            };
+            copilotBtn.onclick = () => {
+                document.getElementById('voice-copilot-modal').classList.remove('hidden');
+            };
+            toolMenu.appendChild(copilotBtn);
+
+            // Add animation styles
+            const pulseStyle = document.createElement('style');
+            pulseStyle.textContent = `
+                @keyframes toolFadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                #floating-copilot-btn:active {
+                    transform: scale(0.95) !important;
+                }
+            `;
+            document.head.appendChild(pulseStyle);
+
+            document.body.appendChild(toolMenu);
         });
 
         // Animation for install banner
@@ -1473,10 +1944,51 @@
         const demoPhone = document.getElementById('demo-phone');
         const demoEmail = document.getElementById('demo-email');
         const demoInterest = document.getElementById('demo-interest');
-        const callMeBtn = document.getElementById('call-me-btn');
-        const textMeBtn = document.getElementById('text-me-btn');
         const demoStatus = document.getElementById('demo-status');
         const smsMessages = document.getElementById('sms-messages');
+
+        // New UI elements
+        const showFormBtn = document.getElementById('show-form-btn');
+        const showDemoFormBtn = document.getElementById('show-demo-form-btn');
+        const initialCta = document.getElementById('initial-cta');
+        const demoFormContainer = document.getElementById('demo-form-container');
+        const phonePlaceholder = document.getElementById('phone-placeholder');
+        const toggleVoice = document.getElementById('toggle-voice');
+        const toggleSms = document.getElementById('toggle-sms');
+        const submitDemoBtn = document.getElementById('submit-demo-btn');
+        const submitBtnText = document.getElementById('submit-btn-text');
+
+        let selectedDemoType = 'voice'; // Default to voice
+
+        // Show form when "Try It Now" is clicked
+        showFormBtn.addEventListener('click', () => {
+            initialCta.classList.add('hidden');
+            demoFormContainer.classList.remove('hidden');
+        });
+
+        // Show form when phone "Try Me" is clicked
+        showDemoFormBtn.addEventListener('click', () => {
+            phonePlaceholder.classList.add('hidden');
+            initialCta.classList.add('hidden');
+            demoFormContainer.classList.remove('hidden');
+        });
+
+        // Toggle between Voice and SMS
+        toggleVoice.addEventListener('click', () => {
+            selectedDemoType = 'voice';
+            toggleVoice.classList.add('active');
+            toggleSms.classList.remove('active');
+            submitBtnText.innerHTML = 'Start Voice Demo';
+            submitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
+        });
+
+        toggleSms.addEventListener('click', () => {
+            selectedDemoType = 'sms';
+            toggleSms.classList.add('active');
+            toggleVoice.classList.remove('active');
+            submitBtnText.innerHTML = 'Start SMS Demo';
+            submitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
+        });
 
         // Validate form
         function validateForm() {
@@ -1557,53 +2069,8 @@
             }
         }
 
-        // Handle Call Me button
-        callMeBtn.addEventListener('click', async () => {
-            if (!validateForm()) return;
-
-            const formData = {
-                name: demoName.value.trim(),
-                phoneNumber: demoPhone.value.trim(),
-                email: demoEmail.value.trim() || undefined,
-                interest: demoInterest.value || undefined
-            };
-
-            callMeBtn.disabled = true;
-            textMeBtn.disabled = true;
-            callMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Calling...</span>';
-            showStatus('info', '📞 Initiating call to ' + formData.name + '...');
-
-            try {
-                const response = await fetch('/api/public/voice-demo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                if (response.ok) {
-                    showStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
-                    simulateSMSConversation('call');
-
-                    // Reset form after 10 seconds
-                    setTimeout(() => {
-                        demoForm.reset();
-                        callMeBtn.disabled = false;
-                        textMeBtn.disabled = false;
-                        callMeBtn.innerHTML = '<i class="fas fa-phone text-2xl"></i><span class="text-sm">Call Me Now</span>';
-                    }, 10000);
-                } else {
-                    throw new Error('Failed to initiate call');
-                }
-            } catch (error) {
-                showStatus('error', '❌ Could not initiate call. Please try the SMS option or contact support.');
-                callMeBtn.disabled = false;
-                textMeBtn.disabled = false;
-                callMeBtn.innerHTML = '<i class="fas fa-phone text-2xl"></i><span class="text-sm">Call Me Now</span>';
-            }
-        });
-
-        // Handle Text Me button (triggers SMS-style demo with call)
-        textMeBtn.addEventListener('click', async () => {
+        // Handle submit button (works for both voice and SMS)
+        submitDemoBtn.addEventListener('click', async () => {
             if (!validateForm()) return;
 
             const formData = {
@@ -1611,13 +2078,16 @@
                 phoneNumber: demoPhone.value.trim(),
                 email: demoEmail.value.trim() || undefined,
                 interest: demoInterest.value || undefined,
-                demoType: 'sms' // Flag to indicate SMS-style demo
+                demoType: selectedDemoType
             };
 
-            textMeBtn.disabled = true;
-            callMeBtn.disabled = true;
-            textMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Setting up...</span>';
-            showStatus('info', '💬 Setting up your SMS demo experience...');
+            const originalHTML = submitDemoBtn.innerHTML;
+            submitDemoBtn.disabled = true;
+            submitDemoBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+            showStatus('info', selectedDemoType === 'voice' ? '📞 Initiating call...' : '💬 Setting up SMS demo...');
+
+            // Hide placeholder, show animation
+            phonePlaceholder.classList.add('hidden');
 
             try {
                 const response = await fetch('/api/public/voice-demo', {
@@ -1627,28 +2097,85 @@
                 });
 
                 if (response.ok) {
-                    showStatus('success', '✅ Demo initiated! You\'ll receive a call in 5-10 seconds from our AI agent. Answer to experience the SMS-to-call workflow!');
-                    simulateSMSConversation('sms');
+                    if (selectedDemoType === 'voice') {
+                        showStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
+                        simulateSMSConversation('call');
+                    } else {
+                        showStatus('success', '✅ Demo initiated! You\'ll receive a call in 5-10 seconds. Answer to experience the SMS workflow!');
+                        simulateSMSConversation('sms');
+                    }
 
                     // Reset form after 10 seconds
                     setTimeout(() => {
                         demoForm.reset();
-                        textMeBtn.disabled = false;
-                        callMeBtn.disabled = false;
-                        textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
+                        submitDemoBtn.disabled = false;
+                        submitDemoBtn.innerHTML = originalHTML;
+                        demoFormContainer.classList.add('hidden');
+                        initialCta.classList.remove('hidden');
+
+                        // Clear messages and restore placeholder
+                        smsMessages.innerHTML = `
+                            <div id="phone-placeholder" class="text-center">
+                                <div class="mb-6">
+                                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                        <i class="fas fa-comment-dots text-white text-4xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-800 mb-2">See It In Action</h3>
+                                    <p class="text-sm text-gray-500 mb-6">Watch our AI agent respond in real-time</p>
+                                </div>
+                                <button id="show-demo-form-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                                    Try Me
+                                </button>
+                            </div>
+                        `;
+
+                        // Re-attach event listener to new button
+                        document.getElementById('show-demo-form-btn').addEventListener('click', () => {
+                            document.getElementById('phone-placeholder').classList.add('hidden');
+                            initialCta.classList.add('hidden');
+                            demoFormContainer.classList.remove('hidden');
+                        });
+
+                        // Reset toggle to voice
+                        selectedDemoType = 'voice';
+                        toggleVoice.classList.add('active');
+                        toggleSms.classList.remove('active');
+                        submitBtnText.innerHTML = 'Start Voice Demo';
+                        submitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
                     }, 10000);
                 } else {
                     throw new Error('Failed to initiate demo');
                 }
             } catch (error) {
                 showStatus('error', '❌ Could not initiate demo. Please try again or contact support.');
-                textMeBtn.disabled = false;
-                callMeBtn.disabled = false;
-                textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
+                submitDemoBtn.disabled = false;
+                submitDemoBtn.innerHTML = originalHTML;
+
+                // Restore placeholder on error
+                smsMessages.innerHTML = `
+                    <div id="phone-placeholder" class="text-center">
+                        <div class="mb-6">
+                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-comment-dots text-white text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">See It In Action</h3>
+                            <p class="text-sm text-gray-500 mb-6">Watch our AI agent respond in real-time</p>
+                        </div>
+                        <button id="show-demo-form-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                            Try Me
+                        </button>
+                    </div>
+                `;
+                // Re-attach event listener
+                document.getElementById('show-demo-form-btn').addEventListener('click', () => {
+                    document.getElementById('phone-placeholder').classList.add('hidden');
+                    initialCta.classList.add('hidden');
+                    demoFormContainer.classList.remove('hidden');
+                });
             }
         });
 
-        // Add fade-in animation
+        // Add fade-in animation and toggle styles
         const smsStyle = document.createElement('style');
         smsStyle.textContent = `
             @keyframes fade-in {
@@ -1664,10 +2191,731 @@
             .animate-fade-in {
                 animation: fade-in 0.3s ease-out;
             }
+
+            /* Phone entrance animation */
+            @keyframes slideInFromLeft {
+                0% {
+                    opacity: 0;
+                    transform: translateX(-100px) scale(0.9);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateX(0) scale(1);
+                }
+            }
+
+            @keyframes floatPhone {
+                0%, 100% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+
+            .phone-entrance {
+                animation: slideInFromLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+
+            .phone-float {
+                animation: floatPhone 3s ease-in-out infinite;
+                animation-delay: 0.8s;
+            }
+
+            /* Button pulse animation */
+            @keyframes buttonPulse {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                    transform: scale(1);
+                }
+                50% {
+                    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+                    transform: scale(1.05);
+                }
+            }
+
+            @keyframes buttonGlow {
+                0%, 100% {
+                    filter: brightness(1);
+                }
+                50% {
+                    filter: brightness(1.2);
+                }
+            }
+
+            #show-demo-form-btn {
+                animation: buttonPulse 2s infinite, buttonGlow 2s infinite;
+            }
+
+            #show-demo-form-btn:hover {
+                animation: none;
+            }
+
+            /* CTA section entrance animation */
+            @keyframes slideInFromRight {
+                0% {
+                    opacity: 0;
+                    transform: translateX(100px) scale(0.9);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateX(0) scale(1);
+                }
+            }
+
+            .cta-entrance {
+                animation: slideInFromRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+
+            /* CTA button animation */
+            @keyframes ctaButtonPulse {
+                0%, 100% {
+                    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), 0 0 0 0 rgba(139, 92, 246, 0.7);
+                    transform: scale(1);
+                }
+                50% {
+                    box-shadow: 0 4px 30px rgba(59, 130, 246, 0.6), 0 0 0 15px rgba(139, 92, 246, 0);
+                    transform: scale(1.02);
+                }
+            }
+
+            .cta-button-pulse {
+                animation: ctaButtonPulse 2.5s infinite;
+            }
+
+            .cta-button-pulse:hover {
+                animation: none !important;
+            }
+
+            .demo-toggle {
+                background: rgba(255, 255, 255, 0.05);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                color: rgba(255, 255, 255, 0.6);
+            }
+            .demo-toggle.active {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                border-color: #3b82f6;
+                color: white;
+                box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+            }
+            .demo-toggle:hover:not(.active) {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.2);
+                color: rgba(255, 255, 255, 0.8);
+            }
         `;
         document.head.appendChild(smsStyle);
 
         console.log('SMS Demo loaded');
+    </script>
+
+    <!-- AI Chat Demo Script -->
+    <script>
+        // AI Chat Demo - Simulated Voice Conversation (Contractor Scenario)
+        const chatDemo = {
+            conversation: [
+                { role: 'agent', text: "Hey! I'm your AI Copilot. What project are you working on?", delay: 100 },
+                { role: 'user', text: "Just wrapped up a kitchen remodel. Need images for my Instagram to get more leads", delay: 800 },
+                { role: 'agent', text: "Perfect! I'll help you create professional images for social media. What did you install - countertops, cabinets, appliances?", delay: 600 },
+                { role: 'user', text: "Black granite counters, white shaker cabinets, stainless appliances", delay: 800 },
+                { role: 'agent', text: "Nice work! Want it photorealistic for Instagram? I can add bright natural lighting to make it pop on feeds.", delay: 600 },
+                { role: 'user', text: "Yeah, make it look professional", delay: 700 },
+                { role: 'agent', text: "Got it! Creating a photorealistic kitchen with black granite, white cabinets, stainless appliances, and professional lighting. Costs $0.20. Ready?", delay: 800 },
+                { role: 'user', text: "Do it!", delay: 600 },
+                { role: 'system', text: "🎨 Creating your Instagram-ready image...", delay: 400 },
+                { role: 'generating', delay: 1500 },
+                { role: 'agent', text: "Done! Your professional kitchen image is ready. Perfect for Instagram, Facebook, and your website. Want variations?", delay: 300 }
+            ],
+            sampleImages: [
+                "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=600&fit=crop&q=80",
+                "https://images.unsplash.com/photo-1556912173-3bb406ef7e77?w=800&h=600&fit=crop&q=80",
+                "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&q=80"
+            ],
+            isRunning: false,
+            addMessage(role, text) {
+                const messagesContainer = document.getElementById('demo-chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+                if (role === 'system') {
+                    messageDiv.innerHTML = `<div class="max-w-md px-4 py-2 rounded-lg text-sm bg-purple-100/10 border border-purple-500/20 text-purple-300">${text}</div>`;
+                } else {
+                    messageDiv.innerHTML = `<div class="max-w-md px-4 py-3 rounded-lg ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-100 border border-gray-700'}"><div class="flex items-start gap-2">${role === 'agent' ? '<i class="fas fa-sparkles text-purple-400 mt-0.5 flex-shrink-0"></i>' : ''}<p class="text-sm">${text}</p></div><p class="text-xs opacity-70 mt-1">${new Date().toLocaleTimeString()}</p></div>`;
+                }
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            },
+            showGeneratingIndicator() {
+                const messagesContainer = document.getElementById('demo-chat-messages');
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.id = 'generating-indicator';
+                indicatorDiv.className = 'flex justify-start';
+                indicatorDiv.innerHTML = `<div class="max-w-md px-4 py-3 rounded-lg bg-purple-100/10 border border-purple-500/20"><div class="flex items-center gap-2"><div class="animate-spin"><i class="fas fa-circle-notch text-purple-400"></i></div><span class="text-sm text-purple-300">Creating your professional image...</span></div><div class="mt-2 w-full bg-gray-700 rounded-full h-2 overflow-hidden"><div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse" style="width: 60%"></div></div></div>`;
+                messagesContainer.appendChild(indicatorDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            },
+            removeGeneratingIndicator() {
+                const indicator = document.getElementById('generating-indicator');
+                if (indicator) indicator.remove();
+            },
+            showGeneratedImage() {
+                this.removeGeneratingIndicator();
+                const imageContainer = document.getElementById('demo-generated-image');
+                const imageInfo = document.getElementById('demo-image-info');
+                const randomImage = this.sampleImages[Math.floor(Math.random() * this.sampleImages.length)];
+                imageContainer.innerHTML = `<img src="${randomImage}" alt="Professional kitchen remodel" class="w-full h-full object-cover animate-fade-in" style="animation: fadeIn 0.5s ease-in;"><div class="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">✨ Instagram Ready!</div>`;
+                imageInfo.classList.remove('hidden');
+                document.getElementById('demo-image-prompt').textContent = 'Kitchen remodel: Black granite counters, white shaker cabinets, stainless appliances - professional lighting for social media';
+                document.getElementById('demo-image-credits').textContent = '$0.20 (1 credit)';
+                document.getElementById('demo-image-time').textContent = 'Ready in 8s';
+            },
+            async playConversation() {
+                console.log('🎬 Starting demo conversation...');
+                if (this.isRunning) {
+                    console.log('⚠️ Demo already running');
+                    return;
+                }
+                this.isRunning = true;
+                document.getElementById('demo-chat-messages').innerHTML = '';
+                document.getElementById('demo-generated-image').innerHTML = '<div class="text-center text-gray-500"><i class="fas fa-image text-6xl mb-4 opacity-20"></i><p class="text-sm">Your image will appear here</p></div>';
+                document.getElementById('demo-image-info').classList.add('hidden');
+                const startButton = document.getElementById('start-chat-demo');
+                startButton.disabled = true;
+                startButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Demo Running...';
+                startButton.classList.add('opacity-75', 'cursor-not-allowed');
+                for (const message of this.conversation) {
+                    await new Promise(resolve => setTimeout(resolve, message.delay));
+                    if (message.role === 'generating') {
+                        this.showGeneratingIndicator();
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        this.showGeneratedImage();
+                    } else if (message.text) {
+                        this.addMessage(message.role, message.text);
+                    }
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                startButton.disabled = false;
+                startButton.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay Demo';
+                startButton.classList.remove('opacity-75', 'cursor-not-allowed');
+                this.isRunning = false;
+                console.log('✅ Demo completed');
+            }
+        };
+
+        // Initialize demo when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing AI Chat Demo...');
+            const startButton = document.getElementById('start-chat-demo');
+            if (startButton) {
+                console.log('✅ Start button found');
+                startButton.addEventListener('click', function() {
+                    console.log('🖱️ Start button clicked');
+                    chatDemo.playConversation();
+                });
+            } else {
+                console.error('❌ Start button not found!');
+            }
+
+            const style = document.createElement('style');
+            style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } } .animate-fade-in { animation: fadeIn 0.5s ease-in; }';
+            document.head.appendChild(style);
+            console.log('✅ AI Chat Demo loaded and ready');
+        });
+    </script>
+
+    <!-- Voice AI Copilot Modal -->
+    <div id="voice-copilot-modal" class="voice-copilot-modal hidden">
+        <div class="voice-copilot-container">
+            <!-- Header -->
+            <div class="voice-copilot-header">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                        <i class="fas fa-sparkles text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white">VoiceFlow AI Wizard</h3>
+                        <p class="text-xs text-gray-400">Your AI Assistant</p>
+                    </div>
+                </div>
+                <button id="close-copilot" class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="copilot-messages" class="voice-copilot-messages">
+                <div class="text-center text-gray-400 py-8">
+                    <i class="fas fa-sparkles text-4xl mb-3 text-purple-500"></i>
+                    <p class="text-sm mb-2">👋 Hi! I'm your VoiceFlow AI Wizard</p>
+                    <p class="text-xs">I can help you create AI agents, workflows, and more!</p>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="voice-copilot-input">
+                <button id="voice-input-btn" class="voice-btn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input
+                    type="text"
+                    id="copilot-text-input"
+                    placeholder="Type a message or click mic to speak..."
+                    class="copilot-text-field"
+                />
+                <button id="send-copilot-msg" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .voice-copilot-modal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001;
+            width: 400px;
+            max-height: 600px;
+            background: #1a1a1d;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .voice-copilot-modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px) scale(0.95);
+        }
+
+        .voice-copilot-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .voice-copilot-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .voice-copilot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            max-height: 400px;
+        }
+
+        .voice-copilot-input {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .voice-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            animation: copilotPulse 1.5s infinite;
+        }
+
+        .copilot-text-field {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .copilot-text-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .copilot-text-field:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+
+        .copilot-message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .copilot-message.user {
+            justify-content: flex-end;
+        }
+
+        .copilot-message .bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .copilot-message.user .bubble {
+            background: #3b82f6;
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+        }
+
+        .copilot-message.assistant .bubble {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px 16px 16px 4px;
+        }
+
+        .copilot-message.loading .bubble {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .voice-copilot-modal {
+                width: calc(100% - 32px);
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+            }
+        }
+    </style>
+
+    <script>
+        // Voice AI Copilot Functionality
+        const copilotModal = document.getElementById('voice-copilot-modal');
+        const copilotBtn = document.getElementById('voice-copilot-btn');
+        const closeCopilot = document.getElementById('close-copilot');
+        const messagesContainer = document.getElementById('copilot-messages');
+        const textInput = document.getElementById('copilot-text-input');
+        const sendBtn = document.getElementById('send-copilot-msg');
+        const voiceBtn = document.getElementById('voice-input-btn');
+
+        let isListening = false;
+        let recognition = null;
+
+        // Initialize Web Speech API
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                textInput.value = transcript;
+                sendMessage(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                voiceBtn.classList.remove('listening');
+                isListening = false;
+            };
+
+            recognition.onend = () => {
+                voiceBtn.classList.remove('listening');
+                isListening = false;
+            };
+        }
+
+        // Open/Close Modal (also handle floating button)
+        const floatingCopilotBtn = document.getElementById('floating-copilot-btn');
+        if (floatingCopilotBtn) {
+            floatingCopilotBtn.addEventListener('click', () => {
+                copilotModal.classList.remove('hidden');
+            });
+        }
+
+        closeCopilot.addEventListener('click', () => {
+            copilotModal.classList.add('hidden');
+        });
+
+        // Voice Input
+        voiceBtn.addEventListener('click', () => {
+            if (!recognition) {
+                alert('Voice recognition is not supported in your browser');
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                voiceBtn.classList.add('listening');
+                isListening = true;
+            }
+        });
+
+        // Text Input
+        sendBtn.addEventListener('click', () => {
+            const message = textInput.value.trim();
+            if (message) {
+                sendMessage(message);
+                textInput.value = '';
+            }
+        });
+
+        textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Send Message Function
+        async function sendMessage(message) {
+            // Add user message
+            addMessage('user', message);
+
+            // Add loading indicator
+            const loadingId = addLoadingMessage();
+
+            try {
+                // Call API (simplified - you can integrate with your backend)
+                const response = await fetch('/api/ai-copilot/voice-command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        command: message,
+                        context: { page: 'marketing' },
+                        returnAudio: true
+                    })
+                });
+
+                const data = await response.json();
+                removeLoadingMessage(loadingId);
+
+                if (data.success && data.data.message) {
+                    addMessage('assistant', data.data.message);
+
+                    // Play audio if available
+                    if (data.data.audio) {
+                        playAudio(data.data.audio);
+                    } else {
+                        speakText(data.data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Copilot error:', error);
+                removeLoadingMessage(loadingId);
+                addMessage('assistant', "I'm having trouble right now. Please try again!");
+            }
+        }
+
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `copilot-message ${role}`;
+            messageDiv.innerHTML = `<div class="bubble">${text}</div>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addLoadingMessage() {
+            const loadingId = 'loading-' + Date.now();
+            const messageDiv = document.createElement('div');
+            messageDiv.id = loadingId;
+            messageDiv.className = 'copilot-message loading';
+            messageDiv.innerHTML = `<div class="bubble"><i class="fas fa-circle-notch fa-spin"></i> Thinking...</div>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return loadingId;
+        }
+
+        function removeLoadingMessage(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        }
+
+        function playAudio(base64Audio) {
+            const audio = new Audio(`data:audio/mp3;base64,${base64Audio}`);
+            audio.play();
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+    </script>
+
+    <!-- Voicemail Agent Demo Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Modal elements
+            const openModalBtn = document.getElementById('open-voicemail-demo-btn');
+            const closeModalBtn = document.getElementById('close-voicemail-modal');
+            const modal = document.getElementById('voicemail-modal');
+            const vmForm = document.getElementById('voicemail-agent-form');
+
+            if (!vmForm || !openModalBtn || !modal) return;
+
+            const vmBusinessName = document.getElementById('vm-business-name');
+            const vmBusinessType = document.getElementById('vm-business-type');
+            const vmNotifyPhone = document.getElementById('vm-notify-phone');
+            const vmVoiceLanguage = document.getElementById('vm-voice-language');
+            const vmStatus = document.getElementById('vm-status');
+
+            let generatedAgentId = null;
+
+            // Open modal
+            openModalBtn.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Close modal
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Form submission
+            vmForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const businessName = vmBusinessName.value.trim();
+                const businessType = vmBusinessType.value;
+                const notifyPhone = vmNotifyPhone.value.trim();
+                const voiceLanguage = vmVoiceLanguage.value;
+
+                if (!businessName || !businessType || !notifyPhone) {
+                    showVMStatus('error', '❌ Please fill in all fields');
+                    return;
+                }
+
+                // Build agent configuration
+                const agentConfig = {
+                    businessName,
+                    businessType,
+                    notifyPhone,
+                    voiceLanguage,
+                    features: {
+                        qualifyLeads: true,
+                        scheduleCallback: true,
+                        answerFaq: false,
+                        emergencyFilter: false
+                    },
+                    voiceType: 'professional-female'
+                };
+
+                // Show loading
+                const generateBtn = document.getElementById('generate-voicemail-btn');
+                const originalBtnText = generateBtn.innerHTML;
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+                showVMStatus('info', '🤖 Creating your voicemail agent...');
+
+                try {
+                    // Call backend API
+                    const response = await fetch('/api/voicemail-agent/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(agentConfig)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        generatedAgentId = data.data.agentId;
+                        showVMStatus('success', `✅ Success! Your agent "${businessName}" is ready. Check your phone for a test SMS!`);
+
+                        // Reset form after 3 seconds
+                        setTimeout(() => {
+                            vmForm.reset();
+                            vmStatus.classList.add('hidden');
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Failed to generate agent');
+                    }
+                } catch (error) {
+                    console.error('Voicemail agent generation error:', error);
+                    showVMStatus('error', '❌ Failed to create agent. Please try again.');
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = originalBtnText;
+                }
+            });
+
+            function showVMStatus(type, message) {
+                vmStatus.className = 'p-4 rounded-lg text-center font-medium';
+                vmStatus.classList.remove('hidden');
+
+                if (type === 'success') {
+                    vmStatus.classList.add('bg-green-900/30', 'border', 'border-green-500/50', 'text-green-400');
+                } else if (type === 'error') {
+                    vmStatus.classList.add('bg-red-900/30', 'border', 'border-red-500/50', 'text-red-400');
+                } else {
+                    vmStatus.classList.add('bg-blue-900/30', 'border', 'border-blue-500/50', 'text-blue-400');
+                }
+
+                vmStatus.textContent = message;
+
+                // Auto-hide success messages
+                if (type === 'success') {
+                    setTimeout(() => {
+                        vmStatus.classList.add('hidden');
+                    }, 6000);
+                }
+            }
+
+            console.log('✅ Voicemail Agent Demo loaded');
+        });
     </script>
 </body>
 </html>

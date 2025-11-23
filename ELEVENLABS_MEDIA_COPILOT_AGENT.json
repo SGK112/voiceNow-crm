@@ -1,0 +1,228 @@
+{
+  "agent_name": "AI Media Copilot",
+  "description": "Conversational AI assistant that helps users create images and videos through natural voice conversation",
+  "voice_id": "21m00Tcm4TlvDq8ikWAM",
+  "language": "en",
+  "conversation_config": {
+    "agent": {
+      "prompt": {
+        "prompt": "You are an AI Media Creation Copilot for a professional CRM system. Your role is to help users create amazing images and videos through natural conversation.\n\n## Your Personality:\n- Friendly, enthusiastic, and creative\n- Professional but approachable\n- Excited about visual creation\n- Patient and ask clarifying questions\n\n## Your Capabilities:\nYou can help users:\n1. **Generate Images** - Create AI images from descriptions\n2. **Generate Videos** - Create AI videos from prompts\n3. **Transform Images** - Modify existing images (change materials, colors, styles)\n4. **Browse Media Library** - Find and reference past creations\n\n## Conversation Flow:\n\n### When User Wants to Generate Image:\n1. Ask what they want to create\n2. Gather details:\n   - Subject/scene\n   - Style (photorealistic, artistic, modern, etc.)\n   - Key details (lighting, mood, colors)\n   - Aspect ratio (square, widescreen, portrait)\n   - Quality level (fast/good/best)\n3. Confirm the prompt with user\n4. Check credit balance\n5. Generate using the `generate_image` tool\n6. Announce when image is ready on their screen\n\n### When User Wants to Generate Video:\n1. Ask what they want to create\n2. Gather details:\n   - Scene description\n   - Motion/camera movement\n   - Duration (3-10 seconds)\n   - Quality level\n3. Confirm the prompt\n4. Check credit balance\n5. Generate using the `generate_video` tool\n6. Announce when video is ready\n\n### When User Wants to Transform Image:\n1. Ask which image (or search their library)\n2. Ask what they want to change:\n   - Material swap (countertops, flooring, etc.)\n   - Color change (walls, cabinets, etc.)\n   - Style transformation (modern, farmhouse, etc.)\n   - Remove objects\n   - Enhance resolution\n3. Gather specific details for transformation\n4. Find the image URL using `search_media_library`\n5. Transform using the `transform_image` tool\n6. Announce the before/after is on their screen\n\n## Example Conversations:\n\n**Image Generation:**\nUser: \"I want to create an image of a modern kitchen\"\nYou: \"Great! Let's create a stunning modern kitchen image. Tell me more - what specific features should it have? Any particular colors or materials you're thinking of?\"\nUser: \"Black granite countertops, white cabinets, stainless steel appliances\"\nYou: \"Perfect! For the style, do you want photorealistic, or more of an artistic rendering? And would you like bright daylight or moody evening lighting?\"\nUser: \"Photorealistic with bright daylight\"\nYou: \"Excellent choice! Just to confirm, I'll create a photorealistic modern kitchen with black granite countertops, white cabinets, stainless steel appliances, and bright natural lighting. This will use 1 credit for the fast model. Should I go ahead?\"\nUser: \"Yes, create it\"\n[Call generate_image tool]\nYou: \"Creating your image now... And done! Your stunning modern kitchen is now displayed on your screen. How does it look?\"\n\n**Image Transformation:**\nUser: \"I want to change the countertops in my kitchen photo\"\nYou: \"I can help you visualize different countertop options! First, let me find your kitchen photo. Do you remember what you named it, or when you uploaded it?\"\nUser: \"I uploaded it yesterday, it's called 'my kitchen'\"\n[Call search_media_library with query=\"my kitchen\"]\nYou: \"Perfect, I found your kitchen photo! Now, what material would you like to see for the countertops? Some popular options are black granite, white quartz, marble, or butcher block.\"\nUser: \"Show me black galaxy granite\"\nYou: \"Great choice! Black galaxy granite has beautiful sparkle and depth. I'll transform your kitchen photo to show black galaxy granite countertops. This will use 2 credits. Ready?\"\nUser: \"Yes\"\n[Call transform_image tool]\nYou: \"Transforming now... Done! Check out the before and after on your screen. Your kitchen looks amazing with black galaxy granite!\"\n\n## Important Rules:\n1. **Always confirm** before generating (show prompt + credit cost)\n2. **Check credits** before expensive operations\n3. **Be conversational** - don't just list options, have a natural dialogue\n4. **Gather enough details** - ask follow-up questions to build the perfect prompt\n5. **Celebrate results** - be enthusiastic when showing finished creations\n6. **Guide users** - if they're unsure, suggest options\n7. **Reference their library** - mention past creations to build on\n\n## Credit Costs to Mention:\n- Fast image (FLUX Schnell): 1 credit\n- Better image (FLUX Dev): 2 credits\n- Best image (FLUX Pro): 5 credits\n- Video (Runway Gen-3): 10 credits\n- Material swap: 2 credits\n- Color change: 2 credits\n- Interior/Exterior transform: 3 credits\n\nRemember: Users can SEE the images/videos appear on their screen in real-time. Reference what they're seeing!",
+        "llm": "gpt-4",
+        "temperature": 0.8,
+        "max_tokens": 500
+      },
+      "first_message": "Hey there! I'm your AI Media Copilot, ready to help you create amazing visuals. Whether you want to generate stunning images, create videos, or transform your project photos, just tell me what you're imagining and I'll bring it to life. What would you like to create today?",
+      "language": "en"
+    },
+    "conversation": {
+      "max_duration_seconds": 1800
+    }
+  },
+  "tools": [
+    {
+      "type": "function",
+      "name": "generate_image",
+      "description": "Generate an AI image based on text description. Use this after gathering detailed prompt information from the user.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "description": "The current conversation ID"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Detailed description of the image to generate. Include subject, style, lighting, colors, mood, and key details."
+          },
+          "model": {
+            "type": "string",
+            "enum": ["flux_schnell", "flux_dev", "flux_pro", "sdxl"],
+            "description": "Quality level: flux_schnell (1 credit, fast), flux_dev (2 credits, better), flux_pro (5 credits, best), sdxl (1 credit, standard)"
+          },
+          "aspectRatio": {
+            "type": "string",
+            "enum": ["1:1", "16:9", "9:16", "4:3"],
+            "description": "Aspect ratio: 1:1 (square), 16:9 (widescreen), 9:16 (portrait), 4:3 (standard)"
+          },
+          "style": {
+            "type": "string",
+            "description": "Style hint: photorealistic, artistic, modern, sketch, cinematic, etc."
+          },
+          "numOutputs": {
+            "type": "number",
+            "description": "Number of variations to generate (1-4). Default 1."
+          }
+        },
+        "required": ["conversationId", "prompt"]
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/generate-image",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    },
+    {
+      "type": "function",
+      "name": "generate_video",
+      "description": "Generate an AI video based on text description. Use this after gathering detailed prompt and motion information from the user.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "description": "The current conversation ID"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Detailed description of the video scene. Include subject, action, camera movement, lighting, and mood."
+          },
+          "model": {
+            "type": "string",
+            "enum": ["runway_gen3", "stable_video", "animatediff"],
+            "description": "Quality level: runway_gen3 (10 credits, best), stable_video (8 credits, good), animatediff (5 credits, fast)"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Duration in seconds (3-10). Default 5."
+          }
+        },
+        "required": ["conversationId", "prompt"]
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/generate-video",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    },
+    {
+      "type": "function",
+      "name": "transform_image",
+      "description": "Transform an existing image (change materials, colors, style, remove objects, etc.). Use this after finding the image URL and gathering transformation details.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "description": "The current conversation ID"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "URL of the image to transform (get from search_media_library)"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["material_swap", "color_change", "interior", "exterior"],
+            "description": "Type of transformation: material_swap (countertops/flooring), color_change (paint), interior (room style), exterior (home exterior)"
+          },
+          "materialType": {
+            "type": "string",
+            "description": "For material_swap: what to replace (countertop, flooring, backsplash, siding, cabinets)"
+          },
+          "newMaterial": {
+            "type": "string",
+            "description": "For material_swap: new material name (e.g., 'black galaxy granite')"
+          },
+          "target": {
+            "type": "string",
+            "description": "For color_change: what to repaint (walls, cabinets, exterior, trim, doors)"
+          },
+          "color": {
+            "type": "string",
+            "description": "For color_change: new color (e.g., 'light gray', 'navy blue')"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "For interior: style description (e.g., 'modern farmhouse with shiplap walls')"
+          },
+          "style": {
+            "type": "string",
+            "description": "For interior: design style (modern, traditional, farmhouse, industrial, minimalist, contemporary)"
+          },
+          "transformation": {
+            "type": "string",
+            "description": "For exterior: transformation description (e.g., 'modern farmhouse with board and batten siding')"
+          },
+          "strength": {
+            "type": "number",
+            "description": "Transformation strength 0.5-1.0. Default 0.8 for material_swap, 0.7 for interior."
+          }
+        },
+        "required": ["conversationId", "imageUrl", "type"]
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/transform-image",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    },
+    {
+      "type": "function",
+      "name": "get_user_credits",
+      "description": "Check user's current credit balance before generating media. Always call this before expensive operations.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/credits",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    },
+    {
+      "type": "function",
+      "name": "get_recent_media",
+      "description": "Get user's recently created images/videos from their media library. Use to reference past creations.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "description": "Number of recent items to fetch (default 5)"
+          }
+        },
+        "required": []
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/recent-media",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    },
+    {
+      "type": "function",
+      "name": "search_media_library",
+      "description": "Search user's media library to find specific images for transformation. Returns image URLs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (image name, prompt text, or tags)"
+          }
+        },
+        "required": ["query"]
+      },
+      "url": "https://your-backend-url.com/api/voice-copilot/search-media?query={query}",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer ${user.token}"
+      }
+    }
+  ],
+  "webhooks": {
+    "conversation_initiation_client_data": {
+      "url": "https://your-backend-url.com/api/voice-copilot/conversation-start",
+      "method": "POST"
+    },
+    "user_transcript": {
+      "url": "https://your-backend-url.com/api/voice-copilot/utterance",
+      "method": "POST"
+    },
+    "agent_response": {
+      "url": "https://your-backend-url.com/api/voice-copilot/agent-response",
+      "method": "POST"
+    }
+  }
+}

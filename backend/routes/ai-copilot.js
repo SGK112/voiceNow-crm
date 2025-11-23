@@ -1,8 +1,10 @@
 import express from 'express';
 import AIService from '../services/aiService.js';
+import ElevenLabsService from '../services/elevenLabsService.js';
 
 const router = express.Router();
 const aiService = new AIService();
+const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
 /**
  * AI Workflow Copilot
@@ -312,6 +314,164 @@ No markdown, no code blocks, just the JSON object.`;
       success: false,
       error: error.message,
       message: 'Failed to generate prompt. Please try again.'
+    });
+  }
+});
+
+/**
+ * Voice Copilot - Text/Voice Command Handler
+ * Accepts text or voice commands and returns AI response with optional TTS audio
+ */
+router.post('/voice-command', async (req, res) => {
+  try {
+    const { command, context = {}, conversationHistory = [], returnAudio = true } = req.body;
+
+    console.log('🎙️ Voice Copilot command:', command);
+
+    // Build comprehensive system prompt for the VoiceFlow AI Wizard
+    const systemPrompt = `You are the VoiceFlow AI Wizard, an intelligent voice assistant that helps users create and manage AI voice agents, workflows, and automation.
+
+**Your Capabilities:**
+1. Create AI voice agents with custom personalities and voices
+2. Build workflows with various nodes (voice, prompt, calendar, SMS, email, webhooks, etc.)
+3. Generate images and media using AI
+4. Answer questions about VoiceFlow features and capabilities
+5. Configure automations and integrations
+6. Help with troubleshooting and optimization
+
+**Current Context:**
+${context.page ? `- Current Page: ${context.page}` : ''}
+${context.selectedAgent ? `- Selected Agent: ${context.selectedAgent}` : ''}
+${context.workflowNodes ? `- Workflow Nodes: ${context.workflowNodes}` : ''}
+
+**Response Guidelines:**
+- Be conversational, friendly, and helpful
+- Keep responses concise (2-3 sentences for simple questions)
+- For complex tasks, break down the steps clearly
+- Use natural language suitable for voice output
+- Avoid technical jargon unless specifically asked
+- Include emojis sparingly for personality
+
+**Action Types You Can Return:**
+When the user asks you to DO something (create, build, add, configure), return an action in your response:
+
+{
+  "message": "Your conversational response",
+  "action": {
+    "type": "create_agent",
+    "data": {
+      "name": "Agent Name",
+      "voice": "voice-id",
+      "prompt": "Agent instructions"
+    }
+  }
+}
+
+Available action types:
+- "create_agent": Create a new AI voice agent
+- "create_workflow": Build a new workflow
+- "add_node": Add a node to current workflow
+- "generate_image": Generate an AI image
+- "navigate": Navigate to a different page
+- "schedule_call": Schedule an outbound call
+- "send_sms": Send an SMS message
+
+**Examples:**
+
+User: "Create a customer service agent"
+Response: {
+  "message": "I'll create a friendly customer service agent for you! This agent will be professional yet warm, perfect for handling customer inquiries.",
+  "action": {
+    "type": "create_agent",
+    "data": {
+      "name": "Customer Service Agent",
+      "voice": "default",
+      "prompt": "You are a helpful customer service representative. Be friendly, patient, and solution-oriented. Always greet customers warmly and ask how you can help them today."
+    }
+  }
+}
+
+User: "What can you do?"
+Response: {
+  "message": "I can help you create AI voice agents, build automation workflows, generate images, schedule calls, send SMS messages, and answer questions about VoiceFlow! What would you like to do today?"
+}
+
+User: "Generate an image of a sunset"
+Response: {
+  "message": "Creating a beautiful sunset image for you!",
+  "action": {
+    "type": "generate_image",
+    "data": {
+      "prompt": "Beautiful sunset over the ocean with vibrant orange and pink colors, photorealistic"
+    }
+  }
+}
+
+**User's Command:** ${command}`;
+
+    // Call AI service
+    const aiMessage = await aiService.chatWithMessages([
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory,
+      { role: 'user', content: command }
+    ], {
+      model: 'gpt-4o-mini',
+      temperature: 0.7,
+      maxTokens: 500,
+      responseFormat: 'json_object'
+    });
+
+    // Parse AI response
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(aiMessage);
+    } catch (parseError) {
+      // Fallback if not valid JSON
+      aiResponse = {
+        message: aiMessage
+      };
+    }
+
+    console.log('✅ AI response:', aiResponse.message?.substring(0, 100) + '...');
+
+    // Generate audio using ElevenLabs TTS if requested
+    let audioData = null;
+    if (returnAudio && aiResponse.message) {
+      try {
+        console.log('🔊 Generating TTS audio...');
+        const audio = await elevenLabsService.textToSpeech(aiResponse.message, {
+          voiceId: process.env.ELEVENLABS_DEFAULT_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL' // Default: Sarah voice
+        });
+
+        if (audio) {
+          // Convert buffer to base64
+          audioData = audio.toString('base64');
+          console.log('✅ TTS audio generated');
+        }
+      } catch (ttsError) {
+        console.error('⚠️ TTS generation failed:', ttsError.message);
+        // Continue without audio
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        message: aiResponse.message,
+        action: aiResponse.action || null,
+        audio: audioData,
+        conversationId: req.body.conversationId || null
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Voice command error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      data: {
+        message: "I'm having trouble right now. Could you try again?"
+      }
     });
   }
 });

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store, Music, Heart } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store, Music, Heart, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
@@ -31,6 +31,7 @@ const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
   { name: 'My Agents', href: '/app/agents', icon: Bot, tourId: 'agents', description: 'Manage Your AI Agents' },
   { name: 'VoiceFlow Builder', href: '/app/voiceflow-builder', icon: Workflow, tourId: 'voiceflow-builder', description: 'Visual Agent & Workflow Builder' },
+  { name: 'Studio', href: '/studio.html', icon: Image, tourId: 'studio', description: 'Social Media Staging & AI Images', external: true },
   { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
   { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
   { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
@@ -124,10 +125,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+            const LinkComponent = item.external ? 'a' : Link;
+            const linkProps = item.external ? { href: item.href } : { to: item.href };
+
             return (
-              <Link
+              <LinkComponent
                 key={item.name}
-                to={item.href}
+                {...linkProps}
                 data-tour={item.tourId}
                 className={cn(
                   'flex items-center gap-3 rounded-lg text-sm font-medium transition-all relative group',
@@ -153,7 +157,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                     <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-popover" />
                   </div>
                 )}
-              </Link>
+              </LinkComponent>
             );
           })}
         </nav>

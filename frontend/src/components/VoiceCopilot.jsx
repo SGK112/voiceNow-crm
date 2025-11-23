@@ -12,11 +12,14 @@ import {
   Maximize2,
   X,
   Phone,
-  PhoneOff
+  PhoneOff,
+  Send,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 export default function VoiceCopilot({ onAction, context = {} }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -26,10 +29,13 @@ export default function VoiceCopilot({ onAction, context = {} }) {
   const [transcript, setTranscript] = useState('');
   const [conversation, setConversation] = useState([]);
   const [conversationId, setConversationId] = useState(null);
+  const [textInput, setTextInput] = useState('');
+  const [inputMode, setInputMode] = useState('voice'); // 'voice' or 'text'
 
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
   const wsRef = useRef(null);
+  const conversationEndRef = useRef(null);
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -173,7 +179,8 @@ export default function VoiceCopilot({ onAction, context = {} }) {
       const res = await api.post('/ai-copilot/voice-command', {
         command,
         context,
-        conversationHistory: conversation
+        conversationHistory: conversation,
+        returnAudio: true // Request ElevenLabs TTS audio
       });
       return res.data;
     },
@@ -186,8 +193,12 @@ export default function VoiceCopilot({ onAction, context = {} }) {
         { role: 'assistant', content: response.message }
       ]);
 
-      // Speak response
-      speakText(response.message);
+      // Play ElevenLabs audio if available, otherwise use browser TTS
+      if (response.audio) {
+        playAudio(response.audio);
+      } else {
+        speakText(response.message);
+      }
 
       // Execute action if provided
       if (response.action) {
@@ -244,6 +255,19 @@ export default function VoiceCopilot({ onAction, context = {} }) {
     audio.play();
   };
 
+  const handleTextSubmit = (e) => {
+    e?.preventDefault();
+    if (!textInput.trim()) return;
+
+    handleVoiceCommand(textInput);
+    setTextInput('');
+  };
+
+  // Auto-scroll to bottom of conversation
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversation]);
+
   return (
     <>
       {/* Floating Button */}
@@ -298,6 +322,19 @@ export default function VoiceCopilot({ onAction, context = {} }) {
 
           {/* Conversation */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 dark:bg-gray-950">
+            {conversation.length === 0 && (
+              <div className="text-center text-muted-foreground text-sm py-8">
+                <Sparkles className="w-12 h-12 mx-auto mb-4 text-blue-500 opacity-50" />
+                <p className="mb-2">👋 Hi! I'm your VoiceFlow AI Wizard</p>
+                <p className="text-xs">I can help you:</p>
+                <ul className="text-xs mt-2 space-y-1">
+                  <li>• Create AI agents & workflows</li>
+                  <li>• Generate images & media</li>
+                  <li>• Answer questions</li>
+                  <li>• Configure automations</li>
+                </ul>
+              </div>
+            )}
             {conversation.map((msg, idx) => (
               <div
                 key={idx}
@@ -328,11 +365,12 @@ export default function VoiceCopilot({ onAction, context = {} }) {
                 </div>
               </div>
             )}
+            <div ref={conversationEndRef} />
           </div>
 
           {/* Controls */}
           <div className="p-4 border-t border-border dark:border-gray-700 space-y-3">
-            {/* Status */}
+            {/* Status & Mode Toggle */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 {isListening && (
@@ -348,49 +386,95 @@ export default function VoiceCopilot({ onAction, context = {} }) {
                   </Badge>
                 )}
               </div>
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
+                <button
+                  onClick={() => setInputMode('voice')}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    inputMode === 'voice'
+                      ? 'bg-background shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Mic className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => setInputMode('text')}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    inputMode === 'text'
+                      ? 'bg-background shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <MessageSquare className="w-3 h-3" />
+                </button>
+              </div>
             </div>
+
+            {/* Text Input Mode */}
+            {inputMode === 'text' && (
+              <form onSubmit={handleTextSubmit} className="flex gap-2">
+                <Input
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1"
+                  disabled={processCopilotCommand.isPending}
+                />
+                <Button
+                  type="submit"
+                  disabled={!textInput.trim() || processCopilotCommand.isPending}
+                  size="icon"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </form>
+            )}
 
             {/* Voice Controls */}
-            <div className="flex items-center gap-2">
-              {!isConnected ? (
-                <Button
-                  onClick={connectToConversationalAI}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600"
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Start Voice Chat
-                </Button>
-              ) : (
-                <>
+            {inputMode === 'voice' && (
+              <div className="flex items-center gap-2">
+                {!isConnected ? (
                   <Button
-                    onClick={toggleListening}
-                    variant={isListening ? 'destructive' : 'default'}
-                    className="flex-1"
+                    onClick={connectToConversationalAI}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600"
                   >
-                    {isListening ? (
-                      <>
-                        <MicOff className="w-4 h-4 mr-2" />
-                        Stop Listening
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="w-4 h-4 mr-2" />
-                        Start Listening
-                      </>
-                    )}
+                    <Phone className="w-4 h-4 mr-2" />
+                    Start Voice Chat
                   </Button>
-                  <Button
-                    onClick={disconnectConversationalAI}
-                    variant="outline"
-                  >
-                    <PhoneOff className="w-4 h-4" />
-                  </Button>
-                </>
-              )}
-            </div>
+                ) : (
+                  <>
+                    <Button
+                      onClick={toggleListening}
+                      variant={isListening ? 'destructive' : 'default'}
+                      className="flex-1"
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff className="w-4 h-4 mr-2" />
+                          Stop Listening
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-4 h-4 mr-2" />
+                          Start Listening
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={disconnectConversationalAI}
+                      variant="outline"
+                    >
+                      <PhoneOff className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
 
             <p className="text-xs text-muted-foreground text-center">
-              Say commands like "Create a new workflow" or "Add an email node"
+              {inputMode === 'text'
+                ? 'Type commands like "Create a workflow" or "Generate an agent"'
+                : 'Say commands like "Create a new workflow" or "Add an email node"'}
             </p>
           </div>
         </Card>

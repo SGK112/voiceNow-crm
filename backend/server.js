@@ -95,6 +95,11 @@ import mediaLibraryRoutes from './routes/mediaLibrary.js';
 import imageManipulationRoutes from './routes/imageManipulation.js';
 import voiceImageRoutes from './routes/voiceImageGeneration.js';
 import { setupVoiceImageWebSocket } from './routes/voiceImageWebSocket.js';
+import voiceMediaCopilotRoutes from './routes/voiceMediaCopilot.js';
+import { setupVoiceMediaCopilotWebSocket } from './routes/voiceMediaCopilotWebSocket.js';
+import voicemailAgentRoutes from './routes/voicemailAgent.js';
+import demoRoutes from './routes/demo.js';
+import studioRoutes from './routes/studio.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -216,6 +221,10 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/media-library', mediaLibraryRoutes);
 app.use('/api/image-transform', imageManipulationRoutes);
 app.use('/api/voice-images', voiceImageRoutes);
+app.use('/api/voice-copilot', voiceMediaCopilotRoutes);
+app.use('/api/demo', demoRoutes); // Demo routes - no auth required
+app.use('/api/studio', studioRoutes); // Studio routes - social media staging
+app.use('/api/voicemail-agent', voicemailAgentRoutes); // Voicemail agent demo routes
 
 app.use('/api', apiLimiter);
 
@@ -226,18 +235,58 @@ if (process.env.NODE_ENV === 'production') {
 
   // Serve marketing page from frontend/public (before React app)
   app.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
   app.get('/marketing', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
+  app.get('/demo', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(join(frontendPublicPath, 'demo.html'));
+  });
+
+  app.get('/studio', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(join(frontendPublicPath, 'studio.html'));
+  });
+
   // Serve static files from frontend/public (images, CSS, JS for marketing page)
-  app.use(express.static(frontendPublicPath));
+  // Add cache control for static assets
+  app.use(express.static(frontendPublicPath, {
+    setHeaders: (res, path) => {
+      // Cache images for 1 hour, but allow revalidation
+      if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.mp3')) {
+        res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+      } else {
+        // Don't cache HTML/CSS/JS files
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    }
+  }));
 
   // Serve static files from build (CSS, JS, images for React app)
-  app.use(express.static(frontendDistPath));
+  app.use(express.static(frontendDistPath, {
+    setHeaders: (res, path) => {
+      // Cache hashed files (like main.abc123.js) for 1 year
+      if (/\.[a-f0-9]{8}\.(js|css)$/.test(path)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    }
+  }));
 
   // Serve React app for app routes (everything except root and marketing)
   app.get(/^\/(?!api|marketing).*/, (req, res) => {
@@ -302,6 +351,13 @@ const server = app.listen(PORT, () => {
     setupVoiceImageWebSocket(server);
   } catch (error) {
     console.error('⚠️  Failed to start WebSocket server:', error.message);
+  }
+
+  // Initialize Voice Media Copilot WebSocket server
+  try {
+    setupVoiceMediaCopilotWebSocket(server);
+  } catch (error) {
+    console.error('⚠️  Failed to start Voice Copilot WebSocket server:', error.message);
   }
 });
 
