@@ -30,7 +30,11 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
-      'Expires': '0'
+      'Expires': '0',
+      'ETag': 'false'
+    },
+    watch: {
+      usePolling: true
     }
   },
   // Disable build cache in development
