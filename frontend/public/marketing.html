@@ -1500,7 +1500,7 @@
     </nav>
 
 
-    <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] min-h-screen flex items-center overflow-hidden scroll-section">
+    <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] min-h-screen flex items-center overflow-hidden">
         <div class="max-w-6xl mx-auto relative z-10 w-full">
             <div class="text-center mb-12 sm:mb-16">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
@@ -1653,7 +1653,7 @@
         </div>
     </section>
 
-    <section id="features" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
+    <section id="features" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 sm:mb-16 md:mb-20">
                 <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
@@ -1702,162 +1702,8 @@
         </div>
     </section>
 
-    <!-- SMS Demo Section -->
-    <section id="sms-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16 md:mb-20">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
-                    Try It Live
-                </h2>
-                <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto">
-                    Experience our AI voice agent in action
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-8 sm:gap-10 md:gap-12 items-center">
-                <!-- Phone Mockup with SMS Demo -->
-                <div class="md:col-span-2 order-2 md:order-1 phone-entrance">
-                    <div class="mx-auto" style="max-width: 340px;">
-                        <!-- iPhone Frame -->
-                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
-                            <!-- Notch -->
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
-
-                            <!-- Screen -->
-                            <div class="bg-white rounded-[2.5rem] overflow-hidden relative" style="height: 667px;">
-                                <!-- Status Bar -->
-                                <div class="bg-white px-6 py-3 flex justify-between items-center text-xs font-semibold text-black border-b border-gray-200">
-                                    <span>9:41 AM</span>
-                                    <div class="flex items-center gap-1">
-                                        <i class="fas fa-signal text-xs"></i>
-                                        <i class="fas fa-wifi text-xs"></i>
-                                        <i class="fas fa-battery-full text-xs"></i>
-                                    </div>
-                                </div>
-
-                                <!-- SMS Header -->
-                                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between text-sm border-b border-gray-200">
-                                    <i class="fas fa-chevron-left text-blue-500"></i>
-                                    <div class="flex-1 text-center">
-                                        <div class="font-semibold text-black">(602) 833-7194</div>
-                                    </div>
-                                    <i class="fas fa-info-circle text-blue-500"></i>
-                                </div>
-
-                                <!-- SMS Messages / Placeholder -->
-                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto flex items-center justify-center" style="height: 540px;">
-                                    <!-- Placeholder Screen -->
-                                    <div id="phone-placeholder" class="text-center">
-                                        <div class="mb-6">
-                                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                                <i class="fas fa-comment-dots text-white text-4xl"></i>
-                                            </div>
-                                            <h3 class="text-xl font-bold text-gray-800 mb-2">See It In Action</h3>
-                                            <p class="text-sm text-gray-500 mb-6">Watch our AI agent respond in real-time</p>
-                                        </div>
-                                        <button id="show-demo-form-btn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                                            Try Me
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Input Area -->
-                                <div class="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 flex items-center gap-2">
-                                    <div class="flex-1 bg-white rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            id="sms-input"
-                                            placeholder="Text Message"
-                                            class="flex-1 text-sm outline-none"
-                                        >
-                                    </div>
-                                    <button
-                                        id="sms-send"
-                                        class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white"
-                                    >
-                                        <i class="fas fa-arrow-up"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Demo Form -->
-                <div class="md:col-span-3 order-1 md:order-2">
-                    <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
-                        <!-- Toggle Switch -->
-                        <div class="flex items-center justify-center gap-4 mb-6">
-                            <button id="toggle-voice" class="demo-toggle active px-6 py-3 rounded-xl font-semibold transition-all">
-                                <i class="fas fa-phone mr-2"></i>Voice Call
-                            </button>
-                            <button id="toggle-sms" class="demo-toggle px-6 py-3 rounded-xl font-semibold transition-all">
-                                <i class="fas fa-comment-dots mr-2"></i>SMS
-                            </button>
-                        </div>
-
-                        <form id="demo-form" class="space-y-4">
-                            <input
-                                type="text"
-                                id="demo-name"
-                                placeholder="Name"
-                                required
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
-                            <input
-                                type="tel"
-                                id="demo-phone"
-                                placeholder="Phone Number"
-                                required
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
-                            <input
-                                type="email"
-                                id="demo-email"
-                                placeholder="Email (optional)"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
-
-                            <!-- Submit Button -->
-                            <button
-                                type="button"
-                                id="submit-demo-btn"
-                                class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg"
-                            >
-                                <i class="fas fa-phone mr-2"></i>
-                                <span id="submit-btn-text">Start Voice Demo</span>
-                            </button>
-
-                            <!-- Status Message -->
-                            <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
-
-                            <p class="text-center text-sm text-gray-500 pt-2">
-                                <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
-                            </p>
-                        </form>
-                    </div>
-
-                    <!-- Initial CTA (shown before form) -->
-                    <div id="initial-cta" class="max-w-md mx-auto md:mx-0 text-center cta-entrance">
-                        <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
-                        <p class="text-lg text-gray-400 mb-8">Get a live demo in seconds. No credit card required.</p>
-                        <button id="show-form-btn" class="bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg cta-button-pulse">
-                            <i class="fas fa-play-circle mr-2"></i>
-                            Try It Now
-                        </button>
-                    </div>
-
-                    <!-- Hidden select for interest -->
-                    <select id="demo-interest" class="hidden">
-                        <option value="demo">Demo Request</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Voicemail Agent Demo Section -->
-    <section id="voicemail-agent-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e] scroll-section relative overflow-hidden">
+    <section id="voicemail-agent-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e] relative overflow-hidden">
         <!-- Background decoration -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-20 left-10 w-72 h-72 bg-green-500 rounded-full blur-3xl"></div>
@@ -2064,7 +1910,7 @@
     </section>
 
     <!-- Voice Estimate Builder Demo Section -->
-    <section id="voice-estimate-demo" class="py-20 px-4 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0b] scroll-section relative overflow-hidden">
+    <section id="voice-estimate-demo" class="py-20 px-4 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0b] relative overflow-hidden">
         <!-- Background decoration -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-20 right-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl"></div>
@@ -2311,7 +2157,7 @@
     </section>
 
     <!-- AI Image Generation Chat Demo Section - Contractor Focused -->
-    <section id="ai-chat-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
+    <section id="ai-chat-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b]">
         <div class="max-w-6xl mx-auto">
             <!-- Minimalistic Header -->
             <div class="mb-10 sm:mb-12 md:mb-16">
@@ -2473,7 +2319,7 @@
     </section>
 
     <!-- VoiceFlow CRM Co-Pilot Demo Section -->
-    <section id="copilot-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+    <section id="copilot-demo" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] relative overflow-hidden">
         <div class="max-w-4xl mx-auto relative z-10">
             <!-- Header and Rocket - Hidden when chat is open -->
             <div id="copilot-intro" class="text-center mb-12 sm:mb-16">
@@ -2571,7 +2417,7 @@
         </div>
     </div>
 
-    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] relative overflow-hidden">
         <!-- Background decoration -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl"></div>
@@ -2664,7 +2510,7 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+    <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] relative overflow-hidden">
         <!-- Background decoration -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-20 right-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl"></div>
@@ -3237,9 +3083,8 @@
                 font-weight: 600;
             }
             .scroll-section {
-                opacity: 0;
-                transform: translateY(50px);
-                transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+                opacity: 1;
+                transform: translateY(0);
             }
             .scroll-section.visible {
                 opacity: 1;
