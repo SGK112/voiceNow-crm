@@ -1787,9 +1787,10 @@
                 imageGenBtn.style.boxShadow = '0 4px 20px rgba(240, 147, 251, 0.4)';
             };
             imageGenBtn.onclick = () => {
-                const aiChatModal = document.getElementById('ai-chat-modal');
-                if (aiChatModal) {
-                    aiChatModal.classList.remove('hidden');
+                // Scroll to AI Chat Demo section
+                const aiChatSection = document.getElementById('ai-chat-demo');
+                if (aiChatSection) {
+                    aiChatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             };
             toolMenu.appendChild(imageGenBtn);
@@ -1825,7 +1826,8 @@
                 voicemailBtn.style.boxShadow = '0 4px 20px rgba(17, 153, 142, 0.4)';
             };
             voicemailBtn.onclick = () => {
-                const voicemailModal = document.getElementById('voicemail-demo-modal');
+                // Open voicemail modal
+                const voicemailModal = document.getElementById('voicemail-modal');
                 if (voicemailModal) {
                     voicemailModal.classList.remove('hidden');
                 }
@@ -2641,10 +2643,16 @@
 
         @media (max-width: 768px) {
             .voice-copilot-modal {
-                width: calc(100% - 32px);
-                bottom: 16px;
-                right: 16px;
-                left: 16px;
+                width: 100%;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                border-radius: 16px 16px 0 0;
+                max-height: 80vh;
+            }
+
+            .voice-copilot-modal.hidden {
+                transform: translateY(100%);
             }
         }
     </style>
