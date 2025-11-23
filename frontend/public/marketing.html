@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v43-clean';
+        const CURRENT_VERSION = '2025-11-23-v44-aligned';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1245,18 +1245,18 @@
             <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50"></div>
         </div>
         <div class="max-w-6xl mx-auto relative z-10 w-full">
-            <div class="text-center mb-12 sm:mb-16">
+            <div class="text-left md:text-left mb-8 sm:mb-12 md:mb-0 md:pl-8">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
                     Try It Live
                 </h1>
-                <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto">
+                <p class="text-lg sm:text-xl text-gray-400 max-w-2xl">
                     Experience our AI voice agent in action
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-8 sm:gap-10 md:gap-12 items-center">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
                 <!-- Phone Mockup with SMS Demo -->
-                <div class="md:col-span-2 order-2 md:order-1 phone-entrance">
+                <div class="order-2 md:order-1 phone-entrance">
                     <div class="mx-auto" style="max-width: 340px;">
                         <!-- iPhone Frame -->
                         <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
@@ -1324,7 +1324,7 @@
                 </div>
 
                 <!-- Demo Form -->
-                <div class="md:col-span-3 order-1 md:order-2">
+                <div class="order-1 md:order-2">
                     <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
                         <!-- Toggle Switch -->
                         <div class="flex items-center justify-center gap-4 mb-6">
@@ -1378,7 +1378,7 @@
                     </div>
 
                     <!-- Initial CTA (shown before form) -->
-                    <div id="initial-cta" class="max-w-md mx-auto md:mx-0 text-center cta-entrance">
+                    <div id="initial-cta" class="max-w-md md:mx-0 text-left cta-entrance">
                         <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
                         <p class="text-lg text-gray-400 mb-8">Get a live demo in seconds. No credit card required.</p>
                         <a href="/demo.html" class="inline-block bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg">
@@ -1617,7 +1617,7 @@
 
     <section id="features" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b]">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
+            <div class="text-left md:text-left mb-8 sm:mb-12 md:mb-0 md:pl-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                     Powerful Features
                 </h2>
@@ -1667,7 +1667,7 @@
     <!-- How It Works Section -->
     <section class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e]">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
+            <div class="text-left md:text-left mb-8 sm:mb-12 md:mb-0 md:pl-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                     How It Works
                 </h2>
@@ -1696,7 +1696,7 @@
     <!-- Use Cases / Demos Section -->
     <section id="demos" class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#1a1a2e]">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
+            <div class="text-left md:text-left mb-8 sm:mb-12 md:mb-0 md:pl-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                     See It In Action
                 </h2>
