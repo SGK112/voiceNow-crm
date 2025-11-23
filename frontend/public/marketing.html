@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v38-copilot-vertical-buttons';
+        const CURRENT_VERSION = '2025-11-23-v39-fix-blank-sections-mobile';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -279,9 +279,9 @@
             }
 
             /* Ensure all sections have proper padding on mobile */
-            section {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
+            section:not(.full-width-section) {
+                padding-left: 1rem;
+                padding-right: 1rem;
             }
 
             /* Fix pricing cards on mobile */
@@ -336,14 +336,9 @@
             }
 
             /* Fix copilot section on mobile */
-            #copilot-demo {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-
             #copilot-chat-container {
-                margin-left: 0 !important;
-                margin-right: 0 !important;
+                margin-left: 0;
+                margin-right: 0;
             }
 
             /* Stack quick actions vertically on mobile */
@@ -372,9 +367,9 @@
             }
 
             /* Reduce padding on very small screens */
-            section {
-                padding-left: 0.75rem !important;
-                padding-right: 0.75rem !important;
+            section:not(.full-width-section) {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
             }
 
             /* Stack buttons vertically with less gap */
