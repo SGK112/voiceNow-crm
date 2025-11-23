@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v27-pricing-fix';
+        const CURRENT_VERSION = '2025-11-23-v28-pricing-overflow-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -35,7 +35,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v27-pricing-fix -->
+    <!-- Version: 2025-11-23-v28-pricing-overflow-fix -->
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
@@ -2450,7 +2450,7 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
+    <section id="pricing" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section overflow-hidden">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 sm:mb-16 md:mb-20">
                 <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
@@ -2461,7 +2461,7 @@
                     <i class="fas fa-shield-alt mr-2"></i>Cancel anytime • Money-back guarantee • Enterprise plans available
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 items-start px-0 md:px-4 lg:px-6">
                 <!-- Trial Plan -->
                 <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg h-full flex flex-col">
                     <h3 class="text-2xl font-bold text-white mb-3">Trial</h3>
