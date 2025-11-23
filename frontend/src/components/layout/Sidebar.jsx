@@ -13,7 +13,7 @@ const VoiceIcon = ({ size = 'default' }) => {
 
   return (
     <div className={cn(
-      'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 relative',
+      'inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 relative',
       sizeClasses[size]
     )}>
       {/* Left wave (short) */}
@@ -103,7 +103,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           )}>
             <h1 className="text-lg font-bold whitespace-nowrap flex items-center gap-2">
               <VoiceIcon size="default" />
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">VoiceFlow CRM</span>
+              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">VoiceFlow CRM</span>
             </h1>
           </div>
 
