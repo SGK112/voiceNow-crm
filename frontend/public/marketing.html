@@ -532,14 +532,37 @@
         }
 
         .tutorial-slide {
+            position: relative;
             text-align: center;
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
             animation: slideIn 0.6s ease-out forwards;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .tutorial-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
         }
 
         .tutorial-icon {
             font-size: 4rem;
             margin-bottom: 1.5rem;
             animation: iconPulse 0.6s ease-out;
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4));
         }
 
         .tutorial-heading {
@@ -559,27 +582,17 @@
         }
 
         .tutorial-example {
-            position: relative;
-            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 16px;
-            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
             margin-top: 1.5rem;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
-        .tutorial-example::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
-            background-size: 200% 100%;
-            animation: shimmer 3s ease-in-out infinite;
+        .tutorial-example:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(59, 130, 246, 0.3);
         }
 
         @keyframes shimmer {
