@@ -214,17 +214,19 @@ export default function Messages() {
   return (
     <div className="h-[calc(100vh-8rem)] flex gap-4">
       {/* Sidebar - Channels List */}
-      <div className="w-80 flex flex-col bg-white dark:bg-secondary rounded-lg shadow-sm border border-gray-200 border-border">
+      <div className="w-80 flex flex-col bg-[#0f0f10] rounded-xl shadow-2xl border border-white/5">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 border-border">
+        <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 text-foreground flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-blue-600" />
-                Messages
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-blue-400" />
+                Channels
               </h2>
               {totalUnread > 0 && (
-                <Badge className="mt-1 bg-red-500 text-white">{totalUnread} unread</Badge>
+                <div className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20">
+                  <span className="text-xs font-medium text-blue-400">{totalUnread} New</span>
+                </div>
               )}
             </div>
             <div className="flex gap-2">
@@ -232,41 +234,41 @@ export default function Messages() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowSlackSettings(true)}
-                className="hover:bg-secondary hover:bg-secondary/80"
+                className="hover:bg-white/5 text-gray-400 hover:text-white"
               >
-                <Slack className={`w-5 h-5 ${slackSettings.connected ? 'text-purple-600' : 'text-gray-600 text-muted-foreground'}`} />
+                <Slack className={`w-4 h-4 ${slackSettings.connected ? 'text-purple-400' : ''}`} />
               </Button>
               <Button
                 onClick={() => setShowNewChannel(true)}
                 size="icon"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 text-muted-foreground w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
             <Input
               placeholder="Search channels..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-secondary/50 bg-secondary border-gray-200 border-border text-gray-900 text-foreground"
+              className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
             />
           </div>
 
           {/* Type Filter */}
           <div className="mt-3">
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="bg-secondary/50 bg-secondary border-gray-200 border-border text-gray-900 text-foreground">
+              <SelectTrigger className="bg-white/5 border-white/10 text-white focus:border-blue-500/50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white bg-secondary">
-                <SelectItem value="all">All Channels</SelectItem>
+              <SelectContent className="bg-[#1a1a1b] border-white/10">
+                <SelectItem value="all" className="text-white hover:bg-white/5">All Channels</SelectItem>
                 {CHANNEL_TYPES.map(type => (
-                  <SelectItem key={type.id} value={type.id}>
+                  <SelectItem key={type.id} value={type.id} className="text-white hover:bg-white/5">
                     {type.name}
                   </SelectItem>
                 ))}
@@ -278,8 +280,8 @@ export default function Messages() {
         {/* Channels List */}
         <div className="flex-1 overflow-y-auto p-2">
           {filteredChannels.length === 0 ? (
-            <div className="text-center py-12 text-gray-700 text-foreground">
-              <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <div className="text-center py-12 text-gray-400">
+              <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-30" />
               <p className="text-sm">No channels found</p>
             </div>
           ) : (
@@ -291,33 +293,33 @@ export default function Messages() {
                 <button
                   key={channel.id}
                   onClick={() => setSelectedChannel(channel)}
-                  className={`w-full text-left p-3 rounded-lg mb-1 transition-colors ${
+                  className={`w-full text-left p-3 rounded-lg mb-1 transition-all ${
                     isSelected
-                      ? 'bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700'
-                      : 'hover:bg-secondary/50 hover:bg-secondary/80'
+                      ? 'bg-blue-600/10 border border-blue-500/30 shadow-lg shadow-blue-500/5'
+                      : 'hover:bg-white/5 border border-transparent'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 flex-1 min-w-0">
-                      <ChannelIcon className={`w-4 h-4 mt-0.5 flex-shrink-0 text-${getChannelColor(channel.type)}-600`} />
+                      <ChannelIcon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isSelected ? 'text-blue-400' : 'text-gray-500'}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm text-gray-900 text-foreground truncate">
-                            #{channel.name}
+                          <p className={`font-medium text-sm truncate ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                            {channel.name}
                           </p>
                           {channel.slackIntegrated && (
-                            <Slack className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                            <Slack className="w-3 h-3 text-purple-400 flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-800 text-foreground truncate">
+                        <p className="text-xs text-gray-500 truncate">
                           {channel.members} members
                         </p>
                       </div>
                     </div>
                     {channel.unread > 0 && (
-                      <Badge className="ml-2 bg-red-500 text-white text-xs flex-shrink-0">
+                      <div className="ml-2 px-1.5 py-0.5 bg-blue-500 rounded text-white text-xs font-medium flex-shrink-0">
                         {channel.unread}
-                      </Badge>
+                      </div>
                     )}
                   </div>
                 </button>
@@ -328,36 +330,38 @@ export default function Messages() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-secondary rounded-lg shadow-sm border border-gray-200 border-border">
+      <div className="flex-1 flex flex-col bg-[#0f0f10] rounded-xl shadow-2xl border border-white/5">
         {selectedChannel ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 border-border">
+            <div className="p-4 border-b border-white/5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {(() => {
                     const ChannelIcon = getChannelIcon(selectedChannel.type);
-                    return <ChannelIcon className={`w-5 h-5 text-${getChannelColor(selectedChannel.type)}-600`} />;
+                    return <ChannelIcon className="w-5 h-5 text-blue-400" />;
                   })()}
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-foreground">
-                      #{selectedChannel.name}
+                    <h3 className="font-semibold text-white">
+                      {selectedChannel.name}
                     </h3>
-                    <p className="text-xs text-gray-800 text-foreground">
+                    <p className="text-xs text-gray-500">
                       {selectedChannel.description || `${selectedChannel.members} members`}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {selectedChannel.slackIntegrated && (
-                    <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 flex items-center gap-1">
-                      <Slack className="w-3 h-3" />
-                      Slack Synced
-                    </Badge>
+                    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-500/10 border border-purple-500/20">
+                      <Slack className="w-3 h-3 text-purple-400" />
+                      <span className="text-xs font-medium text-purple-400">Synced</span>
+                    </div>
                   )}
-                  <Badge className={`bg-${getChannelColor(selectedChannel.type)}-100 text-${getChannelColor(selectedChannel.type)}-800 dark:bg-${getChannelColor(selectedChannel.type)}-900 dark:text-${getChannelColor(selectedChannel.type)}-200`}>
-                    {CHANNEL_TYPES.find(t => t.id === selectedChannel.type)?.name}
-                  </Badge>
+                  <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
+                    <span className="text-xs font-medium text-blue-400">
+                      {CHANNEL_TYPES.find(t => t.id === selectedChannel.type)?.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -371,20 +375,20 @@ export default function Messages() {
                 >
                   <div className={`max-w-md ${msg.isMe ? 'text-right' : 'text-left'}`}>
                     {!msg.isMe && (
-                      <p className="text-xs font-medium text-gray-800 text-foreground mb-1">
+                      <p className="text-xs font-medium text-gray-400 mb-1">
                         {msg.sender}
                       </p>
                     )}
                     <div
-                      className={`inline-block rounded-lg px-4 py-2 ${
+                      className={`inline-block rounded-xl px-4 py-2.5 ${
                         msg.isMe
                           ? 'bg-blue-600 text-white'
-                          : 'bg-secondary bg-secondary text-gray-900 text-foreground'
+                          : 'bg-white/5 border border-white/10 text-gray-200'
                       }`}
                     >
-                      <p className="text-sm">{msg.message}</p>
+                      <p className="text-sm leading-relaxed">{msg.message}</p>
                     </div>
-                    <p className="text-xs text-gray-700 text-foreground mt-1">
+                    <p className="text-xs text-gray-500 mt-1">
                       {formatTime(msg.timestamp)}
                     </p>
                   </div>
@@ -392,19 +396,19 @@ export default function Messages() {
               ))}
 
               {(messages[selectedChannel.id] || []).length === 0 && (
-                <div className="text-center py-12 text-gray-700 text-foreground">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No messages yet</p>
+                <div className="text-center py-12 text-gray-400">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p className="text-sm text-gray-300">No messages yet</p>
                   <p className="text-xs mt-1">Send a message to start the conversation</p>
                 </div>
               )}
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 border-border">
+            <div className="p-4 border-t border-white/5">
               <div className="flex gap-2">
                 <Textarea
-                  placeholder={`Message #${selectedChannel.name}...`}
+                  placeholder={`Message ${selectedChannel.name}...`}
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => {
@@ -413,28 +417,28 @@ export default function Messages() {
                       handleSendMessage();
                     }
                   }}
-                  className="flex-1 resize-none bg-secondary/50 bg-secondary border-gray-200 border-border text-gray-900 text-foreground"
+                  className="flex-1 resize-none bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
                   rows={3}
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white self-end"
+                  className="bg-blue-600 hover:bg-blue-700 text-white self-end disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-xs text-gray-700 text-foreground mt-2">
-                Press Enter to send, Shift+Enter for new line
-                {selectedChannel.slackIntegrated && ' • Messages sync with Slack'}
+              <p className="text-xs text-gray-500 mt-2">
+                Enter to send • Shift+Enter for new line
+                {selectedChannel.slackIntegrated && ' • Synced with Slack'}
               </p>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-700 text-foreground">
+          <div className="flex-1 flex items-center justify-center text-gray-400">
             <div className="text-center">
-              <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p>Select a channel to start messaging</p>
+              <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-20" />
+              <p className="text-gray-300">Select a channel to start messaging</p>
             </div>
           </div>
         )}
