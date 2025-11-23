@@ -458,11 +458,11 @@
             <video
                 id="brandIntroVideo"
                 autoplay
+                loop
                 muted
                 playsinline
                 preload="auto"
                 class="brand-intro-video"
-                onended="onVideoEnded()"
                 x-webkit-airplay="deny"
                 disablePictureInPicture
                 webkit-playsinline
@@ -499,19 +499,6 @@
 
         // Detect if user prefers reduced motion
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        let videoPaused = false;
-
-        function onVideoEnded() {
-            const video = document.getElementById('brandIntroVideo');
-
-            // Pause the video at the end and wait for user interaction
-            if (video) {
-                video.pause();
-                videoPaused = true;
-                console.log('Video ended - paused. Waiting for user to scroll or click Get Started');
-            }
-        }
 
         function transitionToLandingPage() {
             const overlay = document.getElementById('brandIntroOverlay');
@@ -585,14 +572,7 @@
                     });
                 }
 
-                // Auto-skip after 3 seconds on mobile for better UX
-                if (isMobile) {
-                    setTimeout(() => {
-                        if (!overlay.classList.contains('hidden')) {
-                            onVideoEnded();
-                        }
-                    }, 3000);
-                }
+                // Video will loop until user interaction
 
                 // Pause video when tab is not visible (battery saving)
                 document.addEventListener('visibilitychange', () => {
@@ -606,33 +586,31 @@
         });
 
         // Transition on scroll
+        let hasTransitioned = false;
         window.addEventListener('scroll', function() {
-            if (videoPaused) {
+            if (!hasTransitioned) {
+                hasTransitioned = true;
                 transitionToLandingPage();
             }
         }, { once: true });
 
         // Transition on wheel event (for desktop scroll before actual scroll happens)
         window.addEventListener('wheel', function() {
-            if (videoPaused) {
+            if (!hasTransitioned) {
+                hasTransitioned = true;
                 transitionToLandingPage();
             }
         }, { once: true });
 
-        // Skip intro or transition on click/tap anywhere on overlay
+        // Skip intro on click/tap anywhere on overlay
         document.getElementById('brandIntroOverlay')?.addEventListener('click', function(e) {
             // If clicking the Get Started button, let it navigate naturally
             if (e.target.closest('.intro-signup-btn')) {
                 return;
             }
-            // If video hasn't ended yet, skip to end and pause
-            if (!videoPaused) {
-                const video = document.getElementById('brandIntroVideo');
-                if (video) {
-                    video.currentTime = video.duration;
-                }
-            } else {
-                // If video is paused, transition to landing page
+            // Transition to landing page on any click
+            if (!hasTransitioned) {
+                hasTransitioned = true;
                 transitionToLandingPage();
             }
         });
