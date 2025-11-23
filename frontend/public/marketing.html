@@ -1756,6 +1756,82 @@
             };
             toolMenu.appendChild(copilotBtn);
 
+            // Create AI Image Generator button
+            const imageGenBtn = document.createElement('button');
+            imageGenBtn.id = 'floating-image-gen-btn';
+            imageGenBtn.className = 'tool-menu-btn';
+            imageGenBtn.innerHTML = '<i class="fas fa-image"></i>';
+            imageGenBtn.title = 'AI Image Generator';
+            imageGenBtn.style.cssText = `
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                transition: all 0.3s;
+                animation: toolFadeIn 0.5s ease-out 0.4s both;
+            `;
+            imageGenBtn.onmouseover = () => {
+                imageGenBtn.style.transform = 'scale(1.1)';
+                imageGenBtn.style.boxShadow = '0 6px 30px rgba(240, 147, 251, 0.6)';
+            };
+            imageGenBtn.onmouseout = () => {
+                imageGenBtn.style.transform = 'scale(1)';
+                imageGenBtn.style.boxShadow = '0 4px 20px rgba(240, 147, 251, 0.4)';
+            };
+            imageGenBtn.onclick = () => {
+                const aiChatModal = document.getElementById('ai-chat-modal');
+                if (aiChatModal) {
+                    aiChatModal.classList.remove('hidden');
+                }
+            };
+            toolMenu.appendChild(imageGenBtn);
+
+            // Create Voicemail Agent button
+            const voicemailBtn = document.createElement('button');
+            voicemailBtn.id = 'floating-voicemail-btn';
+            voicemailBtn.className = 'tool-menu-btn';
+            voicemailBtn.innerHTML = '<i class="fas fa-voicemail"></i>';
+            voicemailBtn.title = 'Voicemail Agent Demo';
+            voicemailBtn.style.cssText = `
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 20px rgba(17, 153, 142, 0.4);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                transition: all 0.3s;
+                animation: toolFadeIn 0.5s ease-out 0.5s both;
+            `;
+            voicemailBtn.onmouseover = () => {
+                voicemailBtn.style.transform = 'scale(1.1)';
+                voicemailBtn.style.boxShadow = '0 6px 30px rgba(17, 153, 142, 0.6)';
+            };
+            voicemailBtn.onmouseout = () => {
+                voicemailBtn.style.transform = 'scale(1)';
+                voicemailBtn.style.boxShadow = '0 4px 20px rgba(17, 153, 142, 0.4)';
+            };
+            voicemailBtn.onclick = () => {
+                const voicemailModal = document.getElementById('voicemail-demo-modal');
+                if (voicemailModal) {
+                    voicemailModal.classList.remove('hidden');
+                }
+            };
+            toolMenu.appendChild(voicemailBtn);
+
             // Add animation styles
             const pulseStyle = document.createElement('style');
             pulseStyle.textContent = `
@@ -1769,7 +1845,9 @@
                         transform: translateY(0);
                     }
                 }
-                #floating-copilot-btn:active {
+                #floating-copilot-btn:active,
+                #floating-image-gen-btn:active,
+                #floating-voicemail-btn:active {
                     transform: scale(0.95) !important;
                 }
             `;
