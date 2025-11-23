@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#0a0a0b">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>VoiceFlow CRM - AI-Powered Voice Agents</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,6 +23,16 @@
             scroll-behavior: smooth;
         }
 
+        /* Optimize scrolling on mobile */
+        @media (max-width: 768px) {
+            * {
+                -webkit-overflow-scrolling: touch;
+            }
+            html {
+                -webkit-text-size-adjust: 100%;
+            }
+        }
+
         .gradient-text {
             background: linear-gradient(135deg, #3b82f6 0%, #667eea 100%);
             -webkit-background-clip: text;
@@ -30,6 +42,10 @@
         .gradient-bg { background: linear-gradient(135deg, #3b82f6 0%, #667eea 100%); }
         .animate-float { animation: float 6s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
 
         .feature-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -53,6 +69,25 @@
             .feature-card:hover,
             .workflow-card:hover {
                 transform: none;
+            }
+            /* Disable animations for better performance */
+            .animate-float {
+                animation: none;
+            }
+            /* Optimize touch targets */
+            button, a {
+                min-height: 44px;
+            }
+        }
+
+        /* Improve tap responsiveness on mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .feature-card,
+            .workflow-card {
+                -webkit-tap-highlight-color: rgba(102, 126, 234, 0.1);
+            }
+            button, a {
+                -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
             }
         }
 
@@ -151,14 +186,37 @@
             display: block;
             animation: subtleZoomIn 1s ease-out forwards;
         }
-        /* Mobile: smaller video */
+        /* Mobile: optimized video display */
         @media (max-width: 768px) {
             .brand-intro-video {
-                width: 100%;
-                height: 100%;
-                max-width: 90%;
-                max-height: 70vh;
+                width: 90%;
+                height: auto;
+                max-height: 60vh;
                 object-fit: contain;
+            }
+            /* Faster animations on mobile */
+            .brand-intro-overlay {
+                transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            }
+            @keyframes subtleZoomIn {
+                0% {
+                    transform: scale(0.95);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+            @keyframes subtleFadeOut {
+                0% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(1.02);
+                    opacity: 0;
+                }
             }
         }
         .brand-intro-video.ending {
@@ -195,9 +253,11 @@
                 autoplay
                 muted
                 playsinline
-                preload="auto"
+                preload="metadata"
                 class="brand-intro-video"
                 onended="onVideoEnded()"
+                x-webkit-airplay="deny"
+                disablePictureInPicture
             >
                 <source src="/videos/intro.mp4" type="video/mp4">
             </video>
@@ -205,6 +265,9 @@
     </div>
 
     <script>
+        // Detect mobile devices
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
         function onVideoEnded() {
             const overlay = document.getElementById('brandIntroOverlay');
             const video = document.getElementById('brandIntroVideo');
@@ -213,6 +276,9 @@
                 // Add ending animation to video
                 video.classList.add('ending');
 
+                // Faster transition on mobile
+                const delay = isMobile ? 400 : 600;
+
                 // Wait for video exit animation, then hide overlay and show content
                 setTimeout(() => {
                     overlay.classList.add('hidden');
@@ -220,7 +286,7 @@
                     setTimeout(() => {
                         document.body.style.overflow = 'auto';
                     }, 100);
-                }, 600);
+                }, delay);
             }
         }
 
@@ -233,6 +299,14 @@
             document.body.style.overflow = 'hidden';
 
             if (video && overlay) {
+                // On mobile, skip intro if battery saver or slow connection detected
+                if (isMobile && (navigator.connection?.saveData || navigator.connection?.effectiveType === 'slow-2g' || navigator.connection?.effectiveType === '2g')) {
+                    console.log('Slow connection detected, skipping intro');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    return;
+                }
+
                 // Try to play the video
                 video.play().catch(err => {
                     console.log('Auto-play prevented, skipping intro:', err);
@@ -240,13 +314,31 @@
                     overlay.classList.add('hidden');
                     document.body.style.overflow = 'auto';
                 });
+
+                // Auto-skip after 3 seconds on mobile for better UX
+                if (isMobile) {
+                    setTimeout(() => {
+                        if (!overlay.classList.contains('hidden')) {
+                            onVideoEnded();
+                        }
+                    }, 3000);
+                }
             }
         });
 
-        // Skip intro on click
+        // Skip intro on click/tap
         document.getElementById('brandIntroOverlay')?.addEventListener('click', function() {
             onVideoEnded();
         });
+
+        // Add tap indicator for mobile users
+        if (isMobile) {
+            const overlay = document.getElementById('brandIntroOverlay');
+            const tapHint = document.createElement('div');
+            tapHint.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 14px; text-align: center; animation: pulse 2s ease-in-out infinite;';
+            tapHint.innerHTML = 'Tap to skip';
+            overlay?.appendChild(tapHint);
+        }
     </script>
 
     <!-- Main Content Wrapper -->
@@ -322,7 +414,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative">
+                <div class="relative hidden md:block">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl">
                         <video
                             autoplay
@@ -331,6 +423,7 @@
                             playsinline
                             class="w-full rounded-2xl"
                             poster="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
+                            preload="metadata"
                         >
                             <source src="/demo-video.mp4" type="video/mp4">
                             <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
@@ -340,6 +433,20 @@
                         <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-200 flex items-center gap-2 border border-red-500/30">
                             <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             Live Demo
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile: Show static image instead of video for better performance -->
+                <div class="relative md:hidden">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
+                             alt="AI Voice Technology"
+                             class="w-full rounded-2xl"
+                             loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 rounded-2xl"></div>
+                        <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-200 flex items-center gap-2 border border-purple-500/30">
+                            <i class="fas fa-play text-purple-400"></i>
+                            Demo
                         </div>
                     </div>
                 </div>
