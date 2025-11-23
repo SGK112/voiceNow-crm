@@ -406,11 +406,7 @@
         }
 
         .intro-word:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .intro-word:nth-child(3) {
-            animation-delay: 0.7s;
+            animation-delay: 0.6s;
         }
 
         .intro-subtitle {
@@ -478,12 +474,11 @@
             <!-- Animated Text Overlay -->
             <div class="intro-text-overlay">
                 <h1 class="intro-title">
-                    <span class="intro-word">Transform</span>
-                    <span class="intro-word">Your</span>
-                    <span class="intro-word">Business</span>
+                    <span class="intro-word">VoiceFlow</span>
+                    <span class="intro-word">CRM</span>
                 </h1>
                 <p class="intro-subtitle">
-                    <span class="intro-subtitle-word">AI Voice Agents That Work 24/7</span>
+                    <span class="intro-subtitle-word">AI Powered Voice Agents and CRM SaaS</span>
                 </p>
             </div>
         </div>
@@ -592,35 +587,54 @@
                     }
                 });
             }
+            // Set up interaction listeners
+            setupInteractionListeners();
         });
 
-        // Transition on scroll
-        window.addEventListener('scroll', function() {
-            transitionToLandingPage();
-        }, { once: true });
+        // Setup all interaction listeners
+        function setupInteractionListeners() {
+            // Transition on scroll
+            window.addEventListener('scroll', function() {
+                console.log('Scroll detected');
+                transitionToLandingPage();
+            }, { once: true });
 
-        // Transition on wheel event (for desktop scroll before actual scroll happens)
-        window.addEventListener('wheel', function() {
-            transitionToLandingPage();
-        }, { once: true });
+            // Transition on wheel event (for desktop scroll before actual scroll happens)
+            window.addEventListener('wheel', function(e) {
+                console.log('Wheel detected');
+                transitionToLandingPage();
+            }, { once: true });
 
-        // Skip intro on click/tap anywhere on overlay
-        document.getElementById('brandIntroOverlay')?.addEventListener('click', function(e) {
-            // If clicking the Get Started button, let it navigate naturally
-            if (e.target.closest('.intro-signup-btn')) {
-                return;
-            }
-            // Transition to landing page on any click
-            transitionToLandingPage();
-        });
+            // Transition on touch
+            window.addEventListener('touchstart', function(e) {
+                // Don't transition if touching the Get Started button
+                if (e.target.closest('.intro-signup-btn')) {
+                    return;
+                }
+                console.log('Touch detected');
+                transitionToLandingPage();
+            }, { once: true });
 
-        // Add tap indicator for mobile users
-        if (isMobile) {
+            // Skip intro on click anywhere
             const overlay = document.getElementById('brandIntroOverlay');
-            const tapHint = document.createElement('div');
-            tapHint.style.cssText = 'position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; animation: pulse 2s ease-in-out infinite;';
-            tapHint.innerHTML = 'Tap to skip';
-            overlay?.appendChild(tapHint);
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    // If clicking the Get Started button, let it navigate naturally
+                    if (e.target.closest('.intro-signup-btn')) {
+                        return;
+                    }
+                    console.log('Click detected');
+                    transitionToLandingPage();
+                });
+            }
+
+            // Add tap indicator for mobile users
+            if (isMobile && overlay) {
+                const tapHint = document.createElement('div');
+                tapHint.style.cssText = 'position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; animation: pulse 2s ease-in-out infinite;';
+                tapHint.innerHTML = 'Tap to continue';
+                overlay.appendChild(tapHint);
+            }
         }
     </script>
 
