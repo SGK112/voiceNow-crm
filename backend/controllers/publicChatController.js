@@ -754,9 +754,13 @@ Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal
     // Use Sarah - warm, sales-focused female voice (very distinct from default)
     const customVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Lead Gen voice (warm, professional female)
 
+    // Get required env vars for call initiation
+    const agentPhoneNumberId = process.env.ELEVENLABS_AGENT_PHONE_NUMBER_ID || process.env.ELEVENLABS_PHONE_NUMBER_ID;
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.SERVER_URL || 'https://your-backend-url.com';
+
     // Initiate call using ElevenLabs batch calling API with custom prompt and voice
     const callData = await elevenLabsService.initiateCall(
-      demoAgentId,
+      agentId,
       formattedNumber,
       agentPhoneNumberId,
       `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
@@ -794,7 +798,7 @@ Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal
         callData: {
           id: callId,
           phoneNumber: formattedNumber,
-          agentId: demoAgentId,
+          agentId: agentId,
           status: 'initiated',
           type: 'demo',
           source: 'marketing_page'
@@ -807,7 +811,7 @@ Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal
         },
         agent: {
           type: 'demo',
-          id: demoAgentId
+          id: agentId
         },
         metadata: dynamicVariables
       });
