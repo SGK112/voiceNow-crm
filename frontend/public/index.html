@@ -2896,6 +2896,17 @@
             transform: none;
         }
 
+        .demo-submit-btn-secondary:hover {
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .demo-submit-btn-secondary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Chat Input */
         .chat-input-container {
             padding: 16px;
@@ -4752,13 +4763,26 @@
                             placeholder="Phone Number (e.g., +1 555-123-4567)"
                             class="demo-input"
                         />
-                        <button
-                            id="requestCallBtn"
-                            class="demo-submit-btn"
-                        >
-                            <span id="btnIcon">📞</span>
-                            <span id="btnText">Call Me Now</span>
-                        </button>
+
+                        <!-- Demo Type Selection -->
+                        <div style="display: flex; gap: 8px;">
+                            <button
+                                id="requestCallBtn"
+                                class="demo-submit-btn"
+                                style="flex: 1;"
+                            >
+                                <span>📞</span>
+                                <span>Call Me Now</span>
+                            </button>
+                            <button
+                                id="requestSMSBtn"
+                                class="demo-submit-btn-secondary"
+                                style="flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white; padding: 16px 24px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);"
+                            >
+                                <span>💬</span>
+                                <span>Text Me</span>
+                            </button>
+                        </div>
                     </div>
                     <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 16px; line-height: 1.5;">
                         <span style="color: #3b82f6; font-weight: 700;">✓</span> Instant callback &nbsp;
@@ -5187,6 +5211,90 @@
                 requestCallBtn.disabled = false;
                 btnIcon.textContent = '📞';
                 btnText.textContent = 'Call Me Now';
+            }
+        });
+
+        // SMS Demo Button Handler
+        const requestSMSBtn = document.getElementById('requestSMSBtn');
+        requestSMSBtn.addEventListener('click', async () => {
+            const phoneNumber = demoPhoneInput.value.trim();
+
+            // Validate phone number
+            if (!phoneNumber) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.style.background = '#fee2e2';
+                voiceStatusMessage.style.color = '#dc2626';
+                voiceStatusMessage.textContent = '⚠️ Please enter your phone number';
+                demoPhoneInput.focus();
+                return;
+            }
+
+            // Validate phone number format (basic check)
+            const digitsOnly = phoneNumber.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.style.background = '#fee2e2';
+                voiceStatusMessage.style.color = '#dc2626';
+                voiceStatusMessage.textContent = '⚠️ Please enter a valid phone number (at least 10 digits)';
+                demoPhoneInput.focus();
+                return;
+            }
+
+            // Show loading state
+            requestSMSBtn.disabled = true;
+            requestSMSBtn.innerHTML = '<span>⏳</span><span>Sending...</span>';
+            voiceStatusMessage.style.display = 'block';
+            voiceStatusMessage.style.background = '#d1fae5';
+            voiceStatusMessage.style.color = '#065f46';
+            voiceStatusMessage.textContent = `💬 Sending SMS to ${phoneNumber}...`;
+
+            try {
+                // Format phone number with country code if not present
+                let formattedPhone = phoneNumber;
+                if (!formattedPhone.startsWith('+')) {
+                    formattedPhone = '+1' + digitsOnly;
+                }
+
+                const response = await fetch('/api/sms-to-call/trigger-demo-call', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        From: formattedPhone,
+                        Body: 'DEMO'
+                    })
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    voiceStatusMessage.style.display = 'block';
+                    voiceStatusMessage.style.background = '#d1fae5';
+                    voiceStatusMessage.style.color = '#065f46';
+                    voiceStatusMessage.textContent = `✅ SMS sent! Check your phone - you should receive a text and then a call in a few seconds.`;
+
+                    // Reset form after 5 seconds
+                    setTimeout(() => {
+                        voiceStatusMessage.style.display = 'none';
+                        demoPhoneInput.value = '';
+                        requestSMSBtn.disabled = false;
+                        requestSMSBtn.innerHTML = '<span>💬</span><span>Text Me</span>';
+                    }, 5000);
+                } else {
+                    throw new Error('Failed to send SMS');
+                }
+            } catch (error) {
+                console.error('SMS demo error:', error);
+
+                // Show error message
+                voiceStatusMessage.style.display = 'block';
+                voiceStatusMessage.style.background = '#fee2e2';
+                voiceStatusMessage.style.color = '#dc2626';
+                voiceStatusMessage.textContent = '❌ Could not send SMS. Try the "Call Me Now" option or contact support@remodely.ai';
+
+                // Reset button state on error
+                requestSMSBtn.disabled = false;
+                requestSMSBtn.innerHTML = '<span>💬</span><span>Text Me</span>';
             }
         });
 
