@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v35-mobile-fixes';
+        const CURRENT_VERSION = '2025-11-23-v36-comprehensive-mobile-fixes';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -303,6 +303,86 @@
             img, video, iframe {
                 max-width: 100%;
                 height: auto;
+            }
+
+            /* Fix fixed height containers to be responsive */
+            [style*="height: 667px"],
+            [style*="height: 540px"],
+            [style*="height: 420px"] {
+                height: auto !important;
+                min-height: 300px !important;
+            }
+
+            /* Fix decorative blur elements to be smaller on mobile */
+            .absolute.inset-0 > div[class*="w-72"],
+            .absolute.inset-0 > div[class*="w-96"] {
+                width: 150px !important;
+                height: 150px !important;
+            }
+
+            /* Fix 3-column grids to stack on mobile */
+            .grid-cols-3 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+
+            /* Reduce excessive gaps on mobile */
+            .gap-16 {
+                gap: 2rem !important;
+            }
+
+            /* Fix absolute positioned badges */
+            .absolute.-top-4 {
+                top: -0.5rem !important;
+            }
+        }
+
+        /* Extra small phone fixes (iPhone SE, old Androids) */
+        @media (max-width: 375px) {
+            /* Make phone mockup fully responsive */
+            [style*="max-width: 340px"] {
+                max-width: 100% !important;
+            }
+
+            /* Reduce padding on very small screens */
+            section {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            /* Stack buttons vertically with less gap */
+            .flex.gap-4 {
+                gap: 0.75rem !important;
+            }
+
+            /* Reduce font sizes slightly */
+            .text-4xl {
+                font-size: 1.875rem !important; /* 30px instead of 36px */
+            }
+
+            .text-5xl {
+                font-size: 2.25rem !important; /* 36px instead of 48px */
+            }
+        }
+
+        /* Very small phone fixes */
+        @media (max-width: 320px) {
+            /* Force single column for everything */
+            .grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Reduce all gaps */
+            .gap-8 {
+                gap: 1rem !important;
+            }
+
+            /* Make text smaller */
+            h1 {
+                font-size: 1.5rem !important;
+            }
+
+            h2 {
+                font-size: 1.25rem !important;
             }
         }
 
