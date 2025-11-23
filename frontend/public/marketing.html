@@ -1244,8 +1244,8 @@
             </video>
             <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50"></div>
         </div>
-        <div class="max-w-6xl mx-auto relative z-10 w-full">
-            <div class="text-left md:text-left mb-8 sm:mb-12 md:mb-0 md:pl-8">
+        <div class="max-w-7xl mx-auto relative z-10 w-full px-4 lg:px-8">
+            <div class="text-left md:text-left mb-8 sm:mb-12 lg:mb-16 md:pl-8">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
                     Try It Live
                 </h1>
@@ -1254,12 +1254,14 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center max-w-7xl mx-auto">
                 <!-- Phone Mockup with SMS Demo -->
-                <div class="order-2 md:order-1 phone-entrance">
-                    <div class="mx-auto" style="max-width: 340px;">
-                        <!-- iPhone Frame -->
-                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
+                <div class="order-2 lg:order-1 phone-entrance">
+                    <div class="mx-auto lg:mx-0 lg:ml-auto lg:mr-8" style="max-width: 340px;">
+                        <!-- Perspective Container -->
+                        <div class="perspective-container" style="perspective: 1000px;">
+                            <!-- iPhone Frame -->
+                            <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
                             <!-- Notch -->
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
 
@@ -1320,11 +1322,12 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Demo Form -->
-                <div class="order-1 md:order-2">
+                <div class="order-1 lg:order-2">
                     <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
                         <!-- Toggle Switch -->
                         <div class="flex items-center justify-center gap-4 mb-6">
@@ -2900,6 +2903,40 @@
 
             .phone-float {
                 /* No animation */
+                transition: transform 0.3s ease-in-out;
+            }
+
+            /* Phone rotation for desktop - 80 degrees from horizontal = -10 degrees from vertical */
+            @media (min-width: 1024px) {
+                .phone-float {
+                    transform: rotate(-10deg) rotateY(-5deg);
+                    transform-origin: center center;
+                    box-shadow:
+                        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+                }
+
+                /* Larger phone on desktop */
+                .phone-entrance > div {
+                    max-width: 380px !important;
+                }
+
+                /* Better vertical centering on desktop */
+                .grid.items-center {
+                    align-items: center;
+                    min-height: 600px;
+                }
+            }
+
+            /* Mobile: ensure no rotation and standard size */
+            @media (max-width: 1023px) {
+                .phone-float {
+                    transform: none;
+                }
+
+                .perspective-container {
+                    perspective: none !important;
+                }
             }
 
             /* No button animations */
