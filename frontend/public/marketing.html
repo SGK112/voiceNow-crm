@@ -1332,9 +1332,19 @@
 
 
     <section id="hero" class="hero-minimal relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-3 sm:px-4 min-h-screen flex items-center overflow-hidden scroll-section">
-        <!-- Subtle Background -->
+        <!-- Video Background -->
         <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-gradient-to-br from-[#0a0a0b] via-[#141416] to-[#1a1a1d]"></div>
+            <video
+                autoplay
+                loop
+                muted
+                playsinline
+                class="w-full h-full object-cover"
+                style="filter: brightness(0.4);"
+            >
+                <source src="/remodely-intro.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-gradient-to-br from-[#0a0a0b]/60 via-[#141416]/50 to-[#1a1a1d]/60"></div>
         </div>
 
         <div class="max-w-5xl mx-auto relative z-10 w-full">
