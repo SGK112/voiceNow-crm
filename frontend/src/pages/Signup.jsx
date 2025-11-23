@@ -36,7 +36,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4 py-8">
+    <div className="dark min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4 py-8">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start">
         {/* Signup Form */}
         <Card className="w-full shadow-xl bg-[#141416] border-gray-900">

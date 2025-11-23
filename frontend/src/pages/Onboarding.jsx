@@ -557,7 +557,7 @@ export default function Onboarding() {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center px-4 py-8">
+    <div className="dark min-h-screen bg-[#0a0a0b] flex items-center justify-center px-4 py-8">
       <Card className="w-full max-w-3xl bg-[#141416] border-gray-800">
         <CardHeader>
           {/* Optional Setup Notice */}

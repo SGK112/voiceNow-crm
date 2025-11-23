@@ -35,7 +35,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4">
+    <div className="dark min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4">
       <Card className="w-full max-w-md shadow-xl bg-[#141416] border-gray-900">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Welcome to VoiceFlow CRM</CardTitle>
