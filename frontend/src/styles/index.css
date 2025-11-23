@@ -111,30 +111,30 @@
     --gray-900: 210 17% 90%;    /* #e6edf3 - Text emphasis */
     --gray-950: 0 0% 100%;      /* #ffffff - Pure white */
 
-    /* ===== GitHub Dark Background Layers ===== */
-    --background-primary: 215 28% 7%;    /* #0d1117 - Main canvas */
-    --background-secondary: 216 28% 9%;  /* #161b22 - Cards, panels */
-    --background-tertiary: 215 21% 11%; /* #1c2128 - Elevated cards */
-    --background-quaternary: 215 16% 14%; /* #21262d - Subtle backgrounds */
+    /* ===== GitHub Dark Background Layers (ENHANCED) ===== */
+    --background-primary: 220 26% 8%;    /* Slightly lighter for better contrast */
+    --background-secondary: 220 26% 11%;  /* Cards, panels - more visible */
+    --background-tertiary: 220 24% 14%; /* Elevated cards - clearer */
+    --background-quaternary: 220 22% 17%; /* Subtle backgrounds - more distinct */
     --background-inverted: 0 0% 100%;
 
-    /* ===== GitHub Dark Text Colors ===== */
-    --text-primary: 213 15% 79%;    /* #c9d1d9 - Primary text */
-    --text-secondary: 213 13% 58%;  /* #8b949e - Secondary text */
-    --text-tertiary: 213 13% 48%;   /* #6e7681 - Muted/disabled */
-    --text-light: 215 10% 28%;      /* #373e47 - Very subtle */
-    --text-extra-light: 215 13% 18%; /* #2d333b - Extra subtle */
+    /* ===== GitHub Dark Text Colors (ENHANCED FOR READABILITY) ===== */
+    --text-primary: 210 20% 88%;    /* Brighter primary text for better contrast */
+    --text-secondary: 213 16% 68%;  /* More visible secondary text */
+    --text-tertiary: 213 14% 58%;   /* Clearer muted text */
+    --text-light: 215 12% 42%;      /* More visible subtle text */
+    --text-extra-light: 215 14% 32%; /* Better visible extra subtle */
 
-    /* ===== GitHub Dark Border Colors ===== */
-    --border-strong: 215 10% 28%;   /* #373e47 - Emphasized borders */
-    --border-medium: 215 16% 14%;   /* #21262d - Default borders */
-    --border-light: 215 21% 11%;    /* #1c2128 - Subtle borders */
+    /* ===== GitHub Dark Border Colors (ENHANCED) ===== */
+    --border-strong: 215 16% 38%;   /* Much stronger emphasized borders */
+    --border-medium: 215 18% 22%;   /* More visible default borders */
+    --border-light: 215 20% 18%;    /* Clearer subtle borders */
     --border-inverted: 0 0% 83.9%;
 
-    /* ===== GitHub Blue (Primary) ===== */
-    --primary-500: 212 92% 60%;  /* #58a6ff - GitHub blue */
-    --primary-400: 213 97% 71%;  /* #79c0ff - Lighter blue */
-    --primary-600: 212 90% 50%;  /* #1f6feb - Darker blue */
+    /* ===== GitHub Blue (Primary) - BRIGHTER ===== */
+    --primary-500: 212 92% 65%;  /* Brighter blue for better visibility */
+    --primary-400: 213 97% 75%;  /* Even lighter for highlights */
+    --primary-600: 212 90% 55%;  /* Adjusted darker blue */
 
     /* ===== GitHub Semantic Colors ===== */
     --success: 137 55% 50%;      /* #3fb950 - GitHub green */
@@ -146,25 +146,25 @@
     --info: 212 92% 60%;         /* #58a6ff - GitHub blue */
     --info-light: 212 50% 15%;   /* Dark blue background */
 
-    /* ===== Shadcn/UI Compatibility Layer (GitHub Dark) ===== */
+    /* ===== Shadcn/UI Compatibility Layer (GitHub Dark - ENHANCED) ===== */
     --background: var(--background-primary);
     --foreground: var(--text-primary);
-    --card: 216 28% 9%;
+    --card: 220 26% 11%;  /* Brighter cards for better visibility */
     --card-foreground: var(--text-primary);
-    --popover: var(--background-secondary);
+    --popover: 220 26% 13%;  /* More visible popovers */
     --popover-foreground: var(--text-primary);
     --primary: var(--primary-500);
-    --primary-foreground: 215 28% 7%;
-    --secondary: 215 13% 18%;
+    --primary-foreground: 220 26% 8%;
+    --secondary: 220 22% 20%;  /* More visible secondary */
     --secondary-foreground: var(--text-primary);
-    --muted: 215 13% 18%;
+    --muted: 220 22% 20%;  /* Better muted backgrounds */
     --muted-foreground: var(--text-tertiary);
-    --accent: 215 13% 18%;
+    --accent: 220 24% 22%;  /* More visible accent backgrounds */
     --accent-foreground: var(--text-primary);
     --destructive: var(--danger);
     --destructive-foreground: 210 40% 98%;
     --border: var(--border-medium);
-    --input: var(--border-medium);
+    --input: 220 24% 18%;  /* More visible input backgrounds */
     --ring: var(--primary-500);
 
     /* ===== GitHub-style Shadows ===== */
@@ -550,4 +550,92 @@ iframe {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS FOR BETTER READABILITY
+   ============================================ */
+
+.dark {
+  /* Enhanced selected/active states */
+  --selected-bg: 212 92% 25%;  /* Bright blue background for selected items */
+  --selected-border: 212 92% 65%;  /* Bright blue border */
+  --selected-text: 210 20% 98%;  /* Very bright text */
+
+  /* Hover states */
+  --hover-bg: 220 24% 16%;  /* Subtle hover background */
+  --hover-border: 215 18% 30%;  /* More visible hover border */
+}
+
+/* Selected cards with better visibility */
+.dark [data-state="active"],
+.dark [data-selected="true"],
+.dark [aria-selected="true"],
+.dark .selected {
+  background-color: hsl(var(--selected-bg)) !important;
+  border-color: hsl(var(--selected-border)) !important;
+  color: hsl(var(--selected-text)) !important;
+}
+
+/* Better input field contrast in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(220 24% 14%) !important;
+  border-color: hsl(215 18% 28%) !important;
+  color: hsl(210 20% 92%) !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: hsl(220 24% 16%) !important;
+  border-color: hsl(var(--primary-500)) !important;
+  outline: 2px solid hsl(var(--primary-500) / 0.2);
+  outline-offset: 2px;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(213 14% 55%) !important;
+}
+
+/* Enhanced card hover states */
+.dark .card:hover,
+.dark [role="button"]:hover {
+  background-color: hsl(var(--hover-bg));
+  border-color: hsl(var(--hover-border));
+}
+
+/* Better button contrast */
+.dark button[data-state="active"],
+.dark button.active {
+  background-color: hsl(var(--primary-500)) !important;
+  color: hsl(220 26% 8%) !important;
+  font-weight: 600;
+}
+
+/* Labels more visible */
+.dark label {
+  color: hsl(210 20% 85%) !important;
+  font-weight: 500;
+}
+
+/* Card descriptions more visible */
+.dark [class*="description"],
+.dark [class*="Description"] {
+  color: hsl(213 16% 72%) !important;
+}
+
+/* Better checkbox/radio visibility */
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  border-width: 2px !important;
+  border-color: hsl(215 18% 35%) !important;
+}
+
+.dark input[type="checkbox"]:checked,
+.dark input[type="radio"]:checked {
+  background-color: hsl(var(--primary-500)) !important;
+  border-color: hsl(var(--primary-500)) !important;
 }

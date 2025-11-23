@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#0a0a0b">
     <meta name="mobile-web-app-capable" content="yes">
     <title>VoiceFlow CRM - AI-Powered Voice Agents</title>
+    <!-- Preload hero image for faster mobile loading -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80" fetchpriority="high">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -590,12 +592,29 @@
     <section class="pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-3 sm:px-4 bg-gradient-to-br from-[#0a0a0b] via-[#141416] to-[#1a1a1d]">
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-                <div>
+                <!-- Mobile: Show image first for faster loading -->
+                <div class="relative md:hidden order-first max-w-sm mx-auto">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
+                             alt="AI Voice Technology"
+                             class="w-full rounded-2xl"
+                             loading="eager"
+                             fetchpriority="high">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 rounded-2xl"></div>
+                        <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-200 flex items-center gap-2 border border-purple-500/30">
+                            <i class="fas fa-play text-purple-400"></i>
+                            Demo
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text content -->
+                <div class="order-last md:order-first">
                     <div class="inline-block bg-purple-900/30 text-purple-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-purple-700/50">
                         <i class="fas fa-star mr-1 sm:mr-2"></i>Automate Your Sales Team
                     </div>
                     <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                        Replace 10 Sales Reps with One <span class="gradient-text">Voice Agent</span>
+                        Get Started with AI <span class="gradient-text">Voice Agents</span> That Work 24/7
                     </h1>
                     <p class="text-base sm:text-lg md:text-xl text-gray-300 mb-4 sm:mb-6 leading-relaxed">
                         Stop losing deals to slow follow-ups. Voice agents call, qualify, and book meetings 24/7—while you sleep. Built with ultra-realistic voices and workflow automation.
@@ -630,7 +649,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative hidden md:block">
+
+                <!-- Desktop: Show video -->
+                <div class="relative hidden md:block order-last">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl">
                         <video
                             autoplay
@@ -649,20 +670,6 @@
                         <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-200 flex items-center gap-2 border border-red-500/30">
                             <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             Live Demo
-                        </div>
-                    </div>
-                </div>
-                <!-- Mobile: Show static image instead of video for better performance -->
-                <div class="relative md:hidden">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80"
-                             alt="AI Voice Technology"
-                             class="w-full rounded-2xl"
-                             loading="lazy">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 rounded-2xl"></div>
-                        <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-200 flex items-center gap-2 border border-purple-500/30">
-                            <i class="fas fa-play text-purple-400"></i>
-                            Demo
                         </div>
                     </div>
                 </div>

@@ -35,22 +35,22 @@ export default function Login() {
   };
 
   return (
-    <div className="dark min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4">
-      <Card className="w-full max-w-md shadow-xl bg-[#141416] border-gray-900">
+    <div className="dark min-h-screen flex items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md shadow-xl bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-2xl text-white">Welcome to VoiceFlow CRM</CardTitle>
-          <CardDescription className="text-gray-400">Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl text-foreground">Welcome to VoiceFlow CRM</CardTitle>
+          <CardDescription className="text-muted-foreground">Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md text-sm">
+              <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md text-sm font-medium border border-destructive/20">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -58,14 +58,14 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
+                className="bg-input border-border text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-300">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-blue-400 hover:underline">
+                <Label htmlFor="password">Password</Label>
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline font-medium">
                   Forgot password?
                 </Link>
               </div>
@@ -76,7 +76,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-[#1f1f23] border-gray-800 text-white placeholder:text-gray-500"
+                className="bg-input border-border text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
@@ -91,10 +91,10 @@ export default function Login() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-900" />
+                  <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[#141416] px-2 text-gray-400">
+                  <span className="bg-card px-2 text-muted-foreground">
                     Or continue with
                   </span>
                 </div>
@@ -106,8 +106,8 @@ export default function Login() {
           )}
 
           <div className="mt-4 text-center text-sm">
-            <span className="text-gray-400">Don't have an account? </span>
-            <Link to="/signup" className="text-blue-400 hover:underline">
+            <span className="text-muted-foreground">Don't have an account? </span>
+            <Link to="/signup" className="text-primary hover:underline font-medium">
               Sign up
             </Link>
           </div>
