@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v41-no-intro';
+        const CURRENT_VERSION = '2025-11-23-v42-intro-disabled';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1192,122 +1192,6 @@
         <!-- Removed Get Started button - using tool menu instead -->
     </div>
 
-    <script>
-        // Better mobile detection
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-                        ('ontouchstart' in window) ||
-                        window.innerWidth < 768;
-
-        // Detect if user prefers reduced motion
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        // Track if we've already transitioned
-        let hasTransitioned = false;
-
-        function transitionToLandingPage() {
-            if (hasTransitioned) return;
-            hasTransitioned = true;
-
-            const overlay = document.getElementById('brandIntroOverlay');
-            const video = document.getElementById('brandIntroVideo');
-
-            if (overlay && video) {
-                // Add ending animation to video
-                video.classList.add('ending');
-
-                // Faster transition on mobile
-                const delay = isMobile ? 400 : 600;
-
-                // Wait for video exit animation, then hide overlay and show content
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                    // Ensure main content fades in smoothly
-                    setTimeout(() => {
-                        document.body.style.overflow = 'auto';
-                    }, 100);
-                }, delay);
-            }
-        }
-
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing intro');
-            const video = document.getElementById('brandIntroVideo');
-            const overlay = document.getElementById('brandIntroOverlay');
-
-            // Prevent scrolling during intro
-            document.body.style.overflow = 'hidden';
-
-            if (!video || !overlay) {
-                console.error('Video or overlay not found!');
-                document.body.style.overflow = 'auto';
-                return;
-            }
-
-            // Debug video source
-            console.log('Video src:', video.querySelector('source')?.src);
-            console.log('Video readyState:', video.readyState);
-
-            // Listen for video load errors
-            video.addEventListener('error', (e) => {
-                console.error('Video error:', e, video.error);
-                // Don't skip intro on error, show static overlay
-            });
-
-            video.addEventListener('loadeddata', () => {
-                console.log('Video loaded successfully');
-            });
-
-            // Skip intro if user prefers reduced motion
-            if (prefersReducedMotion) {
-                console.log('User prefers reduced motion, skipping intro');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                return;
-            }
-
-            // On mobile, skip intro if battery saver or slow connection detected
-            if (isMobile && (navigator.connection?.saveData ||
-                navigator.connection?.effectiveType === 'slow-2g' ||
-                navigator.connection?.effectiveType === '2g' ||
-                navigator.connection?.effectiveType === '3g')) {
-                console.log('Slow connection or data saver detected, skipping intro');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                return;
-            }
-
-            // Force show overlay initially
-            overlay.classList.remove('hidden');
-            overlay.style.opacity = '1';
-
-            // Try to play the video
-            const playPromise = video.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('Intro video playing successfully');
-                }).catch(err => {
-                    console.log('Auto-play prevented or error:', err);
-                    // Keep overlay visible even if autoplay fails
-                    // User can still see the text and click to continue
-                });
-            }
-
-            // Pause video when tab is not visible (battery saving)
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    video.pause();
-                } else if (!overlay.classList.contains('hidden')) {
-                    video.play();
-                }
-            });
-
-            // Set up interaction listeners - moved inside DOMContentLoaded
-            setupInteractionListeners(overlay);
-        });
-
-        // Setup all interaction listeners
         function setupInteractionListeners(overlay) {
             console.log('Setting up interaction listeners');
 
