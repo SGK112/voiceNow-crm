@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v7-bottom-tray';
+        const CURRENT_VERSION = '2025-11-23-v8-tray-close-debug';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1814,6 +1814,10 @@
             };
             copilotBtn.onclick = () => {
                 document.getElementById('voice-copilot-modal').classList.remove('hidden');
+                // Close tray
+                toolMenu.style.transform = 'translateY(100%)';
+                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
+                isMenuOpen = false;
             };
             toolsContainer.appendChild(copilotBtn);
 
@@ -1824,8 +1828,8 @@
             imageGenBtn.innerHTML = '<i class="fas fa-image"></i>';
             imageGenBtn.title = 'AI Image Generator';
             imageGenBtn.style.cssText = `
-                width: 56px;
-                height: 56px;
+                width: 70px;
+                height: 70px;
                 border-radius: 50%;
                 background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
                 color: white;
@@ -1835,9 +1839,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 22px;
+                font-size: 28px;
                 transition: all 0.3s;
-                animation: toolFadeIn 0.5s ease-out 0.4s both;
             `;
             imageGenBtn.onmouseover = () => {
                 imageGenBtn.style.transform = 'scale(1.1)';
@@ -1853,6 +1856,10 @@
                 if (aiChatSection) {
                     aiChatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
+                // Close tray
+                toolMenu.style.transform = 'translateY(100%)';
+                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
+                isMenuOpen = false;
             };
             toolsContainer.appendChild(imageGenBtn);
 
@@ -1886,12 +1893,21 @@
                 voicemailBtn.style.boxShadow = '0 4px 20px rgba(17, 153, 142, 0.4)';
             };
             voicemailBtn.onclick = () => {
+                console.log('Voicemail button clicked');
                 // Open voicemail modal
                 const voicemailModal = document.getElementById('voicemail-modal');
+                console.log('Voicemail modal:', voicemailModal);
                 if (voicemailModal) {
                     voicemailModal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
+                    console.log('Modal opened');
+                } else {
+                    console.error('Voicemail modal not found!');
                 }
+                // Close tray
+                toolMenu.style.transform = 'translateY(100%)';
+                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
+                isMenuOpen = false;
             };
             toolsContainer.appendChild(voicemailBtn);
 
