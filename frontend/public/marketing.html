@@ -884,7 +884,19 @@
 
                                 <!-- SMS Messages -->
                                 <div id="sms-messages" class="bg-white p-4 overflow-y-auto" style="height: 540px;">
-                                    <!-- Messages will be added here dynamically -->
+                                    <!-- Animated demo conversation -->
+                                    <div class="demo-message user-message" style="animation-delay: 0.5s;">
+                                        <div class="message-bubble user-bubble">DEMO</div>
+                                    </div>
+                                    <div class="demo-message ai-message" style="animation-delay: 2s;">
+                                        <div class="message-bubble ai-bubble">🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that'll blow your mind!</div>
+                                    </div>
+                                    <div class="demo-message ai-message" style="animation-delay: 4.5s;">
+                                        <div class="message-bubble ai-bubble">📞 Calling you now...</div>
+                                    </div>
+                                    <div class="demo-message ai-message" style="animation-delay: 7s;">
+                                        <div class="message-bubble ai-bubble" style="background: #f0f0f0; color: #666; font-style: italic;">☎️ Call in progress...</div>
+                                    </div>
                                 </div>
 
                                 <!-- Input Area -->
@@ -912,26 +924,83 @@
                 <!-- Demo Controls & Info -->
                 <div class="space-y-6">
                     <div class="bg-[#0a0a0b] border border-gray-800 rounded-xl p-6">
-                        <h3 class="text-2xl font-bold text-white mb-4">Try It Yourself</h3>
+                        <h3 class="text-2xl font-bold text-white mb-4">Experience Our AI Agent</h3>
                         <p class="text-gray-300 mb-6">
-                            Experience our AI voice agent in action. Click to send "DEMO" and see what happens!
+                            Fill out your information below and choose how you'd like to experience our AI voice agent!
                         </p>
 
-                        <div class="space-y-3">
-                            <button class="demo-suggestion w-full text-left bg-green-900/30 hover:bg-green-900/50 border border-green-700/50 rounded-lg px-4 py-3 text-white transition">
-                                <i class="fas fa-mobile-alt mr-2 text-green-400"></i>
-                                Send "DEMO"
-                            </button>
-                            <button class="demo-suggestion w-full text-left bg-purple-900/30 hover:bg-purple-900/50 border border-purple-700/50 rounded-lg px-4 py-3 text-white transition">
-                                <i class="fas fa-phone mr-2 text-purple-400"></i>
-                                "Call me"
-                            </button>
-                        </div>
+                        <!-- Demo Form -->
+                        <form id="demo-form" class="space-y-4">
+                            <div>
+                                <input
+                                    type="text"
+                                    id="demo-name"
+                                    placeholder="Your Name *"
+                                    required
+                                    class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="tel"
+                                    id="demo-phone"
+                                    placeholder="Phone Number *"
+                                    required
+                                    class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="email"
+                                    id="demo-email"
+                                    placeholder="Email (optional)"
+                                    class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                                />
+                            </div>
+                            <div>
+                                <select
+                                    id="demo-interest"
+                                    class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                                >
+                                    <option value="">What interests you most?</option>
+                                    <option value="voice-agents">AI Voice Agents</option>
+                                    <option value="automation">Workflow Automation</option>
+                                    <option value="crm">CRM Features</option>
+                                    <option value="integration">Integrations</option>
+                                </select>
+                            </div>
+
+                            <!-- Choice Buttons -->
+                            <div class="pt-4">
+                                <p class="text-sm text-gray-400 mb-3">Choose your demo experience:</p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        id="call-me-btn"
+                                        class="demo-choice-btn bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-4 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex flex-col items-center gap-2"
+                                    >
+                                        <i class="fas fa-phone text-2xl"></i>
+                                        <span class="text-sm">Call Me Now</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="text-me-btn"
+                                        class="demo-choice-btn bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-4 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex flex-col items-center gap-2"
+                                    >
+                                        <i class="fas fa-sms text-2xl"></i>
+                                        <span class="text-sm">Text Me</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Status Message -->
+                            <div id="demo-status" class="hidden mt-4 p-4 rounded-lg text-center text-sm font-medium"></div>
+                        </form>
 
                         <div class="mt-6 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
-                            <p class="text-sm text-gray-300">
-                                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                                Try it on your phone: Text <strong>DEMO</strong> to <strong>(602) 833-7194</strong>
+                            <p class="text-xs text-gray-400">
+                                <i class="fas fa-lock text-blue-400 mr-2"></i>
+                                Your information is secure and will only be used for the demo. No spam, ever.
                             </p>
                         </div>
                     </div>
@@ -1448,137 +1517,188 @@
 
         console.log('Scroll enhancements loaded: Progress bar, Section nav, Smooth scroll, Animations');
 
-        // ===== SMS DEMO FUNCTIONALITY =====
+        // ===== DEMO FORM FUNCTIONALITY =====
 
+        const demoForm = document.getElementById('demo-form');
+        const demoName = document.getElementById('demo-name');
+        const demoPhone = document.getElementById('demo-phone');
+        const demoEmail = document.getElementById('demo-email');
+        const demoInterest = document.getElementById('demo-interest');
+        const callMeBtn = document.getElementById('call-me-btn');
+        const textMeBtn = document.getElementById('text-me-btn');
+        const demoStatus = document.getElementById('demo-status');
         const smsMessages = document.getElementById('sms-messages');
-        const smsInput = document.getElementById('sms-input');
-        const smsSend = document.getElementById('sms-send');
-        const demoSuggestions = document.querySelectorAll('.demo-suggestion');
 
-        // SMS Response based on actual VoiceFlow demo agent
-        const smsResponses = {
-            'demo': {
-                immediate: "🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that'll blow your mind!",
-                followUp: "📞 Calling you now..."
-            },
-            'call me': {
-                immediate: "👋 Hey! I can definitely call you. Just text DEMO and I'll ring your phone in seconds!"
-            },
-            'default': {
-                immediate: "👋 Hi! Text DEMO to experience our AI voice agent in action - you'll get a call in seconds!"
+        // Validate form
+        function validateForm() {
+            const name = demoName.value.trim();
+            const phone = demoPhone.value.trim();
+
+            if (!name) {
+                showStatus('error', 'Please enter your name');
+                demoName.focus();
+                return false;
             }
-        };
 
-        function addSMSMessage(type, text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-3 animate-fade-in`;
+            if (!phone) {
+                showStatus('error', 'Please enter your phone number');
+                demoPhone.focus();
+                return false;
+            }
 
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-[75%] px-4 py-2 shadow-sm ${
-                type === 'user'
-                    ? 'bg-green-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm'
-                    : 'bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm'
-            }`;
-            bubble.style.fontSize = '15px';
-            bubble.style.lineHeight = '1.4';
-            bubble.textContent = text;
+            // Basic phone validation
+            const digitsOnly = phone.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                showStatus('error', 'Please enter a valid phone number (at least 10 digits)');
+                demoPhone.focus();
+                return false;
+            }
 
-            messageDiv.appendChild(bubble);
-            smsMessages.appendChild(messageDiv);
-            smsMessages.scrollTop = smsMessages.scrollHeight;
+            return true;
         }
 
-        function addTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typing-indicator';
-            typingDiv.className = 'flex justify-start mb-3';
-            typingDiv.innerHTML = `
-                <div class="bg-gray-200 rounded-t-2xl rounded-br-2xl rounded-bl-sm px-4 py-3">
-                    <div class="flex gap-1">
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
-                    </div>
-                </div>
-            `;
-            smsMessages.appendChild(typingDiv);
-            smsMessages.scrollTop = smsMessages.scrollHeight;
-        }
+        // Show status message
+        function showStatus(type, message) {
+            demoStatus.className = 'mt-4 p-4 rounded-lg text-center text-sm font-medium';
+            demoStatus.classList.remove('hidden');
 
-        function removeTypingIndicator() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) typing.remove();
-        }
-
-        function getAIResponse(userMessage) {
-            const msg = userMessage.toLowerCase().trim();
-
-            if (msg === 'demo') {
-                return smsResponses.demo;
-            } else if (msg.includes('call me') || msg.includes('call')) {
-                return smsResponses['call me'];
+            if (type === 'success') {
+                demoStatus.classList.add('bg-green-900/30', 'border', 'border-green-700/50', 'text-green-400');
+            } else if (type === 'error') {
+                demoStatus.classList.add('bg-red-900/30', 'border', 'border-red-700/50', 'text-red-400');
             } else {
-                return smsResponses.default;
+                demoStatus.classList.add('bg-blue-900/30', 'border', 'border-blue-700/50', 'text-blue-400');
+            }
+
+            demoStatus.textContent = message;
+        }
+
+        // Simulate SMS conversation in phone
+        function simulateSMSConversation(demoType) {
+            smsMessages.innerHTML = '';
+
+            const addMessage = (type, text, delay) => {
+                setTimeout(() => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-3 animate-fade-in`;
+
+                    const bubble = document.createElement('div');
+                    bubble.className = `max-w-[75%] px-4 py-2 shadow-sm ${
+                        type === 'user'
+                            ? 'bg-green-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm'
+                            : 'bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm'
+                    }`;
+                    bubble.style.fontSize = '15px';
+                    bubble.style.lineHeight = '1.4';
+                    bubble.textContent = text;
+
+                    messageDiv.appendChild(bubble);
+                    smsMessages.appendChild(messageDiv);
+                    smsMessages.scrollTop = smsMessages.scrollHeight;
+                }, delay);
+            };
+
+            if (demoType === 'sms') {
+                addMessage('user', 'DEMO', 500);
+                addMessage('ai', '🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that\'ll blow your mind!', 2000);
+                addMessage('ai', '📞 Calling you now...', 4500);
+            } else {
+                addMessage('ai', '📞 Incoming call from VoiceFlow AI...', 500);
+                addMessage('ai', '✅ Call connected! Listen for the AI voice agent.', 2500);
             }
         }
 
-        function sendSMS(message) {
-            if (!message.trim()) return;
+        // Handle Call Me button
+        callMeBtn.addEventListener('click', async () => {
+            if (!validateForm()) return;
 
-            // Add user message
-            addSMSMessage('user', message);
-            smsInput.value = '';
+            const formData = {
+                name: demoName.value.trim(),
+                phoneNumber: demoPhone.value.trim(),
+                email: demoEmail.value.trim() || undefined,
+                interest: demoInterest.value || undefined
+            };
 
-            // Show typing indicator
-            addTypingIndicator();
+            callMeBtn.disabled = true;
+            textMeBtn.disabled = true;
+            callMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Calling...</span>';
+            showStatus('info', '📞 Initiating call to ' + formData.name + '...');
 
-            // Get response
-            const responses = getAIResponse(message);
+            try {
+                const response = await fetch('/api/public/voice-demo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
 
-            // Simulate AI response delay (realistic SMS timing)
-            setTimeout(() => {
-                removeTypingIndicator();
-                addSMSMessage('ai', responses.immediate);
+                if (response.ok) {
+                    showStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
+                    simulateSMSConversation('call');
 
-                // If it's a DEMO message, show the follow-up
-                if (message.toLowerCase().trim() === 'demo' && responses.followUp) {
+                    // Reset form after 10 seconds
                     setTimeout(() => {
-                        addTypingIndicator();
-                        setTimeout(() => {
-                            removeTypingIndicator();
-                            addSMSMessage('ai', responses.followUp);
-                        }, 1500);
-                    }, 2000);
+                        demoForm.reset();
+                        callMeBtn.disabled = false;
+                        textMeBtn.disabled = false;
+                        callMeBtn.innerHTML = '<i class="fas fa-phone text-2xl"></i><span class="text-sm">Call Me Now</span>';
+                    }, 10000);
+                } else {
+                    throw new Error('Failed to initiate call');
                 }
-            }, 800 + Math.random() * 400);
-        }
-
-        // Event listeners
-        smsSend.addEventListener('click', () => {
-            sendSMS(smsInput.value);
-        });
-
-        smsInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendSMS(smsInput.value);
+            } catch (error) {
+                showStatus('error', '❌ Could not initiate call. Please try the SMS option or contact support.');
+                callMeBtn.disabled = false;
+                textMeBtn.disabled = false;
+                callMeBtn.innerHTML = '<i class="fas fa-phone text-2xl"></i><span class="text-sm">Call Me Now</span>';
             }
         });
 
-        demoSuggestions.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const text = btn.textContent.trim();
-                // Extract just the text we want to send
-                let message = '';
-                if (text.includes('DEMO')) {
-                    message = 'DEMO';
-                } else if (text.includes('Call me')) {
-                    message = 'Call me';
+        // Handle Text Me button
+        textMeBtn.addEventListener('click', async () => {
+            if (!validateForm()) return;
+
+            const phoneNumber = demoPhone.value.trim();
+            const name = demoName.value.trim();
+
+            textMeBtn.disabled = true;
+            callMeBtn.disabled = true;
+            textMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Sending...</span>';
+            showStatus('info', '💬 Sending SMS to ' + name + '...');
+
+            try {
+                // Format phone number
+                const digitsOnly = phoneNumber.replace(/\D/g, '');
+                const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : '+1' + digitsOnly;
+
+                const response = await fetch('/api/sms-to-call/trigger-demo-call', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        From: formattedPhone,
+                        Body: 'DEMO'
+                    })
+                });
+
+                if (response.ok) {
+                    showStatus('success', '✅ SMS sent! Check your phone - you\'ll receive a text and then a call in seconds.');
+                    simulateSMSConversation('sms');
+
+                    // Reset form after 10 seconds
+                    setTimeout(() => {
+                        demoForm.reset();
+                        textMeBtn.disabled = false;
+                        callMeBtn.disabled = false;
+                        textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
+                    }, 10000);
+                } else {
+                    throw new Error('Failed to send SMS');
                 }
-                if (message) {
-                    smsInput.value = message;
-                    sendSMS(message);
-                }
-            });
+            } catch (error) {
+                showStatus('error', '❌ Could not send SMS. Please try the call option or contact support.');
+                textMeBtn.disabled = false;
+                callMeBtn.disabled = false;
+                textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
+            }
         });
 
         // Add fade-in animation
