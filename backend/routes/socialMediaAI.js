@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect as auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -121,7 +121,7 @@ const generateSocialPost = async (platform, tone, contentType, customPrompt, ima
 };
 
 // Generate social media post
-router.post('/generate-social-post', authenticateToken, async (req, res) => {
+router.post('/generate-social-post', auth, async (req, res) => {
   try {
     const { platform, tone, contentType, customPrompt, imageUrl, projectDetails } = req.body;
 
@@ -156,7 +156,7 @@ router.post('/generate-social-post', authenticateToken, async (req, res) => {
 });
 
 // Get platform guidelines
-router.get('/platform-guidelines', authenticateToken, async (req, res) => {
+router.get('/platform-guidelines', auth, async (req, res) => {
   try {
     const guidelines = {
       instagram: {
