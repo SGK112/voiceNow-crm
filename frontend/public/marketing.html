@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v52-try-it-now-fix';
+        const CURRENT_VERSION = '2025-11-23-v53-popup-modal';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2642,24 +2642,176 @@
 
         let selectedDemoType = 'voice'; // Default to voice
 
-        // Show form when "Try It Now" is clicked
-        // Also handle Try It Now button in header
+        // Modal elements
+        const demoPopupModal = document.getElementById('demo-popup-modal');
+        const closeDemoModal = document.getElementById('close-demo-modal');
+        const demoModalBackdrop = document.getElementById('demo-modal-backdrop');
+        const modalToggleVoice = document.getElementById('modal-toggle-voice');
+        const modalToggleSms = document.getElementById('modal-toggle-sms');
+        const modalDemoName = document.getElementById('modal-demo-name');
+        const modalDemoPhone = document.getElementById('modal-demo-phone');
+        const modalDemoEmail = document.getElementById('modal-demo-email');
+        const modalSubmitDemoBtn = document.getElementById('modal-submit-demo-btn');
+        const modalSubmitBtnText = document.getElementById('modal-submit-btn-text');
+        const modalDemoStatus = document.getElementById('modal-demo-status');
+
+        let modalSelectedDemoType = 'voice'; // Default to voice
+
+        // Show popup when "Try It Now" is clicked
         const tryItNowBtn = document.getElementById('try-it-now-btn');
         if (tryItNowBtn) {
             tryItNowBtn.addEventListener('click', () => {
-                console.log('Try It Now clicked');
-                if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
-                if (initialCta) initialCta.classList.add('hidden');
-                if (demoFormContainer) demoFormContainer.classList.remove('hidden');
+                console.log('Try It Now clicked - opening modal');
+                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
             });
         }
 
-        // Show form when phone "Try Me" is clicked
+        // Show popup when phone "Try Me" is clicked
         if (showDemoFormBtn) {
             showDemoFormBtn.addEventListener('click', () => {
-                if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
-                if (initialCta) initialCta.classList.add('hidden');
-                if (demoFormContainer) demoFormContainer.classList.remove('hidden');
+                console.log('Try Me clicked - opening modal');
+                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
+            });
+        }
+
+        // Close modal handlers
+        if (closeDemoModal) {
+            closeDemoModal.addEventListener('click', () => {
+                if (demoPopupModal) demoPopupModal.classList.add('hidden');
+            });
+        }
+
+        if (demoModalBackdrop) {
+            demoModalBackdrop.addEventListener('click', () => {
+                if (demoPopupModal) demoPopupModal.classList.add('hidden');
+            });
+        }
+
+        // Modal toggle between Voice and SMS
+        if (modalToggleVoice) {
+            modalToggleVoice.addEventListener('click', () => {
+                modalSelectedDemoType = 'voice';
+                modalToggleVoice.classList.add('active');
+                if (modalToggleSms) modalToggleSms.classList.remove('active');
+                if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
+                if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
+            });
+        }
+
+        if (modalToggleSms) {
+            modalToggleSms.addEventListener('click', () => {
+                modalSelectedDemoType = 'sms';
+                modalToggleSms.classList.add('active');
+                if (modalToggleVoice) modalToggleVoice.classList.remove('active');
+                if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start SMS Demo';
+                if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
+            });
+        }
+
+        // Modal validate form
+        function validateModalForm() {
+            const name = modalDemoName.value.trim();
+            const phone = modalDemoPhone.value.trim();
+
+            if (!name) {
+                showModalStatus('error', 'Please enter your name');
+                modalDemoName.focus();
+                return false;
+            }
+
+            if (!phone) {
+                showModalStatus('error', 'Please enter your phone number');
+                modalDemoPhone.focus();
+                return false;
+            }
+
+            // Basic phone validation
+            const digitsOnly = phone.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                showModalStatus('error', 'Please enter a valid phone number (at least 10 digits)');
+                modalDemoPhone.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // Show modal status message
+        function showModalStatus(type, message) {
+            modalDemoStatus.className = 'mt-4 p-4 rounded-xl text-center text-sm font-medium';
+            modalDemoStatus.classList.remove('hidden');
+
+            if (type === 'success') {
+                modalDemoStatus.classList.add('bg-green-900/30', 'border', 'border-green-700/50', 'text-green-400');
+            } else if (type === 'error') {
+                modalDemoStatus.classList.add('bg-red-900/30', 'border', 'border-red-700/50', 'text-red-400');
+            } else {
+                modalDemoStatus.classList.add('bg-blue-900/30', 'border', 'border-blue-700/50', 'text-blue-400');
+            }
+
+            modalDemoStatus.textContent = message;
+        }
+
+        // Handle modal submit button
+        if (modalSubmitDemoBtn) {
+            modalSubmitDemoBtn.addEventListener('click', async () => {
+                if (!validateModalForm()) return;
+
+                const formData = {
+                    name: modalDemoName.value.trim(),
+                    phoneNumber: modalDemoPhone.value.trim(),
+                    email: modalDemoEmail.value.trim() || undefined,
+                    interest: 'demo',
+                    demoType: modalSelectedDemoType
+                };
+
+                const originalHTML = modalSubmitDemoBtn.innerHTML;
+                modalSubmitDemoBtn.disabled = true;
+                modalSubmitDemoBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+                showModalStatus('info', modalSelectedDemoType === 'voice' ? '📞 Initiating call...' : '💬 Setting up SMS demo...');
+
+                try {
+                    const response = await fetch('/api/public/voice-demo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        if (modalSelectedDemoType === 'voice') {
+                            showModalStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
+                        } else {
+                            showModalStatus('success', '✅ Demo initiated! You\'ll receive a call in 5-10 seconds. Answer to experience the SMS workflow!');
+                        }
+
+                        // Show animation in phone mockup
+                        if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
+                        simulateSMSConversation(modalSelectedDemoType);
+
+                        // Reset form and close modal after 5 seconds
+                        setTimeout(() => {
+                            document.getElementById('modal-demo-form').reset();
+                            modalSubmitDemoBtn.disabled = false;
+                            modalSubmitDemoBtn.innerHTML = originalHTML;
+                            if (demoPopupModal) demoPopupModal.classList.add('hidden');
+                            modalDemoStatus.classList.add('hidden');
+
+                            // Reset toggle to voice
+                            modalSelectedDemoType = 'voice';
+                            if (modalToggleVoice) modalToggleVoice.classList.add('active');
+                            if (modalToggleSms) modalToggleSms.classList.remove('active');
+                            if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
+                            if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
+                        }, 5000);
+                    } else {
+                        throw new Error('Failed to initiate demo');
+                    }
+                } catch (error) {
+                    console.error('Demo error:', error);
+                    showModalStatus('error', '❌ Could not initiate demo. Please try again or contact support.');
+                    modalSubmitDemoBtn.disabled = false;
+                    modalSubmitDemoBtn.innerHTML = originalHTML;
+                }
             });
         }
 
@@ -3837,5 +3989,119 @@
             console.log('✅ Voicemail Agent Demo loaded');
         });
     </script>
+
+    <!-- Demo Form Popup Modal -->
+    <div id="demo-popup-modal" class="fixed inset-0 z-[9999] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="demo-modal-backdrop"></div>
+
+        <!-- Modal Card -->
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 relative animate-modal-slide-in">
+                <!-- Close Button -->
+                <button id="close-demo-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+
+                <!-- Modal Content -->
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Experience AI in Action</h2>
+                        <p class="text-gray-400 text-sm">Get a live demo in seconds. No credit card required.</p>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center justify-center gap-3 mb-6">
+                        <button id="modal-toggle-voice" class="modal-demo-toggle active flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
+                            <i class="fas fa-phone mr-2"></i>Voice Call
+                        </button>
+                        <button id="modal-toggle-sms" class="modal-demo-toggle flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
+                            <i class="fas fa-comment-dots mr-2"></i>SMS Demo
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="modal-demo-form" class="space-y-4">
+                        <input
+                            type="text"
+                            id="modal-demo-name"
+                            placeholder="Your Name"
+                            required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+                        <input
+                            type="tel"
+                            id="modal-demo-phone"
+                            placeholder="Phone Number"
+                            required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+                        <input
+                            type="email"
+                            id="modal-demo-email"
+                            placeholder="Email (optional)"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+
+                        <!-- Submit Button -->
+                        <button
+                            type="button"
+                            id="modal-submit-demo-btn"
+                            class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                        >
+                            <i class="fas fa-phone mr-2"></i>
+                            <span id="modal-submit-btn-text">Start Voice Demo</span>
+                        </button>
+
+                        <!-- Status Message -->
+                        <div id="modal-demo-status" class="hidden p-4 rounded-xl text-center font-medium text-sm"></div>
+
+                        <p class="text-center text-xs text-gray-500 pt-2">
+                            <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modal-slide-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-modal-slide-in {
+            animation: modal-slide-in 0.3s ease-out;
+        }
+
+        .modal-demo-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            color: #9ca3af;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-demo-toggle.active {
+            background: linear-gradient(to br, #3b82f6, #8b5cf6);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-demo-toggle:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+
 </body>
 </html>
