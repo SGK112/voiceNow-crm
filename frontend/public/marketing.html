@@ -209,201 +209,58 @@
             right: 8px;
         }
 
-        /* Brand Intro - Seamless Fullscreen with Smooth Transition */
+        /* Background Video - Fixed behind all content */
         .brand-intro-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%);
-            z-index: 9999;
+            background: #000000;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 1s ease-out, transform 1s ease-out;
-            transform: scale(1);
             overflow: hidden;
         }
-        .brand-intro-overlay::before {
+
+        /* Dark overlay on top of video for better text readability */
+        .brand-intro-overlay::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
-            animation: backgroundFloat 20s ease-in-out infinite;
-            pointer-events: none;
-        }
-        @keyframes backgroundFloat {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(5%, -5%) rotate(120deg); }
-            66% { transform: translate(-5%, 5%) rotate(240deg); }
-        }
-        .brand-intro-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(1.05);
-        }
-
-        /* Intro signup button - same position as marketing page */
-        .intro-signup-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10000;
-            opacity: 0;
-            animation: slideInRight 0.8s ease-out 1s forwards;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-
-        /* Hide intro button when transitioning */
-        .brand-intro-overlay.hidden .intro-signup-btn {
-            opacity: 0;
-            transform: translateX(100px);
-            transition: all 0.5s ease-out;
-        }
-
-        @media (max-width: 768px) {
-            .intro-signup-btn {
-                bottom: 16px;
-                right: 16px;
-                padding: 12px 24px !important;
-                font-size: 16px !important;
-            }
-        }
-
-        /* Page content fade in after intro */
-        #mainContent {
-            opacity: 0;
-            animation: fadeInContent 1s ease-out 0.3s forwards;
-        }
-        .brand-intro-overlay:not(.hidden) ~ #mainContent {
-            animation: none;
-            opacity: 0;
-        }
-        @keyframes fadeInContent {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .brand-intro-container {
-            position: relative;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Main content should be above video background */
+        #mainContent {
+            position: relative;
+            z-index: 10;
+        }
+        .brand-intro-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
         .brand-intro-video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             object-position: center;
             display: block;
-            will-change: transform, opacity;
         }
 
-        /* Desktop: beautiful contained video with elegant frame */
-        @media (min-width: 769px) {
-            .brand-intro-container {
-                padding: 40px 60px;
-                max-width: 1800px;
-                max-height: 92vh;
-                margin: 0 auto;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .brand-intro-video {
-                width: 100%;
-                height: 100%;
-                max-height: 85vh;
-                object-fit: contain;
-                border-radius: 24px;
-                box-shadow:
-                    0 0 0 1px rgba(59, 130, 246, 0.2),
-                    0 20px 60px rgba(0, 0, 0, 0.6),
-                    0 0 100px rgba(59, 130, 246, 0.15);
-                animation: subtleZoomIn 1.2s ease-out forwards;
-            }
-            .brand-intro-video.ending {
-                animation: subtleFadeOut 0.8s ease-in forwards;
-            }
-            .brand-intro-overlay {
-                transition: opacity 1s ease-out, transform 1s ease-out;
-            }
-        }
-
-        /* Mobile: beautiful edge-to-edge video with subtle frame */
-        @media (max-width: 768px) {
-            .brand-intro-container {
-                padding: 16px;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .brand-intro-video {
-                animation: none;
-                opacity: 1;
-                transform: none;
-                width: 100%;
-                height: auto;
-                max-height: 85vh;
-                object-fit: contain;
-                border-radius: 20px;
-                box-shadow:
-                    0 0 0 1px rgba(59, 130, 246, 0.3),
-                    0 10px 40px rgba(0, 0, 0, 0.7),
-                    0 0 80px rgba(59, 130, 246, 0.2);
-            }
-            .brand-intro-video.ending {
-                animation: quickFadeOut 0.4s ease-in forwards;
-            }
-            .brand-intro-overlay {
-                transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            }
-        }
-
-        /* Keyframe animations */
-        @keyframes subtleZoomIn {
-            0% {
-                transform: scale(0.95);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        @keyframes subtleFadeOut {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.05);
-                opacity: 0;
-            }
-        }
-        @keyframes quickFadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
     </style>
 </head>
 <body>
@@ -413,11 +270,11 @@
             <video
                 id="brandIntroVideo"
                 autoplay
+                loop
                 muted
                 playsinline
                 preload="auto"
                 class="brand-intro-video"
-                onended="onVideoEnded()"
                 x-webkit-airplay="deny"
                 disablePictureInPicture
                 webkit-playsinline
@@ -428,34 +285,19 @@
             </video>
         </div>
 
-        <!-- Intro Signup Button -->
-        <a href="/signup" class="intro-signup-btn gradient-bg text-white px-6 py-3 rounded-full font-semibold hover:shadow-xl transition text-sm md:text-base">
-            Get Started
-        </a>
     </div>
 
     <script>
-        // Better mobile detection
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-                        ('ontouchstart' in window) ||
-                        window.innerWidth < 768;
-
-        // Detect if user prefers reduced motion
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        let videoPaused = false;
-
-        function onVideoEnded() {
+        // Simple background video - just play it
+        window.addEventListener('DOMContentLoaded', () => {
             const video = document.getElementById('brandIntroVideo');
 
-            // Pause the video at the end and wait for user interaction
             if (video) {
-                video.pause();
-                videoPaused = true;
-                console.log('Video ended - paused. Waiting for user to scroll or click Get Started');
+                video.play().catch(err => console.log('Autoplay prevented:', err));
             }
-        }
+        });
 
+        /* OLD INTRO CODE - COMMENTED OUT FOR BACKGROUND VIDEO MODE
         function transitionToLandingPage() {
             const overlay = document.getElementById('brandIntroOverlay');
             const video = document.getElementById('brandIntroVideo');
@@ -588,6 +430,7 @@
             tapHint.innerHTML = 'Tap to skip';
             overlay?.appendChild(tapHint);
         }
+        END OF COMMENTED OUT CODE */
     </script>
 
     <!-- Main Content Wrapper -->
