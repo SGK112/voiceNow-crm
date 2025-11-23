@@ -1489,6 +1489,14 @@
 
 
     <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] min-h-screen flex items-center overflow-hidden">
+        <!-- Video Background -->
+        <div class="absolute inset-0 z-0">
+            <video autoplay loop muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover opacity-20" x-webkit-airplay="deny" disablePictureInPicture webkit-playsinline>
+                <source src="videos/intro.mp4" type="video/mp4">
+                <source src="/videos/intro.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+        </div>
         <div class="max-w-6xl mx-auto relative z-10 w-full">
             <div class="text-center mb-12 sm:mb-16">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
