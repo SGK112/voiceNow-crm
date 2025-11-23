@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v28-pricing-overflow-fix';
+        const CURRENT_VERSION = '2025-11-23-v29-workflows-pricing-upgrade';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -35,7 +35,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v28-pricing-overflow-fix -->
+    <!-- Version: 2025-11-23-v29-workflows-pricing-upgrade -->
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
@@ -2386,63 +2386,92 @@
         </div>
     </div>
 
-    <section id="workflows" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#141416] to-[#1a1a1d] scroll-section">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16 md:mb-20">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
-                    <span class="gradient-text">Automated Workflows</span> That Run Your Business
+    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Automated Workflows</span> That<br/>Run Your Business
                 </h2>
-                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8">Powered by n8n—the enterprise-grade automation platform. Connect your entire tech stack and let AI handle the repetitive work.</p>
-                <div class="flex justify-center gap-3 sm:gap-4 flex-wrap">
-                    <span class="bg-[#0a0a0b] border border-gray-700 px-3 sm:px-4 py-2 rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-300"><i class="fab fa-salesforce text-blue-400 mr-2"></i>Salesforce</span>
-                    <span class="bg-[#0a0a0b] border border-gray-700 px-3 sm:px-4 py-2 rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-300"><i class="fab fa-hubspot text-orange-400 mr-2"></i>HubSpot</span>
-                    <span class="bg-[#0a0a0b] border border-gray-700 px-3 sm:px-4 py-2 rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-300"><i class="fab fa-google text-blue-400 mr-2"></i>Google Sheets</span>
-                    <span class="bg-[#0a0a0b] border border-gray-700 px-3 sm:px-4 py-2 rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-300"><i class="fab fa-slack text-purple-400 mr-2"></i>Slack</span>
-                    <span class="bg-[#0a0a0b] border border-gray-700 px-3 sm:px-4 py-2 rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-300"><i class="fas fa-plus-circle text-purple-400 mr-2"></i>200+ More</span>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+                    Powered by n8n—the enterprise-grade automation platform. Connect your entire tech stack and let AI handle the repetitive work.
+                </p>
+
+                <!-- Integration Badges -->
+                <div class="flex justify-center gap-3 flex-wrap max-w-3xl mx-auto">
+                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
+                        <i class="fab fa-salesforce text-blue-400 mr-2"></i>Salesforce
+                    </span>
+                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
+                        <i class="fab fa-hubspot text-orange-400 mr-2"></i>HubSpot
+                    </span>
+                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
+                        <i class="fab fa-google text-green-400 mr-2"></i>Google Sheets
+                    </span>
+                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
+                        <i class="fab fa-slack text-purple-400 mr-2"></i>Slack
+                    </span>
+                    <span class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-white">
+                        <i class="fas fa-plus-circle mr-2"></i>200+ More
+                    </span>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                <div class="workflow-card dark-card p-6 sm:p-8 rounded-xl shadow-lg">
+            <!-- Workflow Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <!-- Card 1 -->
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-blue-500/50 transition-all duration-300 group">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user-plus text-white text-lg sm:text-xl"></i>
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-blue-500/50 transition-all">
+                            <i class="fas fa-user-plus text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Intelligent Lead Capture</h3>
-                            <p class="text-sm sm:text-base text-gray-400">Every call automatically extracts contact info, company details, and pain points. Leads flow directly into your CRM with qualification scores.</p>
+                            <h3 class="text-2xl font-bold text-white mb-3">Intelligent Lead Capture</h3>
+                            <p class="text-base text-gray-300 leading-relaxed">Every call automatically extracts contact info, company details, and pain points. Leads flow directly into your CRM with qualification scores.</p>
                         </div>
                     </div>
                 </div>
-                <div class="workflow-card dark-card p-6 sm:p-8 rounded-xl shadow-lg">
+
+                <!-- Card 2 -->
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-purple-500/50 transition-all duration-300 group">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-calendar text-white text-lg sm:text-xl"></i>
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-purple-500/50 transition-all">
+                            <i class="fas fa-calendar text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Smart Appointment Booking</h3>
-                            <p class="text-sm sm:text-base text-gray-400">AI checks your calendar availability, books meetings in real-time, and sends automatic confirmations + reminders via SMS and email.</p>
+                            <h3 class="text-2xl font-bold text-white mb-3">Smart Appointment Booking</h3>
+                            <p class="text-base text-gray-300 leading-relaxed">AI checks your calendar availability, books meetings in real-time, and sends automatic confirmations + reminders via SMS and email.</p>
                         </div>
                     </div>
                 </div>
-                <div class="workflow-card dark-card p-6 sm:p-8 rounded-xl shadow-lg">
+
+                <!-- Card 3 -->
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-green-500/50 transition-all duration-300 group">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-envelope text-white text-lg sm:text-xl"></i>
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-green-500/50 transition-all">
+                            <i class="fas fa-envelope text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Automated Follow-Up Sequences</h3>
-                            <p class="text-sm sm:text-base text-gray-400">Based on call outcomes, trigger personalized email campaigns, SMS sequences, or schedule follow-up calls. Never let a hot lead go cold.</p>
+                            <h3 class="text-2xl font-bold text-white mb-3">Automated Follow-Up Sequences</h3>
+                            <p class="text-base text-gray-300 leading-relaxed">Based on call outcomes, trigger personalized email campaigns, SMS sequences, or schedule follow-up calls. Never let a hot lead go cold.</p>
                         </div>
                     </div>
                 </div>
-                <div class="workflow-card dark-card p-6 sm:p-8 rounded-xl shadow-lg">
+
+                <!-- Card 4 -->
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-yellow-500/50 transition-all duration-300 group">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-database text-white text-lg sm:text-xl"></i>
+                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-yellow-500/50 transition-all">
+                            <i class="fas fa-database text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Real-Time Data Enrichment</h3>
-                            <p class="text-sm sm:text-base text-gray-400">Automatically enrich every lead with company size, revenue, tech stack, and social profiles using Clearbit, LinkedIn, and 50+ data sources.</p>
+                            <h3 class="text-2xl font-bold text-white mb-3">Real-Time Data Enrichment</h3>
+                            <p class="text-base text-gray-300 leading-relaxed">Automatically enrich every lead with company size, revenue, tech stack, and social profiles using Clearbit, LinkedIn, and 50+ data sources.</p>
                         </div>
                     </div>
                 </div>
@@ -2450,70 +2479,138 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section overflow-hidden">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16 md:mb-20">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
-                    Transparent <span class="gradient-text">Pricing</span> That Scales With You
+    <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-20 right-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 left-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+                    Transparent <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Pricing</span> That Scales With You
                 </h2>
-                <p class="text-lg sm:text-xl text-gray-300 mb-3 sm:mb-4 max-w-3xl mx-auto">Pay only for what you use. No hidden fees, no contracts.</p>
+                <p class="text-lg sm:text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
+                    Pay only for what you use. No hidden fees, no contracts.
+                </p>
                 <p class="text-sm sm:text-base text-purple-400 font-semibold">
                     <i class="fas fa-shield-alt mr-2"></i>Cancel anytime • Money-back guarantee • Enterprise plans available
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 items-start px-0 md:px-4 lg:px-6">
+
+            <!-- Pricing Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 <!-- Trial Plan -->
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg h-full flex flex-col">
-                    <h3 class="text-2xl font-bold text-white mb-3">Trial</h3>
-                    <div class="mb-6">
-                        <span class="text-4xl font-bold text-white">$0</span>
-                        <span class="text-gray-400">/month</span>
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl h-full flex flex-col hover:border-gray-600/50 transition-all duration-300">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Trial</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-5xl font-bold text-white">$0</span>
+                            <span class="text-gray-400 text-lg">/month</span>
+                        </div>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>50 free call minutes</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>1 voice agent</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Built-in CRM</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Email & SMS follow-ups</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Basic analytics</span></li>
+                    <ul class="space-y-4 mb-8 flex-grow">
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
+                            <span>50 free call minutes</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
+                            <span>1 voice agent</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
+                            <span>Built-in CRM</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
+                            <span>Email & SMS follow-ups</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
+                            <span>Basic analytics</span>
+                        </li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all hover:scale-105">Start Free</a>
+                    <a href="/signup" class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 rounded-xl font-semibold transition-all shadow-lg">
+                        Start Free
+                    </a>
                 </div>
 
                 <!-- Starter Plan - Most Popular -->
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-2xl border-2 border-blue-500 relative h-full flex flex-col transform md:scale-105 z-10">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
-                        Most Popular
+                <div class="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-xl p-8 rounded-2xl border-2 border-blue-500 shadow-2xl shadow-blue-500/20 h-full flex flex-col relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                        ⭐ Most Popular
                     </div>
-                    <h3 class="text-2xl font-bold text-white mb-3">Starter</h3>
-                    <div class="mb-6">
-                        <span class="text-4xl font-bold text-white">$99</span>
-                        <span class="text-gray-400">/month</span>
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Starter</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-5xl font-bold text-white">$99</span>
+                            <span class="text-gray-300 text-lg">/month</span>
+                        </div>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>500 call minutes/month</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>5 voice agents</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>n8n workflow automation</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>CRM + analytics dashboard</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Priority email support</span></li>
+                    <ul class="space-y-4 mb-8 flex-grow">
+                        <li class="flex items-start gap-3 text-gray-200">
+                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
+                            <span>500 call minutes/month</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-200">
+                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
+                            <span>5 voice agents</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-200">
+                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
+                            <span>n8n workflow automation</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-200">
+                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
+                            <span>CRM + analytics dashboard</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-200">
+                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
+                            <span>Priority email support</span>
+                        </li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/50 transition-all hover:scale-105">Get Started</a>
+                    <a href="/signup" class="block w-full text-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/70">
+                        Get Started
+                    </a>
                 </div>
 
                 <!-- Pro Plan -->
-                <div class="dark-card p-6 sm:p-8 rounded-2xl shadow-lg h-full flex flex-col">
-                    <h3 class="text-2xl font-bold text-white mb-3">Pro</h3>
-                    <div class="mb-6">
-                        <span class="text-4xl font-bold text-white">$299</span>
-                        <span class="text-gray-400">/month</span>
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl h-full flex flex-col hover:border-purple-500/50 transition-all duration-300">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Pro</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-5xl font-bold text-white">$299</span>
+                            <span class="text-gray-400 text-lg">/month</span>
+                        </div>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm text-gray-400 flex-grow">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>2000 call minutes/month</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Unlimited voice agents</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Advanced analytics & reporting</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Custom integrations (QuickBooks, etc.)</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5 flex-shrink-0"></i><span>Dedicated account manager</span></li>
+                    <ul class="space-y-4 mb-8 flex-grow">
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
+                            <span>2000 call minutes/month</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
+                            <span>Unlimited voice agents</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
+                            <span>Advanced analytics & reporting</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
+                            <span>Custom integrations (QuickBooks, etc.)</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
+                            <span>Dedicated account manager</span>
+                        </li>
                     </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/5 border border-white/10 text-gray-300 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all hover:scale-105">Get Started</a>
+                    <a href="/signup" class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 rounded-xl font-semibold transition-all shadow-lg">
+                        Get Started
+                    </a>
                 </div>
             </div>
         </div>
