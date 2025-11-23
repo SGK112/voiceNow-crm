@@ -35,11 +35,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md shadow-xl dark:bg-black border-border">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4">
+      <Card className="w-full max-w-md shadow-xl bg-[#141416] border-gray-800">
         <CardHeader>
-          <CardTitle className="text-2xl text-gray-900 text-foreground">Welcome to VoiceFlow CRM</CardTitle>
-          <CardDescription className="text-gray-700 text-foreground">Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl text-white">Welcome to VoiceFlow CRM</CardTitle>
+          <CardDescription className="text-gray-400">Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -50,7 +50,7 @@ export default function Login() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-900 text-foreground">Email</Label>
+              <Label htmlFor="email" className="text-gray-300">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -58,13 +58,14 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-900 text-foreground">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                <Label htmlFor="password" className="text-gray-300">Password</Label>
+                <Link to="/forgot-password" className="text-sm text-blue-400 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -75,6 +76,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -89,10 +91,10 @@ export default function Login() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-gray-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-gray-600 text-foreground">
+                  <span className="bg-[#141416] px-2 text-gray-400">
                     Or continue with
                   </span>
                 </div>
@@ -104,8 +106,8 @@ export default function Login() {
           )}
 
           <div className="mt-4 text-center text-sm">
-            <span className="text-gray-600 text-foreground">Don't have an account? </span>
-            <Link to="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+            <span className="text-gray-400">Don't have an account? </span>
+            <Link to="/signup" className="text-blue-400 hover:underline">
               Sign up
             </Link>
           </div>

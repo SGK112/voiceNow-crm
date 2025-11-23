@@ -36,13 +36,13 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/20 px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-4 py-8">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start">
         {/* Signup Form */}
-        <Card className="w-full shadow-xl dark:bg-black border-border">
+        <Card className="w-full shadow-xl bg-[#141416] border-gray-800">
           <CardHeader>
-            <CardTitle className="text-2xl text-gray-900 text-foreground">Create your account</CardTitle>
-            <CardDescription className="text-gray-700 text-foreground">Get started with VoiceFlow CRM</CardDescription>
+            <CardTitle className="text-2xl text-white">Create your account</CardTitle>
+            <CardDescription className="text-gray-400">Get started with VoiceFlow CRM</CardDescription>
           </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -53,7 +53,7 @@ export default function Signup() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="company" className="text-gray-900 text-foreground">Company Name</Label>
+              <Label htmlFor="company" className="text-gray-300">Company Name</Label>
               <Input
                 id="company"
                 type="text"
@@ -61,11 +61,12 @@ export default function Signup() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-900 text-foreground">Email</Label>
+              <Label htmlFor="email" className="text-gray-300">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -73,11 +74,12 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-900 text-foreground">Password</Label>
+              <Label htmlFor="password" className="text-gray-300">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -86,6 +88,7 @@ export default function Signup() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -100,10 +103,10 @@ export default function Signup() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-gray-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-gray-600 text-foreground">
+                  <span className="bg-[#141416] px-2 text-gray-400">
                     Or continue with
                   </span>
                 </div>
@@ -115,8 +118,8 @@ export default function Signup() {
           )}
 
           <div className="mt-4 text-center text-sm">
-            <span className="text-gray-600 text-foreground">Already have an account? </span>
-            <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+            <span className="text-gray-400">Already have an account? </span>
+            <Link to="/login" className="text-blue-400 hover:underline">
               Sign in
             </Link>
           </div>
@@ -126,32 +129,32 @@ export default function Signup() {
       {/* Pricing Information */}
       <div className="space-y-4">
         {/* Free Trial Card */}
-        <Card className="bg-gradient-to-br from-primary/10 to-blue-600/10 border-primary/20">
+        <Card className="bg-gradient-to-br from-blue-900/20 to-blue-600/20 border-blue-700/30">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3 mb-4">
-              <div className="p-2 bg-primary/20 rounded-full">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <div className="p-2 bg-blue-500/20 rounded-full">
+                <Sparkles className="h-5 w-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">Start Free - No Credit Card Required</h3>
-                <p className="text-sm text-muted-foreground">Get 100 free credits to try all features</p>
+                <h3 className="font-semibold text-lg mb-1 text-white">Start Free - No Credit Card Required</h3>
+                <p className="text-sm text-gray-400">Get 100 free credits to try all features</p>
               </div>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Check className="h-4 w-4 text-green-400" />
                 <span>100 free credits (~100 minutes of calls)</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Check className="h-4 w-4 text-green-400" />
                 <span>Full access to all features</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Check className="h-4 w-4 text-green-400" />
                 <span>No credit card required</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Check className="h-4 w-4 text-green-400" />
                 <span>Credits never expire</span>
               </div>
             </div>
@@ -159,46 +162,46 @@ export default function Signup() {
         </Card>
 
         {/* Pricing Options Card */}
-        <Card>
+        <Card className="bg-[#141416] border-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg">Flexible Pricing After Trial</CardTitle>
-            <CardDescription>Choose what works best for you</CardDescription>
+            <CardTitle className="text-lg text-white">Flexible Pricing After Trial</CardTitle>
+            <CardDescription className="text-gray-400">Choose what works best for you</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Credit Packages */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium">Pay-As-You-Go Credits</h4>
-                <Badge variant="outline">From $49</Badge>
+                <h4 className="font-medium text-white">Pay-As-You-Go Credits</h4>
+                <Badge variant="outline" className="border-gray-700 text-gray-300">From $49</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-sm text-gray-400 mb-2">
                 Perfect for sporadic usage - credits never expire
               </p>
-              <div className="text-xs text-muted-foreground space-y-1">
+              <div className="text-xs text-gray-400 space-y-1">
                 <div>• $0.05-$0.10 per minute</div>
                 <div>• No monthly commitment</div>
                 <div>• Use at your own pace</div>
               </div>
             </div>
 
-            <div className="border-t pt-4">
+            <div className="border-t border-gray-700 pt-4">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium">Monthly Subscriptions</h4>
-                <Badge variant="outline">From $99/mo</Badge>
+                <h4 className="font-medium text-white">Monthly Subscriptions</h4>
+                <Badge variant="outline" className="border-gray-700 text-gray-300">From $99/mo</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-sm text-gray-400 mb-2">
                 Best for regular usage with CRM features included
               </p>
-              <div className="text-xs text-muted-foreground space-y-1">
+              <div className="text-xs text-gray-400 space-y-1">
                 <div>• 200-5,000 minutes included</div>
                 <div>• Full CRM & workflow access</div>
                 <div>• Priority support</div>
               </div>
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-4 border-t border-gray-700">
               <Link to="/pricing">
-                <Button variant="link" className="w-full p-0 h-auto text-primary hover:underline">
+                <Button variant="link" className="w-full p-0 h-auto text-blue-400 hover:underline">
                   View detailed pricing comparison →
                 </Button>
               </Link>
@@ -207,20 +210,20 @@ export default function Signup() {
         </Card>
 
         {/* Trust Badges */}
-        <Card className="bg-muted/50">
+        <Card className="bg-[#141416] border-gray-800">
           <CardContent className="pt-6">
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span className="text-muted-foreground">30-day money-back guarantee</span>
+                <Check className="h-4 w-4 text-green-400" />
+                <span className="text-gray-300">30-day money-back guarantee</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span className="text-muted-foreground">Cancel anytime, no questions asked</span>
+                <Check className="h-4 w-4 text-green-400" />
+                <span className="text-gray-300">Cancel anytime, no questions asked</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span className="text-muted-foreground">No hidden fees or surprises</span>
+                <Check className="h-4 w-4 text-green-400" />
+                <span className="text-gray-300">No hidden fees or surprises</span>
               </div>
             </div>
           </CardContent>

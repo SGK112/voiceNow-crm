@@ -159,20 +159,21 @@ export default function Onboarding() {
       fields: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="businessName">Business Name *</Label>
+            <Label htmlFor="businessName" className="text-gray-300">Business Name *</Label>
             <Input
               id="businessName"
               value={profileData.businessName}
               onChange={(e) => handleChange('businessName', e.target.value)}
               placeholder="Acme Inc"
               required
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="industry">Industry *</Label>
+            <Label htmlFor="industry" className="text-gray-300">Industry *</Label>
             <Select value={profileData.industry} onValueChange={(v) => handleChange('industry', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue placeholder="Select your industry" />
               </SelectTrigger>
               <SelectContent>
@@ -193,9 +194,9 @@ export default function Onboarding() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="businessSize">Company Size</Label>
+              <Label htmlFor="businessSize" className="text-gray-300">Company Size</Label>
               <Select value={profileData.businessSize} onValueChange={(v) => handleChange('businessSize', v)}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                   <SelectValue placeholder="Select size" />
                 </SelectTrigger>
                 <SelectContent>
@@ -210,13 +211,14 @@ export default function Onboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
+              <Label htmlFor="website" className="text-gray-300">Website</Label>
               <Input
                 id="website"
                 type="url"
                 value={profileData.website}
                 onChange={(e) => handleChange('website', e.target.value)}
                 placeholder="https://yourcompany.com"
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -231,46 +233,50 @@ export default function Onboarding() {
         <>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName" className="text-gray-300">First Name *</Label>
               <Input
                 id="firstName"
                 value={profileData.firstName}
                 onChange={(e) => handleChange('firstName', e.target.value)}
                 placeholder="John"
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName" className="text-gray-300">Last Name *</Label>
               <Input
                 id="lastName"
                 value={profileData.lastName}
                 onChange={(e) => handleChange('lastName', e.target.value)}
                 placeholder="Smith"
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="jobTitle">Job Title</Label>
+            <Label htmlFor="jobTitle" className="text-gray-300">Job Title</Label>
             <Input
               id="jobTitle"
               value={profileData.jobTitle}
               onChange={(e) => handleChange('jobTitle', e.target.value)}
               placeholder="CEO, Sales Manager, etc."
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Label htmlFor="phoneNumber" className="text-gray-300">Phone Number</Label>
             <Input
               id="phoneNumber"
               type="tel"
               value={profileData.phoneNumber}
               onChange={(e) => handleChange('phoneNumber', e.target.value)}
               placeholder="(555) 123-4567"
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
         </>
@@ -283,54 +289,58 @@ export default function Onboarding() {
       fields: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="street">Street Address</Label>
+            <Label htmlFor="street" className="text-gray-300">Street Address</Label>
             <Input
               id="street"
               value={profileData.address.street}
               onChange={(e) => handleChange('address.street', e.target.value)}
               placeholder="123 Main St"
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">City *</Label>
+              <Label htmlFor="city" className="text-gray-300">City *</Label>
               <Input
                 id="city"
                 value={profileData.address.city}
                 onChange={(e) => handleChange('address.city', e.target.value)}
                 placeholder="Phoenix"
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="state">State *</Label>
+              <Label htmlFor="state" className="text-gray-300">State *</Label>
               <Input
                 id="state"
                 value={profileData.address.state}
                 onChange={(e) => handleChange('address.state', e.target.value)}
                 placeholder="AZ"
                 required
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="zipCode">ZIP Code</Label>
+              <Label htmlFor="zipCode" className="text-gray-300">ZIP Code</Label>
               <Input
                 id="zipCode"
                 value={profileData.address.zipCode}
                 onChange={(e) => handleChange('address.zipCode', e.target.value)}
                 placeholder="85001"
+                className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
+              <Label htmlFor="timezone" className="text-gray-300">Timezone</Label>
               <Select value={profileData.timezone} onValueChange={(v) => handleChange('timezone', v)}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,9 +365,9 @@ export default function Onboarding() {
       fields: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="primaryUseCase">Primary Use Case *</Label>
+            <Label htmlFor="primaryUseCase" className="text-gray-300">Primary Use Case *</Label>
             <Select value={profileData.primaryUseCase} onValueChange={(v) => handleChange('primaryUseCase', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue placeholder="What's your main goal?" />
               </SelectTrigger>
               <SelectContent>
@@ -373,20 +383,21 @@ export default function Onboarding() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetAudience">Target Audience</Label>
+            <Label htmlFor="targetAudience" className="text-gray-300">Target Audience</Label>
             <Input
               id="targetAudience"
               value={profileData.targetAudience}
               onChange={(e) => handleChange('targetAudience', e.target.value)}
               placeholder="e.g., homeowners, small businesses, B2B clients"
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
-            <p className="text-xs text-muted-foreground">Who are you calling or expecting calls from?</p>
+            <p className="text-xs text-gray-400">Who are you calling or expecting calls from?</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="monthlyCallVolume">Expected Monthly Call Volume</Label>
+            <Label htmlFor="monthlyCallVolume" className="text-gray-300">Expected Monthly Call Volume</Label>
             <Select value={profileData.monthlyCallVolume} onValueChange={(v) => handleChange('monthlyCallVolume', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue placeholder="Select call volume" />
               </SelectTrigger>
               <SelectContent>
@@ -408,9 +419,9 @@ export default function Onboarding() {
       fields: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="brandVoice">Brand Voice Style</Label>
+            <Label htmlFor="brandVoice" className="text-gray-300">Brand Voice Style</Label>
             <Select value={profileData.brandVoice} onValueChange={(v) => handleChange('brandVoice', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue placeholder="Choose a tone" />
               </SelectTrigger>
               <SelectContent>
@@ -424,35 +435,38 @@ export default function Onboarding() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companyDescription">Company Description</Label>
+            <Label htmlFor="companyDescription" className="text-gray-300">Company Description</Label>
             <Textarea
               id="companyDescription"
               value={profileData.companyDescription}
               onChange={(e) => handleChange('companyDescription', e.target.value)}
               placeholder="Briefly describe what your company does..."
               rows={3}
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
-            <p className="text-xs text-muted-foreground">AI will use this to understand your business context</p>
+            <p className="text-xs text-gray-400">AI will use this to understand your business context</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="valueProposition">Your Unique Value Proposition</Label>
+            <Label htmlFor="valueProposition" className="text-gray-300">Your Unique Value Proposition</Label>
             <Textarea
               id="valueProposition"
               value={profileData.valueProposition}
               onChange={(e) => handleChange('valueProposition', e.target.value)}
               placeholder="What makes your business stand out from competitors?"
               rows={2}
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="keyProducts">Key Products/Services (comma-separated)</Label>
+            <Label htmlFor="keyProducts" className="text-gray-300">Key Products/Services (comma-separated)</Label>
             <Input
               id="keyProducts"
               value={profileData.keyProducts.join(', ')}
               onChange={(e) => handleChange('keyProducts', e.target.value)}
               placeholder="Product A, Service B, Package C"
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
         </>
@@ -465,9 +479,9 @@ export default function Onboarding() {
       fields: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="preferredVoiceGender">Preferred Voice Gender</Label>
+            <Label htmlFor="preferredVoiceGender" className="text-gray-300">Preferred Voice Gender</Label>
             <Select value={profileData.preferredVoiceGender} onValueChange={(v) => handleChange('preferredVoiceGender', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -479,31 +493,33 @@ export default function Onboarding() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="agentPersonality">Agent Personality</Label>
+            <Label htmlFor="agentPersonality" className="text-gray-300">Agent Personality</Label>
             <Input
               id="agentPersonality"
               value={profileData.agentPersonality}
               onChange={(e) => handleChange('agentPersonality', e.target.value)}
               placeholder="e.g., professional but warm, energetic and helpful"
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="aiInstructions">Special Instructions for AI (Optional)</Label>
+            <Label htmlFor="aiInstructions" className="text-gray-300">Special Instructions for AI (Optional)</Label>
             <Textarea
               id="aiInstructions"
               value={profileData.aiInstructions}
               onChange={(e) => handleChange('aiInstructions', e.target.value)}
               placeholder="Any specific guidelines or requirements for how the AI should behave..."
               rows={3}
+              className="bg-[#1f1f23] border-gray-700 text-white placeholder:text-gray-500"
             />
-            <p className="text-xs text-muted-foreground">These instructions will apply to all AI-generated content</p>
+            <p className="text-xs text-gray-400">These instructions will apply to all AI-generated content</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="existingCRM">Existing CRM (if any)</Label>
+            <Label htmlFor="existingCRM" className="text-gray-300">Existing CRM (if any)</Label>
             <Select value={profileData.existingCRM} onValueChange={(v) => handleChange('existingCRM', v)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#1f1f23] border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -518,14 +534,14 @@ export default function Onboarding() {
             </Select>
           </div>
 
-          <div className="mt-6 p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+          <div className="mt-6 p-4 bg-green-900/20 border border-green-700/30 rounded-lg">
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                <p className="text-sm font-medium text-green-100">
                   You're all set!
                 </p>
-                <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                <p className="text-sm text-green-300 mt-1">
                   Your profile data will be used throughout VoiceFlow to personalize AI responses, generate better scripts, and provide context-aware assistance. You can update this anytime in Settings.
                 </p>
               </div>
@@ -541,37 +557,37 @@ export default function Onboarding() {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center px-4 py-8">
-      <Card className="w-full max-w-3xl">
+    <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center px-4 py-8">
+      <Card className="w-full max-w-3xl bg-[#141416] border-gray-800">
         <CardHeader>
           {/* Optional Setup Notice */}
-          <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
+          <div className="mb-4 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+            <p className="text-sm text-blue-100">
               <strong>Optional Setup:</strong> This information helps personalize your AI agents, but you can skip this and set it up later. Access your profile anytime by clicking your email in the top-right corner.
             </p>
           </div>
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Icon className="h-6 w-6 text-primary" />
+              <div className="p-3 bg-blue-500/20 rounded-full">
+                <Icon className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <CardTitle className="text-2xl">{currentStepData.title}</CardTitle>
-                <CardDescription>{currentStepData.description}</CardDescription>
+                <CardTitle className="text-2xl text-white">{currentStepData.title}</CardTitle>
+                <CardDescription className="text-gray-400">{currentStepData.description}</CardDescription>
               </div>
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+          <div className="relative h-2 bg-gray-700 rounded-full overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 bg-primary transition-all duration-300"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-gray-400 mt-2">
             Step {currentStep + 1} of {steps.length} ({Math.round(progress)}% complete)
           </p>
         </CardHeader>
@@ -631,7 +647,7 @@ export default function Onboarding() {
               </Button>
             </div>
 
-            <p className="text-xs text-center text-muted-foreground">
+            <p className="text-xs text-center text-gray-400">
               You can complete your profile later in Settings. The more data you provide, the better AI can assist you.
             </p>
           </div>
