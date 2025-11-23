@@ -222,6 +222,41 @@
             transform: scale(1.05);
         }
 
+        /* Intro signup button */
+        .intro-signup-btn {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Hide intro button when transitioning */
+        .brand-intro-overlay.hidden .intro-signup-btn {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+            transition: all 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .intro-signup-btn {
+                bottom: 60px;
+            }
+        }
+
         /* Page content fade in after intro */
         #mainContent {
             opacity: 0;
@@ -331,6 +366,11 @@
                 <source src="/videos/intro.mp4" type="video/mp4">
             </video>
         </div>
+
+        <!-- Intro Signup Button -->
+        <a href="/signup" class="intro-signup-btn gradient-bg text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105">
+            Get Started Free
+        </a>
     </div>
 
     <script>
@@ -404,8 +444,8 @@
         if (isMobile) {
             const overlay = document.getElementById('brandIntroOverlay');
             const tapHint = document.createElement('div');
-            tapHint.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 14px; text-align: center; animation: pulse 2s ease-in-out infinite;';
-            tapHint.innerHTML = 'Tap to skip';
+            tapHint.style.cssText = 'position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; animation: pulse 2s ease-in-out infinite;';
+            tapHint.innerHTML = 'Tap anywhere to skip';
             overlay?.appendChild(tapHint);
         }
     </script>
