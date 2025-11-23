@@ -109,34 +109,40 @@
 <body class="bg-[#0a0a0b] text-white">
 
     <!-- Header -->
-    <header class="border-b border-white/10 bg-black/50 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-waveform-lines text-xl text-blue-500"></i>
-                        <h1 class="text-base md:text-lg font-bold">
-                            VoiceFlow <span class="gradient-text">CRM</span>
-                        </h1>
-                    </div>
-                    <div class="hidden md:inline-block bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">
-                        <span class="text-green-400 text-xs font-semibold">FULL DEMO</span>
+    <nav class="fixed w-full z-50 bg-[#0a0a0b]/95 backdrop-blur-md border-b border-gray-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <span class="voice-icon" style="display: flex; align-items: center; gap: 2px; height: 24px; padding: 4px 6px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 6px;">
+                        <span style="width: 3px; height: 10px; background: white; border-radius: 2px;"></span>
+                        <span style="width: 3px; height: 16px; background: white; border-radius: 2px;"></span>
+                        <span style="width: 3px; height: 10px; background: white; border-radius: 2px;"></span>
+                    </span>
+                    <div class="flex flex-col">
+                        <span class="text-lg sm:text-xl font-bold gradient-text">VoiceFlow CRM</span>
+                        <span class="hidden sm:inline text-[10px] text-gray-500">by Remodely AI</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <a href="/marketing.html" class="hidden md:inline-flex px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-                        <i class="fas fa-home mr-1"></i>Home
-                    </a>
-                    <a href="/login" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg text-sm font-semibold transition-all">
-                        Start Free Trial
-                    </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="/marketing.html" class="text-sm text-gray-300 hover:text-white transition-colors">Home</a>
+                    <a href="/demo.html" class="text-sm text-white font-medium">Demo</a>
+                    <a href="/app/agent-builder" class="text-sm text-gray-300 hover:text-white transition-colors">Login</a>
+                </div>
+
+                <!-- Mobile Navigation -->
+                <div class="flex md:hidden items-center gap-2">
+                    <a href="/marketing.html" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-2">Home</a>
+                    <a href="/app/agent-builder" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-2">Login</a>
                 </div>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Hero Section -->
-    <div class="border-b border-white/10 bg-gradient-to-b from-blue-500/5 to-transparent">
+    <div class="border-b border-white/10 bg-gradient-to-b from-blue-500/5 to-transparent pt-20">
         <div class="max-w-7xl mx-auto px-4 py-8 md:py-12 text-center">
             <h2 class="text-3xl md:text-5xl font-bold mb-4">
                 Experience <span class="gradient-text">VoiceFlow CRM</span>
@@ -563,8 +569,8 @@
                 Start your free trial today. No credit card required. Get full access to all features for 14 days.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/login" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold transition-all shadow-lg">
-                    <i class="fas fa-rocket mr-2"></i>Start Free Trial
+                <a href="/app/agent-builder" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold transition-all shadow-lg">
+                    <i class="fas fa-rocket mr-2"></i>Get Started
                 </a>
                 <a href="/marketing.html" class="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl font-semibold transition-all">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Home
