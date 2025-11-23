@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v9-voicemail-zindex-fix';
+        const CURRENT_VERSION = '2025-11-23-v23-minimal-copilot-ui';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -520,6 +520,239 @@
             transition: opacity 0.5s ease-out;
         }
 
+        /* Tutorial Styles */
+        .intro-logo {
+            transition: opacity 1s ease;
+        }
+
+        .intro-tutorial {
+            max-width: 700px;
+            margin: 0 auto;
+            transition: opacity 0.8s ease;
+        }
+
+        .tutorial-slide {
+            text-align: center;
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        .tutorial-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: iconPulse 0.6s ease-out;
+        }
+
+        .tutorial-heading {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tutorial-text {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .tutorial-example {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tutorial-example::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 100% 0%; }
+        }
+
+        .example-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #10b981;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .example-text {
+            display: block;
+            font-size: clamp(0.875rem, 2vw, 1rem);
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .tutorial-progress {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-dot.active {
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            transform: scale(1.2);
+        }
+
+        .skip-tutorial-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            pointer-events: all;
+        }
+
+        .skip-tutorial-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(4px);
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes iconPulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tutorial-icon {
+                font-size: 3rem;
+            }
+            .tutorial-example {
+                padding: 1rem;
+            }
+            .example-text {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Minimal Emoji Rocket Animation */
+        .emoji-rocket-container {
+            position: relative;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-ship {
+            font-size: 140px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: rocketFly 3s ease-in-out infinite;
+            filter: drop-shadow(0 8px 16px rgba(139, 92, 246, 0.5));
+        }
+
+        .emoji-sparkle {
+            position: absolute;
+            font-size: 32px;
+            opacity: 0;
+            animation: sparkleFloat 2s ease-in-out infinite;
+        }
+
+        .emoji-sparkle-1 {
+            top: 10%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .emoji-sparkle-2 {
+            top: 60%;
+            right: 15%;
+            animation-delay: 0.7s;
+        }
+
+        .emoji-sparkle-3 {
+            bottom: 15%;
+            left: 25%;
+            animation-delay: 1.4s;
+        }
+
+        @keyframes rocketFly {
+            0%, 100% {
+                transform: translate(-50%, -50%) rotate(-5deg);
+            }
+            50% {
+                transform: translate(-50%, -55%) rotate(5deg);
+            }
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(0.5);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -544,18 +777,91 @@
                 Your browser does not support the video tag.
             </video>
 
-            <!-- Animated Text Overlay -->
+            <!-- Animated Tutorial Overlay -->
             <div class="intro-text-overlay">
-                <h1 class="intro-title">
-                    <span class="intro-word">🎙️</span>
-                    <span class="intro-word">VoiceFlow CRM</span>
-                </h1>
-                <p class="intro-subtitle">
-                    <span class="intro-subtitle-word">AI Powered Voice Agents and CRM SaaS</span>
-                </p>
-                <p class="intro-subtitle" style="margin-top: 8px;">
-                    <span class="intro-subtitle-word" style="font-size: 0.8em; opacity: 0.8;">by Remodely AI</span>
-                </p>
+                <!-- Logo fade-in -->
+                <div id="intro-logo" class="intro-logo" style="opacity: 0;">
+                    <h1 class="intro-title">
+                        <span class="intro-word">🎙️</span>
+                        <span class="intro-word">VoiceFlow CRM</span>
+                    </h1>
+                    <p class="intro-subtitle">
+                        <span class="intro-subtitle-word">AI Powered Voice Agents and CRM</span>
+                    </p>
+                    <p class="intro-subtitle" style="margin-top: 8px;">
+                        <span class="intro-subtitle-word" style="font-size: 0.8em; opacity: 0.8;">by Remodely AI</span>
+                    </p>
+                </div>
+
+                <!-- Tutorial slides - hidden by default -->
+                <div id="intro-tutorial" class="intro-tutorial" style="opacity: 0; display: none; margin-top: 3rem;">
+                    <!-- Slide 1: Inbound Voice Agents -->
+                    <div class="tutorial-slide" data-slide="1" style="display: none;">
+                        <div class="tutorial-icon">📞</div>
+                        <h2 class="tutorial-heading">Inbound Voice Agents</h2>
+                        <p class="tutorial-text">Never miss a customer call. AI answers 24/7, qualifies leads, and books appointments.</p>
+                        <div class="tutorial-example">
+                            <span class="example-label">Real Scenario:</span>
+                            <span class="example-text">"Customer calls after hours about kitchen remodel → AI collects details → Books consultation → Sends you qualified lead"</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Outbound Voice Agents -->
+                    <div class="tutorial-slide" data-slide="2" style="display: none;">
+                        <div class="tutorial-icon">📱</div>
+                        <h2 class="tutorial-heading">Outbound Voice Agents</h2>
+                        <p class="tutorial-text">Scale your outreach. AI makes hundreds of calls, follows up with leads, and schedules meetings.</p>
+                        <div class="tutorial-example">
+                            <span class="example-label">Real Scenario:</span>
+                            <span class="example-text">"Upload 100 leads → AI calls each one → Handles objections → Books 15 qualified appointments"</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Automation Workflows -->
+                    <div class="tutorial-slide" data-slide="3" style="display: none;">
+                        <div class="tutorial-icon">⚡</div>
+                        <h2 class="tutorial-heading">Smart Automation</h2>
+                        <p class="tutorial-text">Build visual workflows. Trigger actions, send emails, update CRM, and notify your team—all automatically.</p>
+                        <div class="tutorial-example">
+                            <span class="example-label">Real Scenario:</span>
+                            <span class="example-text">"New lead calls → AI qualifies → Updates CRM → Sends SMS to your sales team → Schedules follow-up"</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: AI Co-Pilot -->
+                    <div class="tutorial-slide" data-slide="4" style="display: none;">
+                        <div class="tutorial-icon">🤖</div>
+                        <h2 class="tutorial-heading">AI Co-Pilot Assistant</h2>
+                        <p class="tutorial-text">Your 24/7 business assistant. Generate images, write content, manage tasks, and get instant answers.</p>
+                        <div class="tutorial-example">
+                            <span class="example-label">Real Scenario:</span>
+                            <span class="example-text">"Need before/after images? → AI generates them → Write social posts → Schedule to Instagram → All in one chat"</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 5: AI Voicemail -->
+                    <div class="tutorial-slide" data-slide="5" style="display: none;">
+                        <div class="tutorial-icon">📬</div>
+                        <h2 class="tutorial-heading">AI Voicemail System</h2>
+                        <p class="tutorial-text">Turn missed calls into opportunities. AI listens, understands context, and sends you intelligent summaries.</p>
+                        <div class="tutorial-example">
+                            <span class="example-label">Real Scenario:</span>
+                            <span class="example-text">"Missed call → AI voicemail answers → Customer leaves details → You get SMS summary with key info"</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress dots -->
+                    <div class="tutorial-progress">
+                        <span class="progress-dot active" data-dot="1"></span>
+                        <span class="progress-dot" data-dot="2"></span>
+                        <span class="progress-dot" data-dot="3"></span>
+                        <span class="progress-dot" data-dot="4"></span>
+                        <span class="progress-dot" data-dot="5"></span>
+                    </div>
+
+                    <!-- Skip button -->
+                    <button id="skip-tutorial-btn" class="skip-tutorial-btn">Skip Tutorial →</button>
+                </div>
             </div>
         </div>
 
@@ -723,6 +1029,93 @@
                 overlay.appendChild(tapHint);
             }
         }
+
+        // Tutorial Animation Sequence
+        window.addEventListener('DOMContentLoaded', () => {
+            const logo = document.getElementById('intro-logo');
+            const tutorial = document.getElementById('intro-tutorial');
+            const slides = document.querySelectorAll('.tutorial-slide');
+            const dots = document.querySelectorAll('.progress-dot');
+            const skipBtn = document.getElementById('skip-tutorial-btn');
+
+            let currentSlide = 0;
+            let tutorialInterval;
+
+            function showSlide(index) {
+                // Hide all slides
+                slides.forEach(slide => {
+                    slide.style.display = 'none';
+                });
+
+                // Remove active from all dots
+                dots.forEach(dot => {
+                    dot.classList.remove('active');
+                });
+
+                // Show current slide
+                if (slides[index]) {
+                    slides[index].style.display = 'block';
+                    dots[index].classList.add('active');
+                }
+            }
+
+            function nextSlide() {
+                currentSlide++;
+                if (currentSlide >= slides.length) {
+                    // Tutorial finished, transition to landing page
+                    transitionToLandingPage();
+                } else {
+                    showSlide(currentSlide);
+                }
+            }
+
+            function startTutorial() {
+                // Fade out logo
+                logo.style.opacity = '0';
+
+                // After logo fades, show tutorial
+                setTimeout(() => {
+                    logo.style.display = 'none';
+                    tutorial.style.display = 'block';
+
+                    // Fade in tutorial
+                    setTimeout(() => {
+                        tutorial.style.opacity = '1';
+                        showSlide(0);
+
+                        // Auto-advance slides every 4 seconds
+                        tutorialInterval = setInterval(nextSlide, 4000);
+                    }, 100);
+                }, 1000);
+            }
+
+            // Fade in logo after 1 second
+            setTimeout(() => {
+                logo.style.opacity = '1';
+
+                // Start tutorial after logo is visible for 2 seconds
+                setTimeout(startTutorial, 2000);
+            }, 1000);
+
+            // Click on dots to jump to slide
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    clearInterval(tutorialInterval);
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                    // Resume auto-advance
+                    tutorialInterval = setInterval(nextSlide, 4000);
+                });
+            });
+
+            // Skip button
+            if (skipBtn) {
+                skipBtn.addEventListener('click', () => {
+                    clearInterval(tutorialInterval);
+                    transitionToLandingPage();
+                });
+            }
+        });
     </script>
 
     <!-- Main Content Wrapper -->
@@ -1405,6 +1798,107 @@
         </div>
     </section>
 
+    <!-- VoiceFlow CRM Co-Pilot Demo Section -->
+    <section id="copilot-demo" class="py-20 px-4 bg-[#0a0a0b] scroll-section relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                    Your AI Co-Pilot
+                </h2>
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+                    Automate content, manage your business, and get instant insights—all through voice or text.
+                </p>
+
+                <!-- Bigger Rocket under title -->
+                <div class="emoji-rocket-container mb-8">
+                    <div class="emoji-sparkle emoji-sparkle-1">✨</div>
+                    <div class="emoji-sparkle emoji-sparkle-2">✨</div>
+                    <div class="emoji-ship">🚀</div>
+                    <div class="emoji-sparkle emoji-sparkle-3">✨</div>
+                </div>
+
+                <!-- Demo Button -->
+                <button
+                    id="open-copilot-chat"
+                    class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-12 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg inline-flex items-center gap-3"
+                >
+                    <i class="fas fa-rocket"></i>
+                    Try Co-Pilot Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Co-Pilot Chat UI Modal - Minimal Professional Design -->
+    <div id="copilot-chat-modal" class="hidden fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm">
+        <!-- Mobile: Full screen, Desktop: Centered with max width -->
+        <div class="h-full w-full md:h-auto md:max-h-[90vh] md:w-full md:max-w-2xl md:mx-auto md:my-8 md:rounded-2xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden md:border md:border-gray-200 dark:md:border-gray-800">
+
+            <!-- Minimal Header -->
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-sparkles text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">AI Co-Pilot</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                            Ready to help
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Close Button -->
+                <button
+                    id="close-copilot-chat"
+                    class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-colors group"
+                    aria-label="Close chat"
+                >
+                    <i class="fas fa-times text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200"></i>
+                </button>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div id="copilot-messages" class="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-black space-y-3">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <button class="copilot-quick-btn text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors border border-gray-200 dark:border-gray-700">
+                        📸 Image
+                    </button>
+                    <button class="copilot-quick-btn text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors border border-gray-200 dark:border-gray-700">
+                        ✍️ Caption
+                    </button>
+                    <button class="copilot-quick-btn text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors border border-gray-200 dark:border-gray-700">
+                        📞 Calls
+                    </button>
+                </div>
+
+                <!-- Input Row -->
+                <div class="flex gap-2">
+                    <input
+                        type="text"
+                        id="copilot-input"
+                        placeholder="Message Co-Pilot..."
+                        class="flex-1 px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                    />
+                    <button
+                        id="copilot-send"
+                        class="px-5 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                    >
+                        <i class="fas fa-paper-plane text-sm"></i>
+                        <span class="hidden sm:inline">Send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <section id="workflows" class="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-gradient-to-br from-[#141416] to-[#1a1a1d] scroll-section">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-10 sm:mb-12 md:mb-16">
@@ -1813,7 +2307,15 @@
                 copilotBtn.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.4)';
             };
             copilotBtn.onclick = () => {
-                document.getElementById('voice-copilot-modal').classList.remove('hidden');
+                console.log('Copilot button clicked - scrolling to section');
+                // Scroll to copilot demo section
+                const copilotSection = document.getElementById('copilot-demo');
+                if (copilotSection) {
+                    copilotSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    console.log('Scrolled to copilot section');
+                } else {
+                    console.error('Copilot section not found!');
+                }
                 // Close tray
                 toolMenu.style.transform = 'translateY(100%)';
                 triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
@@ -1893,16 +2395,14 @@
                 voicemailBtn.style.boxShadow = '0 4px 20px rgba(17, 153, 142, 0.4)';
             };
             voicemailBtn.onclick = () => {
-                console.log('Voicemail button clicked');
-                // Open voicemail modal
-                const voicemailModal = document.getElementById('voicemail-modal');
-                console.log('Voicemail modal:', voicemailModal);
-                if (voicemailModal) {
-                    voicemailModal.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                    console.log('Modal opened');
+                console.log('Voicemail button clicked - scrolling to section');
+                // Scroll to voicemail agent section
+                const voicemailSection = document.getElementById('voicemail-agent-demo');
+                if (voicemailSection) {
+                    voicemailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    console.log('Scrolled to voicemail section');
                 } else {
-                    console.error('Voicemail modal not found!');
+                    console.error('Voicemail section not found!');
                 }
                 // Close tray
                 toolMenu.style.transform = 'translateY(100%)';
@@ -2488,6 +2988,12 @@
             const startButton = document.getElementById('start-chat-demo');
             if (startButton) {
                 console.log('✅ Start button found');
+                // Auto-play demo on page load
+                setTimeout(() => {
+                    chatDemo.playConversation();
+                }, 500);
+
+                // Button to replay
                 startButton.addEventListener('click', function() {
                     console.log('🖱️ Start button clicked');
                     chatDemo.playConversation();
@@ -2873,6 +3379,212 @@
         }
     </script>
 
+    <!-- Co-Pilot Chat Modal Script - Full Functional Version -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openCopilotBtn = document.getElementById('open-copilot-chat');
+            const closeCopilotBtn = document.getElementById('close-copilot-chat');
+            const copilotModal = document.getElementById('copilot-chat-modal');
+            const copilotMessages = document.getElementById('copilot-messages');
+            const copilotInput = document.getElementById('copilot-input');
+            const copilotSendBtn = document.getElementById('copilot-send');
+            const copilotQuickBtns = document.querySelectorAll('.copilot-quick-btn');
+
+            // Welcome message
+            const welcomeMessage = "👋 Hi! I'm your VoiceFlow AI Co-Pilot with full system access.\n\nI can help you with:\n\n🎨 Image Generation (OpenAI DALL-E)\n✍️ Content Writing (Claude/GPT)\n📞 Call Me (Twilio)\n📧 Send Email/SMS\n📅 Google Calendar Management\n🔄 n8n Workflow Automation\n💻 Code Execution\n📊 Analytics & Reports\n\nJust ask me anything!";
+
+            function addMessage(role, text, isHTML = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`;
+
+                const bubble = document.createElement('div');
+                bubble.className = `max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${
+                    role === 'user'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
+                }`;
+                bubble.style.whiteSpace = 'pre-wrap';
+
+                if (isHTML) {
+                    bubble.innerHTML = text;
+                } else {
+                    bubble.textContent = text;
+                }
+
+                messageDiv.appendChild(bubble);
+                copilotMessages.appendChild(messageDiv);
+                copilotMessages.scrollTop = copilotMessages.scrollHeight;
+            }
+
+            function addLoadingMessage() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'copilot-loading';
+                loadingDiv.className = 'flex justify-start animate-fade-in';
+                loadingDiv.innerHTML = `
+                    <div class="max-w-[85%] px-4 py-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-2">
+                            <div class="animate-spin">
+                                <i class="fas fa-circle-notch text-purple-600 text-sm"></i>
+                            </div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Thinking...</span>
+                        </div>
+                    </div>
+                `;
+                copilotMessages.appendChild(loadingDiv);
+                copilotMessages.scrollTop = copilotMessages.scrollHeight;
+            }
+
+            function removeLoadingMessage() {
+                const loading = document.getElementById('copilot-loading');
+                if (loading) loading.remove();
+            }
+
+            async function handleCopilotRequest(userMessage) {
+                const lowerMsg = userMessage.toLowerCase();
+
+                addLoadingMessage();
+
+                try {
+                    // Image generation
+                    if (lowerMsg.includes('generate image') || lowerMsg.includes('create image') || lowerMsg.includes('📸')) {
+                        const prompt = userMessage.replace(/generate image|create image|📸/gi, '').trim() || 'modern kitchen renovation';
+                        const response = await fetch('/api/copilot/generate-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prompt })
+                        });
+                        const data = await response.json();
+                        removeLoadingMessage();
+                        if (data.success) {
+                            addMessage('assistant', `🎨 Image generated!\n\nPrompt: ${prompt}\n\n`, true);
+                            const imgDiv = document.createElement('div');
+                            imgDiv.className = 'flex justify-start mb-4';
+                            imgDiv.innerHTML = `<div class="max-w-md"><img src="${data.imageUrl}" class="rounded-lg w-full" alt="Generated image"/></div>`;
+                            copilotMessages.appendChild(imgDiv);
+                        } else {
+                            addMessage('assistant', `❌ Error: ${data.error || 'Failed to generate image'}`);
+                        }
+                        return;
+                    }
+
+                    // Call me feature
+                    if (lowerMsg.includes('call me') || lowerMsg.includes('phone me') || lowerMsg.includes('📞 call')) {
+                        const phoneMatch = userMessage.match(/\d{10,}/);
+                        if (!phoneMatch) {
+                            removeLoadingMessage();
+                            addMessage('assistant', "📞 I'd be happy to call you! Please provide your phone number.\n\nExample: \"Call me at 555-123-4567\"");
+                            return;
+                        }
+                        const response = await fetch('/api/copilot/call', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phoneNumber: phoneMatch[0] })
+                        });
+                        const data = await response.json();
+                        removeLoadingMessage();
+                        addMessage('assistant', data.success ?
+                            `📞 Calling you now at ${phoneMatch[0]}!\n\nYou should receive a call in a few seconds.` :
+                            `❌ Error: ${data.error || 'Failed to initiate call'}`);
+                        return;
+                    }
+
+                    // Send SMS
+                    if (lowerMsg.includes('send sms') || lowerMsg.includes('text me')) {
+                        removeLoadingMessage();
+                        addMessage('assistant', "📱 SMS Feature\n\nFormat: \"Send SMS to [number]: [message]\"\n\nExample: \"Send SMS to 555-123-4567: Your appointment is confirmed!\"");
+                        return;
+                    }
+
+                    // Google Calendar
+                    if (lowerMsg.includes('calendar') || lowerMsg.includes('schedule') || lowerMsg.includes('📅')) {
+                        const response = await fetch('/api/copilot/calendar/events');
+                        const data = await response.json();
+                        removeLoadingMessage();
+                        if (data.success) {
+                            const eventsText = data.events.length > 0
+                                ? data.events.map(e => `• ${e.summary} - ${e.start}`).join('\n')
+                                : 'No upcoming events';
+                            addMessage('assistant', `📅 Your Calendar:\n\n${eventsText}\n\nI can also:\n• Add events\n• Cancel meetings\n• Check availability`);
+                        } else {
+                            addMessage('assistant', `📅 Calendar sync needed. Connect your Google Calendar in settings.`);
+                        }
+                        return;
+                    }
+
+                    // General AI response using backend API
+                    const response = await fetch('/api/copilot/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userMessage })
+                    });
+                    const data = await response.json();
+                    removeLoadingMessage();
+
+                    if (data.success) {
+                        addMessage('assistant', data.response);
+                    } else {
+                        addMessage('assistant', "I'm here to help! Try:\n• \"Generate image of [description]\"\n• \"Call me at [number]\"\n• \"Show my calendar\"\n• \"Create a social media post about [topic]\"");
+                    }
+
+                } catch (error) {
+                    console.error('Copilot error:', error);
+                    removeLoadingMessage();
+                    addMessage('assistant', "⚠️ I'm currently in demo mode. Full features available after signing up!\n\nTry:\n• Image generation\n• Content writing\n• Calendar management\n• Call scheduling");
+                }
+            }
+
+            // Open modal
+            if (openCopilotBtn) {
+                openCopilotBtn.addEventListener('click', () => {
+                    copilotModal.classList.remove('hidden');
+                    if (copilotMessages.children.length === 0) {
+                        addMessage('assistant', welcomeMessage);
+                    }
+                });
+            }
+
+            // Close modal
+            if (closeCopilotBtn) {
+                closeCopilotBtn.addEventListener('click', () => {
+                    copilotModal.classList.add('hidden');
+                });
+            }
+
+            // Close on backdrop click
+            copilotModal?.addEventListener('click', (e) => {
+                if (e.target === copilotModal) {
+                    copilotModal.classList.add('hidden');
+                }
+            });
+
+            // Send message
+            function sendMessage() {
+                const text = copilotInput.value.trim();
+                if (text) {
+                    addMessage('user', text);
+                    copilotInput.value = '';
+                    handleCopilotRequest(text);
+                }
+            }
+
+            copilotSendBtn?.addEventListener('click', sendMessage);
+            copilotInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Quick buttons
+            copilotQuickBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const text = btn.textContent.trim();
+                    addMessage('user', text);
+                    handleCopilotRequest(text);
+                });
+            });
+        });
+    </script>
+
     <!-- Voicemail Agent Demo Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -2882,7 +3594,16 @@
             const modal = document.getElementById('voicemail-modal');
             const vmForm = document.getElementById('voicemail-agent-form');
 
-            if (!vmForm || !openModalBtn || !modal) return;
+            console.log('Voicemail script loaded:', { openModalBtn, closeModalBtn, modal, vmForm });
+
+            if (!vmForm || !openModalBtn || !modal) {
+                console.error('Missing voicemail elements:', {
+                    hasForm: !!vmForm,
+                    hasOpenBtn: !!openModalBtn,
+                    hasModal: !!modal
+                });
+                return;
+            }
 
             const vmBusinessName = document.getElementById('vm-business-name');
             const vmBusinessType = document.getElementById('vm-business-type');
@@ -2893,9 +3614,13 @@
             let generatedAgentId = null;
 
             // Open modal
-            openModalBtn.addEventListener('click', () => {
+            openModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Voicemail demo button clicked - opening modal');
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+                console.log('Modal should be open now. Classes:', modal.classList.toString());
             });
 
             // Close modal
