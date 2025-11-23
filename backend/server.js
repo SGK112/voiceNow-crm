@@ -103,6 +103,7 @@ import demoRoutes from './routes/demo.js';
 import studioRoutes from './routes/studio.js';
 import voiceEstimateRoutes from './routes/voiceEstimates.js';
 import socialMediaAIRoutes from './routes/socialMediaAI.js';
+import mobileRoutes from './routes/mobile.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -230,6 +231,7 @@ app.use('/api/studio', studioRoutes); // Studio routes - social media staging
 app.use('/api/voicemail-agent', voicemailAgentRoutes); // Voicemail agent demo routes
 app.use('/api/copilot', copilotRoutes); // Full-featured Co-Pilot with system integrations
 app.use('/api/voice-estimates', voiceEstimateRoutes); // Voice estimate builder routes
+app.use('/api/mobile', mobileRoutes); // Mobile app API endpoints
 app.use('/api/social-media', socialMediaAIRoutes); // AI Social Media Post Writer
 
 app.use('/api', apiLimiter);

@@ -647,7 +647,7 @@ This inquiry was automatically captured by VoiceFlow CRM
 // Request a voice demo call using Twilio + ElevenLabs WebSocket
 export const requestVoiceDemo = async (req, res) => {
   try {
-    const { phoneNumber, name, email } = req.body;
+    const { phoneNumber, name, email, demoType = "voice" } = req.body;
 
     // Validate required fields
     if (!phoneNumber || !name) {
@@ -675,20 +675,20 @@ export const requestVoiceDemo = async (req, res) => {
       formattedNumber = '+1' + digitsOnly;
     }
 
-    // Use the demo agent - get ElevenLabs agent ID from environment
-    const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
-    const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
-    const webhookUrl = process.env.WEBHOOK_URL || process.env.NGROK_URL;
 
-    if (!agentPhoneNumberId) {
-      return res.status(503).json({
-        error: 'Voice demo temporarily unavailable',
-        message: 'Please try the text chat or contact us at help.remodely@gmail.com'
-      });
+    // Choose agent based on demo type
+    let agentId, agentType;
+    if (demoType === 'sms') {
+      // SMS Demo Agent - sends a text message first
+      agentId = process.env.ELEVENLABS_SMS_DEMO_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+      agentType = 'SMS Demo';
+      console.log(`💬 Initiating SMS demo to ${name} at ${formattedNumber}`);
+    } else {
+      // Voice Call Agent - calls directly
+      agentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+      agentType = 'Voice Call';
+      console.log(`📞 Initiating voice call demo to ${name} at ${formattedNumber}`);
     }
-
-    console.log(`📞 Initiating ElevenLabs voice demo call to ${name} at ${formattedNumber}`);
-
     // Extract first name only (more natural than full name)
     const firstName = name.trim().split(' ')[0];
 
