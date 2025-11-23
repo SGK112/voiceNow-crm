@@ -312,12 +312,13 @@
             will-change: transform, opacity;
         }
 
-        /* Desktop: seamless full screen video */
+        /* Desktop: beautiful contained video with elegant frame */
         @media (min-width: 769px) {
             .brand-intro-container {
-                padding: 0;
-                width: 100%;
-                height: 100%;
+                padding: 40px 60px;
+                max-width: 1800px;
+                max-height: 92vh;
+                margin: 0 auto;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -325,7 +326,13 @@
             .brand-intro-video {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
+                max-height: 85vh;
+                object-fit: contain;
+                border-radius: 24px;
+                box-shadow:
+                    0 0 0 1px rgba(59, 130, 246, 0.2),
+                    0 20px 60px rgba(0, 0, 0, 0.6),
+                    0 0 100px rgba(59, 130, 246, 0.15);
                 animation: subtleZoomIn 1.2s ease-out forwards;
             }
             .brand-intro-video.ending {
@@ -336,10 +343,10 @@
             }
         }
 
-        /* Mobile: seamless full screen video */
+        /* Mobile: beautiful edge-to-edge video with subtle frame */
         @media (max-width: 768px) {
             .brand-intro-container {
-                padding: 0;
+                padding: 16px;
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -351,8 +358,14 @@
                 opacity: 1;
                 transform: none;
                 width: 100%;
-                height: 100%;
-                object-fit: cover;
+                height: auto;
+                max-height: 85vh;
+                object-fit: contain;
+                border-radius: 20px;
+                box-shadow:
+                    0 0 0 1px rgba(59, 130, 246, 0.3),
+                    0 10px 40px rgba(0, 0, 0, 0.7),
+                    0 0 80px rgba(59, 130, 246, 0.2);
             }
             .brand-intro-video.ending {
                 animation: quickFadeOut 0.4s ease-in forwards;
