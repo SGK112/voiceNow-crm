@@ -6,13 +6,27 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v3-no-scroll-dots';
-        const storedVersion = localStorage.getItem('pageVersion');
+        const CURRENT_VERSION = '2025-11-23-v4-cache-fix';
+        const storedVersion = sessionStorage.getItem('pageVersion');
+
+        // Clear all caches on version change
         if (storedVersion !== CURRENT_VERSION) {
-            localStorage.setItem('pageVersion', CURRENT_VERSION);
+            // Clear session storage
+            sessionStorage.clear();
+            sessionStorage.setItem('pageVersion', CURRENT_VERSION);
+
+            // Clear service workers if any
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+
+            // Force hard reload if this is a version change (not first visit)
             if (storedVersion !== null) {
-                // Force hard reload to clear cache
-                window.location.reload(true);
+                window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
             }
         }
     </script>
@@ -21,7 +35,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v3-no-scroll-dots -->
+    <!-- Version: 2025-11-23-v4-cache-fix -->
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
