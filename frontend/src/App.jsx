@@ -54,6 +54,7 @@ import Credits from './pages/Credits';
 import Checkout from './pages/Checkout';
 import MultimodalAgentDemo from './pages/MultimodalAgentDemo';
 import Onboarding from './pages/Onboarding';
+import RemodelStudio from './components/RemodelStudio';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -134,6 +135,7 @@ function App() {
         <Route path="credits" element={<Credits />} />
         <Route path="credits-dashboard" element={<CreditsDashboard />} />
         <Route path="multimodal-agent" element={<MultimodalAgentDemo />} />
+        <Route path="studio" element={<RemodelStudio />} />
         <Route path="crm" element={<CRM />} />
         <Route path="crm/leads/:id" element={<LeadDetail />} />
         <Route path="crm/workflows" element={<CRMWorkflowStudio />} />
