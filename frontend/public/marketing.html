@@ -222,38 +222,30 @@
             transform: scale(1.05);
         }
 
-        /* Intro signup button */
+        /* Intro signup button - same position as marketing page */
         .intro-signup-btn {
             position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 20px;
+            right: 20px;
             z-index: 10000;
             opacity: 0;
-            animation: fadeInUp 0.8s ease-out 1s forwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+            animation: slideInRight 0.8s ease-out 1s forwards;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         /* Hide intro button when transitioning */
         .brand-intro-overlay.hidden .intro-signup-btn {
             opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
+            transform: translateX(100px);
             transition: all 0.5s ease-out;
         }
 
         @media (max-width: 768px) {
             .intro-signup-btn {
-                bottom: 60px;
+                bottom: 16px;
+                right: 16px;
+                padding: 12px 24px !important;
+                font-size: 16px !important;
             }
         }
 
@@ -368,8 +360,8 @@
         </div>
 
         <!-- Intro Signup Button -->
-        <a href="/signup" class="intro-signup-btn gradient-bg text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105">
-            Get Started Free
+        <a href="/signup" class="intro-signup-btn gradient-bg text-white px-6 py-3 rounded-full font-semibold hover:shadow-xl transition text-sm md:text-base">
+            Get Started
         </a>
     </div>
 
@@ -444,8 +436,8 @@
         if (isMobile) {
             const overlay = document.getElementById('brandIntroOverlay');
             const tapHint = document.createElement('div');
-            tapHint.style.cssText = 'position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; animation: pulse 2s ease-in-out infinite;';
-            tapHint.innerHTML = 'Tap anywhere to skip';
+            tapHint.style.cssText = 'position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; animation: pulse 2s ease-in-out infinite;';
+            tapHint.innerHTML = 'Tap to skip';
             overlay?.appendChild(tapHint);
         }
     </script>
