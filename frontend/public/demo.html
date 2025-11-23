@@ -39,6 +39,60 @@
             box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
         }
 
+        /* Sticky Tutorial Cards */
+        .tutorial-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .tutorial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 100% 0%; }
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+        }
+
+        .feature-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(10, 10, 11, 0.8) 0%, rgba(20, 20, 21, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.9) 0%, rgba(25, 25, 26, 0.9) 100%);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon-wrapper {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon-wrapper {
+            transform: scale(1.1);
+        }
+
         .feature-badge {
             position: absolute;
             top: 12px;
@@ -196,7 +250,7 @@
         <div id="tab-voice" class="tab-content">
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Voice Demo Card -->
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-bold">AI Voice Agent Demo</h3>
                         <div class="bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">
@@ -243,11 +297,11 @@
                 </div>
 
                 <!-- Features List -->
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <h3 class="text-xl font-bold mb-4">Voice Agent Features</h3>
                     <div class="space-y-4">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-brain text-blue-400"></i>
                             </div>
                             <div>
@@ -255,8 +309,8 @@
                                 <p class="text-sm text-gray-400">AI understands context and responds like a real person</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-globe text-purple-400"></i>
                             </div>
                             <div>
@@ -264,8 +318,8 @@
                                 <p class="text-sm text-gray-400">Automatically detects and responds in caller's language</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-calendar text-green-400"></i>
                             </div>
                             <div>
@@ -273,8 +327,8 @@
                                 <p class="text-sm text-gray-400">Books appointments and syncs with your calendar</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-database text-yellow-400"></i>
                             </div>
                             <div>
@@ -407,7 +461,7 @@
         <!-- Workflow Tab -->
         <div id="tab-workflow" class="tab-content hidden">
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <h3 class="text-xl font-bold mb-4">Automation Workflows</h3>
                     <p class="text-gray-400 text-sm mb-6">
                         Build powerful automations with no code. Connect voice agents, CRM, and third-party apps.
@@ -455,7 +509,7 @@
                 </div>
 
                 <!-- Workflow Visual -->
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <h3 class="text-xl font-bold mb-4">Visual Builder</h3>
                     <div class="bg-black/40 border border-white/10 rounded-lg p-6 h-96 flex items-center justify-center">
                         <div class="text-center">
@@ -471,7 +525,7 @@
         <!-- Studio Tab -->
         <div id="tab-studio" class="tab-content hidden">
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <h3 class="text-xl font-bold mb-4">AI Content Studio</h3>
                     <p class="text-gray-400 text-sm mb-6">
                         Generate professional images, create marketing content, and manage social media all in one place.
@@ -479,8 +533,8 @@
 
                     <!-- Studio Features -->
                     <div class="space-y-4 mb-6">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-image text-blue-400"></i>
                             </div>
                             <div>
@@ -488,8 +542,8 @@
                                 <p class="text-sm text-gray-400">Create stunning visuals with Vertex AI</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-pen-fancy text-purple-400"></i>
                             </div>
                             <div>
@@ -497,8 +551,8 @@
                                 <p class="text-sm text-gray-400">AI-powered captions and hashtags</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
+                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-share-nodes text-green-400"></i>
                             </div>
                             <div>
@@ -514,7 +568,7 @@
                 </div>
 
                 <!-- Studio Preview -->
-                <div class="glass rounded-2xl p-6">
+                <div class="tutorial-card rounded-2xl p-6">
                     <h3 class="text-xl font-bold mb-4">Quick Generate</h3>
                     <div class="space-y-4">
                         <textarea
