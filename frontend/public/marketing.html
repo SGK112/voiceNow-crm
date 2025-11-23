@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v51-ready';
+        const CURRENT_VERSION = '2025-11-23-v52-try-it-now-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2631,7 +2631,6 @@
         const smsMessages = document.getElementById('sms-messages');
 
         // New UI elements
-        const showFormBtn = document.getElementById('show-form-btn');
         const showDemoFormBtn = document.getElementById('show-demo-form-btn');
         const initialCta = document.getElementById('initial-cta');
         const demoFormContainer = document.getElementById('demo-form-container');
@@ -2648,39 +2647,42 @@
         const tryItNowBtn = document.getElementById('try-it-now-btn');
         if (tryItNowBtn) {
             tryItNowBtn.addEventListener('click', () => {
-                showDemoFormBtn.click();
-                // Scroll to hero section
-                document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+                console.log('Try It Now clicked');
+                if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
+                if (initialCta) initialCta.classList.add('hidden');
+                if (demoFormContainer) demoFormContainer.classList.remove('hidden');
             });
         }
-        showFormBtn.addEventListener('click', () => {
-            initialCta.classList.add('hidden');
-            demoFormContainer.classList.remove('hidden');
-        });
 
         // Show form when phone "Try Me" is clicked
-        showDemoFormBtn.addEventListener('click', () => {
-            phonePlaceholder.classList.add('hidden');
-            initialCta.classList.add('hidden');
-            demoFormContainer.classList.remove('hidden');
-        });
+        if (showDemoFormBtn) {
+            showDemoFormBtn.addEventListener('click', () => {
+                if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
+                if (initialCta) initialCta.classList.add('hidden');
+                if (demoFormContainer) demoFormContainer.classList.remove('hidden');
+            });
+        }
 
         // Toggle between Voice and SMS
-        toggleVoice.addEventListener('click', () => {
-            selectedDemoType = 'voice';
-            toggleVoice.classList.add('active');
-            toggleSms.classList.remove('active');
-            submitBtnText.innerHTML = 'Start Voice Demo';
-            submitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
-        });
+        if (toggleVoice) {
+            toggleVoice.addEventListener('click', () => {
+                selectedDemoType = 'voice';
+                toggleVoice.classList.add('active');
+                if (toggleSms) toggleSms.classList.remove('active');
+                if (submitBtnText) submitBtnText.innerHTML = 'Start Voice Demo';
+                if (submitDemoBtn) submitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
+            });
+        }
 
-        toggleSms.addEventListener('click', () => {
-            selectedDemoType = 'sms';
-            toggleSms.classList.add('active');
-            toggleVoice.classList.remove('active');
-            submitBtnText.innerHTML = 'Start SMS Demo';
-            submitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
-        });
+        if (toggleSms) {
+            toggleSms.addEventListener('click', () => {
+                selectedDemoType = 'sms';
+                toggleSms.classList.add('active');
+                if (toggleVoice) toggleVoice.classList.remove('active');
+                if (submitBtnText) submitBtnText.innerHTML = 'Start SMS Demo';
+                if (submitDemoBtn) submitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
+            });
+        }
 
         // Validate form
         function validateForm() {
@@ -2762,8 +2764,9 @@
         }
 
         // Handle submit button (works for both voice and SMS)
-        submitDemoBtn.addEventListener('click', async () => {
-            if (!validateForm()) return;
+        if (submitDemoBtn) {
+            submitDemoBtn.addEventListener('click', async () => {
+                if (!validateForm()) return;
 
             const formData = {
                 name: demoName.value.trim(),
@@ -2865,7 +2868,8 @@
                     demoFormContainer.classList.remove('hidden');
                 });
             }
-        });
+            });
+        }
 
         // Add fade-in animation and toggle styles
         const smsStyle = document.createElement('style');
