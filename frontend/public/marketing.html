@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v30-pricing-cards-fix';
+        const CURRENT_VERSION = '2025-11-23-v31-cta-full-width-bg';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -35,7 +35,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v30-pricing-cards-fix -->
+    <!-- Version: 2025-11-23-v31-cta-full-width-bg -->
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
@@ -2616,20 +2616,34 @@
         </div>
     </section>
 
-    <section class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 gradient-bg text-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8">Stop Leaving Money on the Table</h2>
-            <p class="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 opacity-90 max-w-3xl mx-auto">While you're manually calling leads, your competitors are using AI to make 10x more calls in half the time.</p>
-            <p class="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 opacity-80 max-w-2xl mx-auto">Join 500+ companies using VoiceFlow to automate their sales process and close more deals.</p>
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-stretch sm:items-center">
-                <a href="/signup" class="bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105 text-center text-base sm:text-lg">
+    <section class="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden">
+        <!-- Background pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8">
+                Stop Leaving Money on the Table
+            </h2>
+            <p class="text-xl sm:text-2xl md:text-3xl mb-6 opacity-95 max-w-4xl mx-auto leading-relaxed">
+                While you're manually calling leads, your competitors are using AI to make 10x more calls in half the time.
+            </p>
+            <p class="text-lg sm:text-xl mb-10 opacity-90 max-w-3xl mx-auto">
+                Join 500+ companies using VoiceFlow to automate their sales process and close more deals.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/signup" class="bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-white/30 transition-all transform hover:scale-105 hover:bg-gray-50">
                     Start Free Trial - 50 Minutes Free
                 </a>
-                <button onclick="window.open('tel:+16028334780', '_self')" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white/10 transition text-center text-base sm:text-lg">
+                <button onclick="window.open('tel:+16028334780', '_self')" class="border-2 border-white text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all transform hover:scale-105">
                     <i class="fas fa-phone mr-2"></i>Talk to Our AI Now
                 </button>
             </div>
-            <p class="text-sm sm:text-base mt-6 sm:mt-8 opacity-75">
+
+            <p class="text-base sm:text-lg mt-8 opacity-90">
                 <i class="fas fa-lock mr-2"></i>No credit card required • Setup in 5 minutes • Cancel anytime
             </p>
         </div>
