@@ -741,13 +741,6 @@
         </div>
     </nav>
 
-    <!-- Scroll Progress Bar -->
-    <div id="scroll-progress" style="position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); z-index: 10001; transition: width 0.2s; display: none;"></div>
-
-    <!-- Section Navigation Dots -->
-    <div id="section-nav" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); z-index: 9998; display: none;">
-        <div style="display: flex; flex-direction: column; gap: 12px;"></div>
-    </div>
 
     <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-3 sm:px-4 min-h-screen flex items-center overflow-hidden scroll-section">
         <!-- Background Image -->
@@ -1787,61 +1780,11 @@
         `;
         document.head.appendChild(style);
 
-        // ===== SCROLL SPY & ENHANCEMENTS =====
+        // ===== SECTION VISIBILITY =====
 
-        // Scroll Progress Bar
-        function updateScrollProgress() {
-            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            document.getElementById('scroll-progress').style.width = scrolled + '%';
-        }
-
-        // Section Observer for Scroll Spy
+        // Simple section visibility observer (no scroll indicators)
         const sections = document.querySelectorAll('.scroll-section');
         const navLinks = document.querySelectorAll('.nav-link');
-        const sectionNavContainer = document.getElementById('section-nav');
-
-        // Create navigation dots
-        const dotsContainer = sectionNavContainer.querySelector('div');
-        sections.forEach((section, index) => {
-            const dot = document.createElement('button');
-            dot.style.cssText = `
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.3);
-                border: 2px solid rgba(59, 130, 246, 0.5);
-                cursor: pointer;
-                transition: all 0.3s;
-                position: relative;
-            `;
-            dot.setAttribute('data-section', section.id);
-            dot.setAttribute('aria-label', `Scroll to ${section.id}`);
-
-            dot.addEventListener('click', () => {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
-
-            dot.addEventListener('mouseenter', () => {
-                dot.style.transform = 'scale(1.5)';
-                dot.style.background = 'rgba(59, 130, 246, 0.8)';
-            });
-
-            dot.addEventListener('mouseleave', () => {
-                if (!section.classList.contains('in-view')) {
-                    dot.style.transform = 'scale(1)';
-                    dot.style.background = 'rgba(255, 255, 255, 0.3)';
-                }
-            });
-
-            dotsContainer.appendChild(dot);
-        });
-
-        // Show section nav on desktop only
-        if (window.innerWidth > 768) {
-            sectionNavContainer.style.display = 'block';
-        }
 
         // Intersection Observer for sections
         const observerOptions = {
@@ -1854,7 +1797,6 @@
             entries.forEach(entry => {
                 const sectionId = entry.target.id;
                 const navLink = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
-                const dot = dotsContainer.querySelector(`button[data-section="${sectionId}"]`);
 
                 if (entry.isIntersecting) {
                     // Add visible class for animation
@@ -1863,18 +1805,6 @@
                     // Update navigation
                     navLinks.forEach(link => link.classList.remove('active'));
                     if (navLink) navLink.classList.add('active');
-
-                    // Update dots
-                    dotsContainer.querySelectorAll('button').forEach(b => {
-                        b.style.background = 'rgba(255, 255, 255, 0.3)';
-                        b.style.transform = 'scale(1)';
-                        b.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                    });
-                    if (dot) {
-                        dot.style.background = 'rgba(59, 130, 246, 1)';
-                        dot.style.transform = 'scale(1.3)';
-                        dot.style.borderColor = 'rgba(59, 130, 246, 1)';
-                    }
                 } else {
                     entry.target.classList.remove('in-view');
                 }
@@ -1889,11 +1819,6 @@
                 section.classList.add('visible');
             }
         });
-
-        // Scroll event listener
-        window.addEventListener('scroll', () => {
-            updateScrollProgress();
-        }, { passive: true });
 
         // Smooth scroll for all anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
