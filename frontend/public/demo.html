@@ -3,17 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VoiceFlow CRM - Full Feature Demo</title>
+    <title>VoiceFlow CRM - Interactive Demos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --card: 240 10% 3.9%;
-            --border: 240 3.7% 15.9%;
+        .demo-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
-        * {
-            -webkit-tap-highlight-color: transparent;
+        .demo-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .demo-card.active {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        }
+
+        .demo-content {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .gradient-text {
@@ -22,152 +41,15 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .demo-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        .demo-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Sticky Tutorial Cards */
-        .tutorial-card {
-            position: relative;
-            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-        }
-
-        .tutorial-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
-            background-size: 200% 100%;
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { background-position: 0% 0%; }
-            50% { background-position: 100% 0%; }
-        }
-
-        .tutorial-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: rgba(59, 130, 246, 0.4);
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
-        }
-
-        .feature-card {
-            position: relative;
-            background: linear-gradient(135deg, rgba(10, 10, 11, 0.8) 0%, rgba(20, 20, 21, 0.8) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            border-color: rgba(59, 130, 246, 0.3);
-            background: linear-gradient(135deg, rgba(15, 15, 16, 0.9) 0%, rgba(25, 25, 26, 0.9) 100%);
-            transform: translateY(-2px);
-        }
-
-        .feature-icon-wrapper {
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover .feature-icon-wrapper {
-            transform: scale(1.1);
-        }
-
-        .feature-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-        }
-
-        .tab-btn {
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .voice-wave {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scaleY(1); }
-            50% { opacity: 1; transform: scaleY(1.5); }
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            padding: 20px;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #1a1a1b;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .crm-row {
-            transition: background 0.2s;
-        }
-
-        .crm-row:hover {
-            background: rgba(59, 130, 246, 0.1);
-        }
     </style>
 </head>
-<body class="bg-[#0a0a0b] text-white">
+<body class="bg-[#0a0a0b] text-white min-h-screen">
 
     <!-- Header -->
-    <nav class="fixed w-full z-50 bg-[#0a0a0b]/95 backdrop-blur-md border-b border-gray-800 shadow-sm">
+    <nav class="fixed w-full z-50 bg-[#0a0a0b]/95 backdrop-blur-md border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-2">
+                <a href="/" class="flex items-center gap-2">
                     <span class="voice-icon" style="display: flex; align-items: center; gap: 2px; height: 24px; padding: 4px 6px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 6px;">
                         <span style="width: 3px; height: 10px; background: white; border-radius: 2px;"></span>
                         <span style="width: 3px; height: 16px; background: white; border-radius: 2px;"></span>
@@ -177,681 +59,633 @@
                         <span class="text-lg sm:text-xl font-bold gradient-text">VoiceFlow CRM</span>
                         <span class="hidden sm:inline text-[10px] text-gray-500">by Remodely AI</span>
                     </div>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center gap-8">
+                </a>
+                <div class="flex items-center gap-4">
                     <a href="/marketing.html" class="text-sm text-gray-300 hover:text-white transition-colors">Home</a>
-                    <a href="/demo.html" class="text-sm text-white font-medium">Demo</a>
-                    <a href="/app/agent-builder" class="text-sm text-gray-300 hover:text-white transition-colors">Login</a>
-                </div>
-
-                <!-- Mobile Navigation -->
-                <div class="flex md:hidden items-center gap-2">
-                    <a href="/marketing.html" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-2">Home</a>
-                    <a href="/app/agent-builder" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-2">Login</a>
+                    <a href="/app/agent-builder" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors">Sign Up</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="border-b border-white/10 bg-gradient-to-b from-blue-500/5 to-transparent pt-20">
-        <div class="max-w-7xl mx-auto px-4 py-8 md:py-12 text-center">
-            <h2 class="text-3xl md:text-5xl font-bold mb-4">
-                Experience <span class="gradient-text">VoiceFlow CRM</span>
-            </h2>
-            <p class="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-6">
-                Try all features for free. No credit card required. See how AI voice agents, automation, and intelligent CRM work together.
-            </p>
-            <div class="flex flex-wrap gap-4 justify-center text-sm">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span>AI Voice Agents</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span>Smart CRM</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span>Workflow Automation</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span>AI Content Studio</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="pt-24 pb-16 px-4">
+        <div class="max-w-6xl mx-auto">
 
-        <!-- Feature Tabs -->
-        <div class="glass rounded-xl p-2 mb-8 overflow-x-auto">
-            <div class="flex gap-2 min-w-max">
-                <button class="tab-btn active px-6 py-3 rounded-lg text-sm font-medium bg-white/5 border border-white/10" data-tab="voice">
-                    <i class="fas fa-microphone mr-2"></i>Voice Agents
-                </button>
-                <button class="tab-btn px-6 py-3 rounded-lg text-sm font-medium bg-white/5 border border-white/10" data-tab="crm">
-                    <i class="fas fa-users mr-2"></i>CRM
-                </button>
-                <button class="tab-btn px-6 py-3 rounded-lg text-sm font-medium bg-white/5 border border-white/10" data-tab="workflow">
-                    <i class="fas fa-project-diagram mr-2"></i>Workflows
-                </button>
-                <button class="tab-btn px-6 py-3 rounded-lg text-sm font-medium bg-white/5 border border-white/10" data-tab="studio">
-                    <i class="fas fa-paint-brush mr-2"></i>Studio
-                </button>
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Interactive Demos</h1>
+                <p class="text-gray-400 text-lg">Try each feature - no signup required</p>
             </div>
-        </div>
 
-        <!-- Voice Agent Tab -->
-        <div id="tab-voice" class="tab-content">
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- Voice Demo Card -->
-                <div class="tutorial-card rounded-2xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold">AI Voice Agent Demo</h3>
-                        <div class="bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">
-                            <span class="text-green-400 text-xs font-semibold">LIVE</span>
-                        </div>
+            <!-- Demo Selector -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div class="demo-card active border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="voicemail" onclick="Demos.switchDemo('voicemail')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                        <i class="fas fa-voicemail text-green-400 text-xl"></i>
                     </div>
-                    <p class="text-gray-400 text-sm mb-6">
-                        Call and speak with an AI voice agent. Experience natural conversation with multilingual support.
-                    </p>
-
-                    <div class="space-y-4">
-                        <!-- Demo Phone Number -->
-                        <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-center">
-                            <div class="text-xs text-blue-300 mb-1">Demo Number</div>
-                            <div class="text-2xl font-bold text-blue-400 mb-2">+1 (555) 0123</div>
-                            <div class="text-xs text-gray-400">Available 24/7</div>
-                        </div>
-
-                        <!-- Voice Preview -->
-                        <div class="bg-black/40 border border-white/10 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-sm font-medium">Voice Preview</span>
-                                <button id="play-voice-demo" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold transition-colors">
-                                    <i class="fas fa-play mr-1"></i>Play Sample
-                                </button>
-                            </div>
-                            <audio id="demo-audio" src="/demo-elevenlabs.mp3"></audio>
-                            <div class="flex gap-1 justify-center items-end h-12">
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 20%;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 60%; animation-delay: 0.1s;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 40%; animation-delay: 0.2s;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 80%; animation-delay: 0.3s;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 50%; animation-delay: 0.4s;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 70%; animation-delay: 0.5s;"></div>
-                                <div class="voice-wave w-1 bg-blue-500 rounded-full" style="height: 30%; animation-delay: 0.6s;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Setup -->
-                        <button onclick="Demo.showVoiceSetup()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all">
-                            <i class="fas fa-robot mr-2"></i>Create Your Own Agent
-                        </button>
-                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Voicemail AI</h3>
+                    <p class="text-xs text-gray-400">Answer calls 24/7</p>
                 </div>
 
-                <!-- Features List -->
-                <div class="tutorial-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold mb-4">Voice Agent Features</h3>
-                    <div class="space-y-4">
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-brain text-blue-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">Natural Conversations</h4>
-                                <p class="text-sm text-gray-400">AI understands context and responds like a real person</p>
-                            </div>
-                        </div>
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-globe text-purple-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">50+ Languages</h4>
-                                <p class="text-sm text-gray-400">Automatically detects and responds in caller's language</p>
-                            </div>
-                        </div>
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-calendar text-green-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">Smart Scheduling</h4>
-                                <p class="text-sm text-gray-400">Books appointments and syncs with your calendar</p>
-                            </div>
-                        </div>
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-database text-yellow-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">CRM Integration</h4>
-                                <p class="text-sm text-gray-400">Automatically creates leads and logs conversations</p>
-                            </div>
-                        </div>
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="estimate" onclick="Demos.switchDemo('estimate')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                        <i class="fas fa-file-invoice-dollar text-blue-400 text-xl"></i>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CRM Tab -->
-        <div id="tab-crm" class="tab-content hidden">
-            <div class="glass rounded-2xl p-6 mb-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold">Lead Management</h3>
-                    <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors">
-                        <i class="fas fa-plus mr-2"></i>Add Lead
-                    </button>
+                    <h3 class="font-semibold text-sm mb-1">Voice Estimates</h3>
+                    <p class="text-xs text-gray-400">Build by voice</p>
                 </div>
 
-                <!-- Sample CRM Data -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-white/10 text-left">
-                                <th class="pb-3 font-semibold">Name</th>
-                                <th class="pb-3 font-semibold">Status</th>
-                                <th class="pb-3 font-semibold">Last Contact</th>
-                                <th class="pb-3 font-semibold">Value</th>
-                                <th class="pb-3 font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="crm-table">
-                            <tr class="crm-row border-b border-white/5">
-                                <td class="py-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">JD</div>
-                                        <div>
-                                            <div class="font-medium">John Doe</div>
-                                            <div class="text-xs text-gray-400">john@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3">
-                                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-semibold">Contacted</span>
-                                </td>
-                                <td class="py-3 text-gray-400">2 hours ago</td>
-                                <td class="py-3 font-semibold">$5,200</td>
-                                <td class="py-3">
-                                    <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold transition-colors">
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="crm-row border-b border-white/5">
-                                <td class="py-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold">AS</div>
-                                        <div>
-                                            <div class="font-medium">Alice Smith</div>
-                                            <div class="text-xs text-gray-400">alice@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3">
-                                    <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Won</span>
-                                </td>
-                                <td class="py-3 text-gray-400">1 day ago</td>
-                                <td class="py-3 font-semibold">$12,400</td>
-                                <td class="py-3">
-                                    <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold transition-colors">
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="crm-row">
-                                <td class="py-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold">BJ</div>
-                                        <div>
-                                            <div class="font-medium">Bob Johnson</div>
-                                            <div class="text-xs text-gray-400">bob@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3">
-                                    <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-semibold">New</span>
-                                </td>
-                                <td class="py-3 text-gray-400">3 hours ago</td>
-                                <td class="py-3 font-semibold">$8,900</td>
-                                <td class="py-3">
-                                    <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold transition-colors">
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="copilot" onclick="Demos.switchDemo('copilot')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                        <i class="fas fa-robot text-purple-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Co-Pilot</h3>
+                    <p class="text-xs text-gray-400">AI assistant</p>
+                </div>
+
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="sms" onclick="Demos.switchDemo('sms')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
+                        <i class="fas fa-comment-dots text-yellow-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">SMS AI</h3>
+                    <p class="text-xs text-gray-400">Auto-reply texts</p>
+                </div>
+
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="studio" onclick="Demos.switchDemo('studio')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
+                        <i class="fas fa-image text-pink-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Image Studio</h3>
+                    <p class="text-xs text-gray-400">AI images</p>
+                </div>
+
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="workflow" onclick="Demos.switchDemo('workflow')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                        <i class="fas fa-project-diagram text-orange-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Workflows</h3>
+                    <p class="text-xs text-gray-400">Automation</p>
+                </div>
+
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="social" onclick="Demos.switchDemo('social')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <i class="fas fa-share-nodes text-cyan-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Social AI</h3>
+                    <p class="text-xs text-gray-400">Auto-post</p>
+                </div>
+
+                <div class="demo-card border-2 border-gray-700 rounded-xl p-4 text-center" data-demo="crm" onclick="Demos.switchDemo('crm')">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                        <i class="fas fa-users text-red-400 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm mb-1">Smart CRM</h3>
+                    <p class="text-xs text-gray-400">Lead tracking</p>
                 </div>
             </div>
 
-            <!-- CRM Features -->
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="glass rounded-xl p-6 text-center">
-                    <div class="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-filter text-2xl text-blue-400"></i>
-                    </div>
-                    <h4 class="font-semibold mb-2">Smart Filters</h4>
-                    <p class="text-sm text-gray-400">Filter by stage, value, activity, and custom fields</p>
-                </div>
-                <div class="glass rounded-xl p-6 text-center">
-                    <div class="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-bell text-2xl text-purple-400"></i>
-                    </div>
-                    <h4 class="font-semibold mb-2">Auto Follow-ups</h4>
-                    <p class="text-sm text-gray-400">Never miss a follow-up with AI-scheduled reminders</p>
-                </div>
-                <div class="glass rounded-xl p-6 text-center">
-                    <div class="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-chart-line text-2xl text-green-400"></i>
-                    </div>
-                    <h4 class="font-semibold mb-2">Analytics</h4>
-                    <p class="text-sm text-gray-400">Track conversion rates and pipeline health</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Workflow Tab -->
-        <div id="tab-workflow" class="tab-content hidden">
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="tutorial-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold mb-4">Automation Workflows</h3>
-                    <p class="text-gray-400 text-sm mb-6">
-                        Build powerful automations with no code. Connect voice agents, CRM, and third-party apps.
-                    </p>
-
-                    <!-- Sample Workflows -->
-                    <div class="space-y-3">
-                        <div class="bg-black/40 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-phone text-blue-400"></i>
-                                    <span class="font-semibold">New Call → CRM</span>
-                                </div>
-                                <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
-                            </div>
-                            <p class="text-xs text-gray-400">When voice agent receives call, create lead in CRM</p>
-                        </div>
-
-                        <div class="bg-black/40 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-envelope text-purple-400"></i>
-                                    <span class="font-semibold">Lead → Email Follow-up</span>
-                                </div>
-                                <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
-                            </div>
-                            <p class="text-xs text-gray-400">Send personalized email 1 hour after call</p>
-                        </div>
-
-                        <div class="bg-black/40 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-calendar text-green-400"></i>
-                                    <span class="font-semibold">Booking → Calendar Sync</span>
-                                </div>
-                                <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
-                            </div>
-                            <p class="text-xs text-gray-400">Auto-sync appointments to Google Calendar</p>
-                        </div>
-                    </div>
-
-                    <button onclick="window.location.href='/app/voiceflow-builder'" class="w-full mt-6 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all">
-                        <i class="fas fa-project-diagram mr-2"></i>Open Workflow Builder
-                    </button>
-                </div>
-
-                <!-- Workflow Visual -->
-                <div class="tutorial-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold mb-4">Visual Builder</h3>
-                    <div class="bg-black/40 border border-white/10 rounded-lg p-6 h-96 flex items-center justify-center">
-                        <div class="text-center">
-                            <i class="fas fa-project-diagram text-6xl text-blue-400 opacity-20 mb-4"></i>
-                            <p class="text-gray-400 text-sm">Drag-and-drop workflow builder</p>
-                            <p class="text-xs text-gray-500 mt-2">Connect triggers, actions, and conditions</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Studio Tab -->
-        <div id="tab-studio" class="tab-content hidden">
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="tutorial-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold mb-4">AI Content Studio</h3>
-                    <p class="text-gray-400 text-sm mb-6">
-                        Generate professional images, create marketing content, and manage social media all in one place.
-                    </p>
-
-                    <!-- Studio Features -->
-                    <div class="space-y-4 mb-6">
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-image text-blue-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">AI Image Generation</h4>
-                                <p class="text-sm text-gray-400">Create stunning visuals with Vertex AI</p>
-                            </div>
-                        </div>
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-pen-fancy text-purple-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">Caption Generator</h4>
-                                <p class="text-sm text-gray-400">AI-powered captions and hashtags</p>
-                            </div>
-                        </div>
-                        <div class="feature-card flex items-start gap-3 p-4 rounded-xl">
-                            <div class="feature-icon-wrapper w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-share-nodes text-green-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">Social Scheduling</h4>
-                                <p class="text-sm text-gray-400">Post to multiple platforms instantly</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button onclick="window.location.href='/studio.html'" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all">
-                        <i class="fas fa-paint-brush mr-2"></i>Open Studio
-                    </button>
-                </div>
-
-                <!-- Studio Preview -->
-                <div class="tutorial-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold mb-4">Quick Generate</h3>
-                    <div class="space-y-4">
-                        <textarea
-                            id="studio-prompt"
-                            rows="4"
-                            class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none"
-                            placeholder="Modern kitchen remodel with granite countertops and stainless steel appliances..."></textarea>
-
-                        <select id="studio-style" class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white">
-                            <option value="photorealistic">Photorealistic</option>
-                            <option value="artistic">Artistic</option>
-                            <option value="cinematic">Cinematic</option>
-                        </select>
-
-                        <button onclick="Demo.generateStudioImage()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all">
-                            <i class="fas fa-sparkles mr-2"></i>Generate Image
-                        </button>
-
-                        <div id="studio-result" class="hidden">
-                            <div class="bg-black/40 border border-white/10 rounded-lg p-3">
-                                <img id="studio-preview" class="w-full rounded-lg mb-3" alt="Generated">
-                                <p id="studio-caption" class="text-sm text-gray-300 mb-2"></p>
-                                <div id="studio-hashtags" class="text-xs text-blue-400"></div>
-                            </div>
-                        </div>
-
-                        <div id="studio-progress" class="hidden">
-                            <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="animate-spin">
-                                        <i class="fas fa-circle-notch text-blue-400"></i>
-                                    </div>
-                                    <span class="text-sm text-blue-300">Generating...</span>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-1.5">
-                                    <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all animate-pulse" style="width: 70%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- CTA Section -->
-    <div class="border-t border-white/10 bg-gradient-to-b from-transparent to-blue-500/5 mt-12">
-        <div class="max-w-7xl mx-auto px-4 py-12 text-center">
-            <h3 class="text-2xl md:text-3xl font-bold mb-4">Ready to Transform Your Business?</h3>
-            <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
-                Start your free trial today. No credit card required. Get full access to all features for 14 days.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/app/agent-builder" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold transition-all shadow-lg">
-                    <i class="fas fa-rocket mr-2"></i>Get Started
-                </a>
-                <a href="/marketing.html" class="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl font-semibold transition-all">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Home
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Voice Setup Modal -->
-    <div id="voice-setup-modal" class="modal">
-        <div class="modal-content p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold">Create Your Voice Agent</h3>
-                <button onclick="Demo.closeModal('voice-setup-modal')" class="text-gray-400 hover:text-white text-2xl">
-                    <i class="fas fa-times"></i>
-                </button>
+            <!-- Demo Display Area -->
+            <div id="demo-container" class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-2xl p-8">
+                <!-- Demos will be injected here -->
             </div>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-2">Business Name</label>
-                    <input type="text" id="voice-business-name" placeholder="Acme Remodeling" class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Business Type</label>
-                    <select id="voice-business-type" class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white">
-                        <option value="remodeling">Remodeling</option>
-                        <option value="roofing">Roofing</option>
-                        <option value="plumbing">Plumbing</option>
-                        <option value="electrical">Electrical</option>
-                        <option value="general">General Contractor</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Voice Type</label>
-                    <select id="voice-type" class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white">
-                        <option value="professional-female">Professional Female</option>
-                        <option value="professional-male">Professional Male</option>
-                        <option value="friendly-female">Friendly Female</option>
-                        <option value="friendly-male">Friendly Male</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Language</label>
-                    <select id="voice-language" class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white">
-                        <option value="en-US">English (US)</option>
-                        <option value="es-US">Spanish (US)</option>
-                        <option value="en-GB">English (UK)</option>
-                        <option value="fr-FR">French</option>
-                        <option value="de-DE">German</option>
-                    </select>
-                </div>
-
-                <button onclick="Demo.createVoiceAgent()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all">
-                    <i class="fas fa-magic mr-2"></i>Create Agent (Free)
-                </button>
-
-                <p class="text-xs text-gray-400 text-center">
-                    This will create a demo agent. Sign up to deploy to a real phone number.
-                </p>
-            </div>
         </div>
     </div>
 
     <script>
-        const Demo = {
-            currentTab: 'voice',
+        const Demos = {
+            current: 'voicemail',
+
+            demos: {
+                voicemail: {
+                    title: 'AI Voicemail Agent',
+                    description: 'Never miss a lead. Your AI assistant answers calls 24/7, qualifies prospects, and books appointments.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">AI Voicemail Agent</h2>
+                            <p class="text-gray-400 mb-8">Call and speak with an AI voice agent that qualifies leads and books appointments</p>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-6">
+                                    <div class="text-center">
+                                        <div class="text-xs text-blue-300 mb-2">Demo Number</div>
+                                        <div class="text-3xl font-bold text-blue-400 mb-4">+1 (555) 0123</div>
+                                        <div class="text-sm text-gray-400 mb-4">Available 24/7 - Try it now!</div>
+                                        <button class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-colors">
+                                            <i class="fas fa-phone mr-2"></i>Call Demo Number
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-6">
+                                    <h4 class="font-semibold mb-4">What It Does:</h4>
+                                    <ul class="space-y-3 text-sm">
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Answers immediately in any language</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Collects contact info and project details</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Books appointments in real-time</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Sends you instant notifications</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Creates CRM lead automatically</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                                <p class="text-sm text-blue-300 text-center">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    This is a live demo. Call the number above to experience the AI voice agent in action.
+                                </p>
+                            </div>
+                        </div>
+                    `
+                },
+
+                estimate: {
+                    title: 'Voice Estimate Builder',
+                    description: 'Create professional estimates in 3 minutes using voice conversation.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">Voice Estimate Builder</h2>
+                            <p class="text-gray-400 mb-8">Build professional estimates by talking - AI extracts all the details</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <h4 class="font-semibold mb-4 text-center">Start Voice Estimate Session</h4>
+                                <div class="text-center">
+                                    <button class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-bold text-lg transition-all">
+                                        <i class="fas fa-microphone mr-2"></i>Start Recording
+                                    </button>
+                                    <p class="text-xs text-gray-400 mt-3">Click to begin voice estimate creation</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-6">
+                                    <h4 class="font-semibold mb-4">How It Works:</h4>
+                                    <ol class="space-y-3 text-sm">
+                                        <li class="flex gap-3">
+                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">1</span>
+                                            <span>Describe the project naturally</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">2</span>
+                                            <span>AI extracts line items & pricing</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">3</span>
+                                            <span>Review and edit if needed</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">4</span>
+                                            <span>Send to client or sync QuickBooks</span>
+                                        </li>
+                                    </ol>
+                                </div>
+
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-6">
+                                    <h4 class="font-semibold mb-4">Example Estimate:</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Kitchen cabinets (20 units)</span>
+                                            <span class="font-semibold">$3,000</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Granite countertop (45 sq ft)</span>
+                                            <span class="font-semibold">$3,375</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Installation labor (16 hrs)</span>
+                                            <span class="font-semibold">$1,600</span>
+                                        </div>
+                                        <div class="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold">
+                                            <span>Total</span>
+                                            <span class="text-green-400">$7,975</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+
+                copilot: {
+                    title: 'AI Co-Pilot',
+                    description: 'Your intelligent assistant for customer interactions and business tasks.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">AI Co-Pilot</h2>
+                            <p class="text-gray-400 mb-8">Get instant answers and AI-powered assistance</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <div class="space-y-4">
+                                    <textarea
+                                        placeholder="Ask me anything... e.g., 'Draft a follow-up email for John Smith' or 'What's the status of kitchen remodel projects?'"
+                                        class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-blue-500"
+                                        rows="3"
+                                    ></textarea>
+                                    <button class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold transition-all">
+                                        <i class="fas fa-paper-plane mr-2"></i>Ask Co-Pilot
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-envelope text-blue-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">Draft Emails</h4>
+                                    <p class="text-xs text-gray-400">Professional follow-ups</p>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-search text-purple-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">Search CRM</h4>
+                                    <p class="text-xs text-gray-400">Find leads instantly</p>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-chart-line text-green-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">Get Insights</h4>
+                                    <p class="text-xs text-gray-400">Business analytics</p>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+
+                sms: {
+                    title: 'SMS AI Agent',
+                    description: 'Automatically respond to text messages with AI.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">SMS AI Agent</h2>
+                            <p class="text-gray-400 mb-8">Auto-reply to customer texts instantly</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <h4 class="font-semibold mb-4">Live SMS Demo</h4>
+                                <div class="text-center mb-6">
+                                    <p class="text-sm text-gray-400 mb-2">Text this number to see AI in action:</p>
+                                    <div class="text-2xl font-bold text-yellow-400 mb-4">+1 (555) 0199</div>
+                                    <button class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-semibold transition-colors">
+                                        <i class="fas fa-comment-dots mr-2"></i>Send Test SMS
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="bg-blue-500/10 rounded-lg p-3 ml-12">
+                                        <p class="text-sm">"Do you do kitchen remodels?"</p>
+                                        <p class="text-xs text-gray-400 mt-1">Customer</p>
+                                    </div>
+                                    <div class="bg-green-500/10 rounded-lg p-3 mr-12">
+                                        <p class="text-sm">"Yes! We specialize in kitchen remodels. I can schedule a free consultation. What days work best for you?"</p>
+                                        <p class="text-xs text-gray-400 mt-1 text-right">AI Agent • 2 sec</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4">
+                                    <h4 class="font-semibold mb-3 text-sm">Features:</h4>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Instant auto-replies</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Qualify leads via SMS</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-green-400 mt-1"></i>
+                                            <span>Schedule appointments</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4">
+                                    <h4 class="font-semibold mb-3 text-sm">Use Cases:</h4>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-blue-400 mt-1"></i>
+                                            <span>After-hours support</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-blue-400 mt-1"></i>
+                                            <span>Lead qualification</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fas fa-check text-blue-400 mt-1"></i>
+                                            <span>Appointment reminders</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+
+                studio: {
+                    title: 'AI Image Studio',
+                    description: 'Generate professional marketing images with AI.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">AI Image Studio</h2>
+                            <p class="text-gray-400 mb-8">Create stunning project images and marketing content</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <h4 class="font-semibold mb-4">Generate Image</h4>
+                                <div class="space-y-4">
+                                    <textarea
+                                        placeholder="Modern kitchen with white cabinets, marble countertops, and stainless steel appliances..."
+                                        class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-pink-500"
+                                        rows="3"
+                                    ></textarea>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <select class="bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500">
+                                            <option>Photorealistic</option>
+                                            <option>Artistic</option>
+                                            <option>Cinematic</option>
+                                        </select>
+                                        <select class="bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500">
+                                            <option>Instagram (1:1)</option>
+                                            <option>Facebook (16:9)</option>
+                                            <option>Stories (9:16)</option>
+                                        </select>
+                                    </div>
+                                    <button class="w-full px-6 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 rounded-lg font-bold transition-all">
+                                        <i class="fas fa-sparkles mr-2"></i>Generate Image
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-image text-pink-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">AI Images</h4>
+                                    <p class="text-xs text-gray-400">Professional quality</p>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-pen-fancy text-purple-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">Auto Captions</h4>
+                                    <p class="text-xs text-gray-400">With hashtags</p>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <i class="fas fa-share-nodes text-blue-400 text-2xl mb-3"></i>
+                                    <h4 class="font-semibold text-sm mb-2">Multi-Platform</h4>
+                                    <p class="text-xs text-gray-400">One-click post</p>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+
+                workflow: {
+                    title: 'Workflow Automation',
+                    description: 'No-code automation for your business processes.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">Workflow Automation</h2>
+                            <p class="text-gray-400 mb-8">Build powerful automations with no code</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <h4 class="font-semibold mb-4">Popular Workflows</h4>
+                                <div class="space-y-3">
+                                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 cursor-pointer hover:border-blue-500/50 transition-colors">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fas fa-phone text-blue-400"></i>
+                                                <span class="font-semibold">New Call → CRM Lead</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400">Automatically create CRM lead when voice agent receives a call</p>
+                                    </div>
+
+                                    <div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 cursor-pointer hover:border-purple-500/50 transition-colors">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fas fa-envelope text-purple-400"></i>
+                                                <span class="font-semibold">Lead → Email Follow-up</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400">Send personalized email 1 hour after initial contact</p>
+                                    </div>
+
+                                    <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4 cursor-pointer hover:border-green-500/50 transition-colors">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fas fa-calendar text-green-400"></i>
+                                                <span class="font-semibold">Booking → Calendar Sync</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Active</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400">Auto-sync appointments to Google Calendar</p>
+                                    </div>
+                                </div>
+
+                                <button class="w-full mt-6 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 rounded-lg font-semibold transition-all">
+                                    <i class="fas fa-plus mr-2"></i>Create New Workflow
+                                </button>
+                            </div>
+                        </div>
+                    `
+                },
+
+                social: {
+                    title: 'Social Media AI',
+                    description: 'Auto-generate and schedule social media posts.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">Social Media AI</h2>
+                            <p class="text-gray-400 mb-8">Generate engaging social posts with AI</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <h4 class="font-semibold mb-4">Generate Post</h4>
+                                <div class="space-y-4">
+                                    <select class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
+                                        <option>Instagram</option>
+                                        <option>Facebook</option>
+                                        <option>LinkedIn</option>
+                                        <option>Twitter</option>
+                                    </select>
+                                    <select class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
+                                        <option>Before & After Showcase</option>
+                                        <option>Project Showcase</option>
+                                        <option>Customer Testimonial</option>
+                                        <option>Tips & Advice</option>
+                                        <option>Seasonal Promo</option>
+                                    </select>
+                                    <textarea
+                                        placeholder="Describe your project or promotion..."
+                                        class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-cyan-500"
+                                        rows="3"
+                                    ></textarea>
+                                    <button class="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg font-bold transition-all">
+                                        <i class="fas fa-magic mr-2"></i>Generate Post
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-4">
+                                <h4 class="font-semibold mb-3 text-sm">Example Output:</h4>
+                                <div class="space-y-3">
+                                    <p class="text-sm">✨ Transform your space with stunning results! This kitchen remodel showcases the incredible potential of professional remodeling...</p>
+                                    <div class="flex flex-wrap gap-2 text-xs text-cyan-400">
+                                        <span>#transformation</span>
+                                        <span>#beforeandafter</span>
+                                        <span>#remodeling</span>
+                                        <span>#homeimprovement</span>
+                                        <span>#renovation</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-clock mr-1"></i>Best time to post: Weekdays 11am-1pm
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+
+                crm: {
+                    title: 'Smart CRM',
+                    description: 'Intelligent customer relationship management.',
+                    html: `
+                        <div class="demo-content max-w-3xl mx-auto">
+                            <h2 class="text-3xl font-bold mb-2">Smart CRM</h2>
+                            <p class="text-gray-400 mb-8">Track leads and manage customer relationships</p>
+
+                            <div class="bg-black/40 border border-white/10 rounded-xl p-6 mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">Recent Leads</h4>
+                                    <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors">
+                                        <i class="fas fa-plus mr-2"></i>Add Lead
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="bg-black/60 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold">JD</div>
+                                                <div>
+                                                    <div class="font-semibold">John Doe</div>
+                                                    <div class="text-xs text-gray-400">john@example.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-sm font-semibold text-green-400">$5,200</div>
+                                                <div class="text-xs text-gray-400">2 hours ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-semibold">Contacted</span>
+                                            <span class="text-xs text-gray-400">Kitchen Remodel</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-black/60 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">AS</div>
+                                                <div>
+                                                    <div class="font-semibold">Alice Smith</div>
+                                                    <div class="text-xs text-gray-400">alice@example.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-sm font-semibold text-green-400">$12,400</div>
+                                                <div class="text-xs text-gray-400">1 day ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-semibold">Won</span>
+                                            <span class="text-xs text-gray-400">Bathroom Renovation</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-black/60 border border-white/10 rounded-lg p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center font-bold">BJ</div>
+                                                <div>
+                                                    <div class="font-semibold">Bob Johnson</div>
+                                                    <div class="text-xs text-gray-400">bob@example.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-sm font-semibold text-green-400">$8,900</div>
+                                                <div class="text-xs text-gray-400">3 hours ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-semibold">New</span>
+                                            <span class="text-xs text-gray-400">Deck Construction</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-blue-400 mb-1">24</div>
+                                    <div class="text-xs text-gray-400">Active Leads</div>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-green-400 mb-1">65%</div>
+                                    <div class="text-xs text-gray-400">Close Rate</div>
+                                </div>
+                                <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-purple-400 mb-1">$127K</div>
+                                    <div class="text-xs text-gray-400">Pipeline</div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            },
 
             init() {
-                console.log('🎬 Initializing VoiceFlow CRM Demo...');
-                this.setupEventListeners();
-                console.log('✅ Demo ready!');
+                this.loadDemo(this.current);
             },
 
-            setupEventListeners() {
-                // Tab switching
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const tab = e.currentTarget.dataset.tab;
-                        this.switchTab(tab);
-                    });
-                });
-
-                // Voice demo player
-                const playBtn = document.getElementById('play-voice-demo');
-                const audio = document.getElementById('demo-audio');
-                if (playBtn && audio) {
-                    playBtn.addEventListener('click', () => {
-                        if (audio.paused) {
-                            audio.play();
-                            playBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
-                        } else {
-                            audio.pause();
-                            playBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play Sample';
-                        }
-                    });
-
-                    audio.addEventListener('ended', () => {
-                        playBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play Sample';
-                    });
-                }
-            },
-
-            switchTab(tab) {
-                // Update buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.tab === tab) {
-                        btn.classList.add('active');
+            switchDemo(demo) {
+                // Update active card
+                document.querySelectorAll('.demo-card').forEach(card => {
+                    card.classList.remove('active');
+                    if (card.dataset.demo === demo) {
+                        card.classList.add('active');
                     }
                 });
 
-                // Update content
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.add('hidden');
-                });
-                document.getElementById(`tab-${tab}`).classList.remove('hidden');
-
-                this.currentTab = tab;
+                // Load demo content
+                this.current = demo;
+                this.loadDemo(demo);
             },
 
-            showVoiceSetup() {
-                document.getElementById('voice-setup-modal').classList.add('show');
-            },
+            loadDemo(demo) {
+                const container = document.getElementById('demo-container');
+                const demoData = this.demos[demo];
 
-            closeModal(modalId) {
-                document.getElementById(modalId).classList.remove('show');
-            },
-
-            async createVoiceAgent() {
-                const businessName = document.getElementById('voice-business-name').value;
-                const businessType = document.getElementById('voice-business-type').value;
-                const voiceType = document.getElementById('voice-type').value;
-                const voiceLanguage = document.getElementById('voice-language').value;
-
-                if (!businessName) {
-                    alert('Please enter a business name');
-                    return;
-                }
-
-                console.log('🎙️ Creating voice agent...', { businessName, businessType, voiceType, voiceLanguage });
-
-                try {
-                    const response = await fetch('/api/voicemail-agent/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            businessName,
-                            businessType,
-                            notifyPhone: '+15550123',
-                            features: ['scheduling', 'faq', 'lead-capture'],
-                            voiceType,
-                            voiceLanguage
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        alert(`✅ Voice agent created!\n\nAgent ID: ${data.agentId}\n\nSign up to get a real phone number and deploy your agent.`);
-                        this.closeModal('voice-setup-modal');
-                    } else {
-                        throw new Error(data.error || 'Failed to create agent');
-                    }
-                } catch (error) {
-                    console.error('❌ Error creating agent:', error);
-                    alert('Demo mode: Agent created successfully! Sign up to deploy to a real phone number.');
-                    this.closeModal('voice-setup-modal');
-                }
-            },
-
-            async generateStudioImage() {
-                const prompt = document.getElementById('studio-prompt').value;
-                const style = document.getElementById('studio-style').value;
-
-                if (!prompt) {
-                    alert('Please enter a prompt');
-                    return;
-                }
-
-                console.log('🎨 Generating image...', { prompt, style });
-
-                const progressEl = document.getElementById('studio-progress');
-                const resultEl = document.getElementById('studio-result');
-
-                progressEl.classList.remove('hidden');
-                resultEl.classList.add('hidden');
-
-                try {
-                    const response = await fetch('/api/studio/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            prompt,
-                            style,
-                            platform: 'instagram'
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        document.getElementById('studio-preview').src = data.imageUrl;
-                        document.getElementById('studio-caption').textContent = data.caption;
-                        document.getElementById('studio-hashtags').textContent = data.hashtags.join(' ');
-
-                        progressEl.classList.add('hidden');
-                        resultEl.classList.remove('hidden');
-
-                        console.log('✅ Image generated');
-                    } else {
-                        throw new Error(data.error || 'Failed to generate');
-                    }
-                } catch (error) {
-                    console.error('❌ Generation error:', error);
-                    progressEl.classList.add('hidden');
-                    alert('Failed to generate image. Please try again.');
+                if (demoData) {
+                    container.innerHTML = demoData.html;
                 }
             }
         };
 
-        // Initialize on load
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            Demo.init();
+            Demos.init();
         });
     </script>
 
