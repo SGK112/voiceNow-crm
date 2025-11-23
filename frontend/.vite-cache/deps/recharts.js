@@ -5,11 +5,11 @@ import {
   value_default
 } from "./chunk-OKR5C55T.js";
 import {
-  require_prop_types
-} from "./chunk-LIIDYO6S.js";
-import {
   clsx_default
 } from "./chunk-KDVGFZWC.js";
+import {
+  require_prop_types
+} from "./chunk-LIIDYO6S.js";
 import {
   require_react_dom
 } from "./chunk-UR7M4CTY.js";
