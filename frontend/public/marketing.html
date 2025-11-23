@@ -3,9 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="theme-color" content="#0a0a0b">
+
+    <!-- Primary Meta Tags -->
+    <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
+    <meta name="title" content="VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS">
+    <meta name="description" content="Automate your sales team with 24/7 AI voice agents. Stop losing deals to slow follow-ups. Built with ultra-realistic voices and workflow automation. Start free trial today!">
+    <meta name="keywords" content="AI voice agents, CRM, sales automation, voice AI, ElevenLabs, automated calling, lead generation, sales CRM">
+    <meta name="author" content="Remodely">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://voiceflowcrm.com/">
+    <meta property="og:title" content="VoiceFlow CRM - AI Voice Agents That Work 24/7">
+    <meta property="og:description" content="Stop losing deals to slow follow-ups. AI voice agents call, qualify, and book meetings 24/7—while you sleep. Companies see 300% more qualified leads in 30 days.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=630&fit=crop&q=80">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="VoiceFlow CRM">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://voiceflowcrm.com/">
+    <meta name="twitter:title" content="VoiceFlow CRM - AI Voice Agents That Work 24/7">
+    <meta name="twitter:description" content="Automate your sales team with AI voice agents. Call, qualify, and book meetings 24/7. See 300% more qualified leads in 30 days. Start free trial!">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=630&fit=crop&q=80">
+    <meta name="twitter:creator" content="@voiceflowcrm">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>VoiceFlow CRM - AI-Powered Voice Agents</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VoiceFlow CRM">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicons & App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+
     <!-- Preload hero image for faster mobile loading -->
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=800&fit=crop&q=80" fetchpriority="high">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -962,6 +1001,145 @@
 
             lastScroll = currentScroll;
         });
+
+        // PWA Installation Handler
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA: Install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallPrompt();
+        });
+
+        function showInstallPrompt() {
+            // Create install banner
+            const banner = document.createElement('div');
+            banner.id = 'pwa-install-banner';
+            banner.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                max-width: 90%;
+                animation: slideUp 0.5s ease-out;
+            `;
+
+            banner.innerHTML = `
+                <i class="fas fa-mobile-alt text-2xl"></i>
+                <div>
+                    <div class="font-bold">Install VoiceFlow CRM</div>
+                    <div class="text-sm opacity-90">Add to home screen for quick access</div>
+                </div>
+                <button id="install-btn" style="background: white; color: #3b82f6; padding: 8px 16px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;">
+                    Install
+                </button>
+                <button id="dismiss-btn" style="background: transparent; color: white; padding: 8px; border: none; cursor: pointer; opacity: 0.8;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            document.body.appendChild(banner);
+
+            document.getElementById('install-btn').addEventListener('click', installPWA);
+            document.getElementById('dismiss-btn').addEventListener('click', () => {
+                banner.remove();
+            });
+        }
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('PWA: User choice:', outcome);
+                deferredPrompt = null;
+                document.getElementById('pwa-install-banner')?.remove();
+            }
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('Service Worker: Registered', reg))
+                    .catch((err) => console.log('Service Worker: Error', err));
+            });
+        }
+
+        // Web Share API
+        function shareWebsite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'VoiceFlow CRM - AI Voice Agents',
+                    text: 'Check out VoiceFlow CRM - AI-powered voice agents that work 24/7! See 300% more qualified leads.',
+                    url: window.location.href
+                })
+                .then(() => console.log('Shared successfully'))
+                .catch((err) => console.log('Error sharing:', err));
+            } else {
+                // Fallback: Copy link to clipboard
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => alert('Link copied to clipboard!'))
+                    .catch(() => console.log('Copy failed'));
+            }
+        }
+
+        // Add share button to CTA section
+        window.addEventListener('DOMContentLoaded', () => {
+            // Add floating share button
+            if (navigator.share || navigator.clipboard) {
+                const shareBtn = document.createElement('button');
+                shareBtn.innerHTML = '<i class="fas fa-share-alt"></i>';
+                shareBtn.style.cssText = `
+                    position: fixed;
+                    bottom: 80px;
+                    right: 20px;
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                    color: white;
+                    border: none;
+                    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+                    cursor: pointer;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    transition: transform 0.2s;
+                `;
+                shareBtn.onmouseover = () => shareBtn.style.transform = 'scale(1.1)';
+                shareBtn.onmouseout = () => shareBtn.style.transform = 'scale(1)';
+                shareBtn.onclick = shareWebsite;
+                document.body.appendChild(shareBtn);
+            }
+        });
+
+        // Animation for install banner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from {
+                    transform: translateX(-50%) translateY(100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(-50%) translateY(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
