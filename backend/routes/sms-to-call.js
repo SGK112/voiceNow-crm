@@ -26,6 +26,12 @@ const DEMO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 router.post('/trigger-demo-call', async (req, res) => {
   try {
     const { From, Body } = req.body;
+
+    if (!From || !Body) {
+      console.error('❌ Missing From or Body in request:', req.body);
+      return res.status(400).json({ error: 'Missing From or Body parameter' });
+    }
+
     const message = Body?.trim();
     const messageLower = message.toLowerCase();
 

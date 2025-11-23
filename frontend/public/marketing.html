@@ -1653,34 +1653,32 @@
             }
         });
 
-        // Handle Text Me button
+        // Handle Text Me button (triggers SMS-style demo with call)
         textMeBtn.addEventListener('click', async () => {
             if (!validateForm()) return;
 
-            const phoneNumber = demoPhone.value.trim();
-            const name = demoName.value.trim();
+            const formData = {
+                name: demoName.value.trim(),
+                phoneNumber: demoPhone.value.trim(),
+                email: demoEmail.value.trim() || undefined,
+                interest: demoInterest.value || undefined,
+                demoType: 'sms' // Flag to indicate SMS-style demo
+            };
 
             textMeBtn.disabled = true;
             callMeBtn.disabled = true;
-            textMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Sending...</span>';
-            showStatus('info', '💬 Sending SMS to ' + name + '...');
+            textMeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="text-sm">Setting up...</span>';
+            showStatus('info', '💬 Setting up your SMS demo experience...');
 
             try {
-                // Format phone number
-                const digitsOnly = phoneNumber.replace(/\D/g, '');
-                const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : '+1' + digitsOnly;
-
-                const response = await fetch('/api/sms-to-call/trigger-demo-call', {
+                const response = await fetch('/api/public/voice-demo', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        From: formattedPhone,
-                        Body: 'DEMO'
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
                 });
 
                 if (response.ok) {
-                    showStatus('success', '✅ SMS sent! Check your phone - you\'ll receive a text and then a call in seconds.');
+                    showStatus('success', '✅ Demo initiated! You\'ll receive a call in 5-10 seconds from our AI agent. Answer to experience the SMS-to-call workflow!');
                     simulateSMSConversation('sms');
 
                     // Reset form after 10 seconds
@@ -1691,10 +1689,10 @@
                         textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
                     }, 10000);
                 } else {
-                    throw new Error('Failed to send SMS');
+                    throw new Error('Failed to initiate demo');
                 }
             } catch (error) {
-                showStatus('error', '❌ Could not send SMS. Please try the call option or contact support.');
+                showStatus('error', '❌ Could not initiate demo. Please try again or contact support.');
                 textMeBtn.disabled = false;
                 callMeBtn.disabled = false;
                 textMeBtn.innerHTML = '<i class="fas fa-sms text-2xl"></i><span class="text-sm">Text Me</span>';
