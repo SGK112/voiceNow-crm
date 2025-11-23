@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v53-popup-modal';
+        const CURRENT_VERSION = '2025-11-23-v54-modal-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2168,6 +2168,119 @@
 
     </div><!-- End Main Content -->
 
+    <!-- Demo Form Popup Modal -->
+    <div id="demo-popup-modal" class="fixed inset-0 z-[9999] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="demo-modal-backdrop"></div>
+
+        <!-- Modal Card -->
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 relative animate-modal-slide-in">
+                <!-- Close Button -->
+                <button id="close-demo-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+
+                <!-- Modal Content -->
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Experience AI in Action</h2>
+                        <p class="text-gray-400 text-sm">Get a live demo in seconds. No credit card required.</p>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center justify-center gap-3 mb-6">
+                        <button id="modal-toggle-voice" class="modal-demo-toggle active flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
+                            <i class="fas fa-phone mr-2"></i>Voice Call
+                        </button>
+                        <button id="modal-toggle-sms" class="modal-demo-toggle flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
+                            <i class="fas fa-comment-dots mr-2"></i>SMS Demo
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="modal-demo-form" class="space-y-4">
+                        <input
+                            type="text"
+                            id="modal-demo-name"
+                            placeholder="Your Name"
+                            required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+                        <input
+                            type="tel"
+                            id="modal-demo-phone"
+                            placeholder="Phone Number"
+                            required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+                        <input
+                            type="email"
+                            id="modal-demo-email"
+                            placeholder="Email (optional)"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                        />
+
+                        <!-- Submit Button -->
+                        <button
+                            type="button"
+                            id="modal-submit-demo-btn"
+                            class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                        >
+                            <i class="fas fa-phone mr-2"></i>
+                            <span id="modal-submit-btn-text">Start Voice Demo</span>
+                        </button>
+
+                        <!-- Status Message -->
+                        <div id="modal-demo-status" class="hidden p-4 rounded-xl text-center font-medium text-sm"></div>
+
+                        <p class="text-center text-xs text-gray-500 pt-2">
+                            <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modal-slide-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-modal-slide-in {
+            animation: modal-slide-in 0.3s ease-out;
+        }
+
+        .modal-demo-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            color: #9ca3af;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-demo-toggle.active {
+            background: linear-gradient(to br, #3b82f6, #8b5cf6);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-demo-toggle:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+
     <script>
         // Handle scroll to hide logo on mobile
         let lastScroll = 0;
@@ -3989,119 +4102,6 @@
             console.log('✅ Voicemail Agent Demo loaded');
         });
     </script>
-
-    <!-- Demo Form Popup Modal -->
-    <div id="demo-popup-modal" class="fixed inset-0 z-[9999] hidden">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="demo-modal-backdrop"></div>
-
-        <!-- Modal Card -->
-        <div class="absolute inset-0 flex items-center justify-center p-4">
-            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 relative animate-modal-slide-in">
-                <!-- Close Button -->
-                <button id="close-demo-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-
-                <!-- Modal Content -->
-                <div class="p-8">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                            <i class="fas fa-robot text-white text-2xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Experience AI in Action</h2>
-                        <p class="text-gray-400 text-sm">Get a live demo in seconds. No credit card required.</p>
-                    </div>
-
-                    <!-- Toggle Switch -->
-                    <div class="flex items-center justify-center gap-3 mb-6">
-                        <button id="modal-toggle-voice" class="modal-demo-toggle active flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
-                            <i class="fas fa-phone mr-2"></i>Voice Call
-                        </button>
-                        <button id="modal-toggle-sms" class="modal-demo-toggle flex-1 px-4 py-3 rounded-xl font-semibold transition-all text-sm">
-                            <i class="fas fa-comment-dots mr-2"></i>SMS Demo
-                        </button>
-                    </div>
-
-                    <!-- Form -->
-                    <form id="modal-demo-form" class="space-y-4">
-                        <input
-                            type="text"
-                            id="modal-demo-name"
-                            placeholder="Your Name"
-                            required
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
-                        />
-                        <input
-                            type="tel"
-                            id="modal-demo-phone"
-                            placeholder="Phone Number"
-                            required
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
-                        />
-                        <input
-                            type="email"
-                            id="modal-demo-email"
-                            placeholder="Email (optional)"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
-                        />
-
-                        <!-- Submit Button -->
-                        <button
-                            type="button"
-                            id="modal-submit-demo-btn"
-                            class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105"
-                        >
-                            <i class="fas fa-phone mr-2"></i>
-                            <span id="modal-submit-btn-text">Start Voice Demo</span>
-                        </button>
-
-                        <!-- Status Message -->
-                        <div id="modal-demo-status" class="hidden p-4 rounded-xl text-center font-medium text-sm"></div>
-
-                        <p class="text-center text-xs text-gray-500 pt-2">
-                            <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
-                        </p>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        @keyframes modal-slide-in {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .animate-modal-slide-in {
-            animation: modal-slide-in 0.3s ease-out;
-        }
-
-        .modal-demo-toggle {
-            background: rgba(255, 255, 255, 0.05);
-            color: #9ca3af;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .modal-demo-toggle.active {
-            background: linear-gradient(to br, #3b82f6, #8b5cf6);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-        }
-
-        .modal-demo-toggle:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-    </style>
 
 </body>
 </html>
