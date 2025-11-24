@@ -13,9 +13,9 @@ const workflowEngine = new WorkflowEngine();
 // Rate limiting for demo requests (phone number -> { count, firstRequestTime, lastRequestTime })
 const demoRateLimitMap = new Map();
 const DEMO_RATE_LIMIT = {
-  maxRequests: 3, // Max 3 demo requests per phone number
+  maxRequests: 5, // Max 5 demo requests per phone number (increased for testing)
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
-  cooldownMs: 60 * 60 * 1000 // 1 hour cooldown between requests
+  cooldownMs: 5 * 60 * 1000 // 5 minutes cooldown between requests (reduced for testing)
 };
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
