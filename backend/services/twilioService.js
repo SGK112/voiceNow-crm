@@ -12,10 +12,17 @@ if (!process.env.TWILIO_ACCOUNT_SID) {
   dotenv.config({ path: join(__dirname, '../../.env') });
 }
 
+// Import AccessToken for VoIP calling
+const AccessToken = twilio.jwt.AccessToken;
+const VoiceGrant = AccessToken.VoiceGrant;
+
 class TwilioService {
   constructor() {
     this.accountSid = process.env.TWILIO_ACCOUNT_SID;
     this.authToken = process.env.TWILIO_AUTH_TOKEN;
+    this.twimlAppSid = process.env.TWILIO_TWIML_APP_SID;
+    this.apiKey = process.env.TWILIO_API_KEY;
+    this.apiSecret = process.env.TWILIO_API_SECRET;
 
     if (!this.accountSid || !this.authToken) {
       console.warn('⚠️  Twilio credentials not configured');
@@ -24,6 +31,91 @@ class TwilioService {
     }
 
     this.client = twilio(this.accountSid, this.authToken);
+  }
+
+  // Generate access token for mobile VoIP calling
+  generateAccessToken(identity, pushCredentialSid = null) {
+    if (!this.apiKey || !this.apiSecret) {
+      throw new Error('Twilio API Key and Secret required for access tokens. Set TWILIO_API_KEY and TWILIO_API_SECRET');
+    }
+
+    const accessToken = new AccessToken(
+      this.accountSid,
+      this.apiKey,
+      this.apiSecret,
+      { identity: identity, ttl: 3600 } // 1 hour token
+    );
+
+    // Create Voice grant
+    const voiceGrant = new VoiceGrant({
+      outgoingApplicationSid: this.twimlAppSid,
+      incomingAllow: true // Allow incoming calls
+    });
+
+    // Add push notification credential for mobile
+    if (pushCredentialSid) {
+      voiceGrant.pushCredentialSid = pushCredentialSid;
+    }
+
+    accessToken.addGrant(voiceGrant);
+
+    return {
+      token: accessToken.toJwt(),
+      identity: identity,
+      expiresIn: 3600
+    };
+  }
+
+  // Create or get TwiML App for voice calls
+  async getOrCreateTwiMLApp() {
+    try {
+      // If we already have an app SID, verify it exists
+      if (this.twimlAppSid) {
+        try {
+          const app = await this.client.applications(this.twimlAppSid).fetch();
+          return app;
+        } catch (e) {
+          console.log('TwiML App not found, creating new one...');
+        }
+      }
+
+      // Create new TwiML App
+      const webhookUrl = process.env.WEBHOOK_URL || process.env.API_URL;
+      const app = await this.client.applications.create({
+        friendlyName: 'VoiceFlow CRM Mobile App',
+        voiceUrl: `${webhookUrl}/api/twilio/voice/outgoing`,
+        voiceMethod: 'POST',
+        statusCallback: `${webhookUrl}/api/twilio/voice/status`,
+        statusCallbackMethod: 'POST'
+      });
+
+      console.log(`✅ Created TwiML App: ${app.sid}`);
+      console.log(`   Add TWILIO_TWIML_APP_SID=${app.sid} to your .env file`);
+
+      return app;
+    } catch (error) {
+      console.error('Error creating TwiML App:', error);
+      throw error;
+    }
+  }
+
+  // Create API Key for access tokens (run once during setup)
+  async createApiKey() {
+    try {
+      const key = await this.client.newKeys.create({
+        friendlyName: 'VoiceFlow CRM Mobile Voice Key'
+      });
+
+      console.log('✅ Created Twilio API Key');
+      console.log(`   TWILIO_API_KEY=${key.sid}`);
+      console.log(`   TWILIO_API_SECRET=${key.secret}`);
+      console.log('   ⚠️  Save the secret now - it cannot be retrieved later!');
+
+      return key;
+    } catch (error) {
+      console.error('Error creating API key:', error);
+      throw error;
+    }
   }
 
   // Purchase a new phone number

@@ -1,0 +1,99 @@
+{
+  "timestamp": "2025-11-24T09:13:54.110Z",
+  "results": [
+    {
+      "name": "Basic Question & Answer",
+      "results": [
+        {
+          "userMessage": "What time is it?",
+          "aiMessage": "I can't check the time, but you can easily find it on your device.",
+          "totalTime": 3200
+        },
+        {
+          "userMessage": "Can you tell me about the weather?",
+          "aiMessage": "I can't provide real-time weather updates; check a weather app for details.",
+          "totalTime": 2906
+        },
+        {
+          "userMessage": "Thanks for the help.",
+          "aiMessage": "You're welcome! Let me know if you need anything else.",
+          "totalTime": 2930
+        }
+      ],
+      "averageTime": 3012
+    },
+    {
+      "name": "Multi-turn Context Test",
+      "results": [
+        {
+          "userMessage": "My name is Jah.",
+          "aiMessage": "Nice to meet you, Jah! How can I assist you today?",
+          "totalTime": 3128
+        },
+        {
+          "userMessage": "What did I just tell you?",
+          "aiMessage": "You mentioned your name is Jah.",
+          "totalTime": 1770
+        },
+        {
+          "userMessage": "Can you remember my name?",
+          "aiMessage": "I can't remember names for future interactions.",
+          "totalTime": 1977
+        },
+        {
+          "userMessage": "Great, now forget it.",
+          "aiMessage": "Understood! How can I help you now?",
+          "totalTime": 2512
+        }
+      ],
+      "averageTime": 2347
+    },
+    {
+      "name": "Quick Back-and-Forth",
+      "results": [
+        {
+          "userMessage": "Hi.",
+          "aiMessage": "Hello! How can I help you today?",
+          "totalTime": 2147
+        },
+        {
+          "userMessage": "How are you?",
+          "aiMessage": "I’m just a program, but thanks for asking! How can I assist you?",
+          "totalTime": 2750
+        },
+        {
+          "userMessage": "Good thanks.",
+          "aiMessage": "Glad to hear that! What do you need help with?",
+          "totalTime": 2240
+        },
+        {
+          "userMessage": "Bye.",
+          "aiMessage": "Goodbye! Have a great day!",
+          "totalTime": 2094
+        }
+      ],
+      "averageTime": 2308
+    },
+    {
+      "name": "Long Sentences (VAD Test)",
+      "results": [
+        {
+          "userMessage": "I need to test if the voice activity detection can handle long sentences without cutting me off in the middle of what I am saying.",
+          "aiMessage": "You can test it by speaking a long sentence continuously and checking for interruptions.",
+          "totalTime": 3220
+        },
+        {
+          "userMessage": "This is another very long sentence that should be fully captured by the recording system before it automatically sends to the AI.",
+          "aiMessage": "Please speak naturally, and let’s see if it captures the entire sentence!",
+          "totalTime": 2974
+        },
+        {
+          "userMessage": "Perfect! That worked well.",
+          "aiMessage": "Great to hear! Let me know if you need anything else.",
+          "totalTime": 2510
+        }
+      ],
+      "averageTime": 2901
+    }
+  ]
+}

@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
 
-const API_URL = 'http://192.168.0.151:5001';
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
-export default function CallsScreen() {
+export default function CallsScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const [calls, setCalls] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -15,7 +18,10 @@ export default function CallsScreen() {
   const fetchCalls = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/call-history`);
+      const response = await axios.get(`${API_URL}/api/mobile/call-history`, {
+        params: { _t: Date.now() },
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
       if (response.data.success) {
         setCalls(response.data.calls);
       }
@@ -32,52 +38,79 @@ export default function CallsScreen() {
   };
 
   const renderCall = ({ item }: any) => (
-    <View style={styles.callCard}>
+    <View style={[styles.callCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.callHeader}>
         <View style={styles.callInfo}>
-          <Text style={styles.callName}>{item.contactName || 'Unknown'}</Text>
-          <Text style={styles.callPhone}>{item.phone}</Text>
+          <Text style={[styles.callName, { color: colors.text }]}>{item.contactName || 'Unknown'}</Text>
+          <Text style={[styles.callPhone, { color: colors.textSecondary }]}>{item.phone}</Text>
         </View>
-        <View style={styles.callStatus}>
-          <Text style={styles.callType}>{item.type === 'missed' ? '📵 Missed' : '✅ AI Handled'}</Text>
+        <View style={[
+          styles.callStatusBadge,
+          { backgroundColor: item.type === 'missed' ? colors.error + '15' : colors.success + '15' }
+        ]}>
+          <Ionicons
+            name={item.type === 'missed' ? 'call-outline' : 'checkmark-circle'}
+            size={14}
+            color={item.type === 'missed' ? colors.error : colors.success}
+          />
+          <Text style={[
+            styles.callType,
+            { color: item.type === 'missed' ? colors.error : colors.success }
+          ]}>
+            {item.type === 'missed' ? 'Missed' : 'AI Handled'}
+          </Text>
         </View>
       </View>
-      <Text style={styles.callTime}>{formatDate(item.timestamp)}</Text>
+      <Text style={[styles.callTime, { color: colors.textTertiary }]}>{formatDate(item.timestamp)}</Text>
       {item.transcript && (
-        <View style={styles.transcriptBox}>
-          <Text style={styles.transcriptLabel}>Transcript:</Text>
-          <Text style={styles.transcriptText}>{item.transcript}</Text>
+        <View style={[styles.transcriptBox, { backgroundColor: colors.backgroundSecondary }]}>
+          <Text style={[styles.transcriptLabel, { color: colors.textSecondary }]}>Transcript</Text>
+          <Text style={[styles.transcriptText, { color: colors.text }]}>{item.transcript}</Text>
         </View>
       )}
       {item.aiConfidence && (
-        <Text style={styles.confidence}>AI Confidence: {item.aiConfidence}%</Text>
+        <View style={styles.confidenceRow}>
+          <Ionicons name="analytics" size={14} color={colors.success} />
+          <Text style={[styles.confidence, { color: colors.success }]}>AI Confidence: {item.aiConfidence}%</Text>
+        </View>
       )}
     </View>
   );
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading calls...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading calls...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Call History</Text>
-        <Text style={styles.subtitle}>{calls.length} total calls</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.backButton, { backgroundColor: colors.backgroundSecondary }]}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={[styles.title, { color: colors.text }]}>Call History</Text>
+          <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{calls.length} total calls</Text>
+        </View>
+        <View style={styles.headerButton} />
       </View>
 
       {calls.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📞</Text>
-          <Text style={styles.emptyTitle}>No calls yet</Text>
-          <Text style={styles.emptyText}>
+          <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="call-outline" size={48} color={colors.textTertiary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No calls yet</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
             When you receive missed calls, the AI will automatically call them back and the history will appear here.
           </Text>
         </View>
@@ -87,6 +120,7 @@ export default function CallsScreen() {
           renderItem={renderCall}
           keyExtractor={(item: any) => item._id}
           contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
@@ -96,22 +130,36 @@ export default function CallsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0b',
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerButton: {
+    width: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 13,
   },
   loadingContainer: {
     flex: 1,
@@ -119,20 +167,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#9ca3af',
     marginTop: 12,
-    fontSize: 14,
+    fontSize: 15,
   },
   list: {
     padding: 20,
+    paddingBottom: 100,
   },
   callCard: {
-    backgroundColor: '#1a1a1b',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#374151',
   },
   callHeader: {
     flexDirection: 'row',
@@ -146,66 +192,74 @@ const styles = StyleSheet.create({
   callName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
     marginBottom: 4,
   },
   callPhone: {
     fontSize: 14,
-    color: '#9ca3af',
   },
-  callStatus: {
-    marginLeft: 8,
+  callStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    gap: 4,
   },
   callType: {
     fontSize: 12,
-    color: '#3b82f6',
+    fontWeight: '600',
   },
   callTime: {
     fontSize: 12,
-    color: '#6b7280',
     marginBottom: 12,
   },
   transcriptBox: {
-    backgroundColor: '#0a0a0b',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 8,
   },
   transcriptLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    color: '#9ca3af',
-    marginBottom: 4,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   transcriptText: {
-    fontSize: 13,
-    color: '#d1d5db',
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  confidenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   confidence: {
     fontSize: 12,
-    color: '#10b981',
+    fontWeight: '500',
   },
   emptyState: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    paddingHorizontal: 40,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyIconWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 8,
   },
   emptyText: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
   },
 });

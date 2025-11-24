@@ -104,6 +104,13 @@ import studioRoutes from './routes/studio.js';
 import voiceEstimateRoutes from './routes/voiceEstimates.js';
 import socialMediaAIRoutes from './routes/socialMediaAI.js';
 import mobileRoutes from './routes/mobile.js';
+import voiceRoutes from './routes/voice.js';
+import devCommandsRoutes from './routes/devCommands.js';
+import notificationRoutes from './routes/notifications.js';
+import profileRoutes from './routes/profile.js';
+import voicemailRoutes from './routes/voicemail.js';
+import twilioMobileRoutes from './routes/twilioMobile.js';
+import contactRoutes from './routes/contacts.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -128,7 +135,7 @@ const corsOptions = process.env.NODE_ENV === 'production'
       credentials: true
     }
   : {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: true, // Allow all origins in development (for mobile app testing)
       credentials: true
     };
 
@@ -233,6 +240,13 @@ app.use('/api/copilot', copilotRoutes); // Full-featured Co-Pilot with system in
 app.use('/api/voice-estimates', voiceEstimateRoutes); // Voice estimate builder routes
 app.use('/api/mobile', mobileRoutes); // Mobile app API endpoints
 app.use('/api/social-media', socialMediaAIRoutes); // AI Social Media Post Writer
+app.use('/api/voice', voiceRoutes); // Voice conversation endpoints for mobile app
+app.use('/api/dev', devCommandsRoutes); // Development command queue for voice-controlled coding
+app.use('/api/notifications', notificationRoutes); // Push notification endpoints for mobile app
+app.use('/api/profile', profileRoutes); // User profile and preferences
+app.use('/api/voicemail', voicemailRoutes); // Interactive voicemail and call monitoring
+app.use('/api/twilio', twilioMobileRoutes); // Twilio mobile VoIP and SMS routes
+app.use('/api/contacts', contactRoutes); // Unified contacts API for mobile and desktop
 
 app.use('/api', apiLimiter);
 
@@ -321,7 +335,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorTracking);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
@@ -336,7 +350,7 @@ process.on('unhandledRejection', (reason, promise) => {
   // Don't exit - log and continue
 });
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`
   ╔════════════════════════════════════════╗
   ║   VoiceFlow CRM Server Running         ║
@@ -344,6 +358,7 @@ const server = app.listen(PORT, () => {
   ║   Environment: ${process.env.NODE_ENV || 'development'}            ║
   ║   API: http://localhost:${PORT}/api    ║
   ║   WS: ws://localhost:${PORT}/ws        ║
+  ║   Network: http://0.0.0.0:${PORT}      ║
   ╚════════════════════════════════════════╝
   `);
 

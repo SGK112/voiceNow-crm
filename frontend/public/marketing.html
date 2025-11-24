@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v65-force-reload';
+        const CURRENT_VERSION = '2025-11-24-v81-fix-badge-position';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -139,6 +139,63 @@
         @keyframes pulse {
             0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
             50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* React Flow style dot grid background */
+        .dots-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            background-color: #0a0a0b;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Make sections show dot grid through */
+        section {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sections without gradient backgrounds get transparent bg */
+        section:not([class*="bg-gradient"]):not([class*="bg-["]) {
+            background-color: transparent !important;
+        }
+
+        /* Add subtle overlay to non-gradient sections for readability */
+        section:not([class*="bg-gradient"]):not([class*="bg-["])::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 11, 0.5);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Hero section needs special treatment for video */
+        #hero::before {
+            background: transparent;
+        }
+
+        /* Footer styling */
+        footer {
+            position: relative;
+            z-index: 1;
+            background-color: #0a0a0b !important;
+        }
+
+        /* Ensure images are visible */
+        section img {
+            position: relative;
+            z-index: 2;
         }
 
         .feature-card {
@@ -1090,6 +1147,9 @@
     </style>
 </head>
 <body>
+    <!-- React Flow style dot grid background -->
+    <div class="dots-container"></div>
+
     <!-- Brand Intro - Clean Video -->
     <div id="brandIntroOverlay" class="brand-intro-overlay hidden">
         <div class="brand-intro-container">
@@ -1199,7 +1259,6 @@
             </div>
         </div>
 
-        <!-- Removed Get Started button - using tool menu instead -->
     </div>
 
     <!-- Navigation -->
@@ -1227,6 +1286,9 @@
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="#features" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Features</a>
+                    <a href="#download-app" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">
+                        <i class="fas fa-mobile-alt mr-1"></i>Get App
+                    </a>
                     <a href="/login" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Login</a>
                     <button id="nav-try-demo" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20">
                         Try Demo
@@ -1426,11 +1488,40 @@
                     <!-- Initial CTA (shown before form) -->
                     <div id="initial-cta" class="max-w-md md:mx-0 text-left cta-entrance">
                         <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
-                        <p class="text-lg text-gray-400 mb-8">Get a live demo in seconds. No credit card required.</p>
-                        <button id="try-it-now-btn" class="inline-block bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg cursor-pointer">
-                            <i class="fas fa-play-circle mr-2"></i>
-                            Try It Now
-                        </button>
+                        <p class="text-lg text-gray-400 mb-6">Try our demo online or download the mobile app</p>
+
+                        <!-- Primary CTAs -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                            <button id="try-it-now-btn" class="inline-flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-base cursor-pointer">
+                                <i class="fas fa-play-circle mr-2"></i>
+                                Try Demo
+                            </button>
+                            <a href="#download-app" class="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur text-white border border-white/20 px-8 py-4 rounded-xl font-bold transition-all hover:scale-105 text-base cursor-pointer">
+                                <i class="fas fa-mobile-alt mr-2"></i>
+                                Get the App
+                            </a>
+                        </div>
+
+                        <!-- App Store Badges -->
+                        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            <span class="text-sm text-gray-500">Available on:</span>
+                            <div class="flex gap-3">
+                                <a href="#download-app" class="group flex items-center gap-2 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg px-4 py-2 transition-all">
+                                    <i class="fab fa-apple text-white text-xl"></i>
+                                    <div class="text-left">
+                                        <div class="text-[10px] text-gray-400 leading-tight">Download on the</div>
+                                        <div class="text-sm text-white font-semibold leading-tight">App Store</div>
+                                    </div>
+                                </a>
+                                <a href="#download-app" class="group flex items-center gap-2 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg px-4 py-2 transition-all">
+                                    <i class="fab fa-google-play text-white text-xl"></i>
+                                    <div class="text-left">
+                                        <div class="text-[10px] text-gray-400 leading-tight">Get it on</div>
+                                        <div class="text-sm text-white font-semibold leading-tight">Google Play</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Hidden select for interest -->
@@ -1483,9 +1574,7 @@
                 <!-- Testimonial 1 -->
                 <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            M
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face" alt="Mike Rodriguez" class="w-12 h-12 rounded-full object-cover border-2 border-orange-500/50" loading="lazy">
                         <div>
                             <div class="font-bold text-white">Mike Rodriguez</div>
                             <div class="text-sm text-gray-400">Rodriguez Construction</div>
@@ -1506,9 +1595,7 @@
                 <!-- Testimonial 2 -->
                 <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            S
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face" alt="Sarah Chen" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500/50" loading="lazy">
                         <div>
                             <div class="font-bold text-white">Sarah Chen</div>
                             <div class="text-sm text-gray-400">Chen HVAC Services</div>
@@ -1529,9 +1616,7 @@
                 <!-- Testimonial 3 -->
                 <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            J
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="James Thompson" class="w-12 h-12 rounded-full object-cover border-2 border-green-500/50" loading="lazy">
                         <div>
                             <div class="font-bold text-white">James Thompson</div>
                             <div class="text-sm text-gray-400">Thompson Plumbing</div>
@@ -1580,81 +1665,125 @@
         </div>
     </section>
 
-    <!-- AI vs Traditional Voicemail Comparison -->
-    <section class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0b]">
+    <!-- AI vs Traditional Voicemail - Modern Split Section -->
+    <section class="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                    Stop Losing Leads to Voicemail
-                </h2>
-                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-                    Traditional voicemail is costing you thousands in lost revenue. Here's why AI voice agents are the smarter choice.
-                </p>
-            </div>
+            <!-- Modern asymmetric layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Left: Voicemail Box Image -->
-                <div class="order-2 lg:order-1">
-                    <div class="relative max-w-md mx-auto">
-                        <img
-                            src="/voicemail-box.png?v=2025-11-23-v3"
-                            alt="AI Voicemail System"
-                            class="w-full drop-shadow-2xl"
-                            style="filter: drop-shadow(0 25px 50px rgba(34, 197, 94, 0.3));"
-                        />
-                        <!-- Floating badge -->
-                        <div class="absolute -top-4 -right-4 bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-xl">
-                            24/7 Active
+                <!-- Left Content - 5 columns -->
+                <div class="lg:col-span-5 order-2 lg:order-1">
+                    <div class="space-y-8">
+                        <!-- Badge -->
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500/10 to-green-500/10 border border-white/10 rounded-full">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            <span class="text-sm text-gray-300">Voicemail is dead</span>
+                            <span class="text-gray-500">→</span>
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-sm text-gray-300">AI is here</span>
+                        </div>
+
+                        <!-- Headline -->
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            Stop losing
+                            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">$47,000/year</span>
+                            <span class="block text-gray-400 text-3xl sm:text-4xl lg:text-5xl mt-2">to missed calls</span>
+                        </h2>
+
+                        <!-- Stats row -->
+                        <div class="flex gap-8 pt-4">
+                            <div>
+                                <div class="text-3xl font-bold text-white">80%</div>
+                                <div class="text-sm text-gray-500">of callers won't<br/>leave voicemail</div>
+                            </div>
+                            <div class="w-px bg-gray-800"></div>
+                            <div>
+                                <div class="text-3xl font-bold text-green-400">24/7</div>
+                                <div class="text-sm text-gray-500">AI answers<br/>every call</div>
+                            </div>
+                            <div class="w-px bg-gray-800"></div>
+                            <div>
+                                <div class="text-3xl font-bold text-blue-400">3x</div>
+                                <div class="text-sm text-gray-500">more leads<br/>captured</div>
+                            </div>
+                        </div>
+
+                        <!-- CTA -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                            <a href="#demo" class="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all">
+                                See it in action
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#pricing" class="inline-flex items-center justify-center px-8 py-4 bg-white/5 text-white font-semibold rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                                View pricing
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: Comparison -->
-                <div class="order-1 lg:order-2">
-                    <div class="space-y-6">
-                        <!-- Traditional Voicemail Problems -->
-                        <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-times text-red-400 text-lg"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-white mb-2">Traditional Voicemail</h3>
-                                    <ul class="space-y-2 text-sm text-gray-300">
-                                        <li>❌ Customers hang up and call your competitor</li>
-                                        <li>❌ You waste hours calling people back who aren't serious</li>
-                                        <li>❌ Leads go cold while you play phone tag</li>
-                                        <li>❌ No lead qualification—you talk to everyone</li>
-                                        <li>❌ Manual scheduling back-and-forth</li>
-                                    </ul>
+                <!-- Right Image - 7 columns -->
+                <div class="lg:col-span-7 order-1 lg:order-2">
+                    <div class="relative">
+                        <!-- Main image with modern frame -->
+                        <div class="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/10">
+                            <img
+                                src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&h=600&fit=crop"
+                                alt="Business professional taking a call"
+                                class="w-full h-auto object-cover"
+                                loading="lazy"
+                            />
+                            <!-- Gradient overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+                            <!-- Bottom info bar -->
+                            <div class="absolute bottom-0 left-0 right-0 p-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-phone-alt text-white text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-white font-semibold">AI Agent Active</div>
+                                            <div class="text-gray-300 text-sm">Handling incoming call...</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                        <span class="text-white text-sm font-medium">Live</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- AI Voice Agent Benefits -->
-                        <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-check text-green-400 text-lg"></i>
+                        <!-- Floating comparison card -->
+                        <div class="absolute -bottom-8 -left-8 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl p-5 shadow-2xl max-w-xs hidden lg:block">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-exchange-alt text-white text-xs"></i>
                                 </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-white mb-2">AI Voice Agent</h3>
-                                    <ul class="space-y-2 text-sm text-gray-300">
-                                        <li>✅ Answers EVERY call immediately—no missed leads</li>
-                                        <li>✅ Asks qualifying questions (budget, timeline, scope)</li>
-                                        <li>✅ Books estimates directly to your calendar</li>
-                                        <li>✅ Sends you SMS summaries of serious leads only</li>
-                                        <li>✅ Works 24/7, even when you're on the job site</li>
-                                    </ul>
+                                <span class="text-white font-semibold">Quick Compare</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-5 h-5 bg-red-500/20 rounded flex items-center justify-center">
+                                        <i class="fas fa-times text-red-400 text-xs"></i>
+                                    </span>
+                                    <span class="text-gray-400 text-sm line-through">Voicemail → Hang up</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-5 h-5 bg-green-500/20 rounded flex items-center justify-center">
+                                        <i class="fas fa-check text-green-400 text-xs"></i>
+                                    </span>
+                                    <span class="text-white text-sm">AI → Booked appointment</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Result -->
-                        <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
-                            <div class="text-center">
-                                <div class="text-4xl font-bold text-blue-400 mb-2">3x More Leads</div>
-                                <div class="text-gray-300">Contractors see an average 300% increase in qualified leads</div>
+                        <!-- Floating badge top right -->
+                        <div class="absolute top-4 right-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white px-5 py-3 rounded-2xl font-bold shadow-xl shadow-green-500/25 hidden sm:block">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-bolt"></i>
+                                <span>Always On</span>
                             </div>
                         </div>
                     </div>
@@ -1736,6 +1865,289 @@
                     <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">3</div>
                     <h3 class="text-xl font-bold text-white mb-3">Deploy & Scale</h3>
                     <p class="text-gray-400">Launch your agent and watch it handle unlimited conversations 24/7</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile App Download Section -->
+    <section id="download-app" class="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0a0a0b] via-[#0f172a] to-[#1a1a2e] relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <!-- Left: Content -->
+                <div class="order-2 lg:order-1">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full px-4 py-2 mb-6">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="text-sm font-semibold text-green-400">Now Available on iOS & Android</span>
+                    </div>
+
+                    <h2 class="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
+                        Your AI Assistant,<br/>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">In Your Pocket</span>
+                    </h2>
+
+                    <p class="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed">
+                        Never miss a lead again. The VoiceFlow mobile app automatically handles missed calls, responds to texts with AI, and syncs everything to your CRM—even when you're asleep.
+                    </p>
+
+                    <!-- Feature List -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-phone-volume text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">AI Call-Back</h4>
+                                <p class="text-sm text-gray-400">Missed calls? AI calls them back instantly</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-comment-dots text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Smart SMS</h4>
+                                <p class="text-sm text-gray-400">AI responds to texts professionally</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user-plus text-green-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Lead Capture</h4>
+                                <p class="text-sm text-gray-400">Auto-qualify & sync to CRM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-calendar-check text-orange-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Book Meetings</h4>
+                                <p class="text-sm text-gray-400">AI schedules appointments for you</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <a href="#" id="download-ios" class="group flex items-center justify-center gap-3 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-xl px-6 py-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
+                            <i class="fab fa-apple text-white text-3xl"></i>
+                            <div class="text-left">
+                                <div class="text-xs text-gray-400 leading-tight">Download on the</div>
+                                <div class="text-lg text-white font-bold leading-tight">App Store</div>
+                            </div>
+                        </a>
+                        <a href="#" id="download-android" class="group flex items-center justify-center gap-3 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-xl px-6 py-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
+                            <i class="fab fa-google-play text-white text-3xl"></i>
+                            <div class="text-left">
+                                <div class="text-xs text-gray-400 leading-tight">Get it on</div>
+                                <div class="text-lg text-white font-bold leading-tight">Google Play</div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Trust signals -->
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span><strong class="text-white">4.9</strong> App Rating</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-download text-blue-400"></i>
+                            <span><strong class="text-white">10K+</strong> Downloads</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-shield-alt text-green-400"></i>
+                            <span>Free with subscription</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Phone Mockup -->
+                <div class="order-1 lg:order-2 flex justify-center">
+                    <div class="relative" style="max-width: 320px;">
+                        <!-- Phone glow effect -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-[3rem] blur-3xl scale-110"></div>
+
+                        <!-- iPhone Frame -->
+                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900" style="animation: float 6s ease-in-out infinite;">
+                            <!-- Notch -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-36 h-7 bg-black rounded-b-3xl z-10"></div>
+
+                            <!-- Screen -->
+                            <div class="bg-gradient-to-b from-gray-900 to-gray-950 rounded-[2.3rem] overflow-hidden relative" style="height: 580px;">
+                                <!-- Status Bar -->
+                                <div class="px-6 py-3 flex justify-between items-center text-xs font-semibold text-white">
+                                    <span>9:41</span>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-signal text-xs"></i>
+                                        <i class="fas fa-wifi text-xs"></i>
+                                        <i class="fas fa-battery-full text-xs"></i>
+                                    </div>
+                                </div>
+
+                                <!-- App Header -->
+                                <div class="px-5 pt-2 pb-4">
+                                    <div class="text-gray-400 text-sm font-medium">Welcome back</div>
+                                    <div class="text-white text-2xl font-bold">Dashboard</div>
+                                </div>
+
+                                <!-- Stats Cards -->
+                                <div class="px-4 grid grid-cols-2 gap-3 mb-4">
+                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
+                                        <div class="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-2">
+                                            <i class="fas fa-phone text-blue-400 text-sm"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-white">47</div>
+                                        <div class="text-xs text-gray-400">AI Calls</div>
+                                    </div>
+                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
+                                        <div class="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-2">
+                                            <i class="fas fa-comment text-purple-400 text-sm"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-white">128</div>
+                                        <div class="text-xs text-gray-400">SMS Handled</div>
+                                    </div>
+                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
+                                        <div class="w-9 h-9 bg-green-500/20 rounded-xl flex items-center justify-center mb-2">
+                                            <i class="fas fa-users text-green-400 text-sm"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-white">23</div>
+                                        <div class="text-xs text-gray-400">New Leads</div>
+                                    </div>
+                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
+                                        <div class="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-2">
+                                            <i class="fas fa-chart-line text-orange-400 text-sm"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-white">68%</div>
+                                        <div class="text-xs text-gray-400">Close Rate</div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Activity -->
+                                <div class="px-4 mb-4">
+                                    <div class="text-sm font-semibold text-white mb-3">Recent Activity</div>
+                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl border border-gray-700/50 overflow-hidden">
+                                        <div class="flex items-center gap-3 p-3 border-b border-gray-700/50">
+                                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-phone text-blue-400 text-xs"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-white truncate">Mike Johnson</div>
+                                                <div class="text-xs text-gray-400">AI completed call</div>
+                                            </div>
+                                            <div class="text-xs text-gray-500">2m ago</div>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 border-b border-gray-700/50">
+                                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-user-plus text-green-400 text-xs"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-white truncate">New Lead Created</div>
+                                                <div class="text-xs text-gray-400">Sarah Williams</div>
+                                            </div>
+                                            <div class="text-xs text-gray-500">15m ago</div>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3">
+                                            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-comment text-purple-400 text-xs"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-white truncate">SMS Conversation</div>
+                                                <div class="text-xs text-gray-400">AI replied to inquiry</div>
+                                            </div>
+                                            <div class="text-xs text-gray-500">1h ago</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AI Assistant CTA -->
+                                <div class="px-4">
+                                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-4 flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                                <i class="fas fa-microphone text-white"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-white font-semibold">Talk to Aria</div>
+                                                <div class="text-blue-100 text-xs">Your AI assistant</div>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-right text-white"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Nav -->
+                                <div class="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur border-t border-gray-800 px-2 py-2">
+                                    <div class="flex justify-around items-center">
+                                        <div class="flex flex-col items-center px-3 py-1">
+                                            <i class="fas fa-home text-blue-400 text-lg"></i>
+                                            <span class="text-[10px] text-blue-400 mt-1">Home</span>
+                                        </div>
+                                        <div class="flex flex-col items-center px-3 py-1">
+                                            <i class="fas fa-phone text-gray-500 text-lg"></i>
+                                            <span class="text-[10px] text-gray-500 mt-1">Calls</span>
+                                        </div>
+                                        <div class="flex flex-col items-center px-3 py-1">
+                                            <i class="fas fa-comment text-gray-500 text-lg"></i>
+                                            <span class="text-[10px] text-gray-500 mt-1">Messages</span>
+                                        </div>
+                                        <div class="flex flex-col items-center px-3 py-1">
+                                            <i class="fas fa-users text-gray-500 text-lg"></i>
+                                            <span class="text-[10px] text-gray-500 mt-1">Leads</span>
+                                        </div>
+                                        <div class="flex flex-col items-center px-3 py-1">
+                                            <i class="fas fa-cog text-gray-500 text-lg"></i>
+                                            <span class="text-[10px] text-gray-500 mt-1">Settings</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom features bar -->
+            <div class="mt-16 pt-12 border-t border-gray-800">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div>
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-bolt text-blue-400 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-white mb-1">Instant Setup</h4>
+                        <p class="text-sm text-gray-400">Download & connect in 2 minutes</p>
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-cloud text-purple-400 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-white mb-1">Cloud Sync</h4>
+                        <p class="text-sm text-gray-400">All data synced across devices</p>
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-lock text-green-400 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-white mb-1">Secure & Private</h4>
+                        <p class="text-sm text-gray-400">End-to-end encryption</p>
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-headset text-orange-400 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-white mb-1">24/7 Support</h4>
+                        <p class="text-sm text-gray-400">Help when you need it</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1835,34 +2247,14 @@
     </section>
 
     <!-- Final CTA Section -->
-    <section class="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                Ready to Automate Your Customer Conversations?
-            </h2>
-            <p class="text-lg sm:text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-                Join hundreds of businesses using AI to handle calls, qualify leads, and close deals 24/7.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/signup" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl">
-                    Start Free Trial
-                </a>
-                <a href="#hero" class="bg-white/10 backdrop-blur text-white border-2 border-white/30 px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/20 transition-colors">
-                    Watch Demo
-                </a>
-            </div>
-            <p class="text-blue-100 text-sm mt-6">No credit card required • 50 minutes free • Setup in 2 minutes</p>
-        </div>
-    </section>
-
-    <section class="full-width-section py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden w-screen -ml-[50vw] left-[50%] right-[50%] -mr-[50vw]">
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden">
         <!-- Background pattern -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         </div>
 
-        <div class="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
             <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8">
                 Ready to Transform Your Business?
             </h2>
@@ -2193,249 +2585,7 @@
             }
         }
 
-        // Add tool menu to main content
-        window.addEventListener('DOMContentLoaded', () => {
-            // Create tool menu trigger button
-            const triggerBtn = document.createElement('button');
-            triggerBtn.id = 'tool-menu-trigger';
-            triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
-            triggerBtn.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-                color: white;
-                border: none;
-                box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                z-index: 10000;
-                transition: all 0.3s;
-            `;
-            triggerBtn.onmouseover = () => {
-                triggerBtn.style.transform = 'scale(1.1)';
-                triggerBtn.style.boxShadow = '0 6px 30px rgba(99, 102, 241, 0.7)';
-            };
-            triggerBtn.onmouseout = () => {
-                triggerBtn.style.transform = 'scale(1)';
-                triggerBtn.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.5)';
-            };
-
-            // Create sliding tool menu tray
-            const toolMenu = document.createElement('div');
-            toolMenu.id = 'floating-tool-menu';
-            toolMenu.style.cssText = `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 9999;
-                background: linear-gradient(to top, rgba(10, 10, 11, 0.98), rgba(10, 10, 11, 0.95));
-                backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                padding: 20px;
-                transform: translateY(100%);
-                transition: transform 0.3s ease-in-out;
-                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-            `;
-
-            // Create tools container
-            const toolsContainer = document.createElement('div');
-            toolsContainer.style.cssText = `
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 20px;
-                max-width: 600px;
-                margin: 0 auto;
-                flex-wrap: wrap;
-            `;
-            toolMenu.appendChild(toolsContainer);
-
-            // Toggle menu function
-            let isMenuOpen = false;
-            triggerBtn.onclick = () => {
-                isMenuOpen = !isMenuOpen;
-                if (isMenuOpen) {
-                    toolMenu.style.transform = 'translateY(0)';
-                    triggerBtn.innerHTML = '<i class="fas fa-times"></i>';
-                } else {
-                    toolMenu.style.transform = 'translateY(100%)';
-                    triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
-                }
-            };
-
-            // Create share button
-            if (navigator.share || navigator.clipboard) {
-                const shareBtn = document.createElement('button');
-                shareBtn.className = 'tool-menu-btn';
-                shareBtn.innerHTML = '<i class="fas fa-share-alt"></i>';
-                shareBtn.title = 'Share';
-                shareBtn.style.cssText = `
-                    width: 56px;
-                    height: 56px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-                    color: white;
-                    border: none;
-                    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
-                    transition: all 0.3s;
-                `;
-                shareBtn.onmouseover = () => shareBtn.style.transform = 'scale(1.1)';
-                shareBtn.onmouseout = () => shareBtn.style.transform = 'scale(1)';
-                shareBtn.onclick = shareWebsite;
-                toolsContainer.appendChild(shareBtn);
-            }
-
-            // Create voice copilot button
-            const copilotBtn = document.createElement('button');
-            copilotBtn.id = 'floating-copilot-btn';
-            copilotBtn.className = 'tool-menu-btn';
-            copilotBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-            copilotBtn.title = 'Voice AI Copilot';
-            copilotBtn.style.cssText = `
-                width: 70px;
-                height: 70px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 28px;
-                transition: all 0.3s;
-            `;
-            copilotBtn.onmouseover = () => {
-                copilotBtn.style.transform = 'scale(1.1)';
-                copilotBtn.style.boxShadow = '0 6px 30px rgba(102, 126, 234, 0.6)';
-            };
-            copilotBtn.onmouseout = () => {
-                copilotBtn.style.transform = 'scale(1)';
-                copilotBtn.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.4)';
-            };
-            copilotBtn.onclick = () => {
-                console.log('Copilot button clicked - scrolling to section');
-                // Scroll to copilot demo section
-                const copilotSection = document.getElementById('copilot-demo');
-                if (copilotSection) {
-                    copilotSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    console.log('Scrolled to copilot section');
-                } else {
-                    console.error('Copilot section not found!');
-                }
-                // Close tray
-                toolMenu.style.transform = 'translateY(100%)';
-                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
-                isMenuOpen = false;
-            };
-            toolsContainer.appendChild(copilotBtn);
-
-            // Create AI Image Generator button
-            const imageGenBtn = document.createElement('button');
-            imageGenBtn.id = 'floating-image-gen-btn';
-            imageGenBtn.className = 'tool-menu-btn';
-            imageGenBtn.innerHTML = '<i class="fas fa-image"></i>';
-            imageGenBtn.title = 'AI Image Generator';
-            imageGenBtn.style.cssText = `
-                width: 70px;
-                height: 70px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                color: white;
-                border: none;
-                box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 28px;
-                transition: all 0.3s;
-            `;
-            imageGenBtn.onmouseover = () => {
-                imageGenBtn.style.transform = 'scale(1.1)';
-                imageGenBtn.style.boxShadow = '0 6px 30px rgba(240, 147, 251, 0.6)';
-            };
-            imageGenBtn.onmouseout = () => {
-                imageGenBtn.style.transform = 'scale(1)';
-                imageGenBtn.style.boxShadow = '0 4px 20px rgba(240, 147, 251, 0.4)';
-            };
-            imageGenBtn.onclick = () => {
-                // Scroll to AI Chat Demo section
-                const aiChatSection = document.getElementById('ai-chat-demo');
-                if (aiChatSection) {
-                    aiChatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-                // Close tray
-                toolMenu.style.transform = 'translateY(100%)';
-                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
-                isMenuOpen = false;
-            };
-            toolsContainer.appendChild(imageGenBtn);
-
-            // Create Voicemail Agent button
-            const voicemailBtn = document.createElement('button');
-            voicemailBtn.id = 'floating-voicemail-btn';
-            voicemailBtn.className = 'tool-menu-btn';
-            voicemailBtn.innerHTML = '<i class="fas fa-voicemail"></i>';
-            voicemailBtn.title = 'Voicemail Agent Demo';
-            voicemailBtn.style.cssText = `
-                width: 70px;
-                height: 70px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-                color: white;
-                border: none;
-                box-shadow: 0 4px 20px rgba(17, 153, 142, 0.4);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 28px;
-                transition: all 0.3s;
-            `;
-            voicemailBtn.onmouseover = () => {
-                voicemailBtn.style.transform = 'scale(1.1)';
-                voicemailBtn.style.boxShadow = '0 6px 30px rgba(17, 153, 142, 0.6)';
-            };
-            voicemailBtn.onmouseout = () => {
-                voicemailBtn.style.transform = 'scale(1)';
-                voicemailBtn.style.boxShadow = '0 4px 20px rgba(17, 153, 142, 0.4)';
-            };
-            voicemailBtn.onclick = () => {
-                console.log('Voicemail button clicked - scrolling to section');
-                // Scroll to voicemail agent section
-                const voicemailSection = document.getElementById('voicemail-agent-demo');
-                if (voicemailSection) {
-                    voicemailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    console.log('Scrolled to voicemail section');
-                } else {
-                    console.error('Voicemail section not found!');
-                }
-                // Close tray
-                toolMenu.style.transform = 'translateY(100%)';
-                triggerBtn.innerHTML = '<i class="fas fa-tools"></i>';
-                isMenuOpen = false;
-            };
-            toolsContainer.appendChild(voicemailBtn);
-
-            // Append to body
-            document.body.appendChild(toolMenu);
-            document.body.appendChild(triggerBtn);
-        });
+        // Tool menu removed - cleaner interface
 
         // Animation for install banner
         const style = document.createElement('style');

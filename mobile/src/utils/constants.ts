@@ -1,6 +1,12 @@
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
-export const API_URL = Constants.expoConfig?.extra?.API_URL || 'http://localhost:5001';
+// Use local IP for device/simulator, localhost for web
+const DEFAULT_API_URL = Platform.OS === 'web'
+  ? 'http://localhost:5001'
+  : 'http://192.168.0.151:5001';
+
+export const API_URL = Constants.expoConfig?.extra?.API_URL || DEFAULT_API_URL;
 export const ELEVENLABS_API_KEY = Constants.expoConfig?.extra?.ELEVENLABS_API_KEY || '';
 export const TWILIO_ACCOUNT_SID = Constants.expoConfig?.extra?.TWILIO_ACCOUNT_SID || '';
 export const TWILIO_AUTH_TOKEN = Constants.expoConfig?.extra?.TWILIO_AUTH_TOKEN || '';

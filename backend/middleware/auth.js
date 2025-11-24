@@ -64,3 +64,35 @@ export const generateToken = (id) => {
     expiresIn: process.env.JWT_EXPIRE || '30d'
   });
 };
+
+// Optional auth - sets req.user if token present, but doesn't require it
+export const optionalAuth = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const redis = getRedisClient();
+      if (redis) {
+        const cachedUser = await redis.get(`user:${decoded.id}`);
+        if (cachedUser) {
+          req.user = JSON.parse(cachedUser);
+          return next();
+        }
+      }
+
+      req.user = await User.findById(decoded.id).select('-password');
+
+      if (redis && req.user) {
+        await redis.setEx(`user:${decoded.id}`, 3600, JSON.stringify(req.user));
+      }
+    } catch (error) {
+      // Token invalid, but we don't fail - just continue without user
+      console.log('Optional auth: token invalid or expired');
+    }
+  }
+
+  next();
+};

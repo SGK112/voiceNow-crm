@@ -1,30 +1,217 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Platform,
+  Dimensions,
+  Animated,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import { useTheme } from '../contexts/ThemeContext';
 
-const API_URL = 'http://192.168.0.151:5001';
+const { width } = Dimensions.get('window');
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
+
+// Collapsible Section Component
+interface CollapsibleSectionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
+}
+
+const CollapsibleSection = ({ title, children, defaultExpanded = true }: CollapsibleSectionProps) => {
+  const { colors } = useTheme();
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [animation] = useState(new Animated.Value(defaultExpanded ? 1 : 0));
+
+  const toggleExpand = () => {
+    Animated.timing(animation, {
+      toValue: expanded ? 0 : 1,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+    setExpanded(!expanded);
+  };
+
+  return (
+    <View style={styles.collapsibleContainer}>
+      <TouchableOpacity
+        style={[styles.collapsibleHeader, { borderBottomColor: expanded ? colors.divider : 'transparent' }]}
+        onPress={toggleExpand}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.collapsibleTitle, { color: colors.text }]}>{title}</Text>
+        <Ionicons
+          name={expanded ? 'chevron-up' : 'chevron-down'}
+          size={20}
+          color={colors.textTertiary}
+        />
+      </TouchableOpacity>
+      {expanded && <View style={styles.collapsibleContent}>{children}</View>}
+    </View>
+  );
+};
+
+// Stat Card Component
+interface StatCardProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  value: string | number;
+  label: string;
+  trend?: string;
+  onPress?: () => void;
+}
+
+const StatCard = ({ icon, value, label, trend, onPress }: StatCardProps) => {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.statCard,
+        {
+          backgroundColor: colors.card,
+          shadowColor: colors.shadow,
+          borderColor: colors.border,
+        },
+      ]}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
+      <View style={[styles.statIconWrapper, { backgroundColor: colors.primary + '12' }]}>
+        <Ionicons name={icon} size={20} color={colors.primary} />
+      </View>
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{label}</Text>
+      {trend && (
+        <View style={[styles.trendBadge, { backgroundColor: colors.success + '15' }]}>
+          <Ionicons name="trending-up" size={12} color={colors.success} />
+          <Text style={[styles.trendText, { color: colors.success }]}>{trend}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+// Quick Action Card
+interface QuickActionProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+  badge?: number;
+}
+
+const QuickAction = ({ icon, title, subtitle, onPress, badge }: QuickActionProps) => {
+  const { colors } = useTheme();
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.quickAction,
+        {
+          backgroundColor: colors.card,
+          shadowColor: colors.shadow,
+          borderColor: colors.border,
+        },
+      ]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.quickActionIcon, { backgroundColor: colors.primary + '10' }]}>
+        <Ionicons name={icon} size={22} color={colors.primary} />
+        {badge !== undefined && badge > 0 && (
+          <View style={[styles.badge, { backgroundColor: colors.error }]}>
+            <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.quickActionContent}>
+        <Text style={[styles.quickActionTitle, { color: colors.text }]}>{title}</Text>
+        <Text style={[styles.quickActionSubtitle, { color: colors.textTertiary }]}>{subtitle}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+    </TouchableOpacity>
+  );
+};
+
+// Activity Item
+interface ActivityItemProps {
+  type: string;
+  title: string;
+  description: string;
+  timeAgo: string;
+}
+
+const ActivityItem = ({ type, title, description, timeAgo }: ActivityItemProps) => {
+  const { colors } = useTheme();
+
+  const getIcon = () => {
+    switch (type) {
+      case 'call': return { icon: 'call' as const, color: colors.primary };
+      case 'message': return { icon: 'chatbubble' as const, color: colors.secondary };
+      case 'lead': return { icon: 'person-add' as const, color: colors.success };
+      case 'email': return { icon: 'mail' as const, color: colors.warning };
+      default: return { icon: 'ellipse' as const, color: colors.textTertiary };
+    }
+  };
+
+  const { icon, color } = getIcon();
+
+  return (
+    <View style={[styles.activityItem, { borderBottomColor: colors.divider }]}>
+      <View style={[styles.activityIcon, { backgroundColor: color + '12' }]}>
+        <Ionicons name={icon} size={16} color={color} />
+      </View>
+      <View style={styles.activityContent}>
+        <Text style={[styles.activityTitle, { color: colors.text }]} numberOfLines={1}>{title}</Text>
+        <Text style={[styles.activityDesc, { color: colors.textTertiary }]} numberOfLines={1}>{description}</Text>
+      </View>
+      <Text style={[styles.activityTime, { color: colors.textTertiary }]}>{timeAgo}</Text>
+    </View>
+  );
+};
 
 export default function HomeScreen({ navigation }: any) {
-  const [stats, setStats] = React.useState({
+  const { colors, isDark } = useTheme();
+  const [stats, setStats] = useState({
     calls: 0,
     messages: 0,
     leads: 0,
     conversionRate: '0%',
     activeLeads: 0,
   });
-  const [loading, setLoading] = React.useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/stats`);
+      const response = await axios.get(`${API_URL}/api/mobile/stats`, {
+        params: { _t: Date.now() },
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
       if (response.data.success) {
         setStats(response.data.stats);
+      }
+
+      const activityResponse = await axios.get(`${API_URL}/api/mobile/recent-activity`, {
+        params: { limit: 5 },
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
+      if (activityResponse.data.success) {
+        setRecentActivity(activityResponse.data.activity || []);
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
@@ -34,119 +221,198 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchStats();
-  };
+  }, []);
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading stats...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading dashboard...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>VoiceFlow AI</Text>
-        <Text style={styles.subtitle}>AI Voicemail & SMS Assistant</Text>
-      </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header Gradient */}
+      <LinearGradient
+        colors={isDark
+          ? ['#1E293B', colors.background]
+          : [colors.primary + '08', colors.background]
+        }
+        style={styles.headerGradient}
+      />
 
-      {/* Stats Grid */}
-      <View style={styles.statsGrid}>
-        <TouchableOpacity
-          style={styles.statCard}
-          onPress={() => navigation.navigate('Calls')}
-        >
-          <Text style={styles.statNumber}>{stats.calls}</Text>
-          <Text style={styles.statLabel}>AI Calls</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.statCard}
-          onPress={() => navigation.navigate('Messages')}
-        >
-          <Text style={styles.statNumber}>{stats.messages}</Text>
-          <Text style={styles.statLabel}>SMS Handled</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.statCard}
-          onPress={() => navigation.navigate('Leads')}
-        >
-          <Text style={styles.statNumber}>{stats.leads}</Text>
-          <Text style={styles.statLabel}>Total Leads</Text>
-        </TouchableOpacity>
-
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{stats.conversionRate}</Text>
-          <Text style={styles.statLabel}>Close Rate</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Welcome back</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Dashboard</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.notificationBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => navigation.navigate('Contacts', { screen: 'CRMActivity' })}
+          >
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            {recentActivity.length > 0 && (
+              <View style={[styles.notificationDot, { backgroundColor: colors.error }]} />
+            )}
+          </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Quick Actions */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Calls')}
-        >
-          <Text style={styles.actionIcon}>📞</Text>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>View Call History</Text>
-            <Text style={styles.actionText}>See all AI-handled calls and transcripts</Text>
+        {/* Stats Section */}
+        <CollapsibleSection title="Performance Overview">
+          <View style={styles.statsGrid}>
+            <StatCard
+              icon="call"
+              value={stats.calls}
+              label="AI Calls"
+              onPress={() => navigation.navigate('Contacts', { screen: 'Calls' })}
+            />
+            <StatCard
+              icon="chatbubbles"
+              value={stats.messages}
+              label="SMS Handled"
+              onPress={() => navigation.navigate('Contacts', { screen: 'Messages' })}
+            />
+            <StatCard
+              icon="people"
+              value={stats.leads}
+              label="Total Leads"
+              onPress={() => navigation.navigate('Leads')}
+            />
+            <StatCard
+              icon="trending-up"
+              value={stats.conversionRate}
+              label="Close Rate"
+            />
           </View>
-          <Text style={styles.actionArrow}>›</Text>
+        </CollapsibleSection>
+
+        {/* Quick Actions Section */}
+        <CollapsibleSection title="Quick Actions">
+          <View style={styles.actionsContainer}>
+            <QuickAction
+              icon="call"
+              title="Call History"
+              subtitle="View AI-handled calls"
+              onPress={() => navigation.navigate('Contacts', { screen: 'Calls' })}
+            />
+            <QuickAction
+              icon="chatbubble-ellipses"
+              title="SMS Conversations"
+              subtitle="Manage text threads"
+              onPress={() => navigation.navigate('Contacts', { screen: 'Messages' })}
+            />
+            <QuickAction
+              icon="person-add"
+              title="Manage Leads"
+              subtitle="View and update leads"
+              onPress={() => navigation.navigate('Leads')}
+              badge={stats.activeLeads}
+            />
+            <QuickAction
+              icon="bar-chart"
+              title="CRM Activity"
+              subtitle="Track all interactions"
+              onPress={() => navigation.navigate('Contacts', { screen: 'CRMActivity' })}
+            />
+          </View>
+        </CollapsibleSection>
+
+        {/* Recent Activity Section */}
+        {recentActivity.length > 0 && (
+          <CollapsibleSection title="Recent Activity">
+            <View style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              {recentActivity.map((activity, index) => (
+                <ActivityItem
+                  key={index}
+                  type={activity.type}
+                  title={activity.title}
+                  description={activity.description}
+                  timeAgo={activity.timeAgo}
+                />
+              ))}
+              <TouchableOpacity
+                style={styles.viewAllBtn}
+                onPress={() => navigation.navigate('Contacts', { screen: 'CRMActivity' })}
+              >
+                <Text style={[styles.viewAllText, { color: colors.primary }]}>View All Activity</Text>
+                <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+          </CollapsibleSection>
+        )}
+
+        {/* AI Assistant CTA */}
+        <TouchableOpacity
+          style={styles.aiCardWrapper}
+          onPress={() => navigation.navigate('Aria')}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={[colors.primary, colors.primaryDark]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.aiCard}
+          >
+            <View style={styles.aiCardContent}>
+              <View style={styles.aiIconWrapper}>
+                <Ionicons name="mic" size={26} color="#FFFFFF" />
+              </View>
+              <View style={styles.aiTextWrapper}>
+                <Text style={styles.aiTitle}>Talk to Aria</Text>
+                <Text style={styles.aiSubtitle}>Your AI voice assistant</Text>
+              </View>
+            </View>
+            <View style={styles.aiArrow}>
+              <Ionicons name="arrow-forward" size={22} color="#FFFFFF" />
+            </View>
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Messages')}
-        >
-          <Text style={styles.actionIcon}>💬</Text>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>SMS Conversations</Text>
-            <Text style={styles.actionText}>View and manage text message threads</Text>
-          </View>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Leads')}
-        >
-          <Text style={styles.actionIcon}>👥</Text>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Manage Leads</Text>
-            <Text style={styles.actionText}>View and update lead information</Text>
-          </View>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.pullToRefresh}>Pull down to refresh stats</Text>
-    </ScrollView>
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0b',
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 120,
   },
   loadingContainer: {
     flex: 1,
@@ -154,93 +420,269 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#9ca3af',
     marginTop: 12,
-    fontSize: 14,
+    fontSize: 15,
   },
+
+  // Header
   header: {
-    marginBottom: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 28,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#3b82f6',
+  greeting: {
+    fontSize: 14,
+    fontWeight: '500',
     marginBottom: 4,
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
+  notificationBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+
+  // Collapsible
+  collapsibleContainer: {
+    marginBottom: 24,
+  },
+  collapsibleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+  },
+  collapsibleTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: -0.3,
+  },
+  collapsibleContent: {
+    paddingTop: 16,
+  },
+
+  // Stats
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    marginBottom: 32,
   },
   statCard: {
-    backgroundColor: '#1a1a1b',
-    padding: 20,
-    borderRadius: 12,
-    width: '48%',
+    width: (width - 52) / 2,
+    padding: 16,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#374151',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  statNumber: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    marginBottom: 4,
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  statValue: {
+    fontSize: 26,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    marginBottom: 2,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#9ca3af',
+    fontSize: 13,
+    fontWeight: '500',
   },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
-  },
-  actionCard: {
-    backgroundColor: '#1a1a1b',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+  trendBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginTop: 8,
+    gap: 4,
+  },
+  trendText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+
+  // Quick Actions
+  actionsContainer: {
+    gap: 10,
+  },
+  quickAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#374151',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  actionIcon: {
-    fontSize: 32,
-    marginRight: 12,
+  quickActionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
   },
-  actionContent: {
+  quickActionContent: {
     flex: 1,
   },
-  actionTitle: {
-    fontSize: 16,
+  quickActionTitle: {
+    fontSize: 15,
     fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  actionText: {
+  quickActionSubtitle: {
     fontSize: 13,
-    color: '#9ca3af',
   },
-  actionArrow: {
-    fontSize: 24,
-    color: '#6b7280',
-    marginLeft: 8,
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
   },
-  pullToRefresh: {
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+
+  // Activity
+  activityCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderBottomWidth: 1,
+  },
+  activityIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+    marginRight: 8,
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  activityDesc: {
     fontSize: 12,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 20,
+  },
+  activityTime: {
+    fontSize: 11,
+  },
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    gap: 6,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // AI Card
+  aiCardWrapper: {
+    marginTop: 8,
+    borderRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  aiCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderRadius: 20,
+  },
+  aiCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  aiIconWrapper: {
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  aiTextWrapper: {},
+  aiTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  aiSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
+  },
+  aiArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  bottomSpacer: {
+    height: 20,
   },
 });

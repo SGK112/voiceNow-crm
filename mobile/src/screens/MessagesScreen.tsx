@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
 
-const API_URL = 'http://192.168.0.151:5001';
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
-export default function MessagesScreen() {
+export default function MessagesScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const [threads, setThreads] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -15,7 +18,10 @@ export default function MessagesScreen() {
   const fetchThreads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/sms-threads`);
+      const response = await axios.get(`${API_URL}/api/mobile/sms-threads`, {
+        params: { _t: Date.now() },
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
       if (response.data.success) {
         setThreads(response.data.threads);
       }
@@ -37,25 +43,32 @@ export default function MessagesScreen() {
     return d.toLocaleDateString();
   };
 
+  const getAvatarColor = (name: string) => {
+    const avatarColors = ['#8B5CF6', '#4F8EF7', '#34D399', '#FBBF24', '#F87171', '#EC4899'];
+    const char = name?.charAt(0) || '?';
+    const index = char.charCodeAt(0) % avatarColors.length;
+    return avatarColors[index];
+  };
+
   const renderThread = ({ item }: any) => (
-    <TouchableOpacity style={styles.threadCard}>
+    <TouchableOpacity style={[styles.threadCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.threadHeader}>
-        <View style={styles.avatar}>
+        <View style={[styles.avatar, { backgroundColor: getAvatarColor(item.contactName) }]}>
           <Text style={styles.avatarText}>
             {item.contactName ? item.contactName.charAt(0).toUpperCase() : '?'}
           </Text>
         </View>
         <View style={styles.threadInfo}>
-          <Text style={styles.threadName}>{item.contactName || 'Unknown'}</Text>
-          <Text style={styles.threadPhone}>{item.phone}</Text>
+          <Text style={[styles.threadName, { color: colors.text }]}>{item.contactName || 'Unknown'}</Text>
+          <Text style={[styles.threadPhone, { color: colors.textSecondary }]}>{item.phone}</Text>
         </View>
-        <Text style={styles.threadTime}>{formatTime(item.lastMessageTime)}</Text>
+        <Text style={[styles.threadTime, { color: colors.textTertiary }]}>{formatTime(item.lastMessageTime)}</Text>
       </View>
-      <Text style={styles.lastMessage} numberOfLines={2}>
+      <Text style={[styles.lastMessage, { color: colors.textSecondary }]} numberOfLines={2}>
         {item.lastMessage}
       </Text>
       {item.unreadCount > 0 && (
-        <View style={styles.unreadBadge}>
+        <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
           <Text style={styles.unreadText}>{item.unreadCount}</Text>
         </View>
       )}
@@ -64,27 +77,38 @@ export default function MessagesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading messages...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading messages...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Messages</Text>
-        <Text style={styles.subtitle}>{threads.length} conversations</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.backButton, { backgroundColor: colors.backgroundSecondary }]}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={[styles.title, { color: colors.text }]}>Messages</Text>
+          <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{threads.length} conversations</Text>
+        </View>
+        <View style={styles.headerButton} />
       </View>
 
       {threads.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>💬</Text>
-          <Text style={styles.emptyTitle}>No messages yet</Text>
-          <Text style={styles.emptyText}>
+          <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="chatbubbles-outline" size={48} color={colors.textTertiary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No messages yet</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
             When you receive text messages, the AI will generate smart replies and conversations will appear here.
           </Text>
         </View>
@@ -94,6 +118,7 @@ export default function MessagesScreen() {
           renderItem={renderThread}
           keyExtractor={(item: any) => item.phone}
           contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
@@ -103,22 +128,36 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0b',
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerButton: {
+    width: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 13,
   },
   loadingContainer: {
     flex: 1,
@@ -126,20 +165,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#9ca3af',
     marginTop: 12,
-    fontSize: 14,
+    fontSize: 15,
   },
   list: {
     padding: 20,
+    paddingBottom: 100,
   },
   threadCard: {
-    backgroundColor: '#1a1a1b',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#374151',
   },
   threadHeader: {
     flexDirection: 'row',
@@ -147,18 +184,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#3b82f6',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   threadInfo: {
     flex: 1,
@@ -166,58 +202,55 @@ const styles = StyleSheet.create({
   threadName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
     marginBottom: 2,
   },
   threadPhone: {
     fontSize: 13,
-    color: '#9ca3af',
   },
   threadTime: {
     fontSize: 12,
-    color: '#6b7280',
   },
   lastMessage: {
     fontSize: 14,
-    color: '#9ca3af',
     lineHeight: 20,
   },
   unreadBadge: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: '#ef4444',
-    borderRadius: 12,
+    top: 14,
+    right: 14,
+    borderRadius: 10,
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    minWidth: 24,
+    paddingVertical: 3,
+    minWidth: 22,
     alignItems: 'center',
   },
   unreadText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   emptyState: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    paddingHorizontal: 40,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyIconWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 8,
   },
   emptyText: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
   },
 });

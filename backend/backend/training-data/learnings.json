@@ -1,0 +1,239 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-24T21:00:37.183Z",
+  "totalConversationsAnalyzed": 24,
+  "insights": {
+    "commonPhrases": [
+      {
+        "word": "aria,",
+        "count": 29
+      },
+      {
+        "word": "there?",
+        "count": 28
+      },
+      {
+        "word": "send",
+        "count": 19
+      },
+      {
+        "word": "what",
+        "count": 15
+      },
+      {
+        "word": "test",
+        "count": 12
+      },
+      {
+        "word": "message",
+        "count": 10
+      },
+      {
+        "word": "text",
+        "count": 9
+      },
+      {
+        "word": "email",
+        "count": 7
+      },
+      {
+        "word": "name",
+        "count": 7
+      },
+      {
+        "word": "name?",
+        "count": 7
+      },
+      {
+        "word": "surprisegranite.com",
+        "count": 6
+      },
+      {
+        "word": "phone",
+        "count": 5
+      },
+      {
+        "word": "480-255-5887.",
+        "count": 5
+      },
+      {
+        "word": "thank",
+        "count": 5
+      },
+      {
+        "word": "number",
+        "count": 4
+      },
+      {
+        "word": "just",
+        "count": 4
+      },
+      {
+        "word": "your",
+        "count": 4
+      },
+      {
+        "word": "josh.",
+        "count": 4
+      },
+      {
+        "word": "what's",
+        "count": 4
+      },
+      {
+        "word": "with",
+        "count": 4
+      },
+      {
+        "word": "successful",
+        "count": 3
+      },
+      {
+        "word": "now?",
+        "count": 3
+      },
+      {
+        "word": "really",
+        "count": 3
+      },
+      {
+        "word": "many",
+        "count": 3
+      },
+      {
+        "word": "voicemail",
+        "count": 2
+      },
+      {
+        "word": "provide",
+        "count": 2
+      },
+      {
+        "word": "okay.",
+        "count": 2
+      },
+      {
+        "word": "one.",
+        "count": 2
+      },
+      {
+        "word": "messages",
+        "count": 2
+      },
+      {
+        "word": "first",
+        "count": 2
+      },
+      {
+        "word": "name,",
+        "count": 2
+      },
+      {
+        "word": "last",
+        "count": 2
+      },
+      {
+        "word": "don't",
+        "count": 2
+      },
+      {
+        "word": "turn",
+        "count": 2
+      },
+      {
+        "word": "remember",
+        "count": 2
+      },
+      {
+        "word": "today?",
+        "count": 2
+      },
+      {
+        "word": "about",
+        "count": 2
+      },
+      {
+        "word": "have",
+        "count": 2
+      },
+      {
+        "word": "time",
+        "count": 2
+      },
+      {
+        "word": "spanish?",
+        "count": 2
+      },
+      {
+        "word": "know.",
+        "count": 1
+      },
+      {
+        "word": "uh-huh.",
+        "count": 1
+      },
+      {
+        "word": "into",
+        "count": 1
+      },
+      {
+        "word": "assistant?",
+        "count": 1
+      },
+      {
+        "word": "👏👏👏",
+        "count": 1
+      },
+      {
+        "word": "toothpaste",
+        "count": 1
+      },
+      {
+        "word": "now,",
+        "count": 1
+      },
+      {
+        "word": "were",
+        "count": 1
+      },
+      {
+        "word": "talking",
+        "count": 1
+      },
+      {
+        "word": "earlier?",
+        "count": 1
+      }
+    ],
+    "effectiveResponses": [],
+    "timingPatterns": {
+      "avgTranscription": [
+        1868,
+        1742,
+        1551,
+        2292,
+        2142,
+        2043,
+        1758,
+        1352,
+        2133,
+        2166,
+        1751,
+        4921,
+        1443,
+        1492,
+        1594,
+        2156,
+        1744,
+        4577,
+        1622,
+        2152,
+        1869,
+        1365,
+        1219,
+        2934
+      ]
+    },
+    "userPreferences": {}
+  }
+}

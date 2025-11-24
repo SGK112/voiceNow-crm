@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store, Music, Heart, Image } from 'lucide-react';
+import { LayoutDashboard, Phone, Users, PhoneCall, Workflow, CreditCard, Settings, Target, TrendingUp, CheckSquare, Bot, Plug, Calendar, FileText, ChevronLeft, ChevronRight, X, Activity, Briefcase, Library, Sparkles, ShoppingBag, DollarSign, MessageSquare, Store, Music, Heart, Image, Contact } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
@@ -34,6 +34,7 @@ const navigation = [
   { name: 'Studio', href: '/studio.html', icon: Image, tourId: 'studio', description: 'Social Media Staging & AI Images', external: true },
   { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
   { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
+  { name: 'Contacts', href: '/app/contacts', icon: Contact, tourId: 'contacts', description: 'Synced from Mobile App' },
   { name: 'CRM', href: '/app/crm', icon: Users, tourId: 'crm', description: 'Leads & Deals Management' },
   { name: 'Marketplace', href: '/app/marketplace', icon: Store, tourId: 'marketplace', description: 'Agent Templates' },
   { name: 'Settings', href: '/app/settings', icon: Settings, tourId: 'settings', description: 'Integrations & Configuration' },

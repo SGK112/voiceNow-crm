@@ -9,6 +9,7 @@ import twilio from 'twilio';
 import AgentSMS from '../models/AgentSMS.js';
 import VoiceAgent from '../models/VoiceAgent.js';
 import Lead from '../models/Lead.js';
+import ariaSMSService from './ariaSMSService.js';
 
 class AgentSMSService {
   constructor() {
@@ -188,39 +189,8 @@ class AgentSMSService {
   async processIncomingSMS(smsRecord, lead, agent) {
     const message = smsRecord.message.toLowerCase().trim();
 
-    // Handle common responses
-    if (message.includes('confirm') || message === 'yes' || message === 'y') {
-      console.log('✅ Lead confirmed via SMS');
-      // Update lead status
-      if (lead) {
-        lead.status = 'confirmed';
-        await lead.save();
-      }
-      // Send confirmation back
-      await this.sendSMS({
-        agentId: agent?._id,
-        to: smsRecord.from,
-        message: 'Great! Your appointment is confirmed. We\'ll see you then!',
-        leadId: lead?._id,
-        userId: lead?.userId || agent?.userId,
-        metadata: { type: 'auto_reply', context: 'confirmation' }
-      });
-    }
-
-    else if (message.includes('reschedule') || message.includes('cancel')) {
-      console.log('📅 Lead wants to reschedule');
-      // Send reschedule instructions
-      await this.sendSMS({
-        agentId: agent?._id,
-        to: smsRecord.from,
-        message: 'No problem! Please call us to reschedule: ' + this.phoneNumber,
-        leadId: lead?._id,
-        userId: lead?.userId || agent?.userId,
-        metadata: { type: 'auto_reply', context: 'reschedule' }
-      });
-    }
-
-    else if (message.includes('stop') || message.includes('unsubscribe')) {
+    // Handle STOP/UNSUBSCRIBE (compliance requirement - must handle immediately)
+    if (message.includes('stop') || message.includes('unsubscribe')) {
       console.log('🛑 Lead opted out');
       if (lead) {
         lead.smsOptOut = true;
@@ -234,8 +204,10 @@ class AgentSMSService {
         userId: lead?.userId || agent?.userId,
         metadata: { type: 'auto_reply', context: 'optout' }
       });
+      return;
     }
 
+    // Handle START (compliance requirement)
     else if (message.includes('start')) {
       console.log('✅ Lead opted in');
       if (lead) {
@@ -250,13 +222,30 @@ class AgentSMSService {
         userId: lead?.userId || agent?.userId,
         metadata: { type: 'auto_reply', context: 'optin' }
       });
+      return;
     }
 
-    else {
+    // Check if Aria should respond
+    if (ariaSMSService.shouldAriaRespond(smsRecord.message, lead)) {
+      try {
+        console.log('🤖 Routing to Aria for AI processing...');
+        await ariaSMSService.processWithAria({
+          from: smsRecord.from,
+          to: smsRecord.to,
+          message: smsRecord.message,
+          smsRecord,
+          lead,
+          agent
+        });
+      } catch (error) {
+        console.error('❌ Aria processing failed, fallback to manual:', error);
+        // Fall back to manual response
+        console.log('💬 SMS needs manual response (Aria failed)');
+      }
+    } else {
       // Forward to user for manual response
       console.log('💬 SMS needs manual response');
-      // Could trigger notification to user
-      // or create a task in CRM
+      // Could trigger notification to user or create a task in CRM
     }
   }
 

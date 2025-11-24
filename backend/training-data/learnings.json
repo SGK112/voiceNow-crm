@@ -1,0 +1,218 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-24T11:01:55.132Z",
+  "totalConversationsAnalyzed": 3,
+  "insights": {
+    "commonPhrases": [
+      {
+        "word": "what",
+        "count": 7
+      },
+      {
+        "word": "yes,",
+        "count": 3
+      },
+      {
+        "word": "sing",
+        "count": 3
+      },
+      {
+        "word": "there?",
+        "count": 3
+      },
+      {
+        "word": "package.",
+        "count": 2
+      },
+      {
+        "word": "aria,",
+        "count": 2
+      },
+      {
+        "word": "your",
+        "count": 2
+      },
+      {
+        "word": "abcs?",
+        "count": 2
+      },
+      {
+        "word": "name?",
+        "count": 2
+      },
+      {
+        "word": "josh.",
+        "count": 2
+      },
+      {
+        "word": "time",
+        "count": 2
+      },
+      {
+        "word": "learn",
+        "count": 1
+      },
+      {
+        "word": "from",
+        "count": 1
+      },
+      {
+        "word": "last",
+        "count": 1
+      },
+      {
+        "word": "chat",
+        "count": 1
+      },
+      {
+        "word": "session?",
+        "count": 1
+      },
+      {
+        "word": "remember",
+        "count": 1
+      },
+      {
+        "word": "call",
+        "count": 1
+      },
+      {
+        "word": "first",
+        "count": 1
+      },
+      {
+        "word": "hear",
+        "count": 1
+      },
+      {
+        "word": "coughing",
+        "count": 1
+      },
+      {
+        "word": "i'll",
+        "count": 1
+      },
+      {
+        "word": "implement",
+        "count": 1
+      },
+      {
+        "word": "comprehensive",
+        "count": 1
+      },
+      {
+        "word": "capabilities,",
+        "count": 1
+      },
+      {
+        "word": "need",
+        "count": 1
+      },
+      {
+        "word": "install",
+        "count": 1
+      },
+      {
+        "word": "chimeo",
+        "count": 1
+      },
+      {
+        "word": "cheerio",
+        "count": 1
+      },
+      {
+        "word": "does",
+        "count": 1
+      },
+      {
+        "word": "where",
+        "count": 1
+      },
+      {
+        "word": "from?",
+        "count": 1
+      },
+      {
+        "word": "help",
+        "count": 1
+      },
+      {
+        "word": "with?",
+        "count": 1
+      },
+      {
+        "word": "singham.",
+        "count": 1
+      },
+      {
+        "word": "saying",
+        "count": 1
+      },
+      {
+        "word": "abcs.",
+        "count": 1
+      },
+      {
+        "word": "all?",
+        "count": 1
+      },
+      {
+        "word": "latest",
+        "count": 1
+      },
+      {
+        "word": "tech",
+        "count": 1
+      },
+      {
+        "word": "news?",
+        "count": 1
+      },
+      {
+        "word": "most",
+        "count": 1
+      },
+      {
+        "word": "current,",
+        "count": 1
+      },
+      {
+        "word": "uh...",
+        "count": 1
+      },
+      {
+        "word": "weather",
+        "count": 1
+      },
+      {
+        "word": "forecast",
+        "count": 1
+      },
+      {
+        "word": "arizona",
+        "count": 1
+      },
+      {
+        "word": "tomorrow?",
+        "count": 1
+      },
+      {
+        "word": "hmmmmmmm",
+        "count": 1
+      },
+      {
+        "word": "trying",
+        "count": 1
+      }
+    ],
+    "effectiveResponses": [],
+    "timingPatterns": {
+      "avgTranscription": [
+        1558,
+        1629,
+        1663
+      ]
+    },
+    "userPreferences": {}
+  }
+}

@@ -55,6 +55,7 @@ import Checkout from './pages/Checkout';
 import MultimodalAgentDemo from './pages/MultimodalAgentDemo';
 import Onboarding from './pages/Onboarding';
 import RemodelStudio from './components/RemodelStudio';
+import Contacts from './pages/Contacts';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -145,6 +146,9 @@ function App() {
         <Route path="marketplace-old" element={<Marketplace />} />
         <Route path="ai-builder" element={<AIBuilder />} />
         <Route path="settings" element={<Settings />} />
+
+        {/* Contacts - synced from mobile app */}
+        <Route path="contacts" element={<Contacts />} />
 
         {/* Legacy Pages (kept for backwards compatibility) */}
         <Route path="leads" element={<Leads />} />

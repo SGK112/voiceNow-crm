@@ -1,10 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import { useTheme } from '../contexts/ThemeContext';
 
-const API_URL = 'http://192.168.0.151:5001';
+// Use 10.0.2.2 for Android emulator, 192.168.0.151 for physical devices
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
-export default function LeadsScreen() {
+export default function LeadsScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const [leads, setLeads] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -15,7 +19,13 @@ export default function LeadsScreen() {
   const fetchLeads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/leads`);
+      const response = await axios.get(`${API_URL}/api/mobile/leads`, {
+        params: { _t: Date.now() },
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (response.data.success) {
         setLeads(response.data.leads);
       }
@@ -53,12 +63,12 @@ export default function LeadsScreen() {
   };
 
   const renderLead = ({ item }: any) => (
-    <View style={styles.leadCard}>
+    <View style={[styles.leadCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.leadHeader}>
         <View style={styles.leadInfo}>
-          <Text style={styles.leadName}>{item.name || 'Unknown'}</Text>
-          {item.phone && <Text style={styles.leadPhone}>{item.phone}</Text>}
-          {item.email && <Text style={styles.leadEmail}>{item.email}</Text>}
+          <Text style={[styles.leadName, { color: colors.text }]}>{item.name || 'Unknown'}</Text>
+          {item.phone && <Text style={[styles.leadPhone, { color: colors.textSecondary }]}>{item.phone}</Text>}
+          {item.email && <Text style={[styles.leadEmail, { color: colors.textSecondary }]}>{item.email}</Text>}
         </View>
         <View style={styles.badges}>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
@@ -68,19 +78,19 @@ export default function LeadsScreen() {
       </View>
 
       <View style={styles.leadMeta}>
-        <Text style={styles.metaItem}>
+        <Text style={[styles.metaItem, { color: colors.textTertiary }]}>
           {getSourceIcon(item.source)} {item.source || 'unknown'}
         </Text>
-        <Text style={styles.metaDivider}>•</Text>
-        <Text style={styles.metaItem}>
+        <Text style={[styles.metaDivider, { color: colors.textTertiary }]}>•</Text>
+        <Text style={[styles.metaItem, { color: colors.textTertiary }]}>
           {formatDate(item.createdAt)}
         </Text>
       </View>
 
       {item.notes && (
-        <View style={styles.notesBox}>
-          <Text style={styles.notesLabel}>Notes:</Text>
-          <Text style={styles.notesText} numberOfLines={3}>{item.notes}</Text>
+        <View style={[styles.notesBox, { backgroundColor: colors.backgroundSecondary }]}>
+          <Text style={[styles.notesLabel, { color: colors.textSecondary }]}>Notes:</Text>
+          <Text style={[styles.notesText, { color: colors.text }]} numberOfLines={3}>{item.notes}</Text>
         </View>
       )}
     </View>
@@ -88,27 +98,38 @@ export default function LeadsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading leads...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading leads...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Leads</Text>
-        <Text style={styles.subtitle}>{leads.length} total leads</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { paddingTop: 60, borderBottomColor: colors.border }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.backButton, { backgroundColor: colors.backgroundSecondary }]}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={[styles.title, { color: colors.text }]}>Leads</Text>
+          <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{leads.length} total leads</Text>
+        </View>
+        <View style={styles.headerButton} />
       </View>
 
       {leads.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>👥</Text>
-          <Text style={styles.emptyTitle}>No leads yet</Text>
-          <Text style={styles.emptyText}>
+          <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="people-outline" size={48} color={colors.textTertiary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No leads yet</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
             Leads will be automatically created when the AI handles missed calls and text messages.
           </Text>
         </View>
@@ -117,7 +138,7 @@ export default function LeadsScreen() {
           data={leads}
           renderItem={renderLead}
           keyExtractor={(item: any) => item._id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: 100 }]}
         />
       )}
     </View>
@@ -127,22 +148,35 @@ export default function LeadsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0b',
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerButton: {
+    width: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 13,
   },
   loadingContainer: {
     flex: 1,
@@ -150,20 +184,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#9ca3af',
     marginTop: 12,
-    fontSize: 14,
+    fontSize: 15,
   },
   list: {
     padding: 20,
   },
   leadCard: {
-    backgroundColor: '#1a1a1b',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#374151',
   },
   leadHeader: {
     flexDirection: 'row',
@@ -177,17 +208,14 @@ const styles = StyleSheet.create({
   leadName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
     marginBottom: 4,
   },
   leadPhone: {
     fontSize: 14,
-    color: '#9ca3af',
     marginBottom: 2,
   },
   leadEmail: {
     fontSize: 14,
-    color: '#9ca3af',
   },
   badges: {
     marginLeft: 8,
@@ -210,49 +238,46 @@ const styles = StyleSheet.create({
   },
   metaItem: {
     fontSize: 12,
-    color: '#6b7280',
   },
   metaDivider: {
     fontSize: 12,
-    color: '#6b7280',
     marginHorizontal: 8,
   },
   notesBox: {
-    backgroundColor: '#0a0a0b',
     padding: 12,
     borderRadius: 8,
   },
   notesLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9ca3af',
     marginBottom: 4,
   },
   notesText: {
     fontSize: 13,
-    color: '#d1d5db',
     lineHeight: 18,
   },
   emptyState: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    paddingHorizontal: 40,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyIconWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 8,
   },
   emptyText: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
   },
 });
