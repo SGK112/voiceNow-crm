@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v57-interactive-sms';
+        const CURRENT_VERSION = '2025-11-23-v58-mock-sms';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1286,39 +1286,71 @@
                                     <i class="fas fa-info-circle text-blue-500"></i>
                                 </div>
 
-                                <!-- SMS Messages / Placeholder -->
-                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto flex items-center justify-center" style="height: 540px;">
-                                    <!-- Placeholder Screen -->
-                                    <div id="phone-placeholder" class="text-center">
-                                        <div class="mb-6">
-                                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                                <i class="fas fa-comment-dots text-white text-4xl"></i>
-                                            </div>
-                                            <h3 class="text-xl font-bold text-gray-800 mb-2">Chat with AI Agent</h3>
-                                            <p class="text-sm text-gray-500 mb-6">Type a message below to start a conversation!</p>
+                                <!-- SMS Messages -->
+                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto" style="height: 540px;">
+                                    <!-- Mock SMS Conversation -->
+                                    <div class="flex justify-start mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
+                                            <p class="text-sm">Hi! 👋 Thanks for reaching out to VoiceFlow CRM!</p>
                                         </div>
-                                        <div class="text-xs text-gray-400 bg-gray-50 rounded-lg p-3 mx-4">
-                                            <p class="mb-2">Try asking:</p>
-                                            <p>• "What are your features?"</p>
-                                            <p>• "How much does it cost?"</p>
-                                            <p>• "Can I get a demo?"</p>
+                                    </div>
+
+                                    <div class="flex justify-end mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
+                                            <p class="text-sm">Hey! What can your AI agents do?</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-start mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
+                                            <p class="text-sm">Our AI voice agents can:<br>
+✅ Answer calls 24/7<br>
+✅ Qualify leads automatically<br>
+✅ Book appointments<br>
+✅ Integrate with your CRM</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
+                                            <p class="text-sm">That's awesome! How much does it cost?</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-start mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
+                                            <p class="text-sm">Plans start at $149/month with a free 14-day trial. Want to start?</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
+                                            <p class="text-sm">Yes! Where do I sign up?</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-start mb-3">
+                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
+                                            <p class="text-sm">Visit remodely.ai/signup to get started! 🚀</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Input Area -->
+                                <!-- Input Area (Disabled for Mock) -->
                                 <div class="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 flex items-center gap-2">
-                                    <div class="flex-1 bg-white rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
+                                    <div class="flex-1 bg-gray-100 rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
                                         <input
                                             type="text"
                                             id="sms-input"
                                             placeholder="Text Message"
-                                            class="flex-1 text-sm outline-none"
+                                            class="flex-1 text-sm outline-none bg-gray-100"
+                                            disabled
                                         >
                                     </div>
                                     <button
                                         id="sms-send"
-                                        class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white"
+                                        class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white opacity-50"
+                                        disabled
                                     >
                                         <i class="fas fa-arrow-up"></i>
                                     </button>
@@ -2856,6 +2888,7 @@
         function showModalStatus(type, message) {
             modalDemoStatus.className = 'mt-4 p-4 rounded-xl text-center text-sm font-medium';
             modalDemoStatus.classList.remove('hidden');
+            modalDemoStatus.style.whiteSpace = 'pre-wrap';
 
             if (type === 'success') {
                 modalDemoStatus.classList.add('bg-green-900/30', 'border', 'border-green-700/50', 'text-green-400');
@@ -2894,16 +2927,15 @@
                     });
 
                     if (response.ok) {
+                        const data = await response.json();
+
                         if (modalSelectedDemoType === 'voice') {
                             showModalStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
-                            simulateSMSConversation('call');
                         } else {
-                            showModalStatus('success', '✅ SMS sent! Check your phone for details about VoiceFlow CRM. Want a live call? Use the Voice Call option.');
-                            simulateSMSConversation('sms');
+                            // Show phone number to text
+                            const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
+                            showModalStatus('success', `📱 Text our AI agent at:\n\n${phoneNumber}\n\nSend a message to start chatting!`);
                         }
-
-                        // Show animation in phone mockup
-                        if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
 
                         // Reset form and close modal after 5 seconds
                         setTimeout(() => {
@@ -3272,132 +3304,7 @@
         `;
         document.head.appendChild(smsStyle);
 
-        // Interactive SMS Chat Agent
-        const smsInput = document.getElementById('sms-input');
-        const smsSendBtn = document.getElementById('sms-send');
-        const smsMessagesContainer = document.getElementById('sms-messages');
-
-        let isAgentActive = false;
-        let conversationContext = [];
-
-        // AI responses based on user input
-        const aiResponses = {
-            greeting: [
-                "Hi! 👋 I'm VoiceFlow's AI assistant. How can I help you today?",
-                "Hello! Thanks for reaching out. What would you like to know about our AI voice agents?",
-                "Hey there! I'm here to help. What brings you here today?"
-            ],
-            features: [
-                "Great question! VoiceFlow CRM offers:\n\n✅ 24/7 AI voice agents that never sleep\n✅ Automatic lead qualification\n✅ Smart appointment booking\n✅ Full CRM integration\n✅ Custom workflows\n\nWhich feature interests you most?",
-                "Our AI agents can handle calls, qualify leads, book appointments, and integrate with your CRM - all automatically! Want to know more about any specific feature?"
-            ],
-            pricing: [
-                "Our pricing is simple:\n\n💼 Starter: $149/mo - 1 agent, 500 mins\n🚀 Pro: $299/mo - 5 agents, 2000 mins\n⭐ Enterprise: Custom pricing\n\nAll plans include a 14-day free trial! Ready to start?",
-                "We have plans starting at $149/month with a free 14-day trial. Want me to send you a link to get started?"
-            ],
-            demo: [
-                "I'd love to give you a demo! You have two options:\n\n📞 Voice Call Demo - Get a live AI call\n💬 SMS Demo - Receive info via text\n\nWhich would you prefer?",
-                "Want to experience our AI in action? I can either call you or send detailed info via SMS. What works better for you?"
-            ],
-            help: [
-                "I can help you with:\n\n• Learning about our features\n• Pricing information\n• Scheduling a demo\n• Getting started with a trial\n\nWhat would you like to know?",
-                "Sure! I'm here to answer questions about VoiceFlow CRM, schedule demos, or help you get started. What's on your mind?"
-            ],
-            goodbye: [
-                "Thanks for chatting! If you need anything else, just text me. Have a great day! 😊",
-                "Happy to help! Feel free to reach out anytime. Good luck with your business! 🚀"
-            ],
-            default: [
-                "That's a great question! Our AI voice agents can help automate your business calls. Want to learn more about specific features?",
-                "Interesting! Let me help you with that. What specific aspect of VoiceFlow CRM are you curious about?",
-                "I'd be happy to tell you more! Are you interested in features, pricing, or getting a demo?"
-            ]
-        };
-
-        // Detect intent from user message
-        function detectIntent(message) {
-            const lowerMsg = message.toLowerCase();
-
-            if (lowerMsg.match(/\b(hi|hello|hey|sup|yo)\b/)) return 'greeting';
-            if (lowerMsg.match(/\b(feature|capability|can.*do|what.*offer)\b/)) return 'features';
-            if (lowerMsg.match(/\b(price|cost|pricing|how much|pay|subscription)\b/)) return 'pricing';
-            if (lowerMsg.match(/\b(demo|try|test|show|example)\b/)) return 'demo';
-            if (lowerMsg.match(/\b(help|assist|support|question)\b/)) return 'help';
-            if (lowerMsg.match(/\b(bye|thanks|thank you|goodbye|see ya)\b/)) return 'goodbye';
-
-            return 'default';
-        }
-
-        // Add message to chat
-        function addSMSMessage(text, type = 'ai', delay = 0) {
-            setTimeout(() => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-3 animate-fade-in`;
-
-                const bubble = document.createElement('div');
-                bubble.className = `max-w-[75%] px-4 py-2.5 shadow-sm ${
-                    type === 'user'
-                        ? 'bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm'
-                        : 'bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm'
-                }`;
-                bubble.style.fontSize = '14px';
-                bubble.style.lineHeight = '1.4';
-                bubble.style.whiteSpace = 'pre-wrap';
-                bubble.textContent = text;
-
-                messageDiv.appendChild(bubble);
-                smsMessagesContainer.appendChild(messageDiv);
-                smsMessagesContainer.scrollTop = smsMessagesContainer.scrollHeight;
-            }, delay);
-        }
-
-        // Handle user sending message
-        function handleSendSMS() {
-            const userMessage = smsInput.value.trim();
-            if (!userMessage) return;
-
-            // Hide placeholder on first message
-            const placeholder = document.getElementById('phone-placeholder');
-            if (placeholder) {
-                placeholder.classList.add('hidden');
-                smsMessagesContainer.classList.remove('flex', 'items-center', 'justify-center');
-                smsMessagesContainer.classList.add('flex-col');
-            }
-
-            // Add user message
-            addSMSMessage(userMessage, 'user');
-            smsInput.value = '';
-            conversationContext.push({ role: 'user', text: userMessage });
-
-            // Detect intent and respond
-            const intent = detectIntent(userMessage);
-            const responses = aiResponses[intent] || aiResponses.default;
-            const response = responses[Math.floor(Math.random() * responses.length)];
-
-            // Add AI response with typing delay
-            setTimeout(() => {
-                addSMSMessage(response, 'ai');
-                conversationContext.push({ role: 'ai', text: response });
-            }, 800 + Math.random() * 400);
-
-            isAgentActive = true;
-        }
-
-        // Event listeners for SMS chat
-        if (smsSendBtn) {
-            smsSendBtn.addEventListener('click', handleSendSMS);
-        }
-
-        if (smsInput) {
-            smsInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSendSMS();
-                }
-            });
-        }
-
-        console.log('SMS Demo loaded');
+        console.log('SMS Demo loaded - Mock conversation display');
     </script>
 
     <!-- AI Chat Demo Script -->

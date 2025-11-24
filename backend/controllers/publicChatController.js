@@ -771,28 +771,19 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
 
     // Handle SMS vs Voice Call differently
     if (demoType === 'sms') {
-      // For SMS demo, ONLY send an SMS (no call)
-      const twilioService = getTwilioService();
-      const smsMessage = `Hi ${firstName}! 👋 This is VoiceFlow CRM's AI assistant. Thanks for your interest!\n\nOur AI voice agents can:\n✅ Answer calls 24/7\n✅ Qualify leads automatically\n✅ Book appointments\n✅ Integrate with your CRM\n\nReady to try? Start free: remodely.ai/signup\n\nWant a live demo call instead? Visit our website and select "Voice Call" option.`;
+      // For SMS demo, provide phone number to text
+      const demoPhoneNumber = process.env.DEMO_SMS_NUMBER || '+1 (602) 833-7194';
 
-      try {
-        await twilioService.sendSMS(formattedNumber, smsMessage);
-        console.log(`✅ SMS demo sent to ${formattedNumber}`);
+      console.log(`📱 SMS demo info requested by ${name} at ${formattedNumber}`);
 
-        // Return success for SMS-only (no call initiated)
-        return res.json({
-          success: true,
-          message: 'SMS sent successfully! Check your phone for details.',
-          type: 'sms',
-          phoneNumber: formattedNumber
-        });
-      } catch (smsError) {
-        console.error('Failed to send SMS:', smsError);
-        return res.status(500).json({
-          error: 'Failed to send SMS',
-          message: 'Sorry, we couldn\'t send the SMS. Please try again or use the Voice Call option.'
-        });
-      }
+      // Return phone number for user to text
+      return res.json({
+        success: true,
+        message: 'Text our AI agent to chat!',
+        type: 'sms',
+        demoPhoneNumber: demoPhoneNumber,
+        instructions: 'Send a text message to start chatting with our AI assistant.'
+      });
     } else {
       // For voice demo, just initiate the call directly
       callData = await elevenLabsService.initiateCall(
