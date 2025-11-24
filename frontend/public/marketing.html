@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v59-sms-popup';
+        const CURRENT_VERSION = '2025-11-23-v60-fix-button';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -3100,20 +3100,6 @@
                             const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
                             showSMSInstructionsPopup(phoneNumber);
                         }
-                    } else {
-                            document.getElementById('modal-demo-form').reset();
-                            modalSubmitDemoBtn.disabled = false;
-                            modalSubmitDemoBtn.innerHTML = originalHTML;
-                            if (demoPopupModal) demoPopupModal.classList.add('hidden');
-                            modalDemoStatus.classList.add('hidden');
-
-                            // Reset toggle to voice
-                            modalSelectedDemoType = 'voice';
-                            if (modalToggleVoice) modalToggleVoice.classList.add('active');
-                            if (modalToggleSms) modalToggleSms.classList.remove('active');
-                            if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
-                            if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
-                        }, 5000);
                     } else {
                         throw new Error('Failed to initiate demo');
                     }
