@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v61-minimal-sms';
+        const CURRENT_VERSION = '2025-11-23-v62-unified-success-popup';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2283,34 +2283,34 @@
         </div>
     </div>
 
-    <!-- SMS Instructions Popup -->
-    <div id="sms-instructions-popup" class="fixed inset-0 z-[10000] hidden">
+    <!-- Success Popup (for both Voice and SMS) -->
+    <div id="success-popup" class="fixed inset-0 z-[10000] hidden">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="sms-popup-backdrop"></div>
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="success-popup-backdrop"></div>
 
         <!-- Modal Card -->
         <div class="absolute inset-0 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative animate-modal-slide-in">
                 <!-- Close Button -->
-                <button id="close-sms-popup" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10">
+                <button id="close-success-popup" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10">
                     <i class="fas fa-times text-xl"></i>
                 </button>
 
                 <!-- Modal Content -->
                 <div class="p-8 text-center">
                     <!-- Icon -->
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                        <i class="fas fa-comment-dots text-green-600 text-2xl"></i>
+                    <div id="success-icon" class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                        <i id="success-icon-inner" class="fas fa-comment-dots text-green-600 text-2xl"></i>
                     </div>
 
                     <!-- Message -->
                     <h2 class="text-2xl font-bold text-gray-900 mb-3">Check Your Phone!</h2>
-                    <p class="text-gray-600 mb-6">We're texting you now from our AI agent. Reply to start chatting.</p>
+                    <p id="success-message" class="text-gray-600 mb-6">We're texting you now from our AI agent. Reply to start chatting.</p>
 
                     <!-- Phone Number Display -->
                     <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                        <p class="text-sm text-gray-500 mb-1">Message from:</p>
-                        <div id="sms-phone-display" class="text-xl font-semibold text-gray-900">
+                        <p id="success-label" class="text-sm text-gray-500 mb-1">Message from:</p>
+                        <div id="success-phone-display" class="text-xl font-semibold text-gray-900">
                             +1 (602) 833-7194
                         </div>
                     </div>
@@ -2318,7 +2318,7 @@
                     <!-- What to Expect -->
                     <div class="bg-blue-50 rounded-xl p-4 text-left">
                         <p class="text-sm font-medium text-blue-900 mb-2">What to expect:</p>
-                        <ul class="text-sm text-blue-800 space-y-1">
+                        <ul id="success-expectations" class="text-sm text-blue-800 space-y-1">
                             <li>• You'll receive a text in 5-10 seconds</li>
                             <li>• Reply with any question to chat</li>
                             <li>• Ask about features, pricing, or setup</li>
@@ -2858,28 +2858,59 @@
 
         let modalSelectedDemoType = 'voice'; // Default to voice
 
-        // SMS Instructions Popup Elements
-        const smsInstructionsPopup = document.getElementById('sms-instructions-popup');
-        const closeSmsPopup = document.getElementById('close-sms-popup');
-        const smsPopupBackdrop = document.getElementById('sms-popup-backdrop');
-        const smsPhoneDisplay = document.getElementById('sms-phone-display');
+        // Success Popup Elements
+        const successPopup = document.getElementById('success-popup');
+        const closeSuccessPopup = document.getElementById('close-success-popup');
+        const successPopupBackdrop = document.getElementById('success-popup-backdrop');
+        const successPhoneDisplay = document.getElementById('success-phone-display');
+        const successMessage = document.getElementById('success-message');
+        const successLabel = document.getElementById('success-label');
+        const successExpectations = document.getElementById('success-expectations');
+        const successIconInner = document.getElementById('success-icon-inner');
 
-        // Function to show SMS instructions popup
-        function showSMSInstructionsPopup(phoneNumber) {
-            if (smsPhoneDisplay) smsPhoneDisplay.textContent = phoneNumber;
-            if (smsInstructionsPopup) smsInstructionsPopup.classList.remove('hidden');
+        // Function to show success popup (for both voice and SMS)
+        function showSuccessPopup(demoType, phoneNumber) {
+            if (successPhoneDisplay) successPhoneDisplay.textContent = phoneNumber;
+
+            if (demoType === 'sms') {
+                // SMS Demo
+                if (successMessage) successMessage.textContent = "We're texting you now from our AI agent. Reply to start chatting.";
+                if (successLabel) successLabel.textContent = "Message from:";
+                if (successIconInner) successIconInner.className = "fas fa-comment-dots text-green-600 text-2xl";
+                if (successExpectations) {
+                    successExpectations.innerHTML = `
+                        <li>• You'll receive a text in 5-10 seconds</li>
+                        <li>• Reply with any question to chat</li>
+                        <li>• Ask about features, pricing, or setup</li>
+                    `;
+                }
+            } else {
+                // Voice Call Demo
+                if (successMessage) successMessage.textContent = "We're calling you now! Answer to experience our AI agent.";
+                if (successLabel) successLabel.textContent = "Call from:";
+                if (successIconInner) successIconInner.className = "fas fa-phone text-green-600 text-2xl";
+                if (successExpectations) {
+                    successExpectations.innerHTML = `
+                        <li>• Your phone will ring in 5-10 seconds</li>
+                        <li>• Answer the call to speak with AI</li>
+                        <li>• Experience a real conversation</li>
+                    `;
+                }
+            }
+
+            if (successPopup) successPopup.classList.remove('hidden');
         }
 
-        // Close SMS instructions popup
-        if (closeSmsPopup) {
-            closeSmsPopup.addEventListener('click', () => {
-                if (smsInstructionsPopup) smsInstructionsPopup.classList.add('hidden');
+        // Close success popup
+        if (closeSuccessPopup) {
+            closeSuccessPopup.addEventListener('click', () => {
+                if (successPopup) successPopup.classList.add('hidden');
             });
         }
 
-        if (smsPopupBackdrop) {
-            smsPopupBackdrop.addEventListener('click', () => {
-                if (smsInstructionsPopup) smsInstructionsPopup.classList.add('hidden');
+        if (successPopupBackdrop) {
+            successPopupBackdrop.addEventListener('click', () => {
+                if (successPopup) successPopup.classList.add('hidden');
             });
         }
 
@@ -3007,38 +3038,25 @@
                     if (response.ok) {
                         const data = await response.json();
 
-                        if (modalSelectedDemoType === 'voice') {
-                            showModalStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
+                        // Close the demo form modal
+                        if (demoPopupModal) demoPopupModal.classList.add('hidden');
+                        modalDemoStatus.classList.add('hidden');
 
-                            // Reset form and close modal after 5 seconds
-                            setTimeout(() => {
-                                document.getElementById('modal-demo-form').reset();
-                                modalSubmitDemoBtn.disabled = false;
-                                modalSubmitDemoBtn.innerHTML = originalHTML;
-                                if (demoPopupModal) demoPopupModal.classList.add('hidden');
-                                modalDemoStatus.classList.add('hidden');
+                        // Reset form
+                        document.getElementById('modal-demo-form').reset();
+                        modalSubmitDemoBtn.disabled = false;
+                        modalSubmitDemoBtn.innerHTML = originalHTML;
 
-                                // Reset toggle to voice
-                                modalSelectedDemoType = 'voice';
-                                if (modalToggleVoice) modalToggleVoice.classList.add('active');
-                                if (modalToggleSms) modalToggleSms.classList.remove('active');
-                                if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
-                                if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
-                            }, 5000);
-                        } else {
-                            // Close the demo form modal
-                            if (demoPopupModal) demoPopupModal.classList.add('hidden');
-                            modalDemoStatus.classList.add('hidden');
+                        // Reset toggle to voice
+                        modalSelectedDemoType = 'voice';
+                        if (modalToggleVoice) modalToggleVoice.classList.add('active');
+                        if (modalToggleSms) modalToggleSms.classList.remove('active');
+                        if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
+                        if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
 
-                            // Reset form
-                            document.getElementById('modal-demo-form').reset();
-                            modalSubmitDemoBtn.disabled = false;
-                            modalSubmitDemoBtn.innerHTML = originalHTML;
-
-                            // Show SMS instructions popup
-                            const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
-                            showSMSInstructionsPopup(phoneNumber);
-                        }
+                        // Show success popup (same for both voice and SMS)
+                        const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
+                        showSuccessPopup(modalSelectedDemoType, phoneNumber);
                     } else {
                         throw new Error('Failed to initiate demo');
                     }
