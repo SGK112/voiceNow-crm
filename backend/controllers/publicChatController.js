@@ -5,8 +5,18 @@ import ElevenLabsService from '../services/elevenLabsService.js';
 import TwilioService from '../services/twilioService.js';
 import callMonitorService from '../services/callMonitorService.js';
 import WorkflowEngine from '../services/workflowEngine.js';
+import Lead from '../models/Lead.js';
+import User from '../models/User.js';
 
 const workflowEngine = new WorkflowEngine();
+
+// Rate limiting for demo requests (phone number -> { count, firstRequestTime, lastRequestTime })
+const demoRateLimitMap = new Map();
+const DEMO_RATE_LIMIT = {
+  maxRequests: 3, // Max 3 demo requests per phone number
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  cooldownMs: 60 * 60 * 1000 // 1 hour cooldown between requests
+};
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
@@ -675,6 +685,135 @@ export const requestVoiceDemo = async (req, res) => {
       formattedNumber = '+1' + digitsOnly;
     }
 
+    // ========== RATE LIMITING CHECK ==========
+    const now = Date.now();
+    const rateLimit = demoRateLimitMap.get(formattedNumber);
+
+    if (rateLimit) {
+      // Check if still within the 24-hour window
+      const timeSinceFirst = now - rateLimit.firstRequestTime;
+      const timeSinceLast = now - rateLimit.lastRequestTime;
+
+      if (timeSinceFirst < DEMO_RATE_LIMIT.windowMs) {
+        // Still within 24-hour window
+        if (rateLimit.count >= DEMO_RATE_LIMIT.maxRequests) {
+          console.log(`⚠️  Demo rate limit exceeded for ${formattedNumber} (${rateLimit.count} requests in 24h)`);
+          return res.status(429).json({
+            error: 'Too many demo requests',
+            message: `You've reached the maximum number of demo requests (${DEMO_RATE_LIMIT.maxRequests}) for this phone number. Please try again in 24 hours or contact us at help.remodely@gmail.com for assistance.`,
+            retryAfter: Math.ceil((rateLimit.firstRequestTime + DEMO_RATE_LIMIT.windowMs - now) / 1000 / 60) // minutes
+          });
+        }
+
+        // Check cooldown between requests (prevent rapid-fire requests)
+        if (timeSinceLast < DEMO_RATE_LIMIT.cooldownMs) {
+          const waitMinutes = Math.ceil((rateLimit.lastRequestTime + DEMO_RATE_LIMIT.cooldownMs - now) / 1000 / 60);
+          console.log(`⚠️  Demo cooldown active for ${formattedNumber} (${waitMinutes}min remaining)`);
+          return res.status(429).json({
+            error: 'Please wait before requesting another demo',
+            message: `Please wait ${waitMinutes} minute${waitMinutes > 1 ? 's' : ''} before requesting another demo.`,
+            retryAfter: waitMinutes
+          });
+        }
+
+        // Update rate limit
+        rateLimit.count++;
+        rateLimit.lastRequestTime = now;
+      } else {
+        // 24-hour window expired, reset counter
+        demoRateLimitMap.set(formattedNumber, {
+          count: 1,
+          firstRequestTime: now,
+          lastRequestTime: now
+        });
+      }
+    } else {
+      // First request from this number
+      demoRateLimitMap.set(formattedNumber, {
+        count: 1,
+        firstRequestTime: now,
+        lastRequestTime: now
+      });
+    }
+
+    console.log(`✅ Rate limit check passed for ${formattedNumber} (${demoRateLimitMap.get(formattedNumber).count}/${DEMO_RATE_LIMIT.maxRequests} in 24h)`);
+
+    // ========== CREATE LEAD IN CRM ==========
+    const firstName = name.trim().split(' ')[0];
+    let createdLead = null;
+
+    try {
+      // Find superadmin user (help.remodely@gmail.com)
+      const superAdmin = await User.findOne({ email: 'help.remodely@gmail.com' });
+
+      if (!superAdmin) {
+        console.error('⚠️  SuperAdmin user not found - lead will not be created in CRM');
+      } else {
+        // Check if lead already exists for this phone number
+        const existingLead = await Lead.findOne({
+          userId: superAdmin._id,
+          phone: formattedNumber
+        });
+
+        if (existingLead) {
+          // Update existing lead with new demo request
+          existingLead.lastActivityType = demoType === 'sms' ? 'sms' : 'ai_call';
+          existingLead.lastActivityAt = new Date();
+          existingLead.status = 'contacted';
+          existingLead.priority = 'high'; // Demo requests are high priority
+
+          // Add note about new demo request
+          existingLead.notes.push({
+            content: `New ${demoType === 'sms' ? 'SMS' : 'Voice Call'} demo requested from marketing page`,
+            createdBy: 'System',
+            createdAt: new Date()
+          });
+
+          // Update metadata
+          if (!existingLead.metadata) {
+            existingLead.metadata = new Map();
+          }
+          existingLead.metadata.set('lastDemoType', demoType);
+          existingLead.metadata.set('lastDemoDate', new Date().toISOString());
+          existingLead.metadata.set('demoRequestCount', (parseInt(existingLead.metadata.get('demoRequestCount') || '0') + 1).toString());
+
+          await existingLead.save();
+          createdLead = existingLead;
+          console.log(`✅ Updated existing lead in CRM: ${existingLead._id}`);
+        } else {
+          // Create new lead
+          createdLead = await Lead.create({
+            userId: superAdmin._id,
+            name: name,
+            email: email || `${formattedNumber.replace(/\+/g, '')}@voiceflow-demo.com`, // Use placeholder if no email
+            phone: formattedNumber,
+            source: 'website',
+            status: 'new',
+            priority: 'high',
+            qualified: false,
+            qualificationScore: 50, // Mid-range score for demo requests
+            lastActivityType: demoType === 'sms' ? 'sms' : 'ai_call',
+            lastActivityAt: new Date(),
+            tags: ['demo_request', 'marketing_page', demoType === 'sms' ? 'sms_demo' : 'voice_demo'],
+            notes: [{
+              content: `${demoType === 'sms' ? 'SMS' : 'Voice Call'} demo requested from marketing page`,
+              createdBy: 'System',
+              createdAt: new Date()
+            }],
+            metadata: new Map([
+              ['demoType', demoType],
+              ['demoRequestDate', new Date().toISOString()],
+              ['demoSource', 'marketing_page'],
+              ['demoRequestCount', '1']
+            ])
+          });
+          console.log(`✅ Created new lead in CRM: ${createdLead._id}`);
+        }
+      }
+    } catch (leadError) {
+      console.error('⚠️  Failed to create/update lead in CRM:', leadError);
+      // Don't fail the demo request if lead creation fails
+    }
 
     // Choose agent based on demo type
     let agentId, agentType;
@@ -689,8 +828,6 @@ export const requestVoiceDemo = async (req, res) => {
       agentType = 'Voice Call';
       console.log(`📞 Initiating voice call demo to ${name} at ${formattedNumber}`);
     }
-    // Extract first name only (more natural than full name)
-    const firstName = name.trim().split(' ')[0];
 
     // Prepare dynamic variables for agent personalization
     const dynamicVariables = {
@@ -952,27 +1089,172 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
       // Don't fail the request if workflow fails
     }
 
-    // Send lead notification to sales team
-    if (email) {
-      try {
-        await emailService.sendEmail({
-          to: 'help.remodely@gmail.com',
-          subject: `🔥 New Demo Call - ${name}`,
-          text: `New voice demo call initiated:\n\nName: ${name}\nEmail: ${email}\nPhone: ${formattedNumber}\nCall ID: ${callId}\n\nStatus: Call in progress\n\nMonitor for signup or appointment booking!`,
-          html: `
-            <h2>🔥 New Demo Call</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${formattedNumber}</p>
-            <p><strong>Call ID:</strong> ${callId}</p>
-            <p><em>Call in progress - monitor for success!</em></p>
-          `
-        });
-        console.log(`✅ Lead notification sent to help.remodely@gmail.com`);
-      } catch (emailError) {
-        console.error('Failed to send lead notification:', emailError);
-        // Don't fail the request if email fails
-      }
+    // Send comprehensive lead notification to sales team
+    try {
+      const demoTypeLabel = demoType === 'sms' ? 'SMS Demo' : 'Voice Call Demo';
+      const demoIcon = demoType === 'sms' ? '💬' : '📞';
+      const isNewLead = createdLead && !createdLead.notes.some(n => n.content.includes('demo requested') && n.createdAt < new Date(Date.now() - 60000));
+      const leadStatus = isNewLead ? '🆕 NEW LEAD' : '🔄 RETURNING LEAD';
+
+      await emailService.sendEmail({
+        to: 'help.remodely@gmail.com',
+        subject: `${demoIcon} ${leadStatus} - ${demoTypeLabel} - ${name}`,
+        text: `${leadStatus}: ${demoTypeLabel} Requested
+
+Contact Information:
+━━━━━━━━━━━━━━━━━━━━━
+Name: ${name}
+Email: ${email || 'Not provided'}
+Phone: ${formattedNumber}
+
+Demo Details:
+━━━━━━━━━━━━━━━━━━━━━
+Type: ${demoTypeLabel}
+${callId ? `Call ID: ${callId}` : `SMS Sent: Yes`}
+Request Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' })} MST
+
+CRM Information:
+━━━━━━━━━━━━━━━━━━━━━
+${createdLead ? `Lead ID: ${createdLead._id}
+Status: ${createdLead.status}
+Priority: ${createdLead.priority}
+Total Demo Requests: ${createdLead.metadata?.get('demoRequestCount') || 1}` : 'Lead creation pending'}
+
+Rate Limiting:
+━━━━━━━━━━━━━━━━━━━━━
+Requests in 24h: ${demoRateLimitMap.get(formattedNumber)?.count || 1}/${DEMO_RATE_LIMIT.maxRequests}
+
+Action Required:
+━━━━━━━━━━━━━━━━━━━━━
+${demoType === 'sms' ? '• Monitor SMS conversation for engagement\n• Follow up if no response within 1 hour' : '• Monitor call for success\n• Send follow-up email if call goes to voicemail'}
+• Check CRM for lead status updates
+• Schedule follow-up call if interested
+
+Login to CRM: https://remodely.ai/leads`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+              .header h1 { margin: 0; font-size: 24px; }
+              .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; margin-top: 10px; }
+              .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+              .section { margin-bottom: 25px; }
+              .section-title { font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+              .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+              .info-label { font-weight: 600; color: #4b5563; }
+              .info-value { color: #111827; }
+              .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+              .priority-high { color: #dc2626; font-weight: 700; }
+              .action-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 6px; margin-top: 20px; }
+              .action-box ul { margin: 10px 0; padding-left: 20px; }
+              .action-box li { margin: 8px 0; color: #1e40af; }
+              .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; font-weight: 600; }
+              .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>${demoIcon} ${leadStatus}</h1>
+                <div class="badge">${demoTypeLabel} Requested</div>
+              </div>
+              <div class="content">
+                <div class="section">
+                  <div class="section-title">Contact Information</div>
+                  <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">${name}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">${email || '<em>Not provided</em>'}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value"><strong>${formattedNumber}</strong></span>
+                  </div>
+                </div>
+
+                <div class="section">
+                  <div class="section-title">Demo Details</div>
+                  <div class="info-row">
+                    <span class="info-label">Demo Type:</span>
+                    <span class="info-value">${demoTypeLabel}</span>
+                  </div>
+                  ${callId ? `<div class="info-row">
+                    <span class="info-label">Call ID:</span>
+                    <span class="info-value"><code>${callId}</code></span>
+                  </div>` : `<div class="info-row">
+                    <span class="info-label">SMS Sent:</span>
+                    <span class="info-value">✅ Yes</span>
+                  </div>`}
+                  <div class="info-row">
+                    <span class="info-label">Request Time:</span>
+                    <span class="info-value">${new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' })} MST</span>
+                  </div>
+                </div>
+
+                ${createdLead ? `<div class="section">
+                  <div class="section-title">CRM Information</div>
+                  <div class="info-row">
+                    <span class="info-label">Lead ID:</span>
+                    <span class="info-value"><code>${createdLead._id}</code></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value"><span class="highlight">${createdLead.status.toUpperCase()}</span></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Priority:</span>
+                    <span class="info-value"><span class="priority-high">${createdLead.priority.toUpperCase()}</span></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Demo Requests:</span>
+                    <span class="info-value">${createdLead.metadata?.get('demoRequestCount') || 1} total</span>
+                  </div>
+                </div>` : ''}
+
+                <div class="section">
+                  <div class="section-title">Rate Limiting</div>
+                  <div class="info-row">
+                    <span class="info-label">Requests (24h):</span>
+                    <span class="info-value">${demoRateLimitMap.get(formattedNumber)?.count || 1} of ${DEMO_RATE_LIMIT.maxRequests} maximum</span>
+                  </div>
+                </div>
+
+                <div class="action-box">
+                  <strong>⚡ Action Required:</strong>
+                  <ul>
+                    ${demoType === 'sms' ? `
+                      <li>Monitor SMS conversation for engagement</li>
+                      <li>Follow up if no response within 1 hour</li>
+                    ` : `
+                      <li>Monitor call for success</li>
+                      <li>Send follow-up email if call goes to voicemail</li>
+                    `}
+                    <li>Check CRM for lead status updates</li>
+                    <li>Schedule follow-up call if interested</li>
+                  </ul>
+                  <a href="https://remodely.ai/leads" class="btn">View Lead in CRM →</a>
+                </div>
+              </div>
+              <div class="footer">
+                <p>VoiceFlow CRM - Lead Notification System</p>
+                <p>This is an automated notification. Do not reply to this email.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
+      });
+      console.log(`✅ Comprehensive lead notification sent to help.remodely@gmail.com`);
+    } catch (emailError) {
+      console.error('Failed to send lead notification:', emailError);
+      // Don't fail the request if email fails
     }
 
     // REMOVED: Immediate customer email - now only sends post-call via webhook
