@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v58-mock-sms';
+        const CURRENT_VERSION = '2025-11-23-v59-sms-popup';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1435,25 +1435,27 @@
     </section>
 
     <!-- Social Proof Section -->
-    <section class="py-12 px-4 bg-white/5 border-y border-white/10">
+    <section class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
         <div class="max-w-7xl mx-auto">
-            <p class="text-center text-gray-400 text-sm mb-8">Trusted by contractors, remodelers, and service businesses</p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-white mb-1">500+</div>
-                    <div class="text-sm text-gray-400">Contractors</div>
+            <div class="text-center mb-10 sm:mb-12">
+                <p class="text-gray-400 text-sm sm:text-base font-medium">Trusted by contractors, remodelers, and service businesses</p>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">500+</div>
+                    <div class="text-sm sm:text-base text-gray-400 font-medium">Contractors</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-white mb-1">10K+</div>
-                    <div class="text-sm text-gray-400">Calls Handled</div>
+                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">10K+</div>
+                    <div class="text-sm sm:text-base text-gray-400 font-medium">Calls Handled</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-white mb-1">98%</div>
-                    <div class="text-sm text-gray-400">Customer Satisfaction</div>
+                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">98%</div>
+                    <div class="text-sm sm:text-base text-gray-400 font-medium">Customer Satisfaction</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-white mb-1">24/7</div>
-                    <div class="text-sm text-gray-400">Never Miss a Call</div>
+                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
+                    <div class="text-sm sm:text-base text-gray-400 font-medium">Never Miss a Call</div>
                 </div>
             </div>
         </div>
@@ -2281,6 +2283,101 @@
         </div>
     </div>
 
+    <!-- SMS Instructions Popup -->
+    <div id="sms-instructions-popup" class="fixed inset-0 z-[10000] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="sms-popup-backdrop"></div>
+
+        <!-- Modal Card -->
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-lg w-full border border-gray-700 relative animate-modal-slide-in">
+                <!-- Close Button -->
+                <button id="close-sms-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+
+                <!-- Modal Content -->
+                <div class="p-8">
+                    <!-- Header -->
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                            <i class="fas fa-comment-dots text-white text-3xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Text Our AI Agent!</h2>
+                        <p class="text-gray-400">Start chatting with our AI assistant via SMS</p>
+                    </div>
+
+                    <!-- Phone Number Display -->
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-6 text-center">
+                        <p class="text-gray-400 text-sm mb-2">Send a text message to:</p>
+                        <div id="sms-phone-display" class="text-3xl font-bold text-blue-400 mb-3 tracking-wider">
+                            +1 (602) 833-7194
+                        </div>
+                        <button id="copy-phone-number" class="text-sm text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-copy mr-2"></i>Copy Number
+                        </button>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-700/30 rounded-xl p-6 mb-6">
+                        <h3 class="text-white font-semibold mb-3 flex items-center">
+                            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                            How It Works
+                        </h3>
+                        <ol class="text-gray-300 text-sm space-y-2">
+                            <li class="flex items-start">
+                                <span class="text-blue-400 font-bold mr-2">1.</span>
+                                <span>Open your phone's messaging app</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-400 font-bold mr-2">2.</span>
+                                <span>Start a new message to the number above</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-400 font-bold mr-2">3.</span>
+                                <span>Send your first message to begin chatting!</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Suggested Topics -->
+                    <div class="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-700/30 rounded-xl p-6">
+                        <h3 class="text-white font-semibold mb-3 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+                            Try Asking About
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                💡 Features & capabilities
+                            </div>
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                💰 Pricing & plans
+                            </div>
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                🎯 Use cases
+                            </div>
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                🚀 Getting started
+                            </div>
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                🔧 Integration options
+                            </div>
+                            <div class="bg-white/5 rounded-lg px-3 py-2 text-gray-300">
+                                📞 Schedule a call
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <p class="text-center text-xs text-gray-500 mt-6">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        Your number is safe • Standard SMS rates apply
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         @keyframes modal-slide-in {
             from {
@@ -2805,6 +2902,48 @@
 
         let modalSelectedDemoType = 'voice'; // Default to voice
 
+        // SMS Instructions Popup Elements
+        const smsInstructionsPopup = document.getElementById('sms-instructions-popup');
+        const closeSmsPopup = document.getElementById('close-sms-popup');
+        const smsPopupBackdrop = document.getElementById('sms-popup-backdrop');
+        const smsPhoneDisplay = document.getElementById('sms-phone-display');
+        const copyPhoneBtn = document.getElementById('copy-phone-number');
+
+        // Function to show SMS instructions popup
+        function showSMSInstructionsPopup(phoneNumber) {
+            if (smsPhoneDisplay) smsPhoneDisplay.textContent = phoneNumber;
+            if (smsInstructionsPopup) smsInstructionsPopup.classList.remove('hidden');
+        }
+
+        // Close SMS instructions popup
+        if (closeSmsPopup) {
+            closeSmsPopup.addEventListener('click', () => {
+                if (smsInstructionsPopup) smsInstructionsPopup.classList.add('hidden');
+            });
+        }
+
+        if (smsPopupBackdrop) {
+            smsPopupBackdrop.addEventListener('click', () => {
+                if (smsInstructionsPopup) smsInstructionsPopup.classList.add('hidden');
+            });
+        }
+
+        // Copy phone number to clipboard
+        if (copyPhoneBtn) {
+            copyPhoneBtn.addEventListener('click', () => {
+                const phoneNumber = smsPhoneDisplay.textContent;
+                navigator.clipboard.writeText(phoneNumber).then(() => {
+                    const originalText = copyPhoneBtn.innerHTML;
+                    copyPhoneBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                    setTimeout(() => {
+                        copyPhoneBtn.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            });
+        }
+
         // Show popup when "Try It Now" is clicked
         const tryItNowBtn = document.getElementById('try-it-now-btn');
         if (tryItNowBtn) {
@@ -2931,14 +3070,37 @@
 
                         if (modalSelectedDemoType === 'voice') {
                             showModalStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
-                        } else {
-                            // Show phone number to text
-                            const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
-                            showModalStatus('success', `📱 Text our AI agent at:\n\n${phoneNumber}\n\nSend a message to start chatting!`);
-                        }
 
-                        // Reset form and close modal after 5 seconds
-                        setTimeout(() => {
+                            // Reset form and close modal after 5 seconds
+                            setTimeout(() => {
+                                document.getElementById('modal-demo-form').reset();
+                                modalSubmitDemoBtn.disabled = false;
+                                modalSubmitDemoBtn.innerHTML = originalHTML;
+                                if (demoPopupModal) demoPopupModal.classList.add('hidden');
+                                modalDemoStatus.classList.add('hidden');
+
+                                // Reset toggle to voice
+                                modalSelectedDemoType = 'voice';
+                                if (modalToggleVoice) modalToggleVoice.classList.add('active');
+                                if (modalToggleSms) modalToggleSms.classList.remove('active');
+                                if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start Voice Demo';
+                                if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-phone mr-2';
+                            }, 5000);
+                        } else {
+                            // Close the demo form modal
+                            if (demoPopupModal) demoPopupModal.classList.add('hidden');
+                            modalDemoStatus.classList.add('hidden');
+
+                            // Reset form
+                            document.getElementById('modal-demo-form').reset();
+                            modalSubmitDemoBtn.disabled = false;
+                            modalSubmitDemoBtn.innerHTML = originalHTML;
+
+                            // Show SMS instructions popup
+                            const phoneNumber = data.demoPhoneNumber || '+1 (602) 833-7194';
+                            showSMSInstructionsPopup(phoneNumber);
+                        }
+                    } else {
                             document.getElementById('modal-demo-form').reset();
                             modalSubmitDemoBtn.disabled = false;
                             modalSubmitDemoBtn.innerHTML = originalHTML;
