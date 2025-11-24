@@ -709,7 +709,7 @@ export const requestVoiceDemo = async (req, res) => {
     const { default: ElevenLabsService } = await import('../services/elevenLabsService.js');
     const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
-    // Custom prompt to prove we have control over the system
+    // Custom prompt with improved voicemail detection
     const customPrompt = `You are a friendly AI sales assistant for Remodely AI.
 
 **YOUR IDENTITY:**
@@ -721,35 +721,44 @@ export const requestVoiceDemo = async (req, res) => {
 - Say "Remodely AI" naturally - not "A EYE" or spelled out
 - For signup, say: "remodely dot AI forward slash signup"
 
-**VOICEMAIL DETECTION (CRITICAL):**
-- If you hear a voicemail greeting, automated message, or beep sound, IMMEDIATELY say: "I'll try calling back later" and END THE CALL
-- If there's prolonged silence (more than 5 seconds) after the first greeting, assume voicemail and end the call
-- Do NOT leave a full pitch message on voicemail - terminate immediately to save costs
-- Signs of voicemail: beep sounds, "leave a message", automated greetings, no human response
+**VOICEMAIL DETECTION (ABSOLUTELY CRITICAL - HIGHEST PRIORITY):**
+🚨 LISTEN CAREFULLY FOR VOICEMAIL INDICATORS:
+- Beep sounds (any beep = voicemail)
+- "Leave a message" or "can't come to the phone"
+- Automated voice saying "you have reached..."
+- Background music or hold music
+- No human response after 3 seconds
+- Silence longer than 4 seconds
 
-**YOUR CONVERSATION FLOW:**
-1. Start with warm greeting using their name: ${firstName}
-2. Wait for human response - if voicemail, end call immediately
-3. Briefly explain Remodely AI: "We help businesses like yours automate phone calls with AI voice agents that sound completely natural"
-4. Ask about their business: "What type of business do you run?"
-5. Listen and provide relevant examples for their industry
-6. Offer next steps: "Would you like to start a free 14-day trial at remodely dot AI forward slash signup?"
+IF VOICEMAIL DETECTED:
+1. IMMEDIATELY say ONLY this short message: "Hi ${firstName}, this is Remodely AI. I'll send you a text with info and call back later. Thanks!"
+2. END THE CALL within 10 seconds total
+3. Do NOT give full pitch - just the short message above
+4. Do NOT ask questions or wait for response
 
-**KEY FEATURES TO MENTION:**
-- 24/7 AI voice agents that handle calls automatically
-- Lead qualification and appointment booking
-- CRM integration and workflow automation
-- Free 14-day trial at remodely.ai/signup (pronounce: "remodely dot AI forward slash signup")
+**YOUR CONVERSATION FLOW (ONLY IF HUMAN ANSWERS):**
+1. Warm greeting: "Hi ${firstName}! This is the AI assistant from Remodely AI. Thanks for requesting a demo! Do you have a quick minute?"
+2. WAIT for response - if ANY sign of voicemail, use short message and hang up
+3. If human responds positively, briefly explain: "Great! We help businesses automate phone calls with AI voice agents. What type of business do you run?"
+4. Listen and provide relevant examples
+5. Offer trial: "Want to try it free for 14 days? Visit remodely dot AI forward slash signup"
+6. Keep call under 2 minutes total
+
+**KEY FEATURES TO MENTION (ONLY IF HUMAN):**
+- 24/7 AI voice agents
+- Lead qualification & appointment booking
+- CRM integration
+- Free 14-day trial
 
 **TONE:**
 - Conversational and warm
 - Professional but not robotic
-- Keep responses under 30 seconds
-- Ask questions to understand their needs
+- Keep responses under 20 seconds each
+- If voicemail: polite, brief, hang up fast
 
-Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal!`;
+Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATELY and keep it SHORT!`;
 
-    const customFirstMessage = `Hi ${firstName}! This is the Remodely AI assistant calling. Thanks for requesting a demo! I'm an AI voice agent - just like the ones we build for businesses to automate their calls. How are you doing today?`;
+    const customFirstMessage = `Hi ${firstName}! This is the AI assistant from Remodely AI. Thanks for requesting a demo. Did I catch you at a good time?`;
 
     // Use Sarah - warm, sales-focused female voice (very distinct from default)
     const customVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Lead Gen voice (warm, professional female)
@@ -762,39 +771,28 @@ Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal
 
     // Handle SMS vs Voice Call differently
     if (demoType === 'sms') {
-      // For SMS demo, send an SMS message first, then call
+      // For SMS demo, ONLY send an SMS (no call)
       const twilioService = getTwilioService();
-      const smsMessage = `Hi ${firstName}! 👋 This is VoiceFlow CRM's AI assistant. Thanks for requesting a demo!\n\nI'm going to call you now to show you how our AI voice agents work. Answer the call to experience it live!\n\nLearn more: remodely.ai/signup`;
+      const smsMessage = `Hi ${firstName}! 👋 This is VoiceFlow CRM's AI assistant. Thanks for your interest!\n\nOur AI voice agents can:\n✅ Answer calls 24/7\n✅ Qualify leads automatically\n✅ Book appointments\n✅ Integrate with your CRM\n\nReady to try? Start free: remodely.ai/signup\n\nWant a live demo call instead? Visit our website and select "Voice Call" option.`;
 
       try {
         await twilioService.sendSMS(formattedNumber, smsMessage);
-        console.log(`✅ SMS sent to ${formattedNumber}`);
+        console.log(`✅ SMS demo sent to ${formattedNumber}`);
+
+        // Return success for SMS-only (no call initiated)
+        return res.json({
+          success: true,
+          message: 'SMS sent successfully! Check your phone for details.',
+          type: 'sms',
+          phoneNumber: formattedNumber
+        });
       } catch (smsError) {
         console.error('Failed to send SMS:', smsError);
-        // Continue with call even if SMS fails
-      }
-
-      // Then initiate the voice call
-      callData = await elevenLabsService.initiateCall(
-        agentId,
-        formattedNumber,
-        agentPhoneNumberId,
-        `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
-        dynamicVariables,
-        customPrompt,
-        customFirstMessage,
-        customVoiceId
-      );
-
-      if (!callData) {
         return res.status(500).json({
-          error: 'Failed to initiate demo',
-          message: 'Sorry, we couldn\'t complete the demo setup. Please try again.'
+          error: 'Failed to send SMS',
+          message: 'Sorry, we couldn\'t send the SMS. Please try again or use the Voice Call option.'
         });
       }
-
-      callId = callData.id || callData.call_id;
-      console.log(`✅ SMS demo initiated - SMS sent and call placed: ${callId}`);
     } else {
       // For voice demo, just initiate the call directly
       callData = await elevenLabsService.initiateCall(
