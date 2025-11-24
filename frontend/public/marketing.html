@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v63-section-alignment';
+        const CURRENT_VERSION = '2025-11-23-v64-saas-focus';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -1217,12 +1217,10 @@
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="#features" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Features</a>
-                    <a href="#demos" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Demos</a>
-                    <a href="#pricing" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Pricing</a>
                     <a href="/login" class="text-sm text-gray-300 hover:text-white transition-colors font-medium">Login</a>
-                    <a href="/signup" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20">
-                        Get Started
-                    </a>
+                    <button id="nav-try-demo" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20">
+                        Try Demo
+                    </button>
                 </div>
 
                 <!-- Mobile Navigation -->
@@ -1733,161 +1731,7 @@
         </div>
     </section>
 
-    <!-- Use Cases / Demos Section -->
-    <section id="demos" class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#1a1a2e]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                    See It In Action
-                </h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto">Explore how businesses use VoiceFlow CRM to automate their customer interactions</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demo Use Cases Grid -->
-    <section class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b]">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-                <!-- Voicemail Agent Demo Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-green-500 transition-all hover:shadow-xl hover:shadow-green-500/20">
-                    <div class="w-14 h-14 bg-green-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-voicemail text-green-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">AI Voicemail Assistant</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Never miss a lead. Your AI answers calls, qualifies prospects, and sends summaries—24/7.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-green-400 mr-2"></i>Auto-qualify leads</li>
-                        <li><i class="fas fa-check text-green-400 mr-2"></i>Book appointments</li>
-                        <li><i class="fas fa-check text-green-400 mr-2"></i>Instant notifications</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-green-600 hover:bg-green-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- Voice Estimate Builder Demo Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-purple-500 transition-all hover:shadow-xl hover:shadow-purple-500/20">
-                    <div class="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-file-invoice-dollar text-purple-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Voice Estimate Builder</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Create professional estimates through natural voice conversation in minutes, not hours.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Voice-powered estimates</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>QuickBooks sync</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>One-click invoicing</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-purple-600 hover:bg-purple-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- AI Co-Pilot Demo Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/20">
-                    <div class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-robot text-blue-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">AI Co-Pilot Assistant</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Your AI assistant helps draft emails, create content, and manage workflows instantly.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-blue-400 mr-2"></i>Email generation</li>
-                        <li><i class="fas fa-check text-blue-400 mr-2"></i>Content creation</li>
-                        <li><i class="fas fa-check text-blue-400 mr-2"></i>Workflow automation</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- SMS Agent Demo Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-indigo-500 transition-all hover:shadow-xl hover:shadow-indigo-500/20">
-                    <div class="w-14 h-14 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-sms text-indigo-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">SMS Automation</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        AI-powered text conversations that qualify leads and book appointments automatically.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-indigo-400 mr-2"></i>Two-way SMS conversations</li>
-                        <li><i class="fas fa-check text-indigo-400 mr-2"></i>Lead qualification</li>
-                        <li><i class="fas fa-check text-indigo-400 mr-2"></i>Auto-scheduling</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- AI Image Generation Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-pink-500 transition-all hover:shadow-xl hover:shadow-pink-500/20">
-                    <div class="w-14 h-14 bg-pink-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-image text-pink-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">AI Image Generation</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Generate marketing images, project mockups, and visual content with AI in seconds.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-pink-400 mr-2"></i>AI-generated images</li>
-                        <li><i class="fas fa-check text-pink-400 mr-2"></i>Marketing content</li>
-                        <li><i class="fas fa-check text-pink-400 mr-2"></i>Project visualizations</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-pink-600 hover:bg-pink-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- Workflow Automation Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-orange-500 transition-all hover:shadow-xl hover:shadow-orange-500/20">
-                    <div class="w-14 h-14 bg-orange-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-project-diagram text-orange-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Workflow Builder</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Visual workflow builder to automate any business process without code.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-orange-400 mr-2"></i>Drag & drop builder</li>
-                        <li><i class="fas fa-check text-orange-400 mr-2"></i>No-code automation</li>
-                        <li><i class="fas fa-check text-orange-400 mr-2"></i>Multi-step workflows</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-orange-600 hover:bg-orange-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-                <!-- Social Media AI Card -->
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
-                    <div class="w-14 h-14 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-6">
-                        <i class="fas fa-share-alt text-cyan-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Social Media AI</h3>
-                    <p class="text-gray-400 mb-6 text-sm">
-                        Generate engaging social media posts optimized for each platform automatically.
-                    </p>
-                    <ul class="space-y-2 mb-6 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-cyan-400 mr-2"></i>AI-generated posts</li>
-                        <li><i class="fas fa-check text-cyan-400 mr-2"></i>Platform optimization</li>
-                        <li><i class="fas fa-check text-cyan-400 mr-2"></i>Hashtag suggestions</li>
-                    </ul>
-                    <a href="/demo.html" class="block w-full bg-cyan-600 hover:bg-cyan-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors">
-                        Try Demo
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] relative overflow-hidden">
+    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#1a1a2e] relative overflow-hidden">
         <!-- Background decoration -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl"></div>
@@ -2001,143 +1845,6 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] relative overflow-hidden">
-        <!-- Background decoration -->
-        <div class="absolute inset-0 opacity-5">
-            <div class="absolute top-20 right-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-20 left-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-        </div>
-
-        <div class="max-w-7xl mx-auto relative z-10">
-            <!-- Header -->
-            <div class="text-center mb-16">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-                    Transparent <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Pricing</span> That Scales With You
-                </h2>
-                <p class="text-lg sm:text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
-                    Pay only for what you use. No hidden fees, no contracts.
-                </p>
-                <p class="text-sm sm:text-base text-purple-400 font-semibold">
-                    <i class="fas fa-shield-alt mr-2"></i>Cancel anytime • Money-back guarantee • Enterprise plans available
-                </p>
-            </div>
-
-            <!-- Pricing Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
-                <!-- Trial Plan -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl h-full flex flex-col hover:border-gray-600/50 transition-all duration-300">
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-bold text-white mb-4">Trial</h3>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-5xl font-bold text-white">$0</span>
-                            <span class="text-gray-400 text-lg">/month</span>
-                        </div>
-                    </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
-                            <span>50 free call minutes</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
-                            <span>1 voice agent</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
-                            <span>Built-in CRM</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
-                            <span>Email & SMS follow-ups</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-green-400 mt-1 flex-shrink-0"></i>
-                            <span>Basic analytics</span>
-                        </li>
-                    </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 rounded-xl font-semibold transition-all shadow-lg">
-                        Start Free
-                    </a>
-                </div>
-
-                <!-- Starter Plan - Most Popular -->
-                <div class="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-xl p-8 rounded-2xl border-2 border-blue-500 shadow-2xl shadow-blue-500/20 h-full flex flex-col relative">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                        ⭐ Most Popular
-                    </div>
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-bold text-white mb-4">Starter</h3>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-5xl font-bold text-white">$99</span>
-                            <span class="text-gray-300 text-lg">/month</span>
-                        </div>
-                    </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-gray-200">
-                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
-                            <span>500 call minutes/month</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-200">
-                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
-                            <span>5 voice agents</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-200">
-                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
-                            <span>n8n workflow automation</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-200">
-                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
-                            <span>CRM + analytics dashboard</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-200">
-                            <i class="fas fa-check-circle text-blue-400 mt-1 flex-shrink-0"></i>
-                            <span>Priority email support</span>
-                        </li>
-                    </ul>
-                    <a href="/signup" class="block w-full text-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/70">
-                        Get Started
-                    </a>
-                </div>
-
-                <!-- Pro Plan -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl h-full flex flex-col hover:border-purple-500/50 transition-all duration-300">
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-bold text-white mb-4">Pro</h3>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-5xl font-bold text-white">$299</span>
-                            <span class="text-gray-400 text-lg">/month</span>
-                        </div>
-                    </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
-                            <span>2000 call minutes/month</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
-                            <span>Unlimited voice agents</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
-                            <span>Advanced analytics & reporting</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
-                            <span>Custom integrations (QuickBooks, etc.)</span>
-                        </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-purple-400 mt-1 flex-shrink-0"></i>
-                            <span>Dedicated account manager</span>
-                        </li>
-                    </ul>
-                    <a href="/signup" class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 rounded-xl font-semibold transition-all shadow-lg">
-                        Get Started
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section class="full-width-section py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden w-screen -ml-[50vw] left-[50%] right-[50%] -mr-[50vw]">
         <!-- Background pattern -->
         <div class="absolute inset-0 opacity-10">
@@ -2147,26 +1854,26 @@
 
         <div class="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
             <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8">
-                Stop Leaving Money on the Table
+                Ready to Transform Your Business?
             </h2>
             <p class="text-xl sm:text-2xl md:text-3xl mb-6 opacity-95 max-w-4xl mx-auto leading-relaxed">
-                While you're manually calling leads, your competitors are using AI to make 10x more calls in half the time.
+                Join leading companies using AI voice agents to automate their sales and support.
             </p>
             <p class="text-lg sm:text-xl mb-10 opacity-90 max-w-3xl mx-auto">
-                Join 500+ companies using VoiceFlow to automate their sales process and close more deals.
+                Schedule a personalized demo with our team and see how VoiceFlow CRM can revolutionize your business operations.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <a href="/signup" class="bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-white/30 transition-all transform hover:scale-105 hover:bg-gray-50">
-                    Start Free Trial - 50 Minutes Free
-                </a>
-                <button onclick="window.open('tel:+16028334780', '_self')" class="border-2 border-white text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all transform hover:scale-105">
-                    <i class="fas fa-phone mr-2"></i>Talk to Our AI Now
-                </a>
+                <button id="cta-try-it-now" class="bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-white/30 transition-all transform hover:scale-105 hover:bg-gray-50">
+                    <i class="fas fa-calendar-check mr-2"></i>Try It Now
+                </button>
+                <button id="cta-talk-to-sales" class="border-2 border-white text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all transform hover:scale-105">
+                    <i class="fas fa-phone mr-2"></i>Talk to Sales
+                </button>
             </div>
 
             <p class="text-base sm:text-lg mt-8 opacity-90">
-                <i class="fas fa-lock mr-2"></i>No credit card required • Setup in 5 minutes • Cancel anytime
+                <i class="fas fa-check-circle mr-2"></i>No commitment required • Custom pricing available • White-glove onboarding
             </p>
         </div>
     </section>
@@ -2919,6 +2626,32 @@
         if (tryItNowBtn) {
             tryItNowBtn.addEventListener('click', () => {
                 console.log('Try It Now clicked - opening modal');
+                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
+            });
+        }
+
+        // CTA buttons from main CTA section
+        const ctaTryItNow = document.getElementById('cta-try-it-now');
+        if (ctaTryItNow) {
+            ctaTryItNow.addEventListener('click', () => {
+                console.log('CTA Try It Now clicked - opening modal');
+                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
+            });
+        }
+
+        const ctaTalkToSales = document.getElementById('cta-talk-to-sales');
+        if (ctaTalkToSales) {
+            ctaTalkToSales.addEventListener('click', () => {
+                console.log('CTA Talk to Sales clicked - opening modal');
+                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
+            });
+        }
+
+        // Navigation Try Demo button
+        const navTryDemo = document.getElementById('nav-try-demo');
+        if (navTryDemo) {
+            navTryDemo.addEventListener('click', () => {
+                console.log('Nav Try Demo clicked - opening modal');
                 if (demoPopupModal) demoPopupModal.classList.remove('hidden');
             });
         }
