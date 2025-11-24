@@ -758,27 +758,66 @@ Remember: This is ${firstName} calling from ${formattedNumber}. Make it personal
     const agentPhoneNumberId = process.env.ELEVENLABS_AGENT_PHONE_NUMBER_ID || process.env.ELEVENLABS_PHONE_NUMBER_ID;
     const webhookUrl = process.env.WEBHOOK_URL || process.env.SERVER_URL || 'https://your-backend-url.com';
 
-    // Initiate call using ElevenLabs batch calling API with custom prompt and voice
-    const callData = await elevenLabsService.initiateCall(
-      agentId,
-      formattedNumber,
-      agentPhoneNumberId,
-      `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
-      dynamicVariables,
-      customPrompt,               // Override with custom prompt
-      customFirstMessage,         // Override with custom first message
-      customVoiceId               // Override with custom voice (Lisa)
-    );
+    let callData, callId;
 
-    if (!callData) {
-      return res.status(500).json({
-        error: 'Failed to initiate call',
-        message: 'Sorry, we couldn\'t place the call right now. Please try again or use the text chat.'
-      });
+    // Handle SMS vs Voice Call differently
+    if (demoType === 'sms') {
+      // For SMS demo, send an SMS message first, then call
+      const twilioService = getTwilioService();
+      const smsMessage = `Hi ${firstName}! 👋 This is VoiceFlow CRM's AI assistant. Thanks for requesting a demo!\n\nI'm going to call you now to show you how our AI voice agents work. Answer the call to experience it live!\n\nLearn more: remodely.ai/signup`;
+
+      try {
+        await twilioService.sendSMS(formattedNumber, smsMessage);
+        console.log(`✅ SMS sent to ${formattedNumber}`);
+      } catch (smsError) {
+        console.error('Failed to send SMS:', smsError);
+        // Continue with call even if SMS fails
+      }
+
+      // Then initiate the voice call
+      callData = await elevenLabsService.initiateCall(
+        agentId,
+        formattedNumber,
+        agentPhoneNumberId,
+        `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
+        dynamicVariables,
+        customPrompt,
+        customFirstMessage,
+        customVoiceId
+      );
+
+      if (!callData) {
+        return res.status(500).json({
+          error: 'Failed to initiate demo',
+          message: 'Sorry, we couldn\'t complete the demo setup. Please try again.'
+        });
+      }
+
+      callId = callData.id || callData.call_id;
+      console.log(`✅ SMS demo initiated - SMS sent and call placed: ${callId}`);
+    } else {
+      // For voice demo, just initiate the call directly
+      callData = await elevenLabsService.initiateCall(
+        agentId,
+        formattedNumber,
+        agentPhoneNumberId,
+        `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
+        dynamicVariables,
+        customPrompt,
+        customFirstMessage,
+        customVoiceId
+      );
+
+      if (!callData) {
+        return res.status(500).json({
+          error: 'Failed to initiate call',
+          message: 'Sorry, we couldn\'t place the call right now. Please try again or use the text chat.'
+        });
+      }
+
+      callId = callData.id || callData.call_id;
+      console.log(`✅ Voice demo call initiated via ElevenLabs: ${callId}`);
     }
-
-    const callId = callData.id || callData.call_id;
-    console.log(`✅ Voice demo call initiated via ElevenLabs: ${callId}`);
 
     // Register call for automatic post-call email monitoring
     if (callId) {
