@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v55-sms-fix';
+        const CURRENT_VERSION = '2025-11-23-v56-sms-only';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2893,13 +2893,14 @@
                     if (response.ok) {
                         if (modalSelectedDemoType === 'voice') {
                             showModalStatus('success', '✅ Success! Your phone should ring in 5-10 seconds. Answer to experience our AI agent!');
+                            simulateSMSConversation('call');
                         } else {
-                            showModalStatus('success', '✅ Demo initiated! You\'ll receive a call in 5-10 seconds. Answer to experience the SMS workflow!');
+                            showModalStatus('success', '✅ SMS sent! Check your phone for details about VoiceFlow CRM. Want a live call? Use the Voice Call option.');
+                            simulateSMSConversation('sms');
                         }
 
                         // Show animation in phone mockup
                         if (phonePlaceholder) phonePlaceholder.classList.add('hidden');
-                        simulateSMSConversation(modalSelectedDemoType);
 
                         // Reset form and close modal after 5 seconds
                         setTimeout(() => {
@@ -3026,9 +3027,10 @@
             };
 
             if (demoType === 'sms') {
-                addMessage('user', 'DEMO', 500);
-                addMessage('ai', '🎙️ Great! Our AI demo agent will call you in just a few seconds. Get ready for a conversation that\'ll blow your mind!', 2000);
-                addMessage('ai', '📞 Calling you now...', 4500);
+                addMessage('ai', 'Hi! 👋 This is VoiceFlow CRM\'s AI assistant. Thanks for your interest!', 500);
+                addMessage('ai', 'Our AI voice agents can:\n✅ Answer calls 24/7\n✅ Qualify leads automatically\n✅ Book appointments\n✅ Integrate with your CRM', 2000);
+                addMessage('ai', 'Ready to try? Start free: remodely.ai/signup', 4000);
+                addMessage('ai', 'Want a live demo call instead? Visit our website and select "Voice Call" option. 📞', 6000);
             } else {
                 addMessage('ai', '📞 Incoming call from VoiceFlow AI...', 500);
                 addMessage('ai', '✅ Call connected! Listen for the AI voice agent.', 2500);
