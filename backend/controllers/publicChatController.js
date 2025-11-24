@@ -771,19 +771,29 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
 
     // Handle SMS vs Voice Call differently
     if (demoType === 'sms') {
-      // For SMS demo, provide phone number to text
+      // For SMS demo, send initial SMS to user
+      const twilioService = getTwilioService();
       const demoPhoneNumber = process.env.DEMO_SMS_NUMBER || '+1 (602) 833-7194';
+      const smsMessage = `Hi ${firstName}! 👋 Thanks for your interest in VoiceFlow CRM.\n\nI'm an AI assistant. Reply to this message with any question:\n• Features\n• Pricing\n• Getting started\n• Or anything else!\n\nLet's chat!`;
 
-      console.log(`📱 SMS demo info requested by ${name} at ${formattedNumber}`);
+      try {
+        await twilioService.sendSMS(formattedNumber, smsMessage);
+        console.log(`✅ SMS sent to ${formattedNumber} from ${demoPhoneNumber}`);
 
-      // Return phone number for user to text
-      return res.json({
-        success: true,
-        message: 'Text our AI agent to chat!',
-        type: 'sms',
-        demoPhoneNumber: demoPhoneNumber,
-        instructions: 'Send a text message to start chatting with our AI assistant.'
-      });
+        // Return success with phone number
+        return res.json({
+          success: true,
+          message: 'SMS sent successfully!',
+          type: 'sms',
+          demoPhoneNumber: demoPhoneNumber
+        });
+      } catch (smsError) {
+        console.error('Failed to send SMS:', smsError);
+        return res.status(500).json({
+          error: 'Failed to send SMS',
+          message: 'Sorry, we couldn\'t send the SMS. Please try again.'
+        });
+      }
     } else {
       // For voice demo, just initiate the call directly
       callData = await elevenLabsService.initiateCall(
