@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
+    <!-- Aggressive cache control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v64-saas-focus';
+        const CURRENT_VERSION = '2025-11-23-v65-force-reload';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
-        // Clear all caches on version change
+        // Check if we need to force reload
         if (storedVersion !== CURRENT_VERSION) {
-            // Clear session storage
+            // Clear everything
             sessionStorage.clear();
+            localStorage.clear();
+
+            // Set new version
             sessionStorage.setItem('pageVersion', CURRENT_VERSION);
 
             // Clear service workers if any
@@ -24,18 +32,20 @@
                 });
             }
 
-            // Force hard reload if this is a version change (not first visit)
-            if (storedVersion !== null) {
-                window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
+            // Force hard reload for version change
+            if (storedVersion !== null && !window.location.search.includes('nocache')) {
+                window.location.href = window.location.href.split('?')[0] + '?nocache=' + CURRENT_VERSION + '&t=' + Date.now();
+                // Prevent further script execution
+                throw new Error('Reloading page for cache clear');
             }
         }
-    </script>
 
-    <!-- Prevent browser caching during development -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <!-- Version: 2025-11-23-v31-cta-full-width-bg -->
+        // Clear any cache-busting params after successful load
+        if (window.location.search.includes('nocache')) {
+            const cleanUrl = window.location.href.split('?')[0];
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    </script>
 
     <!-- Primary Meta Tags -->
     <title>VoiceFlow CRM - AI-Powered Voice Agents & CRM SaaS</title>
