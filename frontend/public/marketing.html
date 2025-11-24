@@ -6,7 +6,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-23-v54-modal-fix';
+        const CURRENT_VERSION = '2025-11-23-v55-sms-fix';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Clear all caches on version change
@@ -2995,10 +2995,17 @@
 
         // Simulate SMS conversation in phone
         function simulateSMSConversation(demoType) {
+            if (!smsMessages) {
+                console.error('SMS messages container not found');
+                return;
+            }
+
             smsMessages.innerHTML = '';
 
             const addMessage = (type, text, delay) => {
                 setTimeout(() => {
+                    if (!smsMessages) return;
+
                     const messageDiv = document.createElement('div');
                     messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-3 animate-fade-in`;
 
