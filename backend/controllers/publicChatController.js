@@ -686,10 +686,13 @@ export const requestVoiceDemo = async (req, res) => {
     }
 
     // ========== RATE LIMITING CHECK ==========
+    // TEMPORARILY DISABLED FOR TESTING - RE-ENABLE FOR PRODUCTION
+    const BYPASS_RATE_LIMIT = true; // Set to false for production
+
     const now = Date.now();
     const rateLimit = demoRateLimitMap.get(formattedNumber);
 
-    if (rateLimit) {
+    if (rateLimit && !BYPASS_RATE_LIMIT) {
       // Check if still within the 24-hour window
       const timeSinceFirst = now - rateLimit.firstRequestTime;
       const timeSinceLast = now - rateLimit.lastRequestTime;
@@ -727,7 +730,7 @@ export const requestVoiceDemo = async (req, res) => {
           lastRequestTime: now
         });
       }
-    } else {
+    } else if (!BYPASS_RATE_LIMIT) {
       // First request from this number
       demoRateLimitMap.set(formattedNumber, {
         count: 1,
@@ -736,7 +739,11 @@ export const requestVoiceDemo = async (req, res) => {
       });
     }
 
-    console.log(`✅ Rate limit check passed for ${formattedNumber} (${demoRateLimitMap.get(formattedNumber).count}/${DEMO_RATE_LIMIT.maxRequests} in 24h)`);
+    if (BYPASS_RATE_LIMIT) {
+      console.log(`⚠️  RATE LIMITING BYPASSED FOR TESTING - ${formattedNumber}`);
+    } else {
+      console.log(`✅ Rate limit check passed for ${formattedNumber} (${demoRateLimitMap.get(formattedNumber).count}/${DEMO_RATE_LIMIT.maxRequests} in 24h)`);
+    }
 
     // ========== CREATE LEAD IN CRM ==========
     const firstName = name.trim().split(' ')[0];
