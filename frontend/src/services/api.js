@@ -312,4 +312,15 @@ export const knowledgeBaseApi = {
   }),
 };
 
+export const contactApi = {
+  getContacts: (params) => api.get('/contacts', { params }),
+  getContactById: (id) => api.get(`/contacts/${id}`),
+  createContact: (data) => api.post('/contacts', data),
+  updateContact: (id, data) => api.patch(`/contacts/${id}`, data),
+  deleteContact: (id) => api.delete(`/contacts/${id}`),
+  searchContacts: (query) => api.get('/contacts/search', { params: { q: query } }),
+  importContacts: (data) => api.post('/contacts/import', data),
+  exportContacts: () => api.get('/contacts/export', { responseType: 'blob' }),
+};
+
 export default api;
