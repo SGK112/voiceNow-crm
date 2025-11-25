@@ -1,11 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
-import api, { API_BASE_URL } from './api';
-
-// Complete any pending auth sessions
-WebBrowser.maybeCompleteAuthSession();
+import api from './api';
 
 // Storage keys
 const AUTH_TOKEN_KEY = 'authToken';
@@ -139,16 +133,29 @@ class AuthService {
     }
   }
 
-  // Google OAuth Login
-  async googleLogin(idToken: string, accessToken?: string): Promise<AuthResponse> {
+  // Google OAuth Login (for direct token/user from backend callback)
+  async googleLogin(tokenOrIdToken: string, userOrAccessToken?: any): Promise<AuthResponse> {
     try {
-      const payload: any = {};
-
-      if (idToken) {
-        payload.id_token = idToken;
+      // If userOrAccessToken is an object, it means we got token+user from mobile OAuth callback
+      if (typeof userOrAccessToken === 'object' && userOrAccessToken !== null && userOrAccessToken._id) {
+        // Direct login with token and user from mobile OAuth callback
+        const token = tokenOrIdToken;
+        const user = userOrAccessToken as User;
+        await this.setAuthData(token, user);
+        return {
+          success: true,
+          token,
+          user,
+        };
       }
-      if (accessToken) {
-        payload.access_token = accessToken;
+
+      // Legacy: ID token or access token from expo-auth-session
+      const payload: any = {};
+      if (tokenOrIdToken) {
+        payload.id_token = tokenOrIdToken;
+      }
+      if (userOrAccessToken && typeof userOrAccessToken === 'string') {
+        payload.access_token = userOrAccessToken;
       }
 
       const response = await api.post<AuthResponse>('/api/auth/google', payload);

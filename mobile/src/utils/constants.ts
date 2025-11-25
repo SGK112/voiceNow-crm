@@ -1,10 +1,8 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Use local IP for device/simulator, localhost for web
-const DEFAULT_API_URL = Platform.OS === 'web'
-  ? 'http://localhost:5001'
-  : 'http://192.168.0.151:5001';
+// Use ngrok URL for OAuth to work on mobile devices
+const DEFAULT_API_URL = 'https://ca11d08d36ac.ngrok-free.app';
 
 export const API_URL = Constants.expoConfig?.extra?.API_URL || DEFAULT_API_URL;
 export const ELEVENLABS_API_KEY = Constants.expoConfig?.extra?.ELEVENLABS_API_KEY || '';

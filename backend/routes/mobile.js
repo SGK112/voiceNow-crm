@@ -1,10 +1,224 @@
 import express from 'express';
-import { protect as auth } from '../middleware/auth.js';
+import { protect as auth, generateToken } from '../middleware/auth.js';
 import Lead from '../models/Lead.js';
 import User from '../models/User.js';
 import Contact from '../models/Contact.js';
+import Usage from '../models/Usage.js';
+import crypto from 'crypto';
 
 const router = express.Router();
+
+// ============================================
+// MOBILE GOOGLE OAUTH ENDPOINTS
+// ============================================
+
+// Store pending OAuth states (in production use Redis)
+const pendingOAuthStates = new Map();
+
+// @desc    Get Google OAuth URL for mobile
+// @route   GET /api/mobile/auth/google/url
+// @access  Public
+router.get('/auth/google/url', (req, res) => {
+  try {
+    // Generate unique state for security
+    const state = crypto.randomBytes(32).toString('hex');
+    const redirectUri = `${process.env.API_URL || 'http://localhost:5001'}/api/mobile/auth/google/callback`;
+
+    // Store state with expiration (5 minutes)
+    pendingOAuthStates.set(state, {
+      created: Date.now(),
+      expires: Date.now() + 5 * 60 * 1000
+    });
+
+    // Clean up expired states
+    for (const [key, value] of pendingOAuthStates.entries()) {
+      if (Date.now() > value.expires) {
+        pendingOAuthStates.delete(key);
+      }
+    }
+
+    const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    googleAuthUrl.searchParams.set('client_id', process.env.GOOGLE_CLIENT_ID);
+    googleAuthUrl.searchParams.set('redirect_uri', redirectUri);
+    googleAuthUrl.searchParams.set('response_type', 'code');
+    googleAuthUrl.searchParams.set('scope', 'openid email profile');
+    googleAuthUrl.searchParams.set('state', state);
+    googleAuthUrl.searchParams.set('access_type', 'offline');
+    googleAuthUrl.searchParams.set('prompt', 'consent');
+
+    console.log('📱 Mobile OAuth URL generated:', { state: state.substring(0, 8) + '...', redirectUri });
+
+    res.json({
+      success: true,
+      url: googleAuthUrl.toString(),
+      state
+    });
+  } catch (error) {
+    console.error('Generate OAuth URL error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate OAuth URL' });
+  }
+});
+
+// @desc    Handle Google OAuth callback (redirect from Google)
+// @route   GET /api/mobile/auth/google/callback
+// @access  Public
+router.get('/auth/google/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+
+    console.log('📱 Mobile OAuth callback:', { hasCode: !!code, hasState: !!state, error });
+
+    if (error) {
+      return res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(error)}`);
+    }
+
+    if (!code || !state) {
+      return res.redirect('voiceflow-ai://oauth?error=missing_params');
+    }
+
+    // Verify state
+    const pendingState = pendingOAuthStates.get(state);
+    if (!pendingState) {
+      return res.redirect('voiceflow-ai://oauth?error=invalid_state');
+    }
+
+    if (Date.now() > pendingState.expires) {
+      pendingOAuthStates.delete(state);
+      return res.redirect('voiceflow-ai://oauth?error=state_expired');
+    }
+
+    pendingOAuthStates.delete(state);
+
+    // Exchange code for tokens
+    const redirectUri = `${process.env.API_URL || 'http://localhost:5001'}/api/mobile/auth/google/callback`;
+
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      })
+    });
+
+    const tokens = await tokenResponse.json();
+
+    if (!tokens.id_token) {
+      console.error('No ID token received:', tokens);
+      return res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(tokens.error_description || 'token_exchange_failed')}`);
+    }
+
+    // Get user info from Google
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` }
+    });
+
+    const userInfo = await userInfoResponse.json();
+    const { id: googleId, email, name } = userInfo;
+
+    // Find or create user
+    let user = await User.findOne({ googleId });
+    let isNewUser = false;
+
+    if (!user) {
+      // Check if an email/password account exists with this email
+      const existingEmailUser = await User.findOne({ email, googleId: { $exists: false } });
+
+      if (existingEmailUser) {
+        // Link existing account to Google
+        existingEmailUser.googleId = googleId;
+        await existingEmailUser.save();
+        user = existingEmailUser;
+        console.log(`✅ Linked existing account ${email} to Google ID ${googleId}`);
+      } else {
+        // Create new user
+        const emailExists = await User.findOne({ email });
+        const uniqueEmail = emailExists ? `${googleId}@google-account.local` : email;
+
+        user = await User.create({
+          email: uniqueEmail,
+          googleId,
+          company: name || email.split('@')[0],
+          plan: 'trial',
+          subscriptionStatus: 'trialing'
+        });
+
+        isNewUser = true;
+        console.log(`✅ Created new account for Google ID ${googleId}`);
+
+        // Create usage record
+        const now = new Date();
+        const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        await Usage.create({
+          userId: user._id,
+          month,
+          plan: user.plan,
+          minutesIncluded: 30,
+          agentsLimit: 1
+        });
+      }
+    }
+
+    // Generate JWT token
+    const token = generateToken(user._id);
+
+    // Redirect back to app with token
+    const userData = encodeURIComponent(JSON.stringify({
+      _id: user._id,
+      email: user.email,
+      company: user.company,
+      plan: user.plan,
+      subscriptionStatus: user.subscriptionStatus,
+      profile: user.profile || {}
+    }));
+
+    console.log('✅ Mobile OAuth successful, redirecting to app');
+
+    // For Expo Go, use exp:// scheme. For standalone builds, use voiceflow-ai://
+    // Detect if running in development by checking user-agent or use exp:// for now
+    const redirectUrl = `exp://192.168.0.151:8081/--/oauth?token=${token}&user=${userData}`;
+    console.log('📱 Redirecting to:', redirectUrl.substring(0, 100) + '...');
+    res.redirect(redirectUrl);
+
+  } catch (error) {
+    console.error('Mobile OAuth callback error:', error);
+    res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(error.message)}`);
+  }
+});
+
+// @desc    Complete OAuth with state (for polling approach)
+// @route   GET /api/mobile/auth/google/complete/:state
+// @access  Public
+router.get('/auth/google/complete/:state', async (req, res) => {
+  try {
+    const { state } = req.params;
+    const pendingState = pendingOAuthStates.get(state);
+
+    if (!pendingState) {
+      return res.json({ success: false, status: 'not_found' });
+    }
+
+    if (pendingState.completed) {
+      // OAuth completed, return the result
+      const result = { ...pendingState.result };
+      pendingOAuthStates.delete(state);
+      return res.json({ success: true, status: 'completed', ...result });
+    }
+
+    if (Date.now() > pendingState.expires) {
+      pendingOAuthStates.delete(state);
+      return res.json({ success: false, status: 'expired' });
+    }
+
+    return res.json({ success: false, status: 'pending' });
+  } catch (error) {
+    console.error('Check OAuth status error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 // @desc    Get mobile app settings
 // @route   GET /api/mobile/settings

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,21 +11,18 @@ import {
   ScrollView,
   Alert,
   Dimensions,
+  Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { API_URL } from '../utils/constants';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const { width, height } = Dimensions.get('window');
-
-// Google OAuth Client IDs
-const GOOGLE_WEB_CLIENT_ID = '710258787879-po32qt7v1cta0h0esrl0mle53vb8193a.apps.googleusercontent.com';
-const GOOGLE_IOS_CLIENT_ID = '710258787879-732ell2g9g0llo41uispncfkpqr4qlf2.apps.googleusercontent.com';
 
 export default function SignupScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
@@ -42,30 +39,62 @@ export default function SignupScreen({ navigation }: any) {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
-  // Google OAuth using Expo's proxy only (force proxy mode for Expo Go)
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_WEB_CLIENT_ID,
-  });
+  // Handle deep link OAuth callback
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const url = event.url;
+      console.log('Deep link received (signup):', url);
 
-  // Handle Google auth response
-  React.useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      if (authentication?.accessToken) {
-        handleGoogleSuccess(authentication.accessToken, authentication.idToken);
+      if (url.includes('oauth')) {
+        handleOAuthCallback(url);
       }
-    } else if (response?.type === 'error') {
-      console.error('Google OAuth error:', response.error);
-      Alert.alert('Error', 'Google sign-up failed');
-      setIsGoogleLoading(false);
-    } else if (response?.type === 'dismiss') {
+    };
+
+    // Listen for deep links
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    // Check if app was opened with a deep link
+    Linking.getInitialURL().then((url) => {
+      if (url && url.includes('oauth')) {
+        handleOAuthCallback(url);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const handleOAuthCallback = async (url: string) => {
+    try {
+      const params = new URLSearchParams(url.split('?')[1]);
+      const token = params.get('token');
+      const userParam = params.get('user');
+      const error = params.get('error');
+
+      if (error) {
+        console.error('OAuth error:', error);
+        Alert.alert('Error', `Google sign-up failed: ${error}`);
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      if (token && userParam) {
+        const user = JSON.parse(decodeURIComponent(userParam));
+        console.log('OAuth success, user:', user.email);
+        await handleGoogleSuccess(token, user);
+      }
+    } catch (err: any) {
+      console.error('Error parsing OAuth callback:', err);
+      Alert.alert('Error', 'Failed to process Google sign-up');
       setIsGoogleLoading(false);
     }
-  }, [response]);
+  };
 
-  const handleGoogleSuccess = async (accessToken: string, idToken?: string | null) => {
+  const handleGoogleSuccess = async (token: string, user: any) => {
     try {
-      const loginResult = await googleLogin(idToken || '', accessToken);
+      // The backend has already authenticated - just set the auth state
+      const loginResult = await googleLogin(token, user);
       if (!loginResult.success) {
         Alert.alert('Error', loginResult.message || 'Google sign-up failed');
       }
@@ -143,13 +172,37 @@ export default function SignupScreen({ navigation }: any) {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    if (!request) {
-      Alert.alert('Error', 'Google sign-up not ready. Please try again.');
-      return;
-    }
+  const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
-    promptAsync();
+
+    try {
+      // Get OAuth URL from backend
+      const response = await fetch(`${API_URL}/api/mobile/auth/google/url`);
+      const data = await response.json();
+
+      if (!data.success || !data.url) {
+        throw new Error('Failed to get OAuth URL');
+      }
+
+      console.log('Opening Google OAuth URL...');
+
+      // Open browser for OAuth
+      const result = await WebBrowser.openAuthSessionAsync(
+        data.url,
+        'voiceflow-ai://oauth'
+      );
+
+      console.log('WebBrowser result:', result.type);
+
+      if (result.type === 'cancel' || result.type === 'dismiss') {
+        setIsGoogleLoading(false);
+      }
+      // Success/error will be handled via deep link callback
+    } catch (error: any) {
+      console.error('Google sign-up error:', error);
+      Alert.alert('Error', error.message || 'Failed to start Google sign-up');
+      setIsGoogleLoading(false);
+    }
   };
 
   const getPasswordStrength = (): { label: string; color: string; width: string; level: number } => {
@@ -235,7 +288,7 @@ export default function SignupScreen({ navigation }: any) {
                   }
                 ]}
                 onPress={handleGoogleSignUp}
-                disabled={isLoading || isGoogleLoading || !request}
+                disabled={isLoading || isGoogleLoading}
                 activeOpacity={0.8}
               >
                 {isGoogleLoading ? (
