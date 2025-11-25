@@ -155,6 +155,7 @@ pk_*
 *_auth_token*
 *SECRET*
 *TOKEN*
+!backend/models/PushToken.js
 *KEY*
 
 # OAuth configuration files with secrets
