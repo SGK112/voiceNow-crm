@@ -4,7 +4,11 @@ import Lead from '../models/Lead.js';
 import User from '../models/User.js';
 import Contact from '../models/Contact.js';
 import Usage from '../models/Usage.js';
+import Appointment from '../models/Appointment.js';
+import UserIntegration from '../models/UserIntegration.js';
+import googleSyncService from '../services/googleSyncService.js';
 import crypto from 'crypto';
+import { getOAuthRedirectUri } from '../utils/oauthConfig.js';
 
 const router = express.Router();
 
@@ -22,12 +26,16 @@ router.get('/auth/google/url', (req, res) => {
   try {
     // Generate unique state for security
     const state = crypto.randomBytes(32).toString('hex');
-    const redirectUri = `${process.env.API_URL || 'http://localhost:5001'}/api/mobile/auth/google/callback`;
+    const redirectUri = getOAuthRedirectUri('google-mobile');
+
+    // Check if extended scopes are requested (for Gmail, Calendar, Contacts sync)
+    const extended = req.query.extended === 'true';
 
     // Store state with expiration (5 minutes)
     pendingOAuthStates.set(state, {
       created: Date.now(),
-      expires: Date.now() + 5 * 60 * 1000
+      expires: Date.now() + 5 * 60 * 1000,
+      extended // Track if extended scopes were requested
     });
 
     // Clean up expired states
@@ -37,21 +45,41 @@ router.get('/auth/google/url', (req, res) => {
       }
     }
 
+    // Basic scopes for auth
+    const basicScopes = 'openid email profile';
+
+    // Extended scopes for Gmail, Calendar, Contacts
+    const extendedScopes = [
+      'openid',
+      'email',
+      'profile',
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.send',
+      'https://www.googleapis.com/auth/calendar.readonly',
+      'https://www.googleapis.com/auth/calendar.events',
+      'https://www.googleapis.com/auth/contacts.readonly'
+    ].join(' ');
+
     const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     googleAuthUrl.searchParams.set('client_id', process.env.GOOGLE_CLIENT_ID);
     googleAuthUrl.searchParams.set('redirect_uri', redirectUri);
     googleAuthUrl.searchParams.set('response_type', 'code');
-    googleAuthUrl.searchParams.set('scope', 'openid email profile');
+    googleAuthUrl.searchParams.set('scope', extended ? extendedScopes : basicScopes);
     googleAuthUrl.searchParams.set('state', state);
     googleAuthUrl.searchParams.set('access_type', 'offline');
     googleAuthUrl.searchParams.set('prompt', 'consent');
 
-    console.log('📱 Mobile OAuth URL generated:', { state: state.substring(0, 8) + '...', redirectUri });
+    console.log('📱 Mobile OAuth URL generated:', {
+      state: state.substring(0, 8) + '...',
+      redirectUri,
+      extended
+    });
 
     res.json({
       success: true,
       url: googleAuthUrl.toString(),
-      state
+      state,
+      extended
     });
   } catch (error) {
     console.error('Generate OAuth URL error:', error);
@@ -68,29 +96,75 @@ router.get('/auth/google/callback', async (req, res) => {
 
     console.log('📱 Mobile OAuth callback:', { hasCode: !!code, hasState: !!state, error });
 
+    // Helper to show error page
+    const showError = (errorMsg) => {
+      const errorHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Failed</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .container { text-align: center; padding: 40px; max-width: 400px; }
+    .error-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; font-size: 40px;
+    }
+    h1 { font-size: 24px; margin: 0 0 12px; }
+    p { color: #9ca3af; margin: 0 0 24px; font-size: 15px; }
+    .error-msg { color: #f87171; font-size: 13px; background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-icon">✕</div>
+    <h1>Login Failed</h1>
+    <p>Something went wrong during sign in.</p>
+    <p class="error-msg">${errorMsg}</p>
+    <p style="margin-top: 24px;">Please close this window and try again.</p>
+  </div>
+</body>
+</html>`;
+      return res.status(400).send(errorHtml);
+    };
+
     if (error) {
-      return res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(error)}`);
+      return showError(error);
     }
 
     if (!code || !state) {
-      return res.redirect('voiceflow-ai://oauth?error=missing_params');
+      return showError('Missing authorization code or state parameter');
     }
 
     // Verify state
     const pendingState = pendingOAuthStates.get(state);
     if (!pendingState) {
-      return res.redirect('voiceflow-ai://oauth?error=invalid_state');
+      return showError('Invalid or expired session. Please try signing in again.');
     }
 
     if (Date.now() > pendingState.expires) {
       pendingOAuthStates.delete(state);
-      return res.redirect('voiceflow-ai://oauth?error=state_expired');
+      return showError('Session expired. Please try signing in again.');
     }
 
     pendingOAuthStates.delete(state);
 
-    // Exchange code for tokens
-    const redirectUri = `${process.env.API_URL || 'http://localhost:5001'}/api/mobile/auth/google/callback`;
+    // Exchange code for tokens - must match the URI used in the auth URL
+    const redirectUri = getOAuthRedirectUri('google-mobile');
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -165,27 +239,223 @@ router.get('/auth/google/callback', async (req, res) => {
     // Generate JWT token
     const token = generateToken(user._id);
 
-    // Redirect back to app with token
-    const userData = encodeURIComponent(JSON.stringify({
+    // Save Google tokens if extended scopes were requested (for Gmail, Calendar, Contacts sync)
+    if (pendingState.extended && tokens.refresh_token) {
+      try {
+        // Calculate token expiration
+        const expiresAt = new Date(Date.now() + (tokens.expires_in * 1000));
+
+        // Upsert Google integration with tokens
+        await UserIntegration.findOneAndUpdate(
+          { userId: user._id, service: 'gmail' },
+          {
+            userId: user._id,
+            service: 'gmail',
+            displayName: `Google (${email})`,
+            credentials: {
+              accessToken: tokens.access_token,
+              refreshToken: tokens.refresh_token,
+              email: email,
+              scope: tokens.scope
+            },
+            isOAuth: true,
+            tokenExpiresAt: expiresAt,
+            status: 'connected',
+            enabled: true
+          },
+          { upsert: true, new: true }
+        );
+
+        // Also save for calendar
+        await UserIntegration.findOneAndUpdate(
+          { userId: user._id, service: 'google_calendar' },
+          {
+            userId: user._id,
+            service: 'google_calendar',
+            displayName: `Google Calendar (${email})`,
+            credentials: {
+              accessToken: tokens.access_token,
+              refreshToken: tokens.refresh_token,
+              email: email,
+              scope: tokens.scope
+            },
+            isOAuth: true,
+            tokenExpiresAt: expiresAt,
+            status: 'connected',
+            enabled: true
+          },
+          { upsert: true, new: true }
+        );
+
+        console.log('✅ Saved Google OAuth tokens for extended scopes');
+      } catch (tokenSaveError) {
+        console.error('Failed to save Google tokens:', tokenSaveError);
+      }
+    }
+
+    // Build user data for the response
+    const userDataObj = {
       _id: user._id,
       email: user.email,
       company: user.company,
       plan: user.plan,
       subscriptionStatus: user.subscriptionStatus,
-      profile: user.profile || {}
-    }));
+      profile: user.profile || {},
+      googleConnected: !!pendingState.extended && !!tokens.refresh_token
+    };
 
-    console.log('✅ Mobile OAuth successful, redirecting to app');
+    console.log('✅ Mobile OAuth successful for:', email);
 
-    // For Expo Go, use exp:// scheme. For standalone builds, use voiceflow-ai://
-    // Detect if running in development by checking user-agent or use exp:// for now
-    const redirectUrl = `exp://192.168.0.151:8081/--/oauth?token=${token}&user=${userData}`;
-    console.log('📱 Redirecting to:', redirectUrl.substring(0, 100) + '...');
-    res.redirect(redirectUrl);
+    // Store the completed OAuth result for polling
+    pendingOAuthStates.set(state, {
+      ...pendingState,
+      completed: true,
+      result: { token, user: userDataObj }
+    });
+
+    // Build deep link URLs for different scenarios
+    const userData = encodeURIComponent(JSON.stringify(userDataObj));
+    const appSchemeUrl = `voiceflow-ai://oauth?token=${token}&user=${userData}&state=${state}`;
+
+    // Send HTML page with multiple redirect options
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Successful</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+      max-width: 400px;
+    }
+    .checkmark {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 40px;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 12px;
+      font-weight: 600;
+    }
+    p {
+      color: #9ca3af;
+      margin: 0 0 32px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      padding: 14px 40px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+    .hint {
+      color: #6b7280;
+      font-size: 13px;
+      margin-top: 24px;
+    }
+    .email {
+      color: #60a5fa;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="checkmark">✓</div>
+    <h1>Login Successful!</h1>
+    <p>Welcome back, <span class="email">${email}</span></p>
+    <a href="${appSchemeUrl}" class="btn" id="openApp">Open App</a>
+    <p class="hint">You can close this window and return to the app.</p>
+  </div>
+  <script>
+    // Try to open the app automatically after a short delay
+    setTimeout(function() {
+      window.location.href = "${appSchemeUrl}";
+    }, 500);
+  </script>
+</body>
+</html>
+    `;
+    res.send(html);
 
   } catch (error) {
     console.error('Mobile OAuth callback error:', error);
-    res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(error.message)}`);
+
+    // Show error page instead of redirecting to invalid URL scheme
+    const errorHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Failed</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .container { text-align: center; padding: 40px; max-width: 400px; }
+    .error-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; font-size: 40px;
+    }
+    h1 { font-size: 24px; margin: 0 0 12px; }
+    p { color: #9ca3af; margin: 0 0 24px; font-size: 15px; }
+    .error-msg { color: #f87171; font-size: 13px; background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-icon">✕</div>
+    <h1>Login Failed</h1>
+    <p>Something went wrong during sign in.</p>
+    <p class="error-msg">${error.message}</p>
+    <p style="margin-top: 24px;">Please close this window and try again.</p>
+  </div>
+</body>
+</html>
+    `;
+    res.status(500).send(errorHtml);
   }
 });
 
@@ -672,12 +942,10 @@ function parseMessages(notes) {
 
 // @desc    Get all contacts
 // @route   GET /api/mobile/contacts
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/contacts', async (req, res) => {
+// @access  Private
+router.get('/contacts', auth, async (req, res) => {
   try {
-    // For testing without auth, use a dummy user ID
-    // In production, use req.user.id
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
 
     const contacts = await Contact.find({
       user: userId,
@@ -703,10 +971,10 @@ router.get('/contacts', async (req, res) => {
 
 // @desc    Get single contact by ID
 // @route   GET /api/mobile/contacts/:id
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/contacts/:id', async (req, res) => {
+// @access  Private
+router.get('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
@@ -733,10 +1001,10 @@ router.get('/contacts/:id', async (req, res) => {
 
 // @desc    Create new contact
 // @route   POST /api/mobile/contacts
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/contacts', async (req, res) => {
+// @access  Private
+router.post('/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { name, phone, email, company, notes } = req.body;
 
     // Validation
@@ -789,10 +1057,10 @@ router.post('/contacts', async (req, res) => {
 
 // @desc    Update contact
 // @route   PUT /api/mobile/contacts/:id
-// @access  Public (for testing) - TODO: Add auth in production
-router.put('/contacts/:id', async (req, res) => {
+// @access  Private
+router.put('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { name, phone, email, company, notes } = req.body;
 
     // Validation
@@ -860,10 +1128,10 @@ router.put('/contacts/:id', async (req, res) => {
 
 // @desc    Delete contact (soft delete)
 // @route   DELETE /api/mobile/contacts/:id
-// @access  Public (for testing) - TODO: Add auth in production
-router.delete('/contacts/:id', async (req, res) => {
+// @access  Private
+router.delete('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
 
     const contact = await Contact.findOne({
       _id: req.params.id,
@@ -898,10 +1166,10 @@ router.delete('/contacts/:id', async (req, res) => {
 
 // @desc    Bulk import contacts
 // @route   POST /api/mobile/contacts/import
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/contacts/import', async (req, res) => {
+// @access  Private
+router.post('/contacts/import', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { contacts } = req.body;
 
     if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
@@ -979,10 +1247,10 @@ router.post('/contacts/import', async (req, res) => {
 
 // @desc    Search contacts
 // @route   GET /api/mobile/contacts/search/:query
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/contacts/search/:query', async (req, res) => {
+// @access  Private
+router.get('/contacts/search/:query', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { query } = req.params;
 
     const contacts = await Contact.searchContacts(userId, query);
@@ -1004,10 +1272,10 @@ router.get('/contacts/search/:query', async (req, res) => {
 
 // @desc    Add conversation to contact
 // @route   POST /api/mobile/contacts/:id/conversation
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/contacts/:id/conversation', async (req, res) => {
+// @access  Private
+router.post('/contacts/:id/conversation', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { type, direction, content, metadata } = req.body;
 
     if (!type || !direction || !content) {
@@ -1053,10 +1321,10 @@ router.post('/contacts/:id/conversation', async (req, res) => {
 
 // @desc    Get contacts summary for Aria (simplified format)
 // @route   GET /api/mobile/aria/contacts
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/aria/contacts', async (req, res) => {
+// @access  Private
+router.get('/aria/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 100;
 
     const contacts = await Contact.find({
@@ -1095,10 +1363,10 @@ router.get('/aria/contacts', async (req, res) => {
 
 // @desc    Search contacts for Aria (by name, phone, or company)
 // @route   GET /api/mobile/aria/contacts/search
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/aria/contacts/search', async (req, res) => {
+// @access  Private
+router.get('/aria/contacts/search', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const query = req.query.q || '';
 
     if (!query) {
@@ -1153,10 +1421,10 @@ router.get('/aria/contacts/search', async (req, res) => {
 
 // @desc    Get contact details by phone for Aria
 // @route   GET /api/mobile/aria/contacts/by-phone/:phone
-// @access  Public (for testing) - TODO: Add auth in production
-router.get('/aria/contacts/by-phone/:phone', async (req, res) => {
+// @access  Private
+router.get('/aria/contacts/by-phone/:phone', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const phone = req.params.phone;
 
     // Normalize phone number
@@ -1208,10 +1476,10 @@ router.get('/aria/contacts/by-phone/:phone', async (req, res) => {
 
 // @desc    Create contact from Aria conversation
 // @route   POST /api/mobile/aria/contacts
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/aria/contacts', async (req, res) => {
+// @access  Private
+router.post('/aria/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { name, phone, email, company, notes, source } = req.body;
 
     if (!name || !phone) {
@@ -1266,10 +1534,10 @@ router.post('/aria/contacts', async (req, res) => {
 
 // @desc    Add note to contact from Aria
 // @route   POST /api/mobile/aria/contacts/:id/note
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/aria/contacts/:id/note', async (req, res) => {
+// @access  Private
+router.post('/aria/contacts/:id/note', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { note } = req.body;
 
     if (!note) {
@@ -1322,10 +1590,10 @@ router.post('/aria/contacts/:id/note', async (req, res) => {
 
 // @desc    Import calendar events
 // @route   POST /api/mobile/calendar/import
-// @access  Public (for testing) - TODO: Add auth in production
-router.post('/calendar/import', async (req, res) => {
+// @access  Private
+router.post('/calendar/import', auth, async (req, res) => {
   try {
-    const userId = req.user?.id || '000000000000000000000000';
+    const userId = req.user.id;
     const { events } = req.body;
 
     if (!events || !Array.isArray(events) || events.length === 0) {
@@ -1376,10 +1644,9 @@ router.post('/calendar/import', async (req, res) => {
           }
         }
 
-        // Create appointment
-        const appointment = await Appointment.create({
+        // Create appointment data
+        const appointmentData = {
           userId,
-          leadId,
           title: event.title,
           description: event.notes || event.location || '',
           type: 'meeting',
@@ -1395,7 +1662,14 @@ router.post('/calendar/import', async (req, res) => {
             importDate: new Date(),
             originalEventId: event.id
           }
-        });
+        };
+
+        // Only add leadId if we found one
+        if (leadId) {
+          appointmentData.leadId = leadId;
+        }
+
+        const appointment = await Appointment.create(appointmentData);
 
         imported++;
       } catch (err) {
@@ -1417,6 +1691,236 @@ router.post('/calendar/import', async (req, res) => {
       success: false,
       message: 'Server error',
       error: error.message
+    });
+  }
+});
+
+// @desc    Get calendar events
+// @route   GET /api/mobile/calendar-events
+// @access  Private
+router.get('/calendar-events', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 50, upcoming = true } = req.query;
+
+    const query = { userId };
+
+    // If upcoming, only get future events
+    if (upcoming === 'true' || upcoming === true) {
+      query.startTime = { $gte: new Date() };
+    }
+
+    const events = await Appointment.find(query)
+      .sort({ startTime: 1 })
+      .limit(parseInt(limit))
+      .lean();
+
+    // Format events for the frontend
+    const formattedEvents = events.map(event => ({
+      id: event._id,
+      title: event.title,
+      startDate: event.startTime,
+      endDate: event.endTime,
+      location: event.location,
+      notes: event.notes || event.description,
+      type: event.type,
+      status: event.status
+    }));
+
+    res.json({
+      success: true,
+      events: formattedEvents,
+      count: formattedEvents.length
+    });
+  } catch (error) {
+    console.error('Get calendar events error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// GOOGLE SYNC ENDPOINTS
+// ============================================
+
+// @desc    Get Google integration status
+// @route   GET /api/mobile/google/status
+// @access  Private
+router.get('/google/status', auth, async (req, res) => {
+  try {
+    const status = await googleSyncService.getIntegrationStatus(req.user.id);
+    res.json({ success: true, ...status });
+  } catch (error) {
+    console.error('Get Google status error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Sync Google Contacts
+// @route   POST /api/mobile/google/sync/contacts
+// @access  Private
+router.post('/google/sync/contacts', auth, async (req, res) => {
+  try {
+    const result = await googleSyncService.syncContacts(req.user.id);
+    res.json(result);
+  } catch (error) {
+    console.error('Google Contacts sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to sync contacts'
+    });
+  }
+});
+
+// @desc    Sync Google Calendar
+// @route   POST /api/mobile/google/sync/calendar
+// @access  Private
+router.post('/google/sync/calendar', auth, async (req, res) => {
+  try {
+    const { timeMin, timeMax } = req.body;
+    const result = await googleSyncService.syncCalendarEvents(req.user.id, { timeMin, timeMax });
+    res.json(result);
+  } catch (error) {
+    console.error('Google Calendar sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to sync calendar'
+    });
+  }
+});
+
+// @desc    Create Google Calendar event
+// @route   POST /api/mobile/google/calendar/event
+// @access  Private
+router.post('/google/calendar/event', auth, async (req, res) => {
+  try {
+    const { title, description, startTime, endTime, location, attendees, timezone } = req.body;
+
+    if (!title || !startTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and start time are required'
+      });
+    }
+
+    const result = await googleSyncService.createCalendarEvent(req.user.id, {
+      title,
+      description,
+      startTime,
+      endTime: endTime || new Date(new Date(startTime).getTime() + 60 * 60 * 1000),
+      location,
+      attendees,
+      timezone
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Create Google event error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create calendar event'
+    });
+  }
+});
+
+// @desc    Get recent Gmail messages
+// @route   GET /api/mobile/google/gmail/recent
+// @access  Private
+router.get('/google/gmail/recent', auth, async (req, res) => {
+  try {
+    const { maxResults, query } = req.query;
+    const result = await googleSyncService.getRecentEmails(req.user.id, {
+      maxResults: parseInt(maxResults) || 20,
+      query
+    });
+    res.json(result);
+  } catch (error) {
+    console.error('Get Gmail error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch emails'
+    });
+  }
+});
+
+// @desc    Send email via Gmail
+// @route   POST /api/mobile/google/gmail/send
+// @access  Private
+router.post('/google/gmail/send', auth, async (req, res) => {
+  try {
+    const { to, subject, body } = req.body;
+
+    if (!to || !subject || !body) {
+      return res.status(400).json({
+        success: false,
+        message: 'To, subject, and body are required'
+      });
+    }
+
+    const result = await googleSyncService.sendEmail(req.user.id, { to, subject, body });
+    res.json(result);
+  } catch (error) {
+    console.error('Send Gmail error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to send email'
+    });
+  }
+});
+
+// @desc    Disconnect Google integration
+// @route   POST /api/mobile/google/disconnect
+// @access  Private
+router.post('/google/disconnect', auth, async (req, res) => {
+  try {
+    const result = await googleSyncService.disconnectGoogle(req.user.id);
+    res.json(result);
+  } catch (error) {
+    console.error('Disconnect Google error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to disconnect Google'
+    });
+  }
+});
+
+// @desc    Full sync (contacts + calendar)
+// @route   POST /api/mobile/google/sync/all
+// @access  Private
+router.post('/google/sync/all', auth, async (req, res) => {
+  try {
+    const results = {
+      contacts: null,
+      calendar: null
+    };
+
+    // Try contacts sync
+    try {
+      results.contacts = await googleSyncService.syncContacts(req.user.id);
+    } catch (err) {
+      results.contacts = { success: false, error: err.message };
+    }
+
+    // Try calendar sync
+    try {
+      results.calendar = await googleSyncService.syncCalendarEvents(req.user.id);
+    } catch (err) {
+      results.calendar = { success: false, error: err.message };
+    }
+
+    res.json({
+      success: true,
+      results,
+      message: 'Sync completed'
+    });
+  } catch (error) {
+    console.error('Full Google sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to complete sync'
     });
   }
 });

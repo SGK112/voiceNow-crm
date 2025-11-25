@@ -19,6 +19,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../utils/constants';
+import DotGridBackground from '../components/DotGridBackground';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -146,20 +147,74 @@ export default function LoginScreen({ navigation }: any) {
         throw new Error('Failed to get OAuth URL');
       }
 
-      console.log('Opening Google OAuth URL...');
+      const oauthState = data.state;
+      console.log('Opening Google OAuth URL with state:', oauthState?.substring(0, 8) + '...');
 
-      // Open browser for OAuth
-      const result = await WebBrowser.openAuthSessionAsync(
-        data.url,
-        'voiceflow-ai://oauth'
-      );
+      // Open browser for OAuth - no redirect URL needed, we'll poll for result
+      const result = await WebBrowser.openBrowserAsync(data.url, {
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+      });
 
-      console.log('WebBrowser result:', result.type);
+      console.log('WebBrowser closed, result type:', result.type);
 
-      if (result.type === 'cancel' || result.type === 'dismiss') {
+      // When browser closes, poll for the OAuth result
+      if (oauthState) {
+        console.log('Polling for OAuth result...');
+
+        // Poll for result (backend stores completed OAuth in pendingOAuthStates)
+        let attempts = 0;
+        const maxAttempts = 30; // 30 seconds max
+
+        const pollForResult = async (): Promise<void> => {
+          try {
+            const pollResponse = await fetch(`${API_URL}/api/mobile/auth/google/complete/${oauthState}`);
+            const pollData = await pollResponse.json();
+
+            console.log('Poll attempt', attempts + 1, '- status:', pollData.status);
+
+            if (pollData.success && pollData.status === 'completed') {
+              // OAuth completed successfully!
+              console.log('OAuth completed for:', pollData.user?.email);
+              await handleGoogleSuccess(pollData.token, pollData.user);
+              return;
+            } else if (pollData.status === 'expired' || pollData.status === 'not_found') {
+              // OAuth session expired or not found
+              if (attempts < 2) {
+                // First couple attempts might be too early, keep trying
+                attempts++;
+                setTimeout(pollForResult, 1000);
+              } else {
+                console.log('OAuth session not found after polling');
+                setIsGoogleLoading(false);
+              }
+              return;
+            } else if (pollData.status === 'pending') {
+              // Still waiting, try again
+              attempts++;
+              if (attempts < maxAttempts) {
+                setTimeout(pollForResult, 1000);
+              } else {
+                console.log('OAuth polling timed out');
+                Alert.alert('Timeout', 'Sign-in took too long. Please try again.');
+                setIsGoogleLoading(false);
+              }
+            }
+          } catch (pollError) {
+            console.error('Poll error:', pollError);
+            attempts++;
+            if (attempts < maxAttempts) {
+              setTimeout(pollForResult, 1000);
+            } else {
+              setIsGoogleLoading(false);
+            }
+          }
+        };
+
+        // Start polling after a short delay to give user time to complete OAuth
+        setTimeout(pollForResult, 1000);
+      } else {
         setIsGoogleLoading(false);
       }
-      // Success/error will be handled via deep link callback
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       Alert.alert('Error', error.message || 'Failed to start Google sign-in');
@@ -185,22 +240,9 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#0F172A' : '#F1F5F9' }]}>
-      {/* Background Gradient */}
-      <LinearGradient
-        colors={isDark
-          ? ['#1E3A8A', '#7C3AED', '#0F172A']
-          : ['#3B82F6', '#8B5CF6', '#F1F5F9']
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.backgroundGradient}
-      />
-
-      {/* Decorative Circles */}
-      <View style={[styles.decorativeCircle, styles.circle1, { backgroundColor: isDark ? '#3B82F620' : '#FFFFFF30' }]} />
-      <View style={[styles.decorativeCircle, styles.circle2, { backgroundColor: isDark ? '#8B5CF620' : '#FFFFFF20' }]} />
-      <View style={[styles.decorativeCircle, styles.circle3, { backgroundColor: isDark ? '#3B82F610' : '#FFFFFF15' }]} />
+    <View style={[styles.container, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
+      {/* Dot Grid Background */}
+      <DotGridBackground />
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -233,9 +275,9 @@ export default function LoginScreen({ navigation }: any) {
               shadowColor: isDark ? '#000' : '#64748B',
             }
           ]}>
-            {/* Card Header Accent */}
+            {/* Card Header Accent - Darker */}
             <LinearGradient
-              colors={['#3B82F6', '#8B5CF6']}
+              colors={['#475569', '#64748B']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.cardAccent}
@@ -425,7 +467,7 @@ export default function LoginScreen({ navigation }: any) {
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={['#3B82F6', '#2563EB']}
+                  colors={['#334155', '#1E293B']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.loginButtonGradient}
@@ -477,35 +519,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.45,
-  },
-  decorativeCircle: {
-    position: 'absolute',
-    borderRadius: 999,
-  },
-  circle1: {
-    width: 200,
-    height: 200,
-    top: -50,
-    right: -50,
-  },
-  circle2: {
-    width: 150,
-    height: 150,
-    top: 100,
-    left: -30,
-  },
-  circle3: {
-    width: 100,
-    height: 100,
-    top: 200,
-    right: 50,
-  },
   keyboardView: {
     flex: 1,
   },
@@ -549,10 +562,10 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 24,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 32,
+    elevation: 16,
     marginBottom: 24,
   },
   cardAccent: {
@@ -714,11 +727,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     marginTop: 4,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   buttonDisabled: {
     opacity: 0.7,

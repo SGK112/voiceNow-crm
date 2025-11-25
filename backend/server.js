@@ -21,6 +21,9 @@ import { validateEnvironment, getEnvSummary } from './utils/validateEnv.js';
 validateEnvironment();
 getEnvSummary();
 
+// OAuth configuration logging
+import { logOAuthConfig } from './utils/oauthConfig.js';
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -111,6 +114,9 @@ import profileRoutes from './routes/profile.js';
 import voicemailRoutes from './routes/voicemail.js';
 import twilioMobileRoutes from './routes/twilioMobile.js';
 import contactRoutes from './routes/contacts.js';
+import scraperRoutes from './routes/scraper.js';
+import ariaRoutes from './routes/aria.js';
+import shopifyRoutes from './routes/shopify.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -247,6 +253,9 @@ app.use('/api/profile', profileRoutes); // User profile and preferences
 app.use('/api/voicemail', voicemailRoutes); // Interactive voicemail and call monitoring
 app.use('/api/twilio', twilioMobileRoutes); // Twilio mobile VoIP and SMS routes
 app.use('/api/contacts', contactRoutes); // Unified contacts API for mobile and desktop
+app.use('/api/scraper', scraperRoutes); // Web scraping for Aria AI assistant
+app.use('/api/aria', ariaRoutes); // Aria AI assistant chat with context-aware responses
+app.use('/api/shopify', shopifyRoutes); // Shopify OAuth and e-commerce integration
 
 app.use('/api', apiLimiter);
 
@@ -368,6 +377,9 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   } catch (error) {
     console.error('⚠️  Failed to start cron job:', error.message);
   }
+
+  // Log OAuth configuration for debugging
+  logOAuthConfig();
 
   // Initialize Voice-Image WebSocket server
   try {
