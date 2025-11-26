@@ -1727,6 +1727,46 @@ When asked to perform actions, use the available tools/functions.`;
           required: ['title', 'contactName', 'date'],
         },
       },
+      {
+        type: 'function',
+        name: 'switch_agent',
+        description: 'Switch to a different AI agent specialist. Use when user requests a specific agent or when a task is better suited for another agent. Available agents: sales (leads, estimates, follow-ups), project_manager (scheduling, invoices, jobs), support (customer history, help), estimator (pricing, quotes).',
+        parameters: {
+          type: 'object',
+          properties: {
+            agentId: {
+              type: 'string',
+              enum: ['sales', 'project_manager', 'support', 'estimator', 'aria'],
+              description: 'The agent to switch to',
+            },
+            reason: {
+              type: 'string',
+              description: 'Brief reason for the switch to provide context',
+            },
+          },
+          required: ['agentId'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'start_conference_call',
+        description: 'Start a conference call with multiple participants. Use when user wants to add someone to the call or conduct a group call.',
+        parameters: {
+          type: 'object',
+          properties: {
+            participants: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Array of phone numbers to add to the conference',
+            },
+            conferenceSubject: {
+              type: 'string',
+              description: 'Subject or purpose of the conference call',
+            },
+          },
+          required: ['participants'],
+        },
+      },
     ];
 
     // Get voice settings for the agent
@@ -1839,6 +1879,53 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
         });
         await appointment.save();
         result = { success: true, appointment: { id: appointment._id, title: appointment.title }, message: `Appointment scheduled with ${args.contactName}` };
+        break;
+
+      case 'switch_agent':
+        // Handle agent switching - returns the new agent config
+        const newAgent = getAgentTemplate(args.agentId);
+        if (newAgent) {
+          console.log(`🔀 [SWITCH-AGENT] Switching to ${newAgent.name} (${args.agentId})`);
+          result = {
+            success: true,
+            action: 'switch_agent',
+            newAgentId: args.agentId,
+            newAgent: {
+              id: args.agentId,
+              name: newAgent.name,
+              icon: newAgent.icon,
+              voice: newAgent.voice || 'shimmer',
+              instructions: newAgent.systemPrompt,
+            },
+            reason: args.reason || 'User requested agent switch',
+            message: `Switching to ${newAgent.name}. ${args.reason || ''}`
+          };
+        } else {
+          result = { success: false, error: `Unknown agent: ${args.agentId}` };
+        }
+        break;
+
+      case 'start_conference_call':
+        // Start a conference call via Twilio
+        try {
+          const conferenceResult = await ariaCapabilities.execute('initiate_conference_call', {
+            participants: args.participants,
+            moderatorPhone: null, // Will use default
+            conferenceOptions: {
+              friendlyName: args.conferenceSubject || 'Aria Conference',
+            }
+          });
+          result = {
+            success: conferenceResult.success,
+            action: 'conference_call',
+            conferenceId: conferenceResult.conferenceSid,
+            participants: args.participants,
+            message: conferenceResult.message || `Conference started with ${args.participants.length} participants`
+          };
+        } catch (confError) {
+          console.error('❌ [CONFERENCE] Error:', confError);
+          result = { success: false, error: confError.message || 'Failed to start conference call' };
+        }
         break;
 
       default:
