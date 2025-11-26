@@ -9,11 +9,13 @@ import {
   Alert,
   Linking,
   RefreshControl,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import contactService, { Contact } from '../services/ContactService';
 import { useTheme } from '../contexts/ThemeContext';
-import twilioService from '../services/TwilioService';
+import api from '../utils/api';
 
 export default function ContactDetailsScreen({ route, navigation }: any) {
   const { colors } = useTheme();
@@ -22,11 +24,17 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Aria modal state
+  const [ariaModalVisible, setAriaModalVisible] = useState(false);
+  const [ariaAction, setAriaAction] = useState<'call' | 'message' | null>(null);
+  const [ariaMessage, setAriaMessage] = useState('');
+  const [ariaLoading, setAriaLoading] = useState(false);
+  const [ariaResponse, setAriaResponse] = useState('');
+
   useEffect(() => {
     fetchContactDetails();
   }, [contactId]);
 
-  // Refresh when screen comes back into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchContactDetails();
@@ -38,7 +46,6 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
     try {
       setLoading(true);
       const fetchedContact = await contactService.getContact(contactId);
-
       if (fetchedContact) {
         setContact(fetchedContact);
       } else {
@@ -60,11 +67,9 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
     fetchContactDetails();
   }, [contactId]);
 
-  // In-app VoIP calling via Twilio
+  // Direct call
   const handleCall = async () => {
     if (!contact) return;
-
-    // Navigate to the in-app call screen
     navigation.navigate('Call', {
       mode: 'outgoing',
       phoneNumber: contact.phone,
@@ -73,11 +78,9 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
     });
   };
 
-  // In-app SMS chat via Twilio
+  // Direct SMS
   const handleSMS = async () => {
     if (!contact) return;
-
-    // Navigate to the in-app SMS chat screen
     navigation.navigate('SMSChat', {
       contactId: contact._id,
       contactName: contact.name,
@@ -85,31 +88,95 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
     });
   };
 
-  // Silent auto-logging for email
+  // Aria call - opens modal to compose what Aria should say
+  const handleAriaCall = () => {
+    setAriaAction('call');
+    setAriaMessage('');
+    setAriaResponse('');
+    setAriaModalVisible(true);
+  };
+
+  // Aria message - opens modal to compose message
+  const handleAriaMessage = () => {
+    setAriaAction('message');
+    setAriaMessage('');
+    setAriaResponse('');
+    setAriaModalVisible(true);
+  };
+
+  // Send Aria action
+  const sendAriaAction = async () => {
+    if (!contact || !ariaMessage.trim()) return;
+
+    setAriaLoading(true);
+    try {
+      // Get Aria to compose/refine the message
+      const response = await api.post('/api/aria/chat', {
+        message: ariaAction === 'call'
+          ? `I need to call ${contact.name}. Help me prepare what to say: "${ariaMessage}". Give me a brief, professional script.`
+          : `I need to send a message to ${contact.name}. Help me write this message: "${ariaMessage}". Make it professional and concise.`,
+        conversationHistory: [],
+        context: {
+          contacts: {
+            current: {
+              name: contact.name,
+              phone: contact.phone,
+              company: contact.company,
+              email: contact.email,
+            }
+          }
+        },
+      });
+
+      if (response.data.success) {
+        setAriaResponse(response.data.response);
+      }
+    } catch (error) {
+      console.error('Aria error:', error);
+      Alert.alert('Error', 'Failed to get Aria response');
+    } finally {
+      setAriaLoading(false);
+    }
+  };
+
+  // Execute the Aria action (actually call or send message)
+  const executeAriaAction = async () => {
+    if (!contact) return;
+
+    if (ariaAction === 'call') {
+      // Navigate to call screen with Aria script
+      setAriaModalVisible(false);
+      navigation.navigate('Call', {
+        mode: 'outgoing',
+        phoneNumber: contact.phone,
+        contactName: contact.name,
+        contactId: contact._id,
+        ariaScript: ariaResponse || ariaMessage,
+      });
+    } else {
+      // Send SMS with Aria-composed message
+      setAriaModalVisible(false);
+      navigation.navigate('SMSChat', {
+        contactId: contact._id,
+        contactName: contact.name,
+        contactPhone: contact.phone,
+        prefillMessage: ariaResponse || ariaMessage,
+      });
+    }
+  };
+
   const handleEmail = async () => {
     if (!contact?.email) {
       Alert.alert('No Email', 'This contact does not have an email address');
       return;
     }
-
     try {
       const url = `mailto:${contact.email}`;
       const canOpen = await Linking.canOpenURL(url);
       if (canOpen) {
-        // Auto-log the email attempt silently
-        await contactService.addConversation(
-          contact._id,
-          'email',
-          'outgoing',
-          'Email sent',
-          { initiatedAt: new Date().toISOString() }
-        );
         await Linking.openURL(url);
-      } else {
-        Alert.alert('Error', 'Cannot open email client');
       }
     } catch (err) {
-      console.error('Error opening email:', err);
       Alert.alert('Error', 'Failed to open email client');
     }
   };
@@ -137,13 +204,9 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
     try {
       const success = await contactService.deleteContact(contactId);
       if (success) {
-        Alert.alert('Success', 'Contact deleted successfully');
         navigation.goBack();
-      } else {
-        Alert.alert('Error', 'Failed to delete contact');
       }
     } catch (err) {
-      console.error('Error deleting contact:', err);
       Alert.alert('Error', 'Failed to delete contact');
     }
   };
@@ -157,54 +220,29 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const colors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
+    const avatarColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
+    const index = name.charCodeAt(0) % avatarColors.length;
+    return avatarColors[index];
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffHours < 24) {
+    if (diffDays < 1) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else if (diffDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      return date.toLocaleDateString([], { weekday: 'short' });
     }
-  };
-
-  const getConversationIcon = (type: string): keyof typeof Ionicons.glyphMap => {
-    switch (type) {
-      case 'call': return 'call';
-      case 'sms': return 'chatbubble';
-      case 'email': return 'mail';
-      case 'note': return 'document-text';
-      default: return 'chatbubble';
-    }
-  };
-
-  const getConversationColor = (type: string) => {
-    switch (type) {
-      case 'call': return '#10b981';
-      case 'sms': return '#8b5cf6';
-      case 'email': return '#3b82f6';
-      case 'note': return '#f59e0b';
-      default: return '#8b5cf6';
-    }
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
   if (loading || !contact) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading contact...</Text>
-        </View>
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -212,16 +250,16 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { backgroundColor: colors.backgroundSecondary }]}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerActions}>
-          <TouchableOpacity onPress={handleEdit} style={[styles.headerButton, { backgroundColor: colors.backgroundSecondary }]}>
-            <Ionicons name="create-outline" size={24} color={colors.primary} />
+          <TouchableOpacity onPress={handleEdit} style={[styles.headerBtn, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="create-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleDelete} style={[styles.headerButton, { backgroundColor: colors.backgroundSecondary }]}>
-            <Ionicons name="trash-outline" size={24} color={colors.error} />
+          <TouchableOpacity onPress={handleDelete} style={[styles.headerBtn, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="trash-outline" size={20} color={colors.error} />
           </TouchableOpacity>
         </View>
       </View>
@@ -229,109 +267,123 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
-        {/* Avatar and Name */}
+        {/* Profile Card */}
         <View style={styles.profileSection}>
-          <View style={[styles.largeAvatar, { backgroundColor: getAvatarColor(contact.name) }]}>
-            <Text style={styles.largeAvatarText}>{getInitials(contact.name)}</Text>
+          <View style={[styles.avatar, { backgroundColor: getAvatarColor(contact.name) }]}>
+            <Text style={styles.avatarText}>{getInitials(contact.name)}</Text>
           </View>
-          <Text style={[styles.contactName, { color: colors.text }]}>{contact.name}</Text>
-          {contact.company && <Text style={[styles.company, { color: colors.textSecondary }]}>{contact.company}</Text>}
-        </View>
-
-        {/* Stats Row */}
-        <View style={[styles.statsRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{contact.totalCalls || 0}</Text>
-            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Calls</Text>
-          </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{contact.totalSMS || 0}</Text>
-            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Messages</Text>
-          </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{contact.totalEmails || 0}</Text>
-            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Emails</Text>
-          </View>
+          <Text style={[styles.name, { color: colors.text }]}>{contact.name}</Text>
+          {contact.company && (
+            <Text style={[styles.company, { color: colors.textSecondary }]}>{contact.company}</Text>
+          )}
         </View>
 
         {/* Quick Actions */}
-        <View style={[styles.quickActionsContainer, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-            <View style={[styles.actionIconContainer, { backgroundColor: colors.success + '15' }]}>
-              <Ionicons name="call" size={28} color={colors.success} />
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={handleCall}>
+            <View style={[styles.actionIcon, { backgroundColor: '#10B98120' }]}>
+              <Ionicons name="call" size={20} color="#10B981" />
             </View>
-            <Text style={[styles.actionLabel, { color: colors.text }]}>Call</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Call</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleSMS}>
-            <View style={[styles.actionIconContainer, { backgroundColor: colors.secondary + '15' }]}>
-              <Ionicons name="chatbubble" size={28} color={colors.secondary} />
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={handleSMS}>
+            <View style={[styles.actionIcon, { backgroundColor: '#3B82F620' }]}>
+              <Ionicons name="chatbubble" size={20} color="#3B82F6" />
             </View>
-            <Text style={[styles.actionLabel, { color: colors.text }]}>Message</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Message</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.actionBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={handleEmail}
             disabled={!contact.email}
           >
-            <View
-              style={[
-                styles.actionIconContainer,
-                { backgroundColor: contact.email ? colors.primary + '15' : colors.backgroundTertiary },
-              ]}
-            >
-              <Ionicons name="mail" size={28} color={contact.email ? colors.primary : colors.textTertiary} />
+            <View style={[styles.actionIcon, { backgroundColor: contact.email ? '#F59E0B20' : colors.backgroundSecondary }]}>
+              <Ionicons name="mail" size={20} color={contact.email ? '#F59E0B' : colors.textTertiary} />
             </View>
-            <Text style={[styles.actionLabel, { color: contact.email ? colors.text : colors.textTertiary }]}>
-              Email
-            </Text>
+            <Text style={[styles.actionText, { color: contact.email ? colors.text : colors.textTertiary }]}>Email</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Contact Information */}
-        <View style={[styles.section, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact Information</Text>
-          <View style={styles.infoItem}>
-            <Ionicons name="call-outline" size={20} color={colors.primary} />
-            <View style={styles.infoContent}>
+        {/* Aria Actions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ARIA ASSISTANT</Text>
+
+          <TouchableOpacity
+            style={[styles.ariaBtn, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
+            onPress={handleAriaCall}
+          >
+            <View style={[styles.ariaBtnIcon, { backgroundColor: colors.primary }]}>
+              <Ionicons name="sparkles" size={18} color="#fff" />
+            </View>
+            <View style={styles.ariaBtnContent}>
+              <Text style={[styles.ariaBtnTitle, { color: colors.text }]}>Aria Call</Text>
+              <Text style={[styles.ariaBtnDesc, { color: colors.textSecondary }]}>
+                Let Aria help you prepare for the call
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.ariaBtn, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
+            onPress={handleAriaMessage}
+          >
+            <View style={[styles.ariaBtnIcon, { backgroundColor: colors.primary }]}>
+              <Ionicons name="sparkles" size={18} color="#fff" />
+            </View>
+            <View style={styles.ariaBtnContent}>
+              <Text style={[styles.ariaBtnTitle, { color: colors.text }]}>Aria Message</Text>
+              <Text style={[styles.ariaBtnDesc, { color: colors.textSecondary }]}>
+                Let Aria compose a message for you
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Contact Info */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>CONTACT INFO</Text>
+
+          <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.infoRow}>
+              <Ionicons name="call-outline" size={18} color={colors.textTertiary} />
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Phone</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>{contact.phone}</Text>
             </View>
-          </View>
-          {contact.email && (
-            <View style={styles.infoItem}>
-              <Ionicons name="mail-outline" size={20} color={colors.primary} />
-              <View style={styles.infoContent}>
+
+            {contact.email && (
+              <View style={[styles.infoRow, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                <Ionicons name="mail-outline" size={18} color={colors.textTertiary} />
                 <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Email</Text>
                 <Text style={[styles.infoValue, { color: colors.text }]}>{contact.email}</Text>
               </View>
-            </View>
-          )}
-          {contact.company && (
-            <View style={styles.infoItem}>
-              <Ionicons name="business-outline" size={20} color={colors.primary} />
-              <View style={styles.infoContent}>
+            )}
+
+            {contact.company && (
+              <View style={[styles.infoRow, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                <Ionicons name="business-outline" size={18} color={colors.textTertiary} />
                 <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Company</Text>
                 <Text style={[styles.infoValue, { color: colors.text }]}>{contact.company}</Text>
               </View>
-            </View>
-          )}
+            )}
+          </View>
         </View>
 
         {/* Tags */}
         {contact.tags && contact.tags.length > 0 && (
-          <View style={[styles.section, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Tags</Text>
-            <View style={styles.tagsContainer}>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>TAGS</Text>
+            <View style={styles.tagsRow}>
               {contact.tags.map((tag, index) => (
-                <View key={index} style={[styles.tag, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}>
+                <View key={index} style={[styles.tag, { backgroundColor: colors.primary + '20' }]}>
                   <Text style={[styles.tagText, { color: colors.primary }]}>{tag}</Text>
                 </View>
               ))}
@@ -339,66 +391,109 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
           </View>
         )}
 
-        {/* Activity History */}
+        {/* Activity */}
         {contact.conversationHistory && contact.conversationHistory.length > 0 && (
-          <View style={[styles.section, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Activity History</Text>
-            {contact.conversationHistory
-              .slice()
-              .reverse()
-              .slice(0, 15)
-              .map((item, index) => (
-                <View key={index} style={styles.activityItem}>
-                  <View
-                    style={[
-                      styles.activityIconContainer,
-                      { backgroundColor: `${getConversationColor(item.type)}20` },
-                    ]}
-                  >
-                    <Ionicons
-                      name={getConversationIcon(item.type)}
-                      size={18}
-                      color={getConversationColor(item.type)}
-                    />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <View style={styles.activityHeader}>
-                      <Text style={[styles.activityType, { color: getConversationColor(item.type) }]}>
-                        {item.type.charAt(0).toUpperCase() + item.type.slice(1)} • {item.direction}
-                      </Text>
-                      <Text style={[styles.activityTime, { color: colors.textTertiary }]}>{formatDate(item.timestamp)}</Text>
-                    </View>
-                    <Text style={[styles.activityText, { color: colors.textSecondary }]} numberOfLines={1}>
-                      {item.content}
-                    </Text>
-                  </View>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>RECENT ACTIVITY</Text>
+            <View style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              {contact.conversationHistory.slice().reverse().slice(0, 5).map((item, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.activityRow,
+                    index > 0 && { borderTopWidth: 1, borderTopColor: colors.border }
+                  ]}
+                >
+                  <Ionicons
+                    name={item.type === 'call' ? 'call' : item.type === 'sms' ? 'chatbubble' : 'mail'}
+                    size={16}
+                    color={colors.textTertiary}
+                  />
+                  <Text style={[styles.activityText, { color: colors.text }]} numberOfLines={1}>
+                    {item.content}
+                  </Text>
+                  <Text style={[styles.activityTime, { color: colors.textTertiary }]}>
+                    {formatDate(item.timestamp)}
+                  </Text>
                 </View>
               ))}
+            </View>
           </View>
         )}
 
         {/* Notes */}
         {contact.notes && (
-          <View style={[styles.section, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Notes</Text>
-            <View style={[styles.notesContainer, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>NOTES</Text>
+            <View style={[styles.notesCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <Text style={[styles.notesText, { color: colors.text }]}>{contact.notes}</Text>
             </View>
           </View>
         )}
 
-        {/* Metadata */}
-        <View style={styles.metadataSection}>
-          <Text style={[styles.metadataText, { color: colors.textTertiary }]}>
-            Created: {new Date(contact.createdAt).toLocaleDateString()}
-          </Text>
-          {contact.lastInteraction && (
-            <Text style={[styles.metadataText, { color: colors.textTertiary }]}>
-              Last Activity: {formatDate(contact.lastInteraction)}
-            </Text>
-          )}
-        </View>
+        <View style={styles.footer} />
       </ScrollView>
+
+      {/* Aria Modal */}
+      <Modal
+        visible={ariaModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setAriaModalVisible(false)}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+            <TouchableOpacity onPress={() => setAriaModalVisible(false)}>
+              <Text style={[styles.modalCancel, { color: colors.textSecondary }]}>Cancel</Text>
+            </TouchableOpacity>
+            <View style={styles.modalTitleRow}>
+              <Ionicons name="sparkles" size={18} color={colors.primary} />
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                {ariaAction === 'call' ? 'Aria Call' : 'Aria Message'}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={ariaResponse ? executeAriaAction : sendAriaAction} disabled={ariaLoading || !ariaMessage.trim()}>
+              <Text style={[styles.modalAction, { color: ariaMessage.trim() ? colors.primary : colors.textTertiary }]}>
+                {ariaResponse ? 'Send' : 'Generate'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} keyboardShouldPersistTaps="handled">
+            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>To: {contact.name}</Text>
+
+            <Text style={[styles.modalInputLabel, { color: colors.textSecondary }]}>
+              {ariaAction === 'call' ? 'What do you want to discuss?' : 'What do you want to say?'}
+            </Text>
+            <TextInput
+              style={[styles.modalInput, { color: colors.text, backgroundColor: colors.card, borderColor: colors.border }]}
+              placeholder={ariaAction === 'call' ? 'e.g., Follow up on our meeting...' : 'e.g., Schedule a meeting for next week...'}
+              placeholderTextColor={colors.textTertiary}
+              value={ariaMessage}
+              onChangeText={setAriaMessage}
+              multiline
+              numberOfLines={4}
+            />
+
+            {ariaLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Aria is thinking...</Text>
+              </View>
+            )}
+
+            {ariaResponse && (
+              <View style={styles.responseSection}>
+                <Text style={[styles.responseLabel, { color: colors.textSecondary }]}>Aria's suggestion:</Text>
+                <View style={[styles.responseCard, { backgroundColor: colors.primary + '10', borderColor: colors.primary }]}>
+                  <Ionicons name="sparkles" size={16} color={colors.primary} style={styles.responseIcon} />
+                  <Text style={[styles.responseText, { color: colors.text }]}>{ariaResponse}</Text>
+                </View>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -406,7 +501,10 @@ export default function ContactDetailsScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0b',
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -416,211 +514,254 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 16,
   },
-  backButton: {
-    padding: 8,
+  backBtn: {
+    padding: 4,
   },
   headerActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
   },
-  headerButton: {
-    padding: 8,
+  headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 20,
   },
   profileSection: {
     alignItems: 'center',
     paddingVertical: 24,
   },
-  largeAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
+  avatar: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
-  largeAvatarText: {
-    color: '#ffffff',
-    fontSize: 36,
-    fontWeight: 'bold',
+  avatarText: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: '700',
   },
-  contactName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
+  name: {
+    fontSize: 26,
+    fontWeight: '700',
     marginBottom: 4,
   },
   company: {
-    fontSize: 16,
-    color: '#9ca3af',
+    fontSize: 15,
   },
-  statsRow: {
+  actionsRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-    marginHorizontal: 20,
-    backgroundColor: '#1a1a1b',
-    borderRadius: 12,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 24,
   },
-  statItem: {
+  actionBtn: {
     flex: 1,
     alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginTop: 4,
-  },
-  statDivider: {
-    width: 1,
+  actionIcon: {
+    width: 40,
     height: 40,
-    backgroundColor: '#374151',
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
-    paddingVertical: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1b',
-  },
-  actionButton: {
+    borderRadius: 20,
     alignItems: 'center',
-    gap: 8,
-  },
-  actionIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
     justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 6,
   },
-  actionLabel: {
-    fontSize: 14,
-    color: '#ffffff',
+  actionText: {
+    fontSize: 13,
     fontWeight: '500',
   },
   section: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1b',
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginBottom: 12,
   },
-  infoItem: {
+  ariaBtn: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-    gap: 12,
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 10,
   },
-  infoContent: {
+  ariaBtnIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ariaBtnContent: {
     flex: 1,
+    marginLeft: 12,
+  },
+  ariaBtnTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  ariaBtnDesc: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+  infoCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    gap: 10,
   },
   infoLabel: {
-    fontSize: 14,
-    color: '#9ca3af',
-    marginBottom: 4,
+    fontSize: 13,
+    width: 60,
   },
   infoValue: {
-    fontSize: 16,
-    color: '#ffffff',
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
   },
-  tagsContainer: {
+  tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
   tag: {
-    backgroundColor: '#8b5cf620',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#8b5cf6',
   },
   tagText: {
-    fontSize: 12,
-    color: '#8b5cf6',
-    fontWeight: '600',
-  },
-  activityItem: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    gap: 12,
-  },
-  activityIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 2,
-  },
-  activityType: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
+  },
+  activityCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 10,
+  },
+  activityText: {
+    flex: 1,
+    fontSize: 14,
   },
   activityTime: {
     fontSize: 12,
-    color: '#6b7280',
   },
-  activityText: {
-    fontSize: 13,
-    color: '#9ca3af',
-  },
-  notesContainer: {
-    backgroundColor: '#1a1a1b',
-    padding: 16,
+  notesCard: {
+    padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#374151',
   },
   notesText: {
     fontSize: 14,
-    color: '#ffffff',
     lineHeight: 20,
   },
-  metadataSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  footer: {
+    height: 100,
   },
-  metadataText: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginBottom: 4,
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+  },
+  modalCancel: {
+    fontSize: 16,
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  modalAction: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  modalLabel: {
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  modalInputLabel: {
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  modalInput: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 14,
+    fontSize: 15,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 10,
   },
   loadingText: {
-    color: '#9ca3af',
-    marginTop: 12,
     fontSize: 14,
+  },
+  responseSection: {
+    marginTop: 20,
+  },
+  responseLabel: {
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  responseCard: {
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: 'row',
+  },
+  responseIcon: {
+    marginRight: 10,
+    marginTop: 2,
+  },
+  responseText: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

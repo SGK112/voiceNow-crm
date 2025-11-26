@@ -27,7 +27,7 @@ export class AriaMemoryService {
   async safeRedisGet(key) {
     if (!this.redis) return null;
     try {
-      return await this.safeRedisGet(key);
+      return await this.redis.get(key);
     } catch (error) {
       return null;
     }
@@ -49,7 +49,7 @@ export class AriaMemoryService {
   async safeRedisDel(key) {
     if (!this.redis) return;
     try {
-      await this.safeRedisDel(key);
+      await this.redis.del(key);
     } catch (error) {
       // Silently fail
     }
@@ -317,7 +317,7 @@ export class AriaMemoryService {
       };
 
       // Cache for 60 seconds
-      await this.safeRedisSet(cacheKey, 60, JSON.stringify(context));
+      await this.safeRedisSet(cacheKey, JSON.stringify(context), 60);
 
       return context;
     } catch (error) {

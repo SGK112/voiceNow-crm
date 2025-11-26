@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import axios from 'axios';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
+import api from '../services/api';
 
 export default function CRMActivityScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -19,7 +17,7 @@ export default function CRMActivityScreen({ navigation }: any) {
   const fetchActivity = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/recent-activity`, {
+      const response = await api.get('/api/mobile/recent-activity', {
         params: { limit: 20 },
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });

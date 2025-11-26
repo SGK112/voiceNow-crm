@@ -95,6 +95,35 @@ export default function ContactsScreen({ navigation }: any) {
     navigation.navigate('ContactDetails', { contactId: contact._id });
   };
 
+  const handleEditContact = (contact: Contact) => {
+    navigation.navigate('AddEditContact', {
+      mode: 'edit',
+      contactId: contact._id,
+    });
+  };
+
+  const handleDeleteContact = async (contact: Contact) => {
+    Alert.alert(
+      'Delete Contact',
+      `Are you sure you want to delete ${contact.name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await contactService.deleteContact(contact._id);
+              await fetchContacts(true);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete contact.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleAddContact = () => {
     navigation.navigate('AddEditContact', { mode: 'add' });
   };
@@ -108,20 +137,10 @@ export default function ContactsScreen({ navigation }: any) {
     try {
       const canOpen = await Linking.canOpenURL(phoneUrl);
       if (canOpen) {
-        await contactService.addConversation(
-          contact._id,
-          'call',
-          'outgoing',
-          'Outgoing call',
-          { initiatedAt: new Date().toISOString() }
-        );
         await Linking.openURL(phoneUrl);
-      } else {
-        Alert.alert('Error', 'Cannot make phone calls on this device');
       }
     } catch (error) {
-      console.error('Error making call:', error);
-      Alert.alert('Error', 'Failed to initiate call');
+      Alert.alert('Error', 'Cannot make phone calls');
     }
   };
 
@@ -130,20 +149,10 @@ export default function ContactsScreen({ navigation }: any) {
     try {
       const canOpen = await Linking.canOpenURL(smsUrl);
       if (canOpen) {
-        await contactService.addConversation(
-          contact._id,
-          'sms',
-          'outgoing',
-          'Message sent',
-          { initiatedAt: new Date().toISOString() }
-        );
         await Linking.openURL(smsUrl);
-      } else {
-        Alert.alert('Error', 'Cannot send SMS on this device');
       }
     } catch (error) {
-      console.error('Error opening SMS:', error);
-      Alert.alert('Error', 'Failed to open messaging app');
+      Alert.alert('Error', 'Cannot send SMS');
     }
   };
 
@@ -156,32 +165,16 @@ export default function ContactsScreen({ navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const avatarColors = ['#8B5CF6', '#4F8EF7', '#34D399', '#FBBF24', '#F87171', '#EC4899'];
+    const avatarColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
     const index = name.charCodeAt(0) % avatarColors.length;
     return avatarColors[index];
   };
 
-  const formatLastInteraction = (date?: string) => {
-    if (!date) return 'No interaction';
-    const now = new Date();
-    const interactionDate = new Date(date);
-    const diffMs = now.getTime() - interactionDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return interactionDate.toLocaleDateString();
-  };
-
   const renderContactItem = ({ item }: { item: Contact }) => (
     <TouchableOpacity
-      style={[styles.contactItem, { backgroundColor: colors.background, borderBottomColor: colors.divider }]}
+      style={[styles.contactRow, { borderBottomColor: colors.border }]}
       onPress={() => handleContactPress(item)}
-      activeOpacity={0.7}
+      activeOpacity={0.6}
     >
       <View style={[styles.avatar, { backgroundColor: getAvatarColor(item.name) }]}>
         <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
@@ -190,100 +183,101 @@ export default function ContactsScreen({ navigation }: any) {
       <View style={styles.contactInfo}>
         <Text style={[styles.contactName, { color: colors.text }]}>{item.name}</Text>
         <Text style={[styles.contactPhone, { color: colors.textSecondary }]}>{item.phone}</Text>
-        {item.company && (
-          <Text style={[styles.contactCompany, { color: colors.textTertiary }]}>{item.company}</Text>
-        )}
-        <Text style={[styles.lastInteraction, { color: colors.textTertiary }]}>
-          {formatLastInteraction(item.lastInteraction)}
-        </Text>
       </View>
 
-      <View style={styles.quickActions}>
+      <View style={styles.actions}>
         <TouchableOpacity
-          style={[styles.quickActionButton, { backgroundColor: colors.success + '15' }]}
+          style={[styles.actionBtn, { backgroundColor: colors.backgroundSecondary }]}
           onPress={() => handleCall(item)}
         >
-          <Ionicons name="call" size={18} color={colors.success} />
+          <Ionicons name="call-outline" size={18} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.quickActionButton, { backgroundColor: colors.secondary + '15' }]}
+          style={[styles.actionBtn, { backgroundColor: colors.backgroundSecondary }]}
           onPress={() => handleSMS(item)}
         >
-          <Ionicons name="chatbubble" size={18} color={colors.secondary} />
+          <Ionicons name="chatbubble-outline" size={18} color={colors.primary} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   const renderSectionHeader = ({ section }: { section: ContactSection }) => (
-    <View style={[styles.sectionHeader, { backgroundColor: colors.backgroundSecondary }]}>
-      <Text style={[styles.sectionHeaderText, { color: colors.primary }]}>{section.title}</Text>
+    <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
+      <Text style={[styles.sectionHeaderText, { color: colors.textTertiary }]}>{section.title}</Text>
     </View>
   );
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
-        <Ionicons name="people-outline" size={48} color={colors.textTertiary} />
+      <View style={[styles.emptyIcon, { backgroundColor: colors.backgroundSecondary }]}>
+        <Ionicons name="people-outline" size={40} color={colors.textTertiary} />
       </View>
-      <Text style={[styles.emptyStateTitle, { color: colors.text }]}>No Contacts Yet</Text>
-      <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-        Add contacts manually or import from your phone
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>No Contacts</Text>
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+        Add contacts or import from your phone
       </Text>
       <TouchableOpacity
-        style={[styles.importButton, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
+        style={[styles.importBtn, { backgroundColor: colors.primary }]}
         onPress={handleImportContacts}
       >
-        <Ionicons name="download-outline" size={20} color={colors.primary} />
-        <Text style={[styles.importButtonText, { color: colors.primary }]}>Import Contacts</Text>
+        <Ionicons name="download-outline" size={18} color="#fff" />
+        <Text style={styles.importBtnText}>Import Contacts</Text>
       </TouchableOpacity>
     </View>
   );
 
   if (loading && contacts.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading contacts...</Text>
-        </View>
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
+  const totalContacts = contacts.length;
+  const activeContacts = contacts.filter(c => c.lastInteraction).length;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.divider }]}>
+      <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Contacts</Text>
         <TouchableOpacity
-          style={[styles.headerButton, { backgroundColor: colors.backgroundSecondary }]}
+          style={[styles.headerBtn, { backgroundColor: colors.backgroundSecondary }]}
           onPress={handleImportContacts}
         >
           <Ionicons name="download-outline" size={20} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
-      <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
-        <Ionicons name="search" size={20} color={colors.placeholder} style={styles.searchIcon} />
+      {/* Stats Row */}
+      <View style={styles.statsRow}>
+        <View style={[styles.statItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.statValue, { color: colors.text }]}>{totalContacts}</Text>
+          <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Total</Text>
+        </View>
+        <View style={[styles.statItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.statValue, { color: colors.text }]}>{activeContacts}</Text>
+          <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Active</Text>
+        </View>
+      </View>
+
+      {/* Search */}
+      <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Ionicons name="search-outline" size={18} color={colors.textTertiary} />
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
           placeholder="Search contacts..."
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor={colors.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color={colors.textTertiary} />
+            <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
           </TouchableOpacity>
         )}
-      </View>
-
-      {/* Stats Bar */}
-      <View style={styles.statsBar}>
-        <Text style={[styles.statsText, { color: colors.textTertiary }]}>{contacts.length} contacts</Text>
       </View>
 
       {/* Contact List */}
@@ -299,7 +293,6 @@ export default function ContactsScreen({ navigation }: any) {
               refreshing={refreshing}
               onRefresh={onRefresh}
               tintColor={colors.primary}
-              colors={[colors.primary]}
             />
           }
           stickySectionHeadersEnabled
@@ -308,13 +301,12 @@ export default function ContactsScreen({ navigation }: any) {
         renderEmptyState()
       )}
 
-      {/* Floating Action Button */}
+      {/* FAB */}
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
         onPress={handleAddContact}
-        activeOpacity={0.8}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -324,84 +316,102 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
+    letterSpacing: -0.5,
   },
-  headerButton: {
+  headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  searchContainer: {
+  statsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 12,
+    marginBottom: 16,
+  },
+  statItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: 13,
+  },
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-  },
-  searchIcon: {
-    marginRight: 10,
+    gap: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-  },
-  statsBar: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-  },
-  statsText: {
-    fontSize: 13,
+    fontSize: 15,
   },
   listContent: {
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   sectionHeader: {
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
   sectionHeaderText: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
-  contactItem: {
+  contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
-    marginRight: 14,
+    justifyContent: 'center',
   },
   avatarText: {
-    color: '#FFFFFF',
+    color: '#fff',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   contactInfo: {
     flex: 1,
+    marginLeft: 14,
   },
   contactName: {
     fontSize: 16,
@@ -410,71 +420,53 @@ const styles = StyleSheet.create({
   },
   contactPhone: {
     fontSize: 14,
-    marginBottom: 2,
   },
-  contactCompany: {
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  lastInteraction: {
-    fontSize: 12,
-  },
-  quickActions: {
+  actions: {
     flexDirection: 'row',
     gap: 8,
   },
-  quickActionButton: {
+  actionBtn: {
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 15,
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 40,
   },
-  emptyIconWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
-  emptyStateTitle: {
+  emptyTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: 8,
   },
-  emptyStateText: {
+  emptyText: {
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 24,
-    lineHeight: 22,
   },
-  importButton: {
+  importBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
     gap: 8,
   },
-  importButtonText: {
-    fontSize: 16,
+  importBtnText: {
+    color: '#fff',
+    fontSize: 15,
     fontWeight: '600',
   },
   fab: {
@@ -484,11 +476,12 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    justifyContent: 'center',
     alignItems: 'center',
-    elevation: 6,
+    justifyContent: 'center',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
+    elevation: 5,
   },
 });

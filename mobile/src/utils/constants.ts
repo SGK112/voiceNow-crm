@@ -1,8 +1,9 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Use ngrok URL for OAuth to work on mobile devices
-const DEFAULT_API_URL = 'https://ca11d08d36ac.ngrok-free.app';
+// Use ngrok for HTTPS (required by iOS)
+// WARNING: Update this URL when you restart ngrok!
+const DEFAULT_API_URL = 'https://3b1fa9556f6b.ngrok-free.app';
 
 export const API_URL = Constants.expoConfig?.extra?.API_URL || DEFAULT_API_URL;
 export const ELEVENLABS_API_KEY = Constants.expoConfig?.extra?.ELEVENLABS_API_KEY || '';

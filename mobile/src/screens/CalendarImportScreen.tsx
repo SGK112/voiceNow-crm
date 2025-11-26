@@ -7,14 +7,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Calendar from 'expo-calendar';
-import axios from 'axios';
+import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
 interface CalendarEvent {
   id: string;
@@ -153,8 +150,8 @@ export default function CalendarImportScreen({ navigation }: any) {
 
       const selectedEvents = calendarEvents.filter((e) => e.selected);
 
-      const response = await axios.post(
-        `${API_URL}/api/mobile/calendar/import`,
+      const response = await api.post(
+        '/api/mobile/calendar/import',
         { events: selectedEvents }
       );
 

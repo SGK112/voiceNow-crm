@@ -2,7 +2,8 @@ import axios from 'axios';
 
 export class AriaSlackService {
   constructor() {
-    this.webhookUrl = process.env.SLACK_WEBHOOK_URL;
+    // Support both SLACK_WEBHOOK and SLACK_WEBHOOK_URL for backwards compatibility
+    this.webhookUrl = process.env.SLACK_WEBHOOK_URL || process.env.SLACK_WEBHOOK;
     this.botToken = process.env.SLACK_BOT_TOKEN;
     this.enabled = !!this.webhookUrl;
 

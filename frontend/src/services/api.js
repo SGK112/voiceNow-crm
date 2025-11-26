@@ -313,14 +313,31 @@ export const knowledgeBaseApi = {
 };
 
 export const contactApi = {
+  // CRUD operations
   getContacts: (params) => api.get('/contacts', { params }),
   getContactById: (id) => api.get(`/contacts/${id}`),
   createContact: (data) => api.post('/contacts', data),
-  updateContact: (id, data) => api.patch(`/contacts/${id}`, data),
+  updateContact: (id, data) => api.put(`/contacts/${id}`, data),
   deleteContact: (id) => api.delete(`/contacts/${id}`),
-  searchContacts: (query) => api.get('/contacts/search', { params: { q: query } }),
-  importContacts: (data) => api.post('/contacts/import', data),
-  exportContacts: () => api.get('/contacts/export', { responseType: 'blob' }),
+
+  // Search and lookup
+  searchContacts: (query, limit = 20) => api.get(`/contacts/search/${encodeURIComponent(query)}`, { params: { limit } }),
+  findByPhone: (phone) => api.get(`/contacts/by-phone/${encodeURIComponent(phone)}`),
+
+  // Activity and history
+  addActivity: (id, data) => api.post(`/contacts/${id}/activity`, data),
+  getHistory: (id, params) => api.get(`/contacts/${id}/history`, { params }),
+
+  // Bulk operations
+  importContacts: (contacts, source = 'import') => api.post('/contacts/import', { contacts, source }),
+  syncFromLeads: () => api.post('/contacts/sync-from-leads'),
+
+  // Lead linking
+  linkToLead: (id, leadId) => api.post(`/contacts/${id}/link-lead`, { leadId }),
+  createLeadFromContact: (id) => api.post(`/contacts/${id}/link-lead`, { createNew: true }),
+
+  // Statistics
+  getStats: () => api.get('/contacts/stats/overview'),
 };
 
 export default api;

@@ -6,12 +6,16 @@ import { trainer } from '../utils/conversationTrainer.js';
 import { AriaCapabilities, getCapabilityDefinitions } from '../utils/ariaCapabilities.js';
 import { ariaMemoryService } from '../services/ariaMemoryService.js';
 import { ariaSlackService } from '../services/ariaSlackService.js';
+import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
 import agentSMSService from '../services/agentSMSService.js';
 import emailService from '../services/emailService.js';
+import ttsService from '../services/ttsService.js';
 import UserProfile from '../models/UserProfile.js';
 import Lead from '../models/Lead.js';
 import CallLog from '../models/CallLog.js';
 import TeamMessage from '../models/TeamMessage.js';
+import Contact from '../models/Contact.js';
+import Appointment from '../models/Appointment.js';
 
 const router = express.Router();
 
@@ -28,7 +32,12 @@ let cachedGreetingAudio = null;
 const activeConversations = new Map();
 const CONVERSATION_TIMEOUT = 60000; // 60 seconds of inactivity ends conversation
 
-// Initialize Aria capabilities
+// OPTIMIZATION: Profile and CRM data cache (30 second TTL)
+const profileCache = new Map();
+const crmDataCache = new Map();
+const CACHE_TTL = 30000; // 30 seconds
+
+// Initialize Aria capabilities with full CRM access
 const ariaCapabilities = new AriaCapabilities({
   emailService: emailService, // Email sending capability via emailService
   twilioService: agentSMSService, // SMS sending capability via agentSMSService
@@ -36,9 +45,24 @@ const ariaCapabilities = new AriaCapabilities({
   models: {
     Lead,
     Message: TeamMessage,
-    Call: CallLog
+    Call: CallLog,
+    Contact,
+    Appointment
   }
 });
+
+// OPTIMIZATION: Cache helper functions
+function getCachedData(cache, key) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedData(cache, key, data) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
 
 // Helper: Get or create conversation session
 function getConversationSession(sessionId = 'default') {
@@ -351,12 +375,13 @@ router.post('/process', async (req, res) => {
     console.log(`[TIMING] Audio buffer size: ${audioBuffer.length} bytes`);
     const file = new File([audioBuffer], 'audio.m4a', { type: 'audio/m4a' });
 
-    // Use faster whisper settings
+    // Use faster whisper settings with transcription prompt for context
     const transcription = await openai.audio.transcriptions.create({
       file: file,
       model: 'whisper-1',
       language: 'en',
       response_format: 'text', // Faster - just text, no timestamps
+      prompt: 'This is a voice assistant conversation. Common commands include: send text message, send SMS, send email, create estimate, create quote, create invoice, book appointment, search contacts. When the user says "text" they usually mean SMS text message, not "test".'
     });
 
     // response_format: 'text' returns string directly
@@ -369,25 +394,73 @@ router.post('/process', async (req, res) => {
     const sessionId = req.body.sessionId || 'default';
     const userId = req.body.userId || 'default';
 
+    // BACKGROUND NOISE FILTER - skip storing junk transcriptions
+    const backgroundNoisePatterns = [
+      /^thanks for watching/i,
+      /^please use earphones/i,
+      /^subscribe/i,
+      /^link in (the )?description/i,
+      /^like and subscribe/i,
+      /^hit the bell/i,
+      /^(um+|uh+|ah+|oh+|hmm+)$/i,
+      /^\.+$/,
+      /^$/
+    ];
+
+    const isBackgroundNoise = backgroundNoisePatterns.some(p => p.test(userMessage.trim())) ||
+                              userMessage.trim().length < 3;
+
+    if (isBackgroundNoise) {
+      console.log(`🔇 [NOISE] Skipping background noise: "${userMessage}"`);
+      // Return minimal response without audio - just acknowledge silently
+      // Don't say "Still here" - just skip this entirely and wait for real speech
+      return res.json({
+        success: true,
+        userMessage: userMessage,
+        aiMessage: null,  // No spoken response for noise
+        audioBase64: null,
+        conversationHistory: conversationHistory,
+        isBackgroundNoise: true,
+        skipAudio: true  // Signal to mobile app to not play anything
+      });
+    }
+
     // Old session tracking
     const session = getConversationSession(sessionId);
     session.messages.push({ role: 'user', content: userMessage });
 
-    // New persistent conversation tracking
+    // New persistent conversation tracking - only store meaningful messages
     await ariaMemoryService.addMessage(sessionId, 'user', userMessage, {
       transcriptionTime
     });
 
     // Detect and extract user's name from introduction patterns
+    // Only match explicit introductions, not wake word patterns
     const namePatterns = [
       /(?:my name is|i'm|im|i am|this is|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-      /^([A-Z][a-z]+)(?:\s+here|,|\s+speaking)/i
+      /^([A-Z][a-z]+)\s+(?:here|speaking)(?:\s|$)/i  // "Josh here" or "Josh speaking" only
+    ];
+
+    // Names to exclude (AI assistant names, filler words, and common false positives)
+    const excludedNames = [
+      'aria', 'arya', 'area',  // AI name variants
+      'hey', 'hi', 'hello', 'yo',  // Greetings
+      'ok', 'okay', 'sure', 'yes', 'no', 'yeah', 'yep', 'nope',  // Responses
+      'uh', 'um', 'ah', 'oh', 'eh', 'hmm', 'hm', 'uhh', 'umm',  // Filler sounds
+      'i', 'you', 'we', 'they', 'it', 'the', 'a', 'an'  // Common words
     ];
 
     for (const pattern of namePatterns) {
       const match = userMessage.match(pattern);
       if (match && match[1]) {
         const name = match[1].trim();
+
+        // Skip if it's an excluded name (like the AI's name)
+        if (excludedNames.includes(name.toLowerCase())) {
+          console.log(`👤 [NAME] Skipping excluded name: ${name}`);
+          continue;
+        }
+
         console.log(`👤 [NAME] Detected user name: ${name}`);
 
         // Store name as high-priority memory
@@ -551,20 +624,97 @@ router.post('/process', async (req, res) => {
 
     console.log('[DATE] Current date/time being sent to AI:', currentDateTime);
 
-    // Get user profile
-    let userProfile = await UserProfile.findOne({ userId });
+    // OPTIMIZED: Get user profile with caching
+    let userProfile = getCachedData(profileCache, userId);
     if (!userProfile) {
-      // Create default profile if doesn't exist
-      userProfile = await UserProfile.create({ userId });
+      console.log('[CACHE] Profile cache miss, fetching from DB');
+      userProfile = await UserProfile.findOne({ userId });
+      if (!userProfile) {
+        userProfile = await UserProfile.create({ userId });
+      }
+      setCachedData(profileCache, userId, userProfile);
+    } else {
+      console.log('[CACHE] Profile cache hit!');
     }
 
     // Get conversation context with relevant memories
     const context = await ariaMemoryService.getConversationContext(sessionId, userId);
 
+    // OPTIMIZED: Get CRM data for context with caching
+    let crmContext = '';
+    const crmCacheKey = 'global_crm_data';
+    let crmData = getCachedData(crmDataCache, crmCacheKey);
+
+    if (!crmData) {
+      console.log('[CACHE] CRM cache miss, fetching from DB');
+      try {
+        const recentLeads = await Lead.find()
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .select('name email phone status source createdAt');
+
+        const recentCalls = await CallLog.find()
+          .sort({ createdAt: -1 })
+          .limit(3)
+          .select('contactName direction duration createdAt outcome');
+
+        const totalLeads = await Lead.countDocuments();
+        const newLeads = await Lead.countDocuments({ status: 'new' });
+        const hotLeads = await Lead.countDocuments({ status: 'hot' });
+
+        crmData = { recentLeads, recentCalls, totalLeads, newLeads, hotLeads };
+        setCachedData(crmDataCache, crmCacheKey, crmData);
+      } catch (crmError) {
+        console.warn('[CRM] Error fetching CRM context:', crmError.message);
+        crmData = { recentLeads: [], recentCalls: [], totalLeads: 0, newLeads: 0, hotLeads: 0 };
+      }
+    } else {
+      console.log('[CACHE] CRM cache hit!');
+    }
+
+    // Build CRM context string from cached data
+    if (crmData.recentLeads && crmData.recentLeads.length > 0) {
+      crmContext += '\n\nRECENT LEADS IN CRM:\n';
+      crmData.recentLeads.forEach(lead => {
+        crmContext += `- ${lead.name}${lead.status ? ` (${lead.status})` : ''}${lead.phone ? `, ${lead.phone}` : ''}\n`;
+      });
+    }
+
+    if (crmData.recentCalls && crmData.recentCalls.length > 0) {
+      crmContext += '\nRECENT CALLS:\n';
+      crmData.recentCalls.forEach(call => {
+        const mins = call.duration ? Math.round(call.duration / 60) : 0;
+        crmContext += `- ${call.contactName || 'Unknown'} (${call.direction || 'call'}, ${mins} min)${call.outcome ? ` - ${call.outcome}` : ''}\n`;
+      });
+    }
+
+    if (crmData.totalLeads > 0) {
+      crmContext += `\nCRM STATS: ${crmData.totalLeads} total leads, ${crmData.newLeads} new, ${crmData.hotLeads} hot\n`;
+    }
+
+    // ENHANCED: Get RAG knowledge context if message seems like a question
+    let ragContext = '';
+    try {
+      const ragResult = await ariaIntegrationService.searchKnowledge(userId, userMessage, { limit: 3 });
+      if (ragResult.success && ragResult.results && ragResult.results.length > 0) {
+        ragContext = '\n\nKNOWLEDGE BASE:\n';
+        ragResult.results.forEach((result, idx) => {
+          const content = result.content?.slice(0, 200) || result.summary || '';
+          if (content) {
+            ragContext += `${idx + 1}. ${content}...\n`;
+          }
+        });
+        console.log(`[RAG] Found ${ragResult.results.length} relevant knowledge items`);
+      }
+    } catch (ragError) {
+      console.log('[RAG] Knowledge search skipped:', ragError.message);
+    }
+
     // Build context string from memories
     let memoryContext = '';
     let conversationGoal = '';
-    let userName = userProfile.personalInfo?.firstName || '';
+    // HARDCODED: Always use Josh - do NOT trust memory for name (corrupted data issue)
+    let userName = 'Josh';
     let userPreferences = '';
 
     // Add profile context
@@ -600,10 +750,10 @@ router.post('/process', async (req, res) => {
     if (context.memories && context.memories.length > 0) {
       memoryContext += '\n\nRELEVANT MEMORIES:\n';
       context.memories.forEach(mem => {
-        // Check for user's name (override profile if set in memory)
+        // SKIP user_name from memory - hardcoded to Josh due to corrupted data
         if (mem.key === 'user_name') {
-          userName = mem.value;
-          memoryContext += `- USER'S NAME: ${mem.value} (USE THIS NAME when addressing the user!)\n`;
+          // Ignore memory-based name - using hardcoded Josh
+          console.log(`[NAME] Ignoring memory name: ${mem.value}, using hardcoded Josh`);
         }
         // Check for conversation goal
         else if (mem.key.startsWith('conversation_goal_')) {
@@ -620,84 +770,140 @@ router.post('/process', async (req, res) => {
       conversationSummary = `\n\nCONVERSATION SO FAR: ${context.summary}\n`;
     }
 
+    // Build conversation history from stored messages + request history
+    const storedMessages = context.messages || [];
+    const recentHistory = storedMessages.slice(-10).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    // Merge stored history with request history (prefer stored for context)
+    const mergedHistory = recentHistory.length > conversationHistory.length
+      ? recentHistory
+      : conversationHistory;
+
+    // Extract the LAST exchange to show what was just discussed (critical for following along)
+    let lastExchange = '';
+    let currentTask = '';
+    if (mergedHistory.length >= 2) {
+      // Find the last user message and assistant response
+      for (let i = mergedHistory.length - 1; i >= 0; i--) {
+        if (mergedHistory[i].role === 'assistant' && !lastExchange) {
+          lastExchange = `YOUR LAST RESPONSE: "${mergedHistory[i].content}"`;
+        }
+        if (mergedHistory[i].role === 'user' && lastExchange && !currentTask) {
+          lastExchange = `JOSH'S LAST MESSAGE: "${mergedHistory[i].content}"\n${lastExchange}`;
+          break;
+        }
+      }
+
+      // Detect if there's an ongoing task from the conversation
+      const lastAssistantMsg = mergedHistory.filter(m => m.role === 'assistant').slice(-1)[0]?.content || '';
+      if (lastAssistantMsg.includes('?')) {
+        // Assistant asked a question - we're waiting for an answer
+        currentTask = 'WAITING FOR ANSWER - Josh is responding to your question. Use his answer to continue the task.';
+      } else if (lastAssistantMsg.toLowerCase().includes('client') || lastAssistantMsg.toLowerCase().includes('lead')) {
+        currentTask = 'TASK IN PROGRESS - Creating a client/lead. Continue collecting info or execute.';
+      } else if (lastAssistantMsg.toLowerCase().includes('estimate') || lastAssistantMsg.toLowerCase().includes('quote')) {
+        currentTask = 'TASK IN PROGRESS - Creating an estimate. Continue collecting info or execute.';
+      }
+    }
+
+    // Build profile context string (make it prominent and actionable)
+    let profileContext = '\n\nUSER PROFILE:\n';
+    profileContext += `- Owner: Josh (ALWAYS use this name)\n`;
+    profileContext += `- Company: Surprise Granite (countertops & remodeling, Arizona)\n`;
+
+    if (userProfile.personalInfo) {
+      if (userProfile.personalInfo.email) {
+        profileContext += `- Email: ${userProfile.personalInfo.email}\n`;
+      }
+      if (userProfile.personalInfo.phone) {
+        profileContext += `- Phone: ${userProfile.personalInfo.phone}\n`;
+      }
+    }
+
+    if (userProfile.workInfo) {
+      if (userProfile.workInfo.workHours) {
+        profileContext += `- Work hours: ${userProfile.workInfo.workHours.start || '8AM'} - ${userProfile.workInfo.workHours.end || '5PM'}\n`;
+      }
+    }
+
+    if (userProfile.ariaPreferences) {
+      profileContext += `- Preferred style: ${userProfile.ariaPreferences.voiceStyle || 'friendly'}, ${userProfile.ariaPreferences.responseLength || 'concise'}\n`;
+    }
+
     const messages = [
       {
         role: 'system',
-        content: `You are Aria, an intelligent AI voice assistant created by VoiceFlow.
+        content: `You are Aria, Josh's intelligent AI assistant for Surprise Granite (countertops & remodeling, Arizona).
 
-CURRENT DATE & TIME: ${currentDateTime}${conversationGoal}${conversationSummary}${userPreferences}${memoryContext}
+DATE: ${currentDateTime}
+${currentTask ? `\n⚡ ${currentTask}` : ''}
+${lastExchange ? `\n📍 LAST EXCHANGE:\n${lastExchange}` : ''}
 
-IDENTITY:
-- Your name is Aria (always introduce yourself as "I'm Aria" when asked)
-- You are an intelligent, context-aware AI assistant with real-time capabilities
-- You understand context, remember conversations, and can take actions
-${userName ? `- The user's name is ${userName} - use it naturally in conversation!\n` : ''}
-YOUR CAPABILITIES (use these intelligently):
-You have access to powerful real-time tools:
-📱 SMS/MMS: Send text messages and multimedia messages to contacts
-📧 Email: Send emails with content to anyone
-🔔 Notifications: Send push notifications to the user's mobile device
-🌐 Web Search: Search DuckDuckGo for current information, news, facts
-🌐 Web Fetch: Scrape specific URLs to get detailed web content
-🧠 Memory: Store and recall important information across all conversations
-📊 CRM: Access leads, messages, calls, search contacts in the system
+CRITICAL: Josh's current message is a CONTINUATION of this conversation. Use context from above.
 
-WHEN TO USE CAPABILITIES:
-- User asks about current events/news → web_search immediately
-- User wants to contact someone → send_email or send_sms
-- User wants to be reminded later → send_notification with reminder
-- User shares important info → remember_info (preferences, facts, context)
-- User asks "do you remember..." → recall_info to search memories
-- User asks about their business → get_recent_leads, get_calls_summary
-- Be proactive: if you sense something should be remembered, store it!
-- Use send_notification to alert user about important updates or reminders
+RULES:
+1. If you asked a question, Josh is now ANSWERING it - USE his answer to proceed
+2. Progress the conversation forward - never restart or repeat questions
+3. When you have all required info, EXECUTE immediately using tools
+4. Be conversational (15-30 words), use contractions
+5. If Josh corrects you, acknowledge and adjust immediately
+6. NEVER say "I'm here" or "Still here" - always engage with what Josh said
 
-INTELLIGENCE RULES:
-1. UNDERSTAND INTENT: Listen carefully to what the user really wants
-2. USE CONTEXT: Reference previous messages and memories naturally
-3. BE PROACTIVE: Suggest relevant actions or information
-4. ASK WHEN UNCLEAR: Don't guess - ask for clarification
-5. USE YOUR TOOLS: If you need information, use web_search or recall_info
-6. LEARN & REMEMBER: Store important details automatically
-7. STAY GOAL-FOCUSED: If there's a goal, work towards it intelligently
-
-RESPONSE STYLE:
-- Keep responses CONCISE but COMPLETE: 10-20 words
-- Sound natural and conversational (contractions: I'm, you're, let's)
-- Show personality - be warm, helpful, and engaging
-- Acknowledge what the user said before responding
-- Use the user's name when appropriate (if you know it)
-- ALWAYS respond in English only
-- Be confident but honest when you don't know something
-
-SMART CONVERSATION EXAMPLES:
-❌ Bad: "Yes"
-✅ Good: "Yes${userName ? ', ' + userName : ''}! What can I help you with?"
-
-❌ Bad: "It's November 24, 2025"
-✅ Good: "Today's Monday, November 24, 2025! Need help with anything?"
-
-❌ Bad: "I don't know"
-✅ Good: "I'm not sure, but let me search that for you!"
-
-❌ Bad: "I remember that"
-✅ Good: "Yes${userName ? ', ' + userName : ''}! I remember you told me about that."
-
-❌ Bad: Generic response without context
-✅ Good: Reference previous conversation or memories when relevant
-
-REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think before responding, use your capabilities when helpful, and always aim to provide real value!`
+YOUR CAPABILITIES:
+📱 PHONE ACCESS: find_contact, get_phone_contacts, get_call_history, get_message_history
+👥 TEAM: get_team_members, message_team_member, assign_task_to_team, request_follow_up
+📅 SCHEDULE: get_schedule, check_availability, book_appointment, send_appointment_reminder
+🧠 KNOWLEDGE: search_knowledge (search company info, pricing, policies)
+📧 COMMUNICATION: send_sms, send_email, create_lead, create_estimate
+🧹 ORGANIZE: find_duplicate_contacts, merge_contacts, get_stale_contacts, tag_contact
+${profileContext}
+${crmContext ? `\nCRM DATA: ${crmContext}` : ''}
+${ragContext ? `${ragContext}` : ''}`
       },
-      ...conversationHistory,
+      ...mergedHistory,
       {
         role: 'user',
         content: userMessage
       }
     ];
 
+    // Log conversation history for debugging
+    console.log(`[CONTEXT] Merged history has ${mergedHistory.length} messages (stored: ${storedMessages.length}, request: ${conversationHistory.length})`);
+    if (mergedHistory.length > 0) {
+      console.log('[CONTEXT] Last 3 messages in history:');
+      mergedHistory.slice(-3).forEach((m, i) => {
+        console.log(`  [${m.role}]: ${m.content.substring(0, 100)}${m.content.length > 100 ? '...' : ''}`);
+      });
+    }
+
     // Check if message likely needs capabilities (optimization)
     const lowerUserMessage = userMessage.toLowerCase();
+
+    // Explicit action commands that MUST use tools (force tool_choice = 'required')
+    const forceToolUsage =
+      (lowerUserMessage.includes('send') && (lowerUserMessage.includes('text') || lowerUserMessage.includes('sms') || lowerUserMessage.includes('message'))) ||
+      (lowerUserMessage.includes('send') && lowerUserMessage.includes('email')) ||
+      lowerUserMessage.includes('search the web') ||
+      lowerUserMessage.includes('look up') ||
+      lowerUserMessage.includes('google') ||
+      lowerUserMessage.includes('create estimate') ||
+      lowerUserMessage.includes('create quote') ||
+      lowerUserMessage.includes('create invoice') ||
+      lowerUserMessage.includes('book appointment') ||
+      lowerUserMessage.includes('schedule appointment') ||
+      lowerUserMessage.includes('create a client') ||
+      lowerUserMessage.includes('add a client') ||
+      lowerUserMessage.includes('new client') ||
+      lowerUserMessage.includes('create lead') ||
+      lowerUserMessage.includes('add lead') ||
+      lowerUserMessage.includes('new lead');
+
+    // General capability detection (use tools but don't force)
     const needsCapabilities =
+      forceToolUsage ||
       lowerUserMessage.includes('send') ||
       lowerUserMessage.includes('email') ||
       lowerUserMessage.includes('text') ||
@@ -711,14 +917,32 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
       lowerUserMessage.includes('remind') ||
       lowerUserMessage.includes('lead') ||
       lowerUserMessage.includes('contact') ||
-      lowerUserMessage.includes('call');
+      lowerUserMessage.includes('call') ||
+      lowerUserMessage.includes('estimate') ||
+      lowerUserMessage.includes('quote') ||
+      lowerUserMessage.includes('invoice') ||
+      lowerUserMessage.includes('bill') ||
+      lowerUserMessage.includes('appointment') ||
+      lowerUserMessage.includes('schedule') ||
+      lowerUserMessage.includes('book') ||
+      lowerUserMessage.includes('calendar') ||
+      lowerUserMessage.includes('web') ||
+      lowerUserMessage.includes('website') ||
+      lowerUserMessage.includes('url') ||
+      lowerUserMessage.includes('show me') ||
+      lowerUserMessage.includes('pull up') ||
+      lowerUserMessage.includes('get me') ||
+      lowerUserMessage.includes('list') ||
+      lowerUserMessage.includes('recent') ||
+      lowerUserMessage.includes('clients') ||
+      lowerUserMessage.includes('customers');
 
-    // OPTIMIZED: Only include tools when likely needed
+    // Use GPT-4o for better reasoning and task completion
     const completionOptions = {
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',  // Upgraded from gpt-4o-mini for better context and task handling
       messages: messages,
-      max_tokens: 60, // REDUCED for faster response (was 80)
-      temperature: 0.7, // Slightly lower for more consistent responses
+      max_tokens: 400, // Increased significantly to prevent cut-off responses
+      temperature: 0.7,
     };
 
     // Only add tools if the message suggests capability use
@@ -727,13 +951,18 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
         type: 'function',
         function: cap
       }));
-      completionOptions.tool_choice = 'auto';
+      // Force tool usage for explicit action commands
+      completionOptions.tool_choice = forceToolUsage ? 'required' : 'auto';
+      console.log(`🔧 [TOOLS] Capabilities enabled, tool_choice: ${completionOptions.tool_choice}`);
     }
 
     const completion = await openai.chat.completions.create(completionOptions);
 
     let aiResponse = completion.choices[0].message.content;
     const toolCalls = completion.choices[0].message.tool_calls;
+
+    // Track UI actions for mobile display
+    let uiAction = null;
 
     // Handle function/capability calls
     if (toolCalls && toolCalls.length > 0) {
@@ -747,16 +976,118 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
         let result;
 
         try {
-          args = JSON.parse(toolCall.function.arguments);
+          // Parse tool call arguments with error handling
+          try {
+            args = JSON.parse(toolCall.function.arguments);
+          } catch (parseError) {
+            console.error(`❌ [CAPABILITY] JSON parse error for ${functionName}:`, parseError.message);
+            console.error(`❌ [CAPABILITY] Raw arguments: ${toolCall.function.arguments}`);
+            // Try to extract what we can from malformed JSON
+            args = {};
+            result = { success: false, error: `Invalid JSON in tool call: ${parseError.message}` };
+            continue;
+          }
+
           console.log(`⚡ [CAPABILITY] Executing: ${functionName}`, args);
 
           result = await ariaCapabilities.execute(functionName, args);
+
+          // Generate UI action based on capability type
+          if (functionName === 'send_sms' || functionName === 'sendSMS') {
+            uiAction = {
+              type: 'confirm_sms',
+              data: {
+                to: args.to || args.phoneNumber,
+                message: args.message || args.body,
+                contactName: args.contactName,
+                status: result.success ? 'sent' : 'failed',
+                result: result
+              }
+            };
+          } else if (functionName === 'send_email' || functionName === 'sendEmail') {
+            uiAction = {
+              type: 'confirm_email',
+              data: {
+                to: args.to || args.email,
+                subject: args.subject,
+                body: args.body || args.message,
+                status: result.success ? 'sent' : 'failed',
+                result: result
+              }
+            };
+          } else if (functionName === 'search_leads' || functionName === 'searchLeads' || functionName === 'get_leads' || functionName === 'get_recent_leads') {
+            uiAction = {
+              type: 'show_list',
+              listType: 'leads',
+              data: {
+                items: result.leads || result.data || [],
+                query: args.query || args.searchTerm || 'recent',
+                count: result.count || (result.leads?.length || 0)
+              }
+            };
+          } else if (functionName === 'search_contacts' || functionName === 'searchContacts' || functionName === 'get_contacts' || functionName === 'get_contact_details') {
+            uiAction = {
+              type: 'show_list',
+              listType: 'contacts',
+              data: {
+                items: result.contacts || result.contact ? [result.contact] : result.data || [],
+                query: args.query || args.searchTerm || 'search',
+                count: result.count || (result.contacts?.length || result.contact ? 1 : 0)
+              }
+            };
+          } else if (functionName === 'get_contact_history') {
+            uiAction = {
+              type: 'show_history',
+              data: {
+                contact: args.contactIdentifier,
+                history: result.history || result.data || [],
+                count: result.count || (result.history?.length || 0)
+              }
+            };
+          } else if (functionName === 'get_appointments' || functionName === 'searchAppointments') {
+            uiAction = {
+              type: 'show_list',
+              listType: 'appointments',
+              data: {
+                items: result.appointments || result.data || [],
+                count: result.count || (result.appointments?.length || 0)
+              }
+            };
+          } else if (functionName === 'create_appointment' || functionName === 'schedule_appointment') {
+            uiAction = {
+              type: 'confirm_appointment',
+              data: {
+                appointment: result.appointment || args,
+                status: result.success ? 'scheduled' : 'failed',
+                result: result
+              }
+            };
+          } else if (functionName === 'remember' || functionName === 'store_memory') {
+            uiAction = {
+              type: 'confirm_memory',
+              data: {
+                key: args.key,
+                value: args.value,
+                status: result.success ? 'saved' : 'failed'
+              }
+            };
+          }
+
         } catch (error) {
           console.error(`❌ [CAPABILITY] Error executing ${functionName}:`, error.message);
           result = {
             success: false,
             error: error.message,
             summary: `Failed to execute ${functionName}: ${error.message}`
+          };
+
+          // Set error UI action
+          uiAction = {
+            type: 'error',
+            data: {
+              action: functionName,
+              message: error.message
+            }
           };
         }
 
@@ -782,6 +1113,9 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
 
       aiResponse = finalCompletion.choices[0].message.content;
       console.log('✅ [CAPABILITIES] Tool-enhanced response generated');
+      if (uiAction) {
+        console.log('📱 [UI_ACTION] Sending UI action:', uiAction.type);
+      }
     }
     const aiResponseTime = Date.now() - aiStart;
     console.log(`[TIMING] AI response took ${aiResponseTime}ms`);
@@ -794,35 +1128,24 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
       model: 'gpt-4o-mini'
     });
 
-    // Step 3: Generate voice (OPTIMIZED - maximum streaming)
+    // Step 3: Generate voice using TTS Service (supports ElevenLabs, XTTS, Piper)
     console.log('[TIMING] Step 3: Starting voice generation...');
     const voiceStart = Date.now();
 
-    const voiceResponse = await axios.post(
-      'https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL',
-      {
-        text: aiResponse,
-        model_id: 'eleven_turbo_v2_5',  // Turbo v2.5 for speed
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
-          style: 0.0,
-          use_speaker_boost: false  // DISABLED for faster generation
-        },
-        optimize_streaming_latency: 4  // MAXIMUM optimization (was 3)
-      },
-      {
-        headers: {
-          'Accept': 'audio/mpeg',
-          'xi-api-key': ELEVENLABS_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        responseType: 'arraybuffer',
-        timeout: 4000 // REDUCED timeout (was 5000)
-      }
-    );
+    // Get user's preferred voice or use default
+    const preferredVoiceId = userProfile?.ariaPreferences?.elevenLabsVoiceId || 'EXAVITQu4vr4xnSDxMaL';
+    const voiceStyle = userProfile?.ariaPreferences?.voiceStyle || 'friendly';
 
-    const audioBase64Result = Buffer.from(voiceResponse.data).toString('base64');
+    // Convert ElevenLabs voice ID to voice name for TTS service
+    const voiceName = ttsService.voiceIdToName(preferredVoiceId);
+
+    console.log(`[VOICE] Using voice: ${voiceName} (${preferredVoiceId}), style: ${voiceStyle}, provider: ${ttsService.provider}`);
+
+    // Generate audio using TTS service (handles provider switching automatically)
+    const audioBase64Result = await ttsService.synthesizeBase64(aiResponse, {
+      voice: voiceName,
+      style: voiceStyle
+    });
     const voiceGenTime = Date.now() - voiceStart;
     const totalTime = Date.now() - startTime;
 
@@ -868,6 +1191,7 @@ REMEMBER: You are Aria - be intelligent, proactive, and conversational. Think be
       userMessage: userMessage,
       aiMessage: aiResponse,
       audioBase64: audioBase64Result,
+      uiAction: uiAction, // UI action for mobile display (lists, confirmations, drafts)
       conversationHistory: [
         ...conversationHistory,
         { role: 'user', content: userMessage },
@@ -954,6 +1278,60 @@ router.get('/analytics', (req, res) => {
 });
 
 // @desc    Get training statistics
+// @desc    Get TTS service status and available voices
+// @route   GET /api/voice/tts-status
+// @access  Public
+router.get('/tts-status', async (req, res) => {
+  try {
+    const health = await ttsService.healthCheck();
+    const voices = ttsService.getAvailableVoices();
+
+    res.json({
+      success: true,
+      ...health,
+      voices
+    });
+  } catch (error) {
+    console.error('TTS status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get TTS status',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Switch TTS provider at runtime
+// @route   POST /api/voice/tts-provider
+// @access  Public (should be protected in production)
+router.post('/tts-provider', (req, res) => {
+  try {
+    const { provider, fallback } = req.body;
+
+    if (!provider) {
+      return res.status(400).json({
+        success: false,
+        message: 'Provider is required'
+      });
+    }
+
+    ttsService.setProvider(provider, fallback);
+
+    res.json({
+      success: true,
+      message: `TTS provider switched to ${provider}`,
+      fallback: fallback || null
+    });
+  } catch (error) {
+    console.error('TTS provider switch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to switch TTS provider',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/voice/training-stats
 // @access  Public (for development)
 router.get('/training-stats', (req, res) => {

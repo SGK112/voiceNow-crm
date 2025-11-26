@@ -4,6 +4,8 @@ import OpenAI from 'openai';
 import { ariaMemoryService } from '../services/ariaMemoryService.js';
 import { ariaSlackService } from '../services/ariaSlackService.js';
 import { pushNotificationService } from '../services/pushNotificationService.js';
+import N8nService from '../services/n8nService.js';
+import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -574,6 +576,565 @@ export const capabilities = {
       },
       required: ['contactIdentifier', 'subject', 'body']
     }
+  },
+
+  // N8N Workflow Automation
+  trigger_workflow: {
+    name: 'trigger_workflow',
+    description: 'Trigger an automated n8n workflow. Available workflows: emergency_dispatch (plumbing/HVAC emergencies), estimate_request (send estimate request to team), job_complete (trigger completion workflow with payment/review), quote_followup (start follow-up sequence), send_team_notification (notify team via Slack/SMS)',
+    parameters: {
+      type: 'object',
+      properties: {
+        workflowType: {
+          type: 'string',
+          enum: ['emergency_dispatch', 'estimate_request', 'job_complete', 'quote_followup', 'send_team_notification', 'custom'],
+          description: 'Type of workflow to trigger'
+        },
+        data: {
+          type: 'object',
+          description: 'Data to pass to the workflow (lead info, contact details, job details, etc.)',
+          properties: {
+            lead_name: { type: 'string', description: 'Contact/lead name' },
+            lead_phone: { type: 'string', description: 'Phone number' },
+            lead_email: { type: 'string', description: 'Email address' },
+            address: { type: 'string', description: 'Service/job address' },
+            urgency: { type: 'string', enum: ['low', 'medium', 'high', 'emergency'], description: 'Urgency level' },
+            project_type: { type: 'string', description: 'Type of project (e.g., plumbing, electrical, remodel)' },
+            issue_description: { type: 'string', description: 'Description of issue or request' },
+            notes: { type: 'string', description: 'Additional notes' }
+          }
+        },
+        customWebhookPath: {
+          type: 'string',
+          description: 'For custom workflows, the webhook path in n8n'
+        }
+      },
+      required: ['workflowType', 'data']
+    }
+  },
+
+  list_workflows: {
+    name: 'list_workflows',
+    description: 'List available n8n automation workflows',
+    parameters: {
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          enum: ['all', 'construction', 'general'],
+          description: 'Filter by category'
+        }
+      }
+    }
+  },
+
+  deploy_workflow: {
+    name: 'deploy_workflow',
+    description: 'Deploy a new workflow from a template to n8n. Use this when setting up new automations.',
+    parameters: {
+      type: 'object',
+      properties: {
+        templateName: {
+          type: 'string',
+          enum: ['plumbing_emergency_dispatch', 'project_estimate_workflow', 'job_completion_workflow', 'quote_follow_up', 'material_delivery_tracking', 'slack_notification', 'send_sms', 'send_email', 'book_appointment'],
+          description: 'Name of the workflow template to deploy'
+        },
+        customName: {
+          type: 'string',
+          description: 'Custom name for this workflow instance'
+        }
+      },
+      required: ['templateName']
+    }
+  },
+
+  // Estimate/Quote capabilities
+  create_estimate: {
+    name: 'create_estimate',
+    description: 'Create a new estimate/quote for a client. Use this when the user wants to write up a quote or estimate for work.',
+    parameters: {
+      type: 'object',
+      properties: {
+        clientName: {
+          type: 'string',
+          description: 'Name of the client'
+        },
+        clientPhone: {
+          type: 'string',
+          description: 'Client phone number (optional)'
+        },
+        clientEmail: {
+          type: 'string',
+          description: 'Client email address (optional)'
+        },
+        projectType: {
+          type: 'string',
+          description: 'Type of project (e.g., "kitchen remodel", "countertop installation", "bathroom renovation")'
+        },
+        projectDescription: {
+          type: 'string',
+          description: 'Description of the work to be done'
+        },
+        items: {
+          type: 'array',
+          description: 'Line items for the estimate',
+          items: {
+            type: 'object',
+            properties: {
+              description: { type: 'string', description: 'Item description' },
+              quantity: { type: 'number', description: 'Quantity' },
+              rate: { type: 'number', description: 'Price per unit' }
+            }
+          }
+        },
+        notes: {
+          type: 'string',
+          description: 'Additional notes for the estimate'
+        }
+      },
+      required: ['clientName', 'projectType']
+    }
+  },
+
+  get_estimates: {
+    name: 'get_estimates',
+    description: 'Get recent estimates/quotes',
+    parameters: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['all', 'draft', 'sent', 'accepted', 'declined'],
+          description: 'Filter by status'
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of estimates to retrieve (default 5)'
+        }
+      }
+    }
+  },
+
+  send_estimate: {
+    name: 'send_estimate',
+    description: 'Send an estimate to the client via email',
+    parameters: {
+      type: 'object',
+      properties: {
+        estimateId: {
+          type: 'string',
+          description: 'ID of the estimate to send'
+        },
+        message: {
+          type: 'string',
+          description: 'Custom message to include with the estimate email'
+        }
+      },
+      required: ['estimateId']
+    }
+  },
+
+  // Invoice capabilities
+  create_invoice: {
+    name: 'create_invoice',
+    description: 'Create a new invoice for a client',
+    parameters: {
+      type: 'object',
+      properties: {
+        clientName: {
+          type: 'string',
+          description: 'Name of the client'
+        },
+        clientEmail: {
+          type: 'string',
+          description: 'Client email address'
+        },
+        items: {
+          type: 'array',
+          description: 'Line items for the invoice',
+          items: {
+            type: 'object',
+            properties: {
+              description: { type: 'string', description: 'Item description' },
+              quantity: { type: 'number', description: 'Quantity' },
+              rate: { type: 'number', description: 'Price per unit' }
+            }
+          }
+        },
+        dueDate: {
+          type: 'string',
+          description: 'Due date (e.g., "30 days", "2025-12-15")'
+        },
+        notes: {
+          type: 'string',
+          description: 'Additional notes'
+        }
+      },
+      required: ['clientName', 'items']
+    }
+  },
+
+  send_invoice: {
+    name: 'send_invoice',
+    description: 'Send an invoice to the client via email',
+    parameters: {
+      type: 'object',
+      properties: {
+        invoiceId: {
+          type: 'string',
+          description: 'ID of the invoice to send'
+        },
+        message: {
+          type: 'string',
+          description: 'Custom message to include with the invoice email'
+        }
+      },
+      required: ['invoiceId']
+    }
+  },
+
+  get_invoices: {
+    name: 'get_invoices',
+    description: 'Get recent invoices',
+    parameters: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['all', 'draft', 'sent', 'paid', 'overdue'],
+          description: 'Filter by status'
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of invoices to retrieve (default 5)'
+        }
+      }
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PHONE DATA ACCESS
+  // ═══════════════════════════════════════════════════════════════════
+
+  get_phone_contacts: {
+    name: 'get_phone_contacts',
+    description: 'Get contacts from synced phone/device. Use this to look up contact details, find someone\'s phone number or email.',
+    parameters: {
+      type: 'object',
+      properties: {
+        search: {
+          type: 'string',
+          description: 'Search term to filter contacts (name, phone, email, or company)'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of contacts to return (default 20)',
+          default: 20
+        }
+      }
+    }
+  },
+
+  find_contact: {
+    name: 'find_contact',
+    description: 'Find a specific contact by name. Returns detailed info including phone, email, and recent interactions.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Name of the contact to find'
+        }
+      },
+      required: ['name']
+    }
+  },
+
+  get_call_history: {
+    name: 'get_call_history',
+    description: 'Get recent call history from phone. Shows who called, call duration, and direction.',
+    parameters: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Number of calls to retrieve (default 20)',
+          default: 20
+        },
+        direction: {
+          type: 'string',
+          enum: ['inbound', 'outbound', 'missed'],
+          description: 'Filter by call direction'
+        },
+        contactPhone: {
+          type: 'string',
+          description: 'Filter calls to/from a specific phone number'
+        }
+      }
+    }
+  },
+
+  get_message_history: {
+    name: 'get_message_history',
+    description: 'Get SMS/text message history with a specific contact',
+    parameters: {
+      type: 'object',
+      properties: {
+        contactIdentifier: {
+          type: 'string',
+          description: 'Contact name or phone number to get messages for'
+        }
+      },
+      required: ['contactIdentifier']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // TEAM COLLABORATION
+  // ═══════════════════════════════════════════════════════════════════
+
+  get_team_members: {
+    name: 'get_team_members',
+    description: 'Get list of team members and their roles',
+    parameters: {
+      type: 'object',
+      properties: {}
+    }
+  },
+
+  message_team_member: {
+    name: 'message_team_member',
+    description: 'Send a message to a team member. Can be marked as urgent for SMS delivery.',
+    parameters: {
+      type: 'object',
+      properties: {
+        memberEmail: {
+          type: 'string',
+          description: 'Email or name of the team member to message'
+        },
+        message: {
+          type: 'string',
+          description: 'Message content to send'
+        },
+        urgent: {
+          type: 'boolean',
+          description: 'Mark as urgent (sends via SMS in addition to push notification)',
+          default: false
+        }
+      },
+      required: ['memberEmail', 'message']
+    }
+  },
+
+  assign_task_to_team: {
+    name: 'assign_task_to_team',
+    description: 'Assign a task to a team member for follow-up or action',
+    parameters: {
+      type: 'object',
+      properties: {
+        memberEmail: {
+          type: 'string',
+          description: 'Email or name of the team member to assign task to'
+        },
+        taskDescription: {
+          type: 'string',
+          description: 'Description of the task'
+        },
+        priority: {
+          type: 'string',
+          enum: ['low', 'medium', 'high', 'urgent'],
+          description: 'Task priority level',
+          default: 'medium'
+        },
+        dueDate: {
+          type: 'string',
+          description: 'Due date for the task (YYYY-MM-DD format or natural language)'
+        }
+      },
+      required: ['memberEmail', 'taskDescription']
+    }
+  },
+
+  request_follow_up: {
+    name: 'request_follow_up',
+    description: 'Request a team member to follow up with a specific contact',
+    parameters: {
+      type: 'object',
+      properties: {
+        memberEmail: {
+          type: 'string',
+          description: 'Email or name of the team member to request follow-up from'
+        },
+        contactName: {
+          type: 'string',
+          description: 'Name of the contact to follow up with'
+        },
+        notes: {
+          type: 'string',
+          description: 'Notes or context for the follow-up'
+        }
+      },
+      required: ['memberEmail', 'contactName', 'notes']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SCHEDULE & CALENDAR
+  // ═══════════════════════════════════════════════════════════════════
+
+  get_schedule: {
+    name: 'get_schedule',
+    description: 'Get schedule/calendar for upcoming days. Shows all appointments and events.',
+    parameters: {
+      type: 'object',
+      properties: {
+        days: {
+          type: 'number',
+          description: 'Number of days ahead to show (default 7)',
+          default: 7
+        },
+        includeCompleted: {
+          type: 'boolean',
+          description: 'Include completed appointments',
+          default: false
+        }
+      }
+    }
+  },
+
+  check_availability: {
+    name: 'check_availability',
+    description: 'Check if a specific time slot is available for scheduling',
+    parameters: {
+      type: 'object',
+      properties: {
+        proposedTime: {
+          type: 'string',
+          description: 'The proposed date/time to check (ISO format or natural language like "tomorrow at 2pm")'
+        },
+        durationMinutes: {
+          type: 'number',
+          description: 'Duration of the proposed meeting in minutes (default 60)',
+          default: 60
+        }
+      },
+      required: ['proposedTime']
+    }
+  },
+
+  send_appointment_reminder: {
+    name: 'send_appointment_reminder',
+    description: 'Send a reminder for an upcoming appointment to the contact',
+    parameters: {
+      type: 'object',
+      properties: {
+        appointmentId: {
+          type: 'string',
+          description: 'ID of the appointment to send reminder for'
+        }
+      },
+      required: ['appointmentId']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // RAG KNOWLEDGE BASE
+  // ═══════════════════════════════════════════════════════════════════
+
+  search_knowledge: {
+    name: 'search_knowledge',
+    description: 'Search the knowledge base for relevant information, pricing, policies, or business data',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'What to search for in the knowledge base'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of results to return (default 5)',
+          default: 5
+        }
+      },
+      required: ['query']
+    }
+  },
+
+  list_knowledge_bases: {
+    name: 'list_knowledge_bases',
+    description: 'List all available knowledge bases and their topics',
+    parameters: {
+      type: 'object',
+      properties: {}
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PHONE ORGANIZATION & CLEANUP
+  // ═══════════════════════════════════════════════════════════════════
+
+  find_duplicate_contacts: {
+    name: 'find_duplicate_contacts',
+    description: 'Find duplicate contacts that could be merged to clean up the contact list',
+    parameters: {
+      type: 'object',
+      properties: {}
+    }
+  },
+
+  merge_contacts: {
+    name: 'merge_contacts',
+    description: 'Merge two duplicate contacts into one',
+    parameters: {
+      type: 'object',
+      properties: {
+        keepContactId: {
+          type: 'string',
+          description: 'ID of the contact to keep (primary)'
+        },
+        removeContactId: {
+          type: 'string',
+          description: 'ID of the contact to merge and remove'
+        }
+      },
+      required: ['keepContactId', 'removeContactId']
+    }
+  },
+
+  get_stale_contacts: {
+    name: 'get_stale_contacts',
+    description: 'Find contacts that haven\'t been contacted in a while and may need follow-up',
+    parameters: {
+      type: 'object',
+      properties: {
+        daysSinceContact: {
+          type: 'number',
+          description: 'Number of days since last contact (default 30)',
+          default: 30
+        }
+      }
+    }
+  },
+
+  tag_contact: {
+    name: 'tag_contact',
+    description: 'Add tags/categories to a contact for organization',
+    parameters: {
+      type: 'object',
+      properties: {
+        contactId: {
+          type: 'string',
+          description: 'ID of the contact to tag'
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Tags to add to the contact (e.g., ["VIP", "contractor", "supplier"])'
+        }
+      },
+      required: ['contactId', 'tags']
+    }
   }
 };
 
@@ -582,6 +1143,9 @@ export function getCapabilityDefinitions() {
   return Object.values(capabilities);
 }
 
+// Initialize n8n service singleton
+const n8nService = new N8nService();
+
 // Capability implementations
 export class AriaCapabilities {
   constructor(services = {}) {
@@ -589,6 +1153,7 @@ export class AriaCapabilities {
     this.twilioService = services.twilioService;
     this.memoryStore = services.memoryStore || new Map();
     this.models = services.models; // Database models
+    this.n8nService = n8nService;
   }
 
   // Web scraping
@@ -1423,6 +1988,434 @@ export class AriaCapabilities {
     }
   }
 
+  // N8N Workflow Methods
+  async triggerWorkflow(workflowType, data, customWebhookPath) {
+    try {
+      console.log(`🔄 [N8N] Triggering workflow: ${workflowType}`);
+      console.log(`📦 [N8N] Data:`, JSON.stringify(data, null, 2));
+
+      // Map workflow types to webhook paths
+      const workflowPaths = {
+        'emergency_dispatch': 'emergency-dispatch',
+        'estimate_request': 'estimate-request',
+        'job_complete': 'job-complete',
+        'quote_followup': 'quote-followup',
+        'send_team_notification': 'team-notification'
+      };
+
+      const webhookPath = workflowType === 'custom'
+        ? customWebhookPath
+        : workflowPaths[workflowType] || workflowType;
+
+      // Add timestamp and source
+      const enrichedData = {
+        ...data,
+        triggered_at: new Date().toISOString(),
+        source: 'aria_ai',
+        workflow_type: workflowType
+      };
+
+      const result = await this.n8nService.triggerWorkflow(webhookPath, enrichedData);
+
+      console.log(`✅ [N8N] Workflow triggered successfully`);
+
+      // Also send notification
+      await this.sendNotification(
+        `Workflow "${workflowType}" triggered for ${data.lead_name || 'lead'}`,
+        'Aria Automation',
+        'task'
+      );
+
+      return {
+        success: true,
+        workflowType,
+        webhookPath,
+        result,
+        summary: `Automation "${workflowType}" triggered successfully${data.lead_name ? ` for ${data.lead_name}` : ''}`
+      };
+    } catch (error) {
+      console.error('❌ [N8N] Workflow trigger failed:', error.message);
+      return {
+        success: false,
+        error: `Failed to trigger workflow: ${error.message}`,
+        summary: `Could not trigger automation: ${error.message}`
+      };
+    }
+  }
+
+  async listWorkflows(category = 'all') {
+    try {
+      console.log(`📋 [N8N] Listing workflows (category: ${category})`);
+
+      const templates = this.n8nService.getPrebuiltWorkflowTemplates();
+
+      let workflows = Object.entries(templates).map(([key, value]) => ({
+        id: key,
+        name: value.name,
+        type: value.type,
+        category: value.category || 'general',
+        description: value.description || ''
+      }));
+
+      // Filter by category if specified
+      if (category !== 'all') {
+        workflows = workflows.filter(w => w.category === category);
+      }
+
+      console.log(`✅ [N8N] Found ${workflows.length} workflows`);
+
+      return {
+        success: true,
+        workflows,
+        summary: `Found ${workflows.length} available workflows: ${workflows.map(w => w.name).join(', ')}`
+      };
+    } catch (error) {
+      console.error('❌ [N8N] List workflows failed:', error.message);
+      return {
+        success: false,
+        error: `Failed to list workflows: ${error.message}`
+      };
+    }
+  }
+
+  async deployWorkflow(templateName, customName) {
+    try {
+      console.log(`🚀 [N8N] Deploying workflow: ${templateName}`);
+
+      const options = {};
+      if (customName) {
+        options.userId = customName; // Used to customize workflow name
+      }
+
+      const result = await this.n8nService.deployWorkflowFromTemplate(templateName, options);
+
+      console.log(`✅ [N8N] Workflow deployed: ${result.workflowId}`);
+
+      // Send notification about new workflow
+      await this.sendNotification(
+        `New automation deployed: ${result.workflowName}`,
+        'Aria Automation',
+        'task'
+      );
+
+      return {
+        success: true,
+        workflowId: result.workflowId,
+        workflowName: result.workflowName,
+        webhookUrl: result.webhookUrl,
+        active: result.active,
+        summary: `Workflow "${result.workflowName}" deployed and ${result.active ? 'activated' : 'created'}. Webhook: ${result.webhookUrl}`
+      };
+    } catch (error) {
+      console.error('❌ [N8N] Deployment failed:', error.message);
+      return {
+        success: false,
+        error: `Failed to deploy workflow: ${error.message}`,
+        summary: `Could not deploy workflow: ${error.message}`
+      };
+    }
+  }
+
+  // Estimate/Quote capabilities
+  async createEstimate(params) {
+    try {
+      console.log(`📋 [ESTIMATE] Creating estimate for: ${params.clientName}`);
+
+      // Dynamically import VoiceEstimate model
+      const VoiceEstimate = (await import('../models/VoiceEstimate.js')).default;
+
+      // Calculate item amounts if not provided
+      const items = (params.items || []).map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        rate: item.rate || 0,
+        amount: (item.quantity || 1) * (item.rate || 0)
+      }));
+
+      const estimate = await VoiceEstimate.create({
+        user: params.userId || '000000000000000000000000',
+        title: params.projectType || 'New Estimate',
+        description: params.projectDescription,
+        client: {
+          name: params.clientName,
+          email: params.clientEmail,
+          phone: params.clientPhone
+        },
+        projectType: params.projectType,
+        projectScope: params.projectDescription,
+        items,
+        notes: params.notes,
+        status: 'draft',
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+      });
+
+      console.log(`✅ [ESTIMATE] Created: ${estimate.estimateNumber}`);
+
+      return {
+        success: true,
+        estimate: {
+          id: estimate._id,
+          number: estimate.estimateNumber,
+          client: estimate.client.name,
+          total: estimate.total,
+          status: estimate.status
+        },
+        summary: `Created estimate ${estimate.estimateNumber} for ${params.clientName}. Total: $${estimate.total.toFixed(2)}`
+      };
+    } catch (error) {
+      console.error('❌ [ESTIMATE] Error creating estimate:', error.message);
+      return {
+        success: false,
+        error: `Failed to create estimate: ${error.message}`
+      };
+    }
+  }
+
+  async getEstimates(status = 'all', limit = 5) {
+    try {
+      console.log(`📋 [ESTIMATES] Getting estimates (status: ${status}, limit: ${limit})`);
+
+      const VoiceEstimate = (await import('../models/VoiceEstimate.js')).default;
+
+      const query = {};
+      if (status !== 'all') {
+        query.status = status;
+      }
+
+      const estimates = await VoiceEstimate.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .select('estimateNumber title client total status createdAt');
+
+      console.log(`✅ [ESTIMATES] Found ${estimates.length} estimates`);
+
+      return {
+        success: true,
+        estimates: estimates.map(e => ({
+          id: e._id,
+          number: e.estimateNumber,
+          title: e.title,
+          client: e.client?.name,
+          total: e.total,
+          status: e.status,
+          date: e.createdAt
+        })),
+        summary: estimates.length > 0
+          ? `Found ${estimates.length} estimates. Most recent: ${estimates[0].estimateNumber} for ${estimates[0].client?.name} ($${estimates[0].total})`
+          : 'No estimates found'
+      };
+    } catch (error) {
+      console.error('❌ [ESTIMATES] Error:', error.message);
+      return {
+        success: false,
+        error: `Failed to get estimates: ${error.message}`
+      };
+    }
+  }
+
+  async sendEstimate(estimateId, customMessage) {
+    try {
+      console.log(`📧 [ESTIMATE] Sending estimate: ${estimateId}`);
+
+      const VoiceEstimate = (await import('../models/VoiceEstimate.js')).default;
+
+      const estimate = await VoiceEstimate.findById(estimateId);
+      if (!estimate) {
+        return { success: false, error: 'Estimate not found' };
+      }
+
+      if (!estimate.client?.email) {
+        return { success: false, error: 'Client email not set on estimate' };
+      }
+
+      // Build email content
+      const subject = `Estimate ${estimate.estimateNumber} - ${estimate.title}`;
+      const body = `${customMessage || 'Please find your estimate attached.'}\n\n` +
+        `Estimate #: ${estimate.estimateNumber}\n` +
+        `Project: ${estimate.title}\n` +
+        `Total: $${estimate.total.toFixed(2)}\n` +
+        `Valid Until: ${estimate.validUntil?.toLocaleDateString() || 'N/A'}\n\n` +
+        `Items:\n${estimate.items.map(i => `- ${i.description}: $${i.amount}`).join('\n')}`;
+
+      // Send email
+      const emailResult = await this.sendEmail(estimate.client.email, subject, body);
+
+      if (emailResult.success) {
+        estimate.status = 'sent';
+        estimate.sentDate = new Date();
+        await estimate.save();
+      }
+
+      return {
+        success: emailResult.success,
+        summary: emailResult.success
+          ? `Estimate ${estimate.estimateNumber} sent to ${estimate.client.email}`
+          : `Failed to send estimate: ${emailResult.error}`
+      };
+    } catch (error) {
+      console.error('❌ [ESTIMATE] Send error:', error.message);
+      return {
+        success: false,
+        error: `Failed to send estimate: ${error.message}`
+      };
+    }
+  }
+
+  // Invoice capabilities
+  async createInvoice(params) {
+    try {
+      console.log(`🧾 [INVOICE] Creating invoice for: ${params.clientName}`);
+
+      const Invoice = (await import('../models/Invoice.js')).default;
+
+      // Calculate item amounts
+      const items = (params.items || []).map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        rate: item.rate || 0,
+        amount: (item.quantity || 1) * (item.rate || 0),
+        taxable: true
+      }));
+
+      // Parse due date
+      let dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
+      if (params.dueDate) {
+        if (params.dueDate.includes('day')) {
+          const days = parseInt(params.dueDate) || 30;
+          dueDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+        } else {
+          dueDate = new Date(params.dueDate);
+        }
+      }
+
+      const invoice = await Invoice.create({
+        user: params.userId || '000000000000000000000000',
+        type: 'invoice',
+        status: 'draft',
+        client: {
+          name: params.clientName,
+          email: params.clientEmail
+        },
+        items,
+        issueDate: new Date(),
+        dueDate,
+        notes: params.notes
+      });
+
+      console.log(`✅ [INVOICE] Created: ${invoice.invoiceNumber}`);
+
+      return {
+        success: true,
+        invoice: {
+          id: invoice._id,
+          number: invoice.invoiceNumber,
+          client: invoice.client.name,
+          total: invoice.total,
+          status: invoice.status,
+          dueDate: invoice.dueDate
+        },
+        summary: `Created invoice ${invoice.invoiceNumber} for ${params.clientName}. Total: $${invoice.total.toFixed(2)}, Due: ${dueDate.toLocaleDateString()}`
+      };
+    } catch (error) {
+      console.error('❌ [INVOICE] Error creating invoice:', error.message);
+      return {
+        success: false,
+        error: `Failed to create invoice: ${error.message}`
+      };
+    }
+  }
+
+  async sendInvoice(invoiceId, customMessage) {
+    try {
+      console.log(`📧 [INVOICE] Sending invoice: ${invoiceId}`);
+
+      const Invoice = (await import('../models/Invoice.js')).default;
+
+      const invoice = await Invoice.findById(invoiceId);
+      if (!invoice) {
+        return { success: false, error: 'Invoice not found' };
+      }
+
+      if (!invoice.client?.email) {
+        return { success: false, error: 'Client email not set on invoice' };
+      }
+
+      // Build email content
+      const subject = `Invoice ${invoice.invoiceNumber}`;
+      const body = `${customMessage || 'Please find your invoice below.'}\n\n` +
+        `Invoice #: ${invoice.invoiceNumber}\n` +
+        `Amount Due: $${invoice.total.toFixed(2)}\n` +
+        `Due Date: ${invoice.dueDate?.toLocaleDateString() || 'Upon Receipt'}\n\n` +
+        `Items:\n${invoice.items.map(i => `- ${i.description}: $${i.amount}`).join('\n')}`;
+
+      // Send email
+      const emailResult = await this.sendEmail(invoice.client.email, subject, body);
+
+      if (emailResult.success) {
+        invoice.status = 'sent';
+        invoice.sentDate = new Date();
+        await invoice.save();
+      }
+
+      return {
+        success: emailResult.success,
+        summary: emailResult.success
+          ? `Invoice ${invoice.invoiceNumber} sent to ${invoice.client.email}`
+          : `Failed to send invoice: ${emailResult.error}`
+      };
+    } catch (error) {
+      console.error('❌ [INVOICE] Send error:', error.message);
+      return {
+        success: false,
+        error: `Failed to send invoice: ${error.message}`
+      };
+    }
+  }
+
+  async getInvoices(status = 'all', limit = 5) {
+    try {
+      console.log(`🧾 [INVOICES] Getting invoices (status: ${status}, limit: ${limit})`);
+
+      const Invoice = (await import('../models/Invoice.js')).default;
+
+      const query = { type: 'invoice' };
+      if (status !== 'all') {
+        query.status = status;
+      }
+
+      const invoices = await Invoice.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .select('invoiceNumber client total status dueDate createdAt amountPaid');
+
+      console.log(`✅ [INVOICES] Found ${invoices.length} invoices`);
+
+      return {
+        success: true,
+        invoices: invoices.map(i => ({
+          id: i._id,
+          number: i.invoiceNumber,
+          client: i.client?.name,
+          total: i.total,
+          paid: i.amountPaid,
+          balance: i.total - i.amountPaid,
+          status: i.status,
+          dueDate: i.dueDate,
+          date: i.createdAt
+        })),
+        summary: invoices.length > 0
+          ? `Found ${invoices.length} invoices. Most recent: ${invoices[0].invoiceNumber} for ${invoices[0].client?.name} ($${invoices[0].total})`
+          : 'No invoices found'
+      };
+    } catch (error) {
+      console.error('❌ [INVOICES] Error:', error.message);
+      return {
+        success: false,
+        error: `Failed to get invoices: ${error.message}`
+      };
+    }
+  }
+
   async searchContacts(query) {
     try {
       if (!this.models?.Lead) {
@@ -1539,6 +2532,102 @@ export class AriaCapabilities {
       case 'send_contact_email':
         return await this.sendContactEmail(args.contactIdentifier, args.subject, args.body);
 
+      // N8N Workflow capabilities
+      case 'trigger_workflow':
+        return await this.triggerWorkflow(args.workflowType, args.data, args.customWebhookPath);
+
+      case 'list_workflows':
+        return await this.listWorkflows(args.category);
+
+      case 'deploy_workflow':
+        return await this.deployWorkflow(args.templateName, args.customName);
+
+      // Estimate capabilities
+      case 'create_estimate':
+        return await this.createEstimate(args);
+
+      case 'get_estimates':
+        return await this.getEstimates(args.status, args.limit);
+
+      case 'send_estimate':
+        return await this.sendEstimate(args.estimateId, args.message);
+
+      // Invoice capabilities
+      case 'create_invoice':
+        return await this.createInvoice(args);
+
+      case 'send_invoice':
+        return await this.sendInvoice(args.invoiceId, args.message);
+
+      case 'get_invoices':
+        return await this.getInvoices(args.status, args.limit);
+
+      // ═══════════════════════════════════════════════════════════════
+      // Phone Data Access (via AriaIntegrationService)
+      // ═══════════════════════════════════════════════════════════════
+      case 'get_phone_contacts':
+        return await this.getPhoneContacts(args.search, args.limit);
+
+      case 'find_contact':
+        return await this.findContact(args.name);
+
+      case 'get_call_history':
+        return await this.getCallHistory(args.limit, args.direction, args.contactPhone);
+
+      case 'get_message_history':
+        return await this.getMessageHistory(args.contactIdentifier);
+
+      // ═══════════════════════════════════════════════════════════════
+      // Team Collaboration (via AriaIntegrationService)
+      // ═══════════════════════════════════════════════════════════════
+      case 'get_team_members':
+        return await this.getTeamMembers();
+
+      case 'message_team_member':
+        return await this.messageTeamMember(args.memberEmail, args.message, args.urgent);
+
+      case 'assign_task_to_team':
+        return await this.assignTaskToTeam(args.memberEmail, args.taskDescription, args.priority, args.dueDate);
+
+      case 'request_follow_up':
+        return await this.requestFollowUp(args.memberEmail, args.contactName, args.notes);
+
+      // ═══════════════════════════════════════════════════════════════
+      // Schedule & Calendar (via AriaIntegrationService)
+      // ═══════════════════════════════════════════════════════════════
+      case 'get_schedule':
+        return await this.getSchedule(args.days, args.includeCompleted);
+
+      case 'check_availability':
+        return await this.checkAvailability(args.proposedTime, args.durationMinutes);
+
+      case 'send_appointment_reminder':
+        return await this.sendAppointmentReminder(args.appointmentId);
+
+      // ═══════════════════════════════════════════════════════════════
+      // RAG Knowledge Base (via AriaIntegrationService)
+      // ═══════════════════════════════════════════════════════════════
+      case 'search_knowledge':
+        return await this.searchKnowledge(args.query, args.limit);
+
+      case 'list_knowledge_bases':
+        return await this.listKnowledgeBases();
+
+      // ═══════════════════════════════════════════════════════════════
+      // Phone Organization & Cleanup (via AriaIntegrationService)
+      // ═══════════════════════════════════════════════════════════════
+      case 'find_duplicate_contacts':
+        return await this.findDuplicateContacts();
+
+      case 'merge_contacts':
+        return await this.mergeContacts(args.keepContactId, args.removeContactId);
+
+      case 'get_stale_contacts':
+        return await this.getStaleContacts(args.daysSinceContact);
+
+      case 'tag_contact':
+        return await this.tagContact(args.contactId, args.tags);
+
       default:
         return {
           success: false,
@@ -1584,6 +2673,197 @@ export class AriaCapabilities {
         error: error.message,
         summary: 'Error sending notification'
       };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PHONE DATA ACCESS (via AriaIntegrationService)
+  // ═══════════════════════════════════════════════════════════════════
+
+  async getPhoneContacts(search = '', limit = 20, userId = 'default') {
+    try {
+      console.log(`📱 [PHONE] Getting contacts (search: "${search}", limit: ${limit})`);
+      return await ariaIntegrationService.getPhoneContacts(userId, { search, limit });
+    } catch (error) {
+      console.error('❌ [PHONE] Error getting contacts:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async findContact(name, userId = 'default') {
+    try {
+      console.log(`🔍 [PHONE] Finding contact: ${name}`);
+      return await ariaIntegrationService.findContactByName(userId, name);
+    } catch (error) {
+      console.error('❌ [PHONE] Error finding contact:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getCallHistory(limit = 20, direction = null, contactPhone = null, userId = 'default') {
+    try {
+      console.log(`📞 [PHONE] Getting call history (limit: ${limit})`);
+      return await ariaIntegrationService.getCallHistory(userId, { limit, direction, contactPhone });
+    } catch (error) {
+      console.error('❌ [PHONE] Error getting call history:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMessageHistory(contactIdentifier, userId = 'default') {
+    try {
+      console.log(`💬 [PHONE] Getting message history for: ${contactIdentifier}`);
+      return await ariaIntegrationService.getMessageHistory(userId, contactIdentifier);
+    } catch (error) {
+      console.error('❌ [PHONE] Error getting message history:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // TEAM COLLABORATION (via AriaIntegrationService)
+  // ═══════════════════════════════════════════════════════════════════
+
+  async getTeamMembers(userId = 'default') {
+    try {
+      console.log(`👥 [TEAM] Getting team members`);
+      return await ariaIntegrationService.getTeamMembers(userId);
+    } catch (error) {
+      console.error('❌ [TEAM] Error getting team members:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async messageTeamMember(memberEmail, message, urgent = false, userId = 'default') {
+    try {
+      console.log(`📨 [TEAM] Messaging ${memberEmail}: "${message.substring(0, 50)}..."`);
+      return await ariaIntegrationService.messageTeamMember(userId, memberEmail, message, { urgent });
+    } catch (error) {
+      console.error('❌ [TEAM] Error messaging team member:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async assignTaskToTeam(memberEmail, taskDescription, priority = 'medium', dueDate = null, userId = 'default') {
+    try {
+      console.log(`📋 [TEAM] Assigning task to ${memberEmail}: "${taskDescription.substring(0, 50)}..."`);
+      return await ariaIntegrationService.assignTask(userId, memberEmail, taskDescription, { priority, dueDate });
+    } catch (error) {
+      console.error('❌ [TEAM] Error assigning task:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async requestFollowUp(memberEmail, contactName, notes, userId = 'default') {
+    try {
+      console.log(`🔔 [TEAM] Requesting follow-up from ${memberEmail} for ${contactName}`);
+      return await ariaIntegrationService.requestFollowUp(userId, memberEmail, contactName, notes);
+    } catch (error) {
+      console.error('❌ [TEAM] Error requesting follow-up:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SCHEDULE & CALENDAR (via AriaIntegrationService)
+  // ═══════════════════════════════════════════════════════════════════
+
+  async getSchedule(days = 7, includeCompleted = false, userId = 'default') {
+    try {
+      console.log(`📅 [SCHEDULE] Getting schedule for next ${days} days`);
+      const endDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+      return await ariaIntegrationService.getSchedule(userId, { endDate, includeCompleted });
+    } catch (error) {
+      console.error('❌ [SCHEDULE] Error getting schedule:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async checkAvailability(proposedTime, durationMinutes = 60, userId = 'default') {
+    try {
+      console.log(`📅 [SCHEDULE] Checking availability: ${proposedTime}`);
+      return await ariaIntegrationService.checkAvailability(userId, proposedTime, durationMinutes);
+    } catch (error) {
+      console.error('❌ [SCHEDULE] Error checking availability:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendAppointmentReminder(appointmentId, userId = 'default') {
+    try {
+      console.log(`⏰ [SCHEDULE] Sending reminder for appointment: ${appointmentId}`);
+      return await ariaIntegrationService.sendAppointmentReminder(userId, appointmentId);
+    } catch (error) {
+      console.error('❌ [SCHEDULE] Error sending reminder:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // RAG KNOWLEDGE BASE (via AriaIntegrationService)
+  // ═══════════════════════════════════════════════════════════════════
+
+  async searchKnowledge(query, limit = 5, userId = 'default') {
+    try {
+      console.log(`🧠 [RAG] Searching knowledge base: "${query}"`);
+      return await ariaIntegrationService.searchKnowledge(userId, query, { limit });
+    } catch (error) {
+      console.error('❌ [RAG] Error searching knowledge:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async listKnowledgeBases(userId = 'default') {
+    try {
+      console.log(`📚 [RAG] Listing knowledge bases`);
+      return await ariaIntegrationService.listKnowledgeBases(userId);
+    } catch (error) {
+      console.error('❌ [RAG] Error listing knowledge bases:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PHONE ORGANIZATION & CLEANUP (via AriaIntegrationService)
+  // ═══════════════════════════════════════════════════════════════════
+
+  async findDuplicateContacts(userId = 'default') {
+    try {
+      console.log(`🔍 [CLEANUP] Finding duplicate contacts`);
+      return await ariaIntegrationService.findDuplicateContacts(userId);
+    } catch (error) {
+      console.error('❌ [CLEANUP] Error finding duplicates:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async mergeContacts(keepContactId, removeContactId, userId = 'default') {
+    try {
+      console.log(`🔗 [CLEANUP] Merging contacts: keep ${keepContactId}, remove ${removeContactId}`);
+      return await ariaIntegrationService.mergeDuplicateContacts(userId, keepContactId, removeContactId);
+    } catch (error) {
+      console.error('❌ [CLEANUP] Error merging contacts:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getStaleContacts(daysSinceContact = 30, userId = 'default') {
+    try {
+      console.log(`🕸️ [CLEANUP] Finding stale contacts (${daysSinceContact}+ days)`);
+      return await ariaIntegrationService.getStaleContacts(userId, daysSinceContact);
+    } catch (error) {
+      console.error('❌ [CLEANUP] Error getting stale contacts:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async tagContact(contactId, tags, userId = 'default') {
+    try {
+      console.log(`🏷️ [CLEANUP] Tagging contact ${contactId} with: ${tags}`);
+      return await ariaIntegrationService.categorizeContact(userId, contactId, tags);
+    } catch (error) {
+      console.error('❌ [CLEANUP] Error tagging contact:', error.message);
+      return { success: false, error: error.message };
     }
   }
 }

@@ -1,13 +1,32 @@
 import express from 'express';
 import twilio from 'twilio';
+import OpenAI from 'openai';
 import TwilioService from '../services/twilioService.js';
 import agentSMSService from '../services/agentSMSService.js';
+import ariaCRMService from '../services/ariaCRMService.js';
+import backgroundSyncService from '../services/backgroundSyncService.js';
 import Contact from '../models/Contact.js';
 import CallLog from '../models/CallLog.js';
+import Lead from '../models/Lead.js';
+import User from '../models/User.js';
 
 const router = express.Router();
+
+// OpenAI for Aria voice AI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+// Active voice conversations store
+const voiceConversations = new Map();
 const twilioService = new TwilioService();
 const VoiceResponse = twilio.twiml.VoiceResponse;
+
+// Get default user for system operations (first admin user or first user)
+async function getDefaultUserId() {
+  const user = await User.findOne({ role: 'admin' }) || await User.findOne({});
+  return user?._id?.toString() || '000000000000000000000000';
+}
 
 // ============================================
 // VOICE TOKEN & CALLING ENDPOINTS
@@ -132,24 +151,32 @@ router.post('/voice/incoming', async (req, res) => {
     console.log(`📲 Incoming call: ${From} -> ${To}`);
 
     const response = new VoiceResponse();
+    const userId = await getDefaultUserId();
 
-    // Look up the caller in contacts
-    const normalizedPhone = From.replace(/\D/g, '').slice(-10);
-    const contact = await Contact.findOne({
-      phone: { $regex: normalizedPhone }
+    // Get full context about caller using Aria CRM Service
+    const callerContext = await ariaCRMService.getCallerContext(userId, From);
+    const { contact, lead, smsHistory, callHistory, appointments, isKnown, name, hasUpcomingAppointment, nextAppointment } = callerContext;
+
+    const callerDisplay = name || CallerName || From;
+
+    // Store context for this call
+    voiceConversations.set(CallSid, {
+      history: [],
+      context: callerContext,
+      userId,
+      callerPhone: From
     });
-
-    const callerDisplay = contact?.name || CallerName || From;
 
     // Log the incoming call
     try {
       await CallLog.create({
+        userId,
         twilioCallSid: CallSid,
-        from: From,
-        to: To,
+        phoneNumber: From,
         direction: 'inbound',
         status: 'ringing',
         contactId: contact?._id,
+        leadId: lead?._id,
         callerName: callerDisplay,
         source: 'twilio'
       });
@@ -157,30 +184,39 @@ router.post('/voice/incoming', async (req, res) => {
       console.error('Error logging incoming call:', logError);
     }
 
-    // Try to connect to registered mobile client
-    // The client identity should match what's used in the token
-    const dial = response.dial({
-      timeout: 25,
-      action: '/api/twilio/voice/dial-status',
-      method: 'POST'
+    // Build personalized greeting based on context
+    let greeting;
+    if (isKnown && hasUpcomingAppointment) {
+      const aptDate = new Date(nextAppointment.startTime);
+      const aptDateStr = aptDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      greeting = `Hi ${name.split(' ')[0]}! Good to hear from you. I see you have an appointment scheduled for ${aptDateStr}. Are you calling about that, or is there something else I can help you with?`;
+    } else if (isKnown) {
+      greeting = `Hi ${name.split(' ')[0]}! Thanks for calling back. How can I help you today?`;
+    } else {
+      greeting = `Hi there! Thanks for calling. This is Aria, your AI assistant. May I get your name and how I can help you today?`;
+    }
+
+    response.say({
+      voice: 'Polly.Joanna',
+      language: 'en-US'
+    }, greeting);
+
+    // Gather speech input from caller
+    response.gather({
+      input: 'speech',
+      timeout: 5,
+      speechTimeout: 'auto',
+      action: '/api/twilio/voice/aria-respond',
+      method: 'POST',
+      language: 'en-US'
     });
 
-    // Ring all registered clients (you can filter by user)
-    // For now, ring clients with the default user pattern
-    dial.client({
-      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
-      statusCallback: '/api/twilio/voice/call-events',
-      statusCallbackMethod: 'POST'
-    }, 'mobile_user'); // This should match the identity used in token generation
+    // If no speech detected, prompt again
+    response.say({
+      voice: 'Polly.Joanna'
+    }, "I didn't catch that. Please tell me how I can help you.");
 
-    // If no answer, go to voicemail
-    response.say('The person you are trying to reach is unavailable. Please leave a message after the beep.');
-    response.record({
-      maxLength: 120,
-      action: '/api/twilio/voice/voicemail',
-      transcribe: true,
-      transcribeCallback: '/api/twilio/voice/transcription'
-    });
+    response.redirect('/api/twilio/voice/incoming');
 
     res.type('text/xml').send(response.toString());
   } catch (error) {
@@ -190,6 +226,259 @@ router.post('/voice/incoming', async (req, res) => {
     res.type('text/xml').send(response.toString());
   }
 });
+
+// @desc    Handle Aria AI voice response
+// @route   POST /api/twilio/voice/aria-respond
+// @access  Public (Twilio webhook)
+router.post('/voice/aria-respond', async (req, res) => {
+  try {
+    const { CallSid, From, SpeechResult, Confidence } = req.body;
+    const response = new VoiceResponse();
+
+    console.log(`🎤 Aria heard: "${SpeechResult}" (confidence: ${Confidence})`);
+
+    if (!SpeechResult) {
+      response.say({ voice: 'Polly.Joanna' }, "I didn't catch that. Could you please repeat?");
+      response.redirect('/api/twilio/voice/incoming');
+      return res.type('text/xml').send(response.toString());
+    }
+
+    // Get conversation context
+    let callData = voiceConversations.get(CallSid);
+    if (!callData) {
+      const userId = await getDefaultUserId();
+      const callerContext = await ariaCRMService.getCallerContext(userId, From);
+      callData = {
+        history: [],
+        context: callerContext,
+        userId,
+        callerPhone: From
+      };
+      voiceConversations.set(CallSid, callData);
+    }
+
+    callData.history.push({ role: 'user', content: SpeechResult });
+
+    // Build context summary for AI
+    const { context, userId } = callData;
+    const contextSummary = buildContextSummary(context);
+
+    // Generate AI response with full context
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are Aria, an intelligent AI assistant with FULL access to the CRM system.
+Keep responses SHORT and conversational (1-2 sentences max for phone calls).
+
+YOUR CAPABILITIES:
+- Create and update leads in the CRM
+- Schedule appointments
+- Send follow-up SMS messages
+- Access full contact/lead history
+- Remember caller preferences
+
+CALLER CONTEXT:
+${contextSummary}
+
+INSTRUCTIONS:
+1. If caller gives their name, remember it
+2. If they need a service, create a lead
+3. If they want to schedule, offer available times (weekdays 8am-6pm)
+4. Collect: name, service needed, urgency, best callback time
+5. If they have an appointment, confirm details or help reschedule
+6. Be warm, professional, and efficient
+7. End calls gracefully when business is complete
+
+RESPONSE FORMAT:
+- Keep it brief (1-2 sentences)
+- Sound natural and conversational
+- If you need to take action (create lead, schedule), do it but keep talking naturally`
+        },
+        ...callData.history.slice(-8)
+      ],
+      max_tokens: 150,
+      temperature: 0.7
+    });
+
+    const ariaResponse = completion.choices[0].message.content;
+    callData.history.push({ role: 'assistant', content: ariaResponse });
+
+    console.log(`🤖 Aria says: "${ariaResponse}"`);
+
+    // Extract and process any actions from conversation
+    await processAriaActions(userId, callData, SpeechResult);
+
+    // Check if conversation should end
+    const isEnding = ariaResponse.toLowerCase().includes('goodbye') ||
+                     ariaResponse.toLowerCase().includes('have a great day') ||
+                     ariaResponse.toLowerCase().includes('talk to you soon') ||
+                     ariaResponse.toLowerCase().includes('take care');
+
+    if (isEnding) {
+      // Save/update lead with full conversation
+      try {
+        await finalizeCallLead(userId, callData);
+      } catch (leadError) {
+        console.error('Error finalizing lead:', leadError);
+      }
+
+      response.say({ voice: 'Polly.Joanna' }, ariaResponse);
+      response.hangup();
+      voiceConversations.delete(CallSid);
+    } else {
+      response.say({ voice: 'Polly.Joanna' }, ariaResponse);
+
+      // Continue gathering speech
+      response.gather({
+        input: 'speech',
+        timeout: 5,
+        speechTimeout: 'auto',
+        action: '/api/twilio/voice/aria-respond',
+        method: 'POST',
+        language: 'en-US'
+      });
+
+      // Timeout fallback
+      response.say({ voice: 'Polly.Joanna' }, "Are you still there?");
+      response.redirect('/api/twilio/voice/aria-respond');
+    }
+
+    res.type('text/xml').send(response.toString());
+  } catch (error) {
+    console.error('Aria respond error:', error);
+    const response = new VoiceResponse();
+    response.say({ voice: 'Polly.Joanna' }, "I'm sorry, I had trouble processing that. Let me connect you to voicemail.");
+    response.say("Please leave a message after the beep.");
+    response.record({ maxLength: 120, action: '/api/twilio/voice/voicemail' });
+    res.type('text/xml').send(response.toString());
+  }
+});
+
+// Build context summary for AI
+function buildContextSummary(context) {
+  const parts = [];
+
+  if (context.isKnown) {
+    parts.push(`KNOWN CALLER: ${context.name}`);
+    if (context.lead) {
+      parts.push(`Lead Status: ${context.lead.status}`);
+      parts.push(`Service Interest: ${context.lead.projectType || 'Not specified'}`);
+    }
+    if (context.smsHistory?.length > 0) {
+      const recentSMS = context.smsHistory.slice(0, 3).map(s =>
+        `${s.direction === 'inbound' ? 'Them' : 'Us'}: ${s.message}`
+      ).join('\n');
+      parts.push(`Recent SMS:\n${recentSMS}`);
+    }
+    if (context.hasUpcomingAppointment) {
+      const apt = context.nextAppointment;
+      parts.push(`Upcoming Appointment: ${apt.title} on ${new Date(apt.startTime).toLocaleDateString()}`);
+    }
+  } else {
+    parts.push('NEW CALLER - Unknown contact');
+  }
+
+  return parts.join('\n');
+}
+
+// Process actions Aria should take based on conversation
+async function processAriaActions(userId, callData, userMessage) {
+  const lowerMessage = userMessage.toLowerCase();
+  const { context, callerPhone } = callData;
+
+  // Extract name if mentioned
+  const nameMatch = userMessage.match(/(?:my name is|i'm|this is|call me)\s+([a-z]+(?:\s+[a-z]+)?)/i);
+  if (nameMatch) {
+    callData.extractedName = nameMatch[1].split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+    console.log(`📝 Extracted name: ${callData.extractedName}`);
+  }
+
+  // Extract service interest
+  if (lowerMessage.includes('roof')) callData.extractedService = 'roofing';
+  else if (lowerMessage.includes('plumb')) callData.extractedService = 'plumbing';
+  else if (lowerMessage.includes('electric')) callData.extractedService = 'electrical';
+  else if (lowerMessage.includes('hvac') || lowerMessage.includes('air condition') || lowerMessage.includes('heating')) callData.extractedService = 'hvac';
+  else if (lowerMessage.includes('remodel') || lowerMessage.includes('renovation')) callData.extractedService = 'renovation';
+  else if (lowerMessage.includes('repair')) callData.extractedService = 'repair';
+  else if (lowerMessage.includes('paint')) callData.extractedService = 'painting';
+  else if (lowerMessage.includes('floor')) callData.extractedService = 'flooring';
+  else if (lowerMessage.includes('kitchen')) callData.extractedService = 'kitchen_remodel';
+  else if (lowerMessage.includes('bath')) callData.extractedService = 'bathroom_remodel';
+
+  // Check urgency
+  if (lowerMessage.includes('urgent') || lowerMessage.includes('emergency') || lowerMessage.includes('asap') || lowerMessage.includes('right away')) {
+    callData.isUrgent = true;
+  }
+}
+
+// Finalize lead creation/update at end of call
+async function finalizeCallLead(userId, callData) {
+  const { callerPhone, history, context, extractedName, extractedService, isUrgent } = callData;
+
+  const transcript = history.map(m => `${m.role === 'user' ? 'Caller' : 'Aria'}: ${m.content}`).join('\n');
+
+  if (context.lead) {
+    // Update existing lead
+    const lead = context.lead;
+    if (extractedService && !lead.projectType) lead.projectType = extractedService;
+    if (isUrgent) lead.priority = 'urgent';
+    lead.notes.push({
+      content: `Voice call transcript:\n${transcript}`,
+      createdBy: 'Aria AI',
+      createdAt: new Date()
+    });
+    lead.lastActivityAt = new Date();
+    lead.lastActivityType = 'ai_call';
+    lead.callsReceived = (lead.callsReceived || 0) + 1;
+    await lead.save();
+    console.log(`📝 Updated existing lead: ${lead.name}`);
+  } else {
+    // Create new lead
+    const leadData = {
+      phone: callerPhone,
+      name: extractedName || 'Voice Caller',
+      source: 'ai_call',
+      projectType: extractedService,
+      priority: isUrgent ? 'urgent' : 'medium'
+    };
+
+    const newLead = await ariaCRMService.createLeadFromCaller(userId, {
+      ...leadData,
+      notes: `Voice call transcript:\n${transcript}`
+    });
+    console.log(`📝 Created new lead: ${newLead.name} (${newLead.phone})`);
+
+    // Also create/update contact
+    await ariaCRMService.upsertContact(userId, {
+      phone: callerPhone,
+      name: extractedName || 'Voice Caller',
+      notes: `First contact via voice call. Service interest: ${extractedService || 'Not specified'}`
+    });
+  }
+}
+
+// Helper to extract lead info from conversation
+function extractLeadInfo(messages) {
+  const fullText = messages.map(m => m.content).join(' ').toLowerCase();
+  const info = {};
+
+  // Extract name patterns
+  const nameMatch = fullText.match(/(?:my name is|i'm|this is|call me)\s+([a-z]+(?:\s+[a-z]+)?)/i);
+  if (nameMatch) info.name = nameMatch[1].split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  // Extract service needs
+  if (fullText.includes('roof')) info.service = 'roofing';
+  else if (fullText.includes('plumb')) info.service = 'plumbing';
+  else if (fullText.includes('electric')) info.service = 'electrical';
+  else if (fullText.includes('remodel') || fullText.includes('renovation')) info.service = 'renovation';
+  else if (fullText.includes('repair')) info.service = 'repair';
+
+  return info;
+}
 
 // @desc    Handle dial status (call ended)
 // @route   POST /api/twilio/voice/dial-status
@@ -640,6 +929,412 @@ router.post('/setup', async (req, res) => {
     });
   } catch (error) {
     console.error('Setup error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// DEVICE SYNC ENDPOINTS
+// ============================================
+
+// @desc    Sync contacts from device
+// @route   POST /api/twilio/sync/contacts
+// @access  Private
+router.post('/sync/contacts', async (req, res) => {
+  try {
+    const { userId, contacts } = req.body;
+
+    if (!userId || !contacts || !Array.isArray(contacts)) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and contacts array are required'
+      });
+    }
+
+    const result = await backgroundSyncService.syncContacts(userId, contacts);
+
+    res.json({
+      success: true,
+      message: 'Contacts synced successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Contact sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Sync calendar events from device
+// @route   POST /api/twilio/sync/calendar
+// @access  Private
+router.post('/sync/calendar', async (req, res) => {
+  try {
+    const { userId, events } = req.body;
+
+    if (!userId || !events || !Array.isArray(events)) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and events array are required'
+      });
+    }
+
+    const result = await backgroundSyncService.syncCalendar(userId, events);
+
+    res.json({
+      success: true,
+      message: 'Calendar synced successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Calendar sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Sync call history from device
+// @route   POST /api/twilio/sync/calls
+// @access  Private
+router.post('/sync/calls', async (req, res) => {
+  try {
+    const { userId, calls } = req.body;
+
+    if (!userId || !calls || !Array.isArray(calls)) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and calls array are required'
+      });
+    }
+
+    const result = await backgroundSyncService.syncCallHistory(userId, calls);
+
+    res.json({
+      success: true,
+      message: 'Call history synced successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Call history sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Sync SMS history from device
+// @route   POST /api/twilio/sync/sms
+// @access  Private
+router.post('/sync/sms', async (req, res) => {
+  try {
+    const { userId, messages } = req.body;
+
+    if (!userId || !messages || !Array.isArray(messages)) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and messages array are required'
+      });
+    }
+
+    const result = await backgroundSyncService.syncSMSHistory(userId, messages);
+
+    res.json({
+      success: true,
+      message: 'SMS history synced successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('SMS sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Full device sync (all data types)
+// @route   POST /api/twilio/sync/full
+// @access  Private
+router.post('/sync/full', async (req, res) => {
+  try {
+    const { userId, contacts, calendar, calls, sms } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
+
+    const result = await backgroundSyncService.fullDeviceSync(userId, {
+      contacts: contacts || [],
+      calendar: calendar || [],
+      calls: calls || [],
+      sms: sms || []
+    });
+
+    res.json({
+      success: true,
+      message: 'Full device sync completed',
+      results: result
+    });
+  } catch (error) {
+    console.error('Full sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Get sync status
+// @route   GET /api/twilio/sync/status
+// @access  Private
+router.get('/sync/status', async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
+
+    const status = await backgroundSyncService.getSyncStatus(userId);
+
+    res.json({
+      success: true,
+      ...status
+    });
+  } catch (error) {
+    console.error('Get sync status error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// ARIA CRM ENDPOINTS
+// ============================================
+
+// @desc    Search contacts via Aria
+// @route   GET /api/twilio/aria/search
+// @access  Private
+router.get('/aria/search', async (req, res) => {
+  try {
+    const { userId, query } = req.query;
+
+    if (!userId || !query) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and query are required'
+      });
+    }
+
+    const contacts = await ariaCRMService.searchContacts(userId, query);
+    const leads = await ariaCRMService.searchLeads(userId, query);
+
+    res.json({
+      success: true,
+      contacts,
+      leads
+    });
+  } catch (error) {
+    console.error('Aria search error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Get caller context
+// @route   GET /api/twilio/aria/context
+// @access  Private
+router.get('/aria/context', async (req, res) => {
+  try {
+    const { userId, phone } = req.query;
+
+    if (!userId || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and phone are required'
+      });
+    }
+
+    const context = await ariaCRMService.getCallerContext(userId, phone);
+
+    res.json({
+      success: true,
+      ...context
+    });
+  } catch (error) {
+    console.error('Get context error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Have Aria take autonomous action
+// @route   POST /api/twilio/aria/action
+// @access  Private
+router.post('/aria/action', async (req, res) => {
+  try {
+    const { userId, context, message } = req.body;
+
+    if (!userId || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and message are required'
+      });
+    }
+
+    // Have Aria decide what action to take
+    const decision = await ariaCRMService.decideAction(userId, context || {}, message);
+
+    // Execute the action
+    const result = await ariaCRMService.executeAction(userId, decision);
+
+    res.json({
+      success: true,
+      decision,
+      result
+    });
+  } catch (error) {
+    console.error('Aria action error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Make outbound call via Aria
+// @route   POST /api/twilio/aria/call
+// @access  Private
+router.post('/aria/call', async (req, res) => {
+  try {
+    const { userId, to, message } = req.body;
+
+    if (!userId || !to) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId and to phone number are required'
+      });
+    }
+
+    const call = await ariaCRMService.makeCall(userId, to, message || 'Hello, this is Aria calling from VoiceFlow. How can I help you today?');
+
+    res.json({
+      success: true,
+      message: 'Call initiated',
+      callSid: call.sid
+    });
+  } catch (error) {
+    console.error('Aria call error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Send SMS via Aria
+// @route   POST /api/twilio/aria/sms
+// @access  Private
+router.post('/aria/sms', async (req, res) => {
+  try {
+    const { userId, to, message, leadId } = req.body;
+
+    if (!userId || !to || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId, to, and message are required'
+      });
+    }
+
+    const sms = await ariaCRMService.sendSMS(userId, to, message, leadId);
+
+    res.json({
+      success: true,
+      message: 'SMS sent',
+      smsId: sms._id
+    });
+  } catch (error) {
+    console.error('Aria SMS error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Get leads needing follow-up
+// @route   GET /api/twilio/aria/followups
+// @access  Private
+router.get('/aria/followups', async (req, res) => {
+  try {
+    const { userId, daysOld = 3 } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
+
+    const leads = await ariaCRMService.getLeadsNeedingFollowUp(userId, parseInt(daysOld));
+
+    res.json({
+      success: true,
+      leads,
+      count: leads.length
+    });
+  } catch (error) {
+    console.error('Get followups error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @desc    Get today's appointments
+// @route   GET /api/twilio/aria/appointments/today
+// @access  Private
+router.get('/aria/appointments/today', async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
+
+    const appointments = await ariaCRMService.getTodayAppointments(userId);
+
+    res.json({
+      success: true,
+      appointments,
+      count: appointments.length
+    });
+  } catch (error) {
+    console.error('Get appointments error:', error);
     res.status(500).json({
       success: false,
       message: error.message

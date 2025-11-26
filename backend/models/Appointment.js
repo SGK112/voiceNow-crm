@@ -10,7 +10,7 @@ const appointmentSchema = new mongoose.Schema({
   leadId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lead',
-    required: true,
+    required: false, // Optional for calendar imports
     index: true
   },
   title: {

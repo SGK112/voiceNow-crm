@@ -1,50 +1,30 @@
-import { Platform } from 'react-native';
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../utils/constants';
 
-// Centralized API configuration
-const getBaseUrl = (): string => {
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:5001';
-  }
-  // iOS and other platforms use the local network IP
-  return 'http://192.168.0.151:5001';
-};
+export const API_BASE_URL = API_URL;
 
-export const API_BASE_URL = getBaseUrl();
+const AUTH_TOKEN_KEY = 'authToken';
 
-// Create axios instance with default configuration
-const api: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+const api = axios.create({
+  baseURL: API_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor for cache-busting and auth
+// Request interceptor to add auth token to all requests
 api.interceptors.request.use(
   async (config) => {
-    // Add cache-busting parameter
-    config.params = {
-      ...config.params,
-      _t: Date.now(),
-    };
-
-    // Add cache control headers
-    config.headers['Cache-Control'] = 'no-cache';
-    config.headers['Pragma'] = 'no-cache';
-
-    // Add auth token if available
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
       if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.warn('Failed to get auth token:', error);
+      console.error('Error getting auth token:', error);
     }
-
     return config;
   },
   (error) => {
@@ -52,35 +32,17 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response) {
-      // Server responded with error
-      console.error('API Error:', error.response.status, error.response.data);
-    } else if (error.request) {
-      // Request made but no response
-      console.error('Network Error:', error.message);
-    } else {
-      // Error setting up request
-      console.error('Request Error:', error.message);
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired
+      console.log('401 Unauthorized - Token may be expired');
+      // Don't auto-logout here, let the AuthContext handle it
     }
     return Promise.reject(error);
   }
 );
 
 export default api;
-
-// Helper functions for common operations
-export const apiGet = <T>(url: string, config?: AxiosRequestConfig) =>
-  api.get<T>(url, config);
-
-export const apiPost = <T>(url: string, data?: any, config?: AxiosRequestConfig) =>
-  api.post<T>(url, data, config);
-
-export const apiPut = <T>(url: string, data?: any, config?: AxiosRequestConfig) =>
-  api.put<T>(url, data, config);
-
-export const apiDelete = <T>(url: string, config?: AxiosRequestConfig) =>
-  api.delete<T>(url, config);

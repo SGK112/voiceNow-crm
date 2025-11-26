@@ -7,15 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Contacts from 'expo-contacts';
-import axios from 'axios';
+import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../contexts/ThemeContext';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
 interface PhoneContact {
   id: string;
@@ -146,8 +143,8 @@ export default function ContactImportScreen({ navigation }: any) {
         notes: 'Imported from phone contacts',
       }));
 
-      const response = await axios.post(
-        `${API_URL}/api/mobile/contacts/import`,
+      const response = await api.post(
+        '/api/mobile/contacts/import',
         { contacts: contactsToImport }
       );
 

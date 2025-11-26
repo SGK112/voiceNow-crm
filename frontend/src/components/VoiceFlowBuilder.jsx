@@ -1233,7 +1233,7 @@ function VisualAgentBuilderContent() {
   return (
     <div className="flex flex-col bg-background" style={{ height: '100vh', overflow: 'hidden' }}>
       {/* Top Toolbar - Mobile Responsive */}
-      <div className="bg-card border-b border-border px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
+      <div className="bg-card/70 backdrop-blur-sm border-b border-border px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 sm:gap-3">
           <button
             onClick={() => navigate('/app/agent-studio')}
@@ -1324,11 +1324,11 @@ function VisualAgentBuilderContent() {
         }}
       >
         {/* Collapsible Node Palette - Auto-collapsed on mobile */}
-        <div className={`${showNodePalette ? 'w-48 sm:w-64' : 'w-10 sm:w-12'} bg-card border-r border-border transition-all duration-300 overflow-hidden`}>
+        <div className={`${showNodePalette ? 'w-48 sm:w-64' : 'w-10 sm:w-12'} bg-card/70 backdrop-blur-sm border-r border-border transition-all duration-300 overflow-hidden`}>
           <div className="p-2 h-full overflow-y-auto">
             <button
               onClick={() => setShowNodePalette(!showNodePalette)}
-              className="w-full p-2 hover:bg-muted rounded mb-2 sticky top-0 bg-card z-10"
+              className="w-full p-2 hover:bg-muted rounded mb-2 sticky top-0 bg-card/80 z-10"
             >
               {showNodePalette ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -1407,7 +1407,7 @@ function VisualAgentBuilderContent() {
                 if (node.type === 'test') return '#ef4444';
                 return '#888';
               }}
-              className="!bg-card !border-2 !border-border !shadow-lg !rounded-lg"
+              className="!bg-card/70 !backdrop-blur-sm !border-2 !border-border !shadow-lg !rounded-lg"
               style={{
                 bottom: 100,
                 right: 10
@@ -1438,7 +1438,7 @@ function VisualAgentBuilderContent() {
 
       {/* Debug Console - Sliding Panel with Tabs - Mobile Responsive */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-card border-t border-border flex flex-col z-50"
+        className="fixed bottom-0 left-0 right-0 bg-card/70 backdrop-blur-sm border-t border-border flex flex-col z-50"
         style={{
           height: consoleExpanded ? `${Math.min(consoleHeight, window.innerWidth < 768 ? 250 : consoleHeight)}px` : '48px',
           transition: isResizing ? 'none' : 'height 0.3s ease-in-out'
@@ -1458,7 +1458,7 @@ function VisualAgentBuilderContent() {
           </div>
         )}
         {/* Console Header - Always Visible - Mobile Responsive */}
-        <div className="flex items-center justify-between px-2 sm:px-4 py-2 bg-muted border-b border-border">
+        <div className="flex items-center justify-between px-2 sm:px-4 py-2 bg-muted/70 border-b border-border">
           <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto">
             <div className="flex items-center gap-2 cursor-pointer touch-manipulation" onClick={() => setConsoleExpanded(!consoleExpanded)}>
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -2093,7 +2093,7 @@ function VisualAgentBuilderContent() {
 
         {/* Executions Side - Hidden on mobile, shown on desktop */}
         {showExecutions && (
-          <div className="hidden md:flex w-full md:w-1/3 border-l border-border bg-card flex-col overflow-hidden">
+          <div className="hidden md:flex w-full md:w-1/3 border-l border-border bg-card/70 backdrop-blur-sm flex-col overflow-hidden">
             {/* Executions Header */}
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">

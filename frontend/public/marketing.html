@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-24-v81-fix-badge-position';
+        const CURRENT_VERSION = '2025-11-25-v99-force-reload';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -1305,940 +1305,617 @@
             </div>
         </div>
     </nav>
-    <section id="hero" class="relative pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] min-h-screen flex items-center overflow-hidden">
-        <!-- Video Background -->
-        <div class="absolute inset-0 z-0">
-            <video autoplay loop muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover opacity-40" x-webkit-airplay="deny" disablePictureInPicture webkit-playsinline>
-                <source src="videos/intro.mp4" type="video/mp4">
-                <source src="/videos/intro.mp4" type="video/mp4">
-            </video>
-            <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50"></div>
+    <section id="hero" class="relative min-h-screen flex flex-col justify-between bg-black overflow-hidden">
+        <!-- Crossfade Image Background (like mobile app) -->
+        <div class="absolute inset-0 z-0" id="hero-slideshow">
+            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80"
+                 class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                 style="opacity: 1;" alt="Contractor working">
+            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1920&q=80"
+                 class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                 style="opacity: 0;" alt="Construction worker">
+            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1920&q=80"
+                 class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                 style="opacity: 0;" alt="Service professional">
+            <!-- Gradient overlay - darker at bottom where text appears -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/70 to-black"></div>
         </div>
-        <div class="max-w-7xl mx-auto relative z-10 w-full px-4 lg:px-8">
-            <div class="text-center mb-12 sm:mb-16 lg:mb-20">
-                <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
-                    Try It Live
-                </h1>
-                <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto">
-                    Experience our AI voice agent in action
-                </p>
+
+        <!-- Top Section - Logo -->
+        <div class="relative z-10 pt-20 sm:pt-24 px-6 sm:px-8">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-broadcast-tower text-white text-2xl"></i>
+                <span class="text-xl font-bold text-white tracking-tight">VoiceFlow</span>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center max-w-7xl mx-auto">
-                <!-- Phone Mockup with SMS Demo -->
-                <div class="order-2 lg:order-1 phone-entrance">
-                    <div class="mx-auto lg:mx-0 lg:ml-auto lg:mr-8" style="max-width: 340px;">
-                        <!-- Perspective Container -->
-                        <div class="perspective-container" style="perspective: 1000px;">
-                            <!-- iPhone Frame -->
-                            <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900 phone-float">
-                            <!-- Notch -->
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10"></div>
+        <!-- Middle Section - Dynamic Content -->
+        <div class="relative z-10 flex-1 flex flex-col justify-end px-6 sm:px-8 pb-10">
+            <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3 transition-opacity duration-500 tracking-tight">
+                Focus on the Job
+            </h1>
+            <p id="hero-subtitle" class="text-lg sm:text-xl text-white/70 mb-6 transition-opacity duration-500 max-w-xl">
+                Let AI handle your calls while you work on site
+            </p>
 
-                            <!-- Screen -->
-                            <div class="bg-white rounded-[2.5rem] overflow-hidden relative" style="height: 667px;">
-                                <!-- Status Bar -->
-                                <div class="bg-white px-6 py-3 flex justify-between items-center text-xs font-semibold text-black border-b border-gray-200">
-                                    <span>9:41 AM</span>
-                                    <div class="flex items-center gap-1">
-                                        <i class="fas fa-signal text-xs"></i>
-                                        <i class="fas fa-wifi text-xs"></i>
-                                        <i class="fas fa-battery-full text-xs"></i>
-                                    </div>
-                                </div>
+            <!-- Slide indicator dots -->
+            <div class="flex gap-2 mb-10">
+                <button class="hero-dot h-2 rounded-full bg-white transition-all duration-300" data-index="0" style="width: 24px;"></button>
+                <button class="hero-dot h-2 w-2 rounded-full bg-white/30 transition-all duration-300" data-index="1"></button>
+                <button class="hero-dot h-2 w-2 rounded-full bg-white/30 transition-all duration-300" data-index="2"></button>
+            </div>
+        </div>
 
-                                <!-- SMS Header -->
-                                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between text-sm border-b border-gray-200">
-                                    <i class="fas fa-chevron-left text-blue-500"></i>
-                                    <div class="flex-1 text-center">
-                                        <div class="font-semibold text-black">(602) 833-7194</div>
-                                    </div>
-                                    <i class="fas fa-info-circle text-blue-500"></i>
-                                </div>
+        <!-- Bottom Section - CTAs (like mobile app) -->
+        <div class="relative z-10 px-6 sm:px-8 pb-10 sm:pb-12 space-y-3">
+            <!-- Primary CTA - Get Started -->
+            <button id="try-it-now-btn" class="w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-2xl font-semibold transition-all text-lg">
+                Get Started
+                <i class="fas fa-arrow-right"></i>
+            </button>
 
-                                <!-- SMS Messages -->
-                                <div id="sms-messages" class="bg-white p-4 overflow-y-auto" style="height: 540px;">
-                                    <!-- Mock SMS Conversation -->
-                                    <div class="flex justify-start mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
-                                            <p class="text-sm">Hi! 👋 Thanks for reaching out to VoiceFlow CRM!</p>
-                                        </div>
-                                    </div>
+            <!-- Secondary CTA - Create Account / Get App -->
+            <a href="#download-app" class="w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 text-white border border-white/25 px-8 py-4 rounded-2xl font-semibold transition-all text-lg">
+                <i class="fas fa-mobile-alt mr-1"></i>
+                Get the App
+            </a>
 
-                                    <div class="flex justify-end mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
-                                            <p class="text-sm">Hey! What can your AI agents do?</p>
-                                        </div>
-                                    </div>
+            <!-- Terms text -->
+            <p class="text-center sm:text-left text-xs text-white/40 pt-2">
+                By continuing, you agree to our Terms & Privacy Policy
+            </p>
+        </div>
 
-                                    <div class="flex justify-start mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
-                                            <p class="text-sm">Our AI voice agents can:<br>
-✅ Answer calls 24/7<br>
-✅ Qualify leads automatically<br>
-✅ Book appointments<br>
-✅ Integrate with your CRM</p>
-                                        </div>
-                                    </div>
+        <!-- Hidden Demo Form (shown when Get Started is clicked) -->
+        <div id="demo-form-container" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8 max-w-md w-full relative">
+                <button id="close-demo-form" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
 
-                                    <div class="flex justify-end mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
-                                            <p class="text-sm">That's awesome! How much does it cost?</p>
-                                        </div>
-                                    </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Try Our AI Demo</h3>
+                <p class="text-gray-400 mb-6">Experience the power of AI voice agents</p>
 
-                                    <div class="flex justify-start mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
-                                            <p class="text-sm">Plans start at $149/month with a free 14-day trial. Want to start?</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex justify-end mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm">
-                                            <p class="text-sm">Yes! Where do I sign up?</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex justify-start mb-3">
-                                        <div class="max-w-[75%] px-4 py-2.5 bg-gray-200 text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm">
-                                            <p class="text-sm">Visit remodely.ai/signup to get started! 🚀</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Input Area (Disabled for Mock) -->
-                                <div class="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 flex items-center gap-2">
-                                    <div class="flex-1 bg-gray-100 rounded-full border border-gray-300 px-4 py-2 flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            id="sms-input"
-                                            placeholder="Text Message"
-                                            class="flex-1 text-sm outline-none bg-gray-100"
-                                            disabled
-                                        >
-                                    </div>
-                                    <button
-                                        id="sms-send"
-                                        class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white opacity-50"
-                                        disabled
-                                    >
-                                        <i class="fas fa-arrow-up"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
+                <!-- Toggle Switch -->
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <button id="toggle-voice" class="demo-toggle active px-6 py-3 rounded-xl font-semibold transition-all">
+                        <i class="fas fa-phone mr-2"></i>Voice Call
+                    </button>
+                    <button id="toggle-sms" class="demo-toggle px-6 py-3 rounded-xl font-semibold transition-all">
+                        <i class="fas fa-comment-dots mr-2"></i>SMS
+                    </button>
                 </div>
 
-                <!-- Demo Form -->
-                <div class="order-1 lg:order-2">
-                    <div id="demo-form-container" class="max-w-md mx-auto md:mx-0 hidden">
-                        <!-- Toggle Switch -->
-                        <div class="flex items-center justify-center gap-4 mb-6">
-                            <button id="toggle-voice" class="demo-toggle active px-6 py-3 rounded-xl font-semibold transition-all">
-                                <i class="fas fa-phone mr-2"></i>Voice Call
-                            </button>
-                            <button id="toggle-sms" class="demo-toggle px-6 py-3 rounded-xl font-semibold transition-all">
-                                <i class="fas fa-comment-dots mr-2"></i>SMS
-                            </button>
-                        </div>
+                <form id="demo-form" class="space-y-4">
+                    <input
+                        type="text"
+                        id="demo-name"
+                        placeholder="Name"
+                        required
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                    />
+                    <input
+                        type="tel"
+                        id="demo-phone"
+                        placeholder="Phone Number"
+                        required
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                    />
+                    <input
+                        type="email"
+                        id="demo-email"
+                        placeholder="Email (optional)"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
+                    />
 
-                        <form id="demo-form" class="space-y-4">
-                            <input
-                                type="text"
-                                id="demo-name"
-                                placeholder="Name"
-                                required
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
-                            <input
-                                type="tel"
-                                id="demo-phone"
-                                placeholder="Phone Number"
-                                required
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
-                            <input
-                                type="email"
-                                id="demo-email"
-                                placeholder="Email (optional)"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition text-lg"
-                            />
+                    <button
+                        type="button"
+                        id="submit-demo-btn"
+                        class="w-full bg-white hover:bg-gray-100 text-black px-6 py-4 rounded-xl font-bold transition-all text-lg"
+                    >
+                        <i class="fas fa-phone mr-2"></i>
+                        <span id="submit-btn-text">Start Voice Demo</span>
+                    </button>
 
-                            <!-- Submit Button -->
-                            <button
-                                type="button"
-                                id="submit-demo-btn"
-                                class="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-5 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-lg"
-                            >
-                                <i class="fas fa-phone mr-2"></i>
-                                <span id="submit-btn-text">Start Voice Demo</span>
-                            </button>
+                    <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
 
-                            <!-- Status Message -->
-                            <div id="demo-status" class="hidden p-4 rounded-xl text-center font-medium"></div>
+                    <p class="text-center text-sm text-gray-500 pt-2">
+                        <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
+                    </p>
+                </form>
+            </div>
+        </div>
 
-                            <p class="text-center text-sm text-gray-500 pt-2">
-                                <i class="fas fa-lock mr-1"></i> Secure • No spam • Instant demo
-                            </p>
-                        </form>
-                    </div>
+        <!-- Hidden select for interest -->
+        <select id="demo-interest" class="hidden">
+            <option value="demo">Demo Request</option>
+        </select>
+    </section>
 
-                    <!-- Initial CTA (shown before form) -->
-                    <div id="initial-cta" class="max-w-md md:mx-0 text-left cta-entrance">
-                        <h3 class="text-3xl font-bold text-white mb-4">Ready to Experience AI?</h3>
-                        <p class="text-lg text-gray-400 mb-6">Try our demo online or download the mobile app</p>
-
-                        <!-- Primary CTAs -->
-                        <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                            <button id="try-it-now-btn" class="inline-flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105 text-base cursor-pointer">
-                                <i class="fas fa-play-circle mr-2"></i>
-                                Try Demo
-                            </button>
-                            <a href="#download-app" class="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur text-white border border-white/20 px-8 py-4 rounded-xl font-bold transition-all hover:scale-105 text-base cursor-pointer">
-                                <i class="fas fa-mobile-alt mr-2"></i>
-                                Get the App
-                            </a>
-                        </div>
-
-                        <!-- App Store Badges -->
-                        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                            <span class="text-sm text-gray-500">Available on:</span>
-                            <div class="flex gap-3">
-                                <a href="#download-app" class="group flex items-center gap-2 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg px-4 py-2 transition-all">
-                                    <i class="fab fa-apple text-white text-xl"></i>
-                                    <div class="text-left">
-                                        <div class="text-[10px] text-gray-400 leading-tight">Download on the</div>
-                                        <div class="text-sm text-white font-semibold leading-tight">App Store</div>
-                                    </div>
-                                </a>
-                                <a href="#download-app" class="group flex items-center gap-2 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg px-4 py-2 transition-all">
-                                    <i class="fab fa-google-play text-white text-xl"></i>
-                                    <div class="text-left">
-                                        <div class="text-[10px] text-gray-400 leading-tight">Get it on</div>
-                                        <div class="text-sm text-white font-semibold leading-tight">Google Play</div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hidden select for interest -->
-                    <select id="demo-interest" class="hidden">
-                        <option value="demo">Demo Request</option>
-                    </select>
+    <!-- Social Proof Section - Clean minimal style -->
+    <section class="py-20 sm:py-24 px-6 sm:px-8 bg-black">
+        <div class="max-w-5xl mx-auto">
+            <p class="text-center text-white/50 text-sm font-medium mb-12">Trusted by contractors, remodelers, and service businesses</p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+                <div class="text-center">
+                    <div class="text-4xl sm:text-5xl font-bold text-white mb-2">500+</div>
+                    <div class="text-sm text-white/40">Contractors</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl sm:text-5xl font-bold text-white mb-2">10K+</div>
+                    <div class="text-sm text-white/40">Calls Handled</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl sm:text-5xl font-bold text-white mb-2">98%</div>
+                    <div class="text-sm text-white/40">Satisfaction</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl sm:text-5xl font-bold text-white mb-2">24/7</div>
+                    <div class="text-sm text-white/40">Always On</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Social Proof Section -->
-    <section class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b] scroll-section">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-10 sm:mb-12">
-                <p class="text-gray-400 text-sm sm:text-base font-medium">Trusted by contractors, remodelers, and service businesses</p>
-            </div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">500+</div>
-                    <div class="text-sm sm:text-base text-gray-400 font-medium">Contractors</div>
-                </div>
-                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">10K+</div>
-                    <div class="text-sm sm:text-base text-gray-400 font-medium">Calls Handled</div>
-                </div>
-                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">98%</div>
-                    <div class="text-sm sm:text-base text-gray-400 font-medium">Customer Satisfaction</div>
-                </div>
-                <div class="dark-card p-6 sm:p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
-                    <div class="text-sm sm:text-base text-gray-400 font-medium">Never Miss a Call</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Customer Testimonials Section -->
-    <section class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    What Contractors Are Saying
+    <!-- Customer Testimonials Section - Clean minimal style -->
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">
+                    What Contractors Say
                 </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">Real results from real businesses</p>
+                <p class="text-white/50">Real results from real businesses</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Testimonial 1 -->
-                <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face" alt="Mike Rodriguez" class="w-12 h-12 rounded-full object-cover border-2 border-orange-500/50" loading="lazy">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face" alt="Mike Rodriguez" class="w-11 h-11 rounded-full object-cover" loading="lazy">
                         <div>
-                            <div class="font-bold text-white">Mike Rodriguez</div>
-                            <div class="text-sm text-gray-400">Rodriguez Construction</div>
+                            <div class="font-semibold text-white">Mike Rodriguez</div>
+                            <div class="text-xs text-white/40">Rodriguez Construction</div>
                         </div>
                     </div>
-                    <div class="flex gap-1 mb-3">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                    </div>
-                    <p class="text-gray-300 text-sm leading-relaxed">
-                        "Before VoiceFlow, I was losing 30% of my calls to voicemail. Now my AI answers every call, qualifies the lead, and books the estimate. Game changer for my remodeling business."
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        "Before VoiceFlow, I was losing 30% of my calls to voicemail. Now my AI answers every call, qualifies the lead, and books the estimate. Game changer."
                     </p>
                 </div>
 
                 <!-- Testimonial 2 -->
-                <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face" alt="Sarah Chen" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500/50" loading="lazy">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face" alt="Sarah Chen" class="w-11 h-11 rounded-full object-cover" loading="lazy">
                         <div>
-                            <div class="font-bold text-white">Sarah Chen</div>
-                            <div class="text-sm text-gray-400">Chen HVAC Services</div>
+                            <div class="font-semibold text-white">Sarah Chen</div>
+                            <div class="text-xs text-white/40">Chen HVAC Services</div>
                         </div>
                     </div>
-                    <div class="flex gap-1 mb-3">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                    </div>
-                    <p class="text-gray-300 text-sm leading-relaxed">
-                        "I used to spend hours on the phone with tire-kickers. Now the AI pre-qualifies every lead and only sends me serious customers. My close rate went from 20% to 65%!"
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        "The AI pre-qualifies every lead and only sends me serious customers. My close rate went from 20% to 65%!"
                     </p>
                 </div>
 
                 <!-- Testimonial 3 -->
-                <div class="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="James Thompson" class="w-12 h-12 rounded-full object-cover border-2 border-green-500/50" loading="lazy">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="James Thompson" class="w-11 h-11 rounded-full object-cover" loading="lazy">
                         <div>
-                            <div class="font-bold text-white">James Thompson</div>
-                            <div class="text-sm text-gray-400">Thompson Plumbing</div>
+                            <div class="font-semibold text-white">James Thompson</div>
+                            <div class="text-xs text-white/40">Thompson Plumbing</div>
                         </div>
                     </div>
-                    <div class="flex gap-1 mb-3">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                    </div>
-                    <p class="text-gray-300 text-sm leading-relaxed">
-                        "Set it up in 5 minutes. First week I got 12 qualified leads while I was out on jobs. My calendar is booked solid for the next month. Worth every penny."
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        "Set it up in 5 minutes. First week I got 12 qualified leads while I was out on jobs. Worth every penny."
                     </p>
                 </div>
             </div>
 
-            <!-- Industry Badges -->
-            <div class="mt-12 flex flex-wrap justify-center gap-6 items-center">
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-hard-hat text-orange-400 text-xl"></i>
-                    <span class="text-sm font-medium">Construction</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-wrench text-blue-400 text-xl"></i>
-                    <span class="text-sm font-medium">HVAC</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-paint-roller text-purple-400 text-xl"></i>
-                    <span class="text-sm font-medium">Remodeling</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-shower text-green-400 text-xl"></i>
-                    <span class="text-sm font-medium">Plumbing</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-bolt text-yellow-400 text-xl"></i>
-                    <span class="text-sm font-medium">Electrical</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                    <i class="fas fa-home text-pink-400 text-xl"></i>
-                    <span class="text-sm font-medium">Home Services</span>
-                </div>
+            <!-- Industry Badges - Simplified -->
+            <div class="mt-16 flex flex-wrap justify-center gap-4">
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">Construction</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">HVAC</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">Remodeling</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">Plumbing</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">Electrical</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white/60">Home Services</span>
             </div>
         </div>
     </section>
 
-    <!-- AI vs Traditional Voicemail - Modern Split Section -->
-    <section class="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div class="max-w-7xl mx-auto">
-            <!-- Modern asymmetric layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-
-                <!-- Left Content - 5 columns -->
-                <div class="lg:col-span-5 order-2 lg:order-1">
-                    <div class="space-y-8">
-                        <!-- Badge -->
-                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500/10 to-green-500/10 border border-white/10 rounded-full">
-                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                            <span class="text-sm text-gray-300">Voicemail is dead</span>
-                            <span class="text-gray-500">→</span>
-                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <span class="text-sm text-gray-300">AI is here</span>
-                        </div>
-
-                        <!-- Headline -->
-                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                            Stop losing
-                            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">$47,000/year</span>
-                            <span class="block text-gray-400 text-3xl sm:text-4xl lg:text-5xl mt-2">to missed calls</span>
-                        </h2>
-
-                        <!-- Stats row -->
-                        <div class="flex gap-8 pt-4">
-                            <div>
-                                <div class="text-3xl font-bold text-white">80%</div>
-                                <div class="text-sm text-gray-500">of callers won't<br/>leave voicemail</div>
-                            </div>
-                            <div class="w-px bg-gray-800"></div>
-                            <div>
-                                <div class="text-3xl font-bold text-green-400">24/7</div>
-                                <div class="text-sm text-gray-500">AI answers<br/>every call</div>
-                            </div>
-                            <div class="w-px bg-gray-800"></div>
-                            <div>
-                                <div class="text-3xl font-bold text-blue-400">3x</div>
-                                <div class="text-sm text-gray-500">more leads<br/>captured</div>
-                            </div>
-                        </div>
-
-                        <!-- CTA -->
-                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <a href="#demo" class="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all">
-                                See it in action
-                                <i class="fas fa-arrow-right ml-2"></i>
-                            </a>
-                            <a href="#pricing" class="inline-flex items-center justify-center px-8 py-4 bg-white/5 text-white font-semibold rounded-xl border border-white/10 hover:bg-white/10 transition-all">
-                                View pricing
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Image - 7 columns -->
-                <div class="lg:col-span-7 order-1 lg:order-2">
-                    <div class="relative">
-                        <!-- Main image with modern frame -->
-                        <div class="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/10">
-                            <img
-                                src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&h=600&fit=crop"
-                                alt="Business professional taking a call"
-                                class="w-full h-auto object-cover"
-                                loading="lazy"
-                            />
-                            <!-- Gradient overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-
-                            <!-- Bottom info bar -->
-                            <div class="absolute bottom-0 left-0 right-0 p-6">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-phone-alt text-white text-sm"></i>
-                                        </div>
-                                        <div>
-                                            <div class="text-white font-semibold">AI Agent Active</div>
-                                            <div class="text-gray-300 text-sm">Handling incoming call...</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full">
-                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                        <span class="text-white text-sm font-medium">Live</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Floating comparison card -->
-                        <div class="absolute -bottom-8 -left-8 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl p-5 shadow-2xl max-w-xs hidden lg:block">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-exchange-alt text-white text-xs"></i>
-                                </div>
-                                <span class="text-white font-semibold">Quick Compare</span>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="w-5 h-5 bg-red-500/20 rounded flex items-center justify-center">
-                                        <i class="fas fa-times text-red-400 text-xs"></i>
-                                    </span>
-                                    <span class="text-gray-400 text-sm line-through">Voicemail → Hang up</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="w-5 h-5 bg-green-500/20 rounded flex items-center justify-center">
-                                        <i class="fas fa-check text-green-400 text-xs"></i>
-                                    </span>
-                                    <span class="text-white text-sm">AI → Booked appointment</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Floating badge top right -->
-                        <div class="absolute top-4 right-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white px-5 py-3 rounded-2xl font-bold shadow-xl shadow-green-500/25 hidden sm:block">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-bolt"></i>
-                                <span>Always On</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0b]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                    Powerful Features
-                </h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto">Everything you need to automate customer conversations</p>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-                <div class="feature-card dark-card p-8 rounded-2xl shadow-lg">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-project-diagram text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-4">Visual Workflow Builder</h3>
-                    <p class="text-gray-400 mb-4">Launch your first agent in minutes, not weeks. No coding or technical skills required—just drag, drop, and deploy.</p>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Industry-proven templates (Sales, Support, Scheduling)</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Visual flow designer with real-time preview</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Advanced logic & branching paths</li>
-                    </ul>
-                </div>
-                <div class="feature-card dark-card p-8 rounded-2xl shadow-lg">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-brain text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-4">AI Agent Generator</h3>
-                    <p class="text-gray-400 mb-4">Describe your ideal sales call, and our AI builds the entire workflow for you. From lead qualification to appointment booking—automatically.</p>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>AI-powered script generation in seconds</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>50+ industry-specific templates</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Personalization with dynamic data</li>
-                    </ul>
-                </div>
-                <div class="feature-card dark-card p-8 rounded-2xl shadow-lg">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-microphone text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-4">Ultra-Realistic Voices</h3>
-                    <p class="text-gray-400 mb-4">Powered by ElevenLabs—the #1 voice AI used by Fortune 500 companies. Your prospects won't believe they're talking to AI.</p>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>100+ professional voices (male, female, accents)</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>29+ languages for global reach</li>
-                        <li><i class="fas fa-check text-purple-400 mr-2"></i>Emotional intelligence & natural pauses</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0b] to-[#1a1a2e]">
+    <!-- AI vs Traditional Voicemail - Clean minimal style -->
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                    How It Works
-                </h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto">Get started in minutes, not weeks</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <!-- Left Content -->
+                <div class="order-2 lg:order-1">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full mb-8">
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                        <span class="text-xs text-white/60">Voicemail is dead</span>
+                        <span class="text-white/30">→</span>
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-white/60">AI is here</span>
+                    </div>
+
+                    <h2 class="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+                        Stop losing<br/>
+                        <span class="text-red-400">$47,000/year</span><br/>
+                        <span class="text-white/40">to missed calls</span>
+                    </h2>
+
+                    <!-- Stats row -->
+                    <div class="flex gap-8 mb-10">
+                        <div>
+                            <div class="text-2xl font-bold text-white">80%</div>
+                            <div class="text-xs text-white/40">won't leave<br/>voicemail</div>
+                        </div>
+                        <div class="w-px bg-white/10"></div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-400">24/7</div>
+                            <div class="text-xs text-white/40">AI answers<br/>every call</div>
+                        </div>
+                        <div class="w-px bg-white/10"></div>
+                        <div>
+                            <div class="text-2xl font-bold text-blue-400">3x</div>
+                            <div class="text-xs text-white/40">more leads<br/>captured</div>
+                        </div>
+                    </div>
+
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="#demo" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-black font-semibold rounded-xl hover:bg-white/90 transition-all">
+                            See it in action
+                            <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                        <a href="#pricing" class="inline-flex items-center justify-center px-6 py-3.5 bg-transparent text-white font-semibold rounded-xl border border-white/20 hover:bg-white/5 transition-all">
+                            View pricing
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Image -->
+                <div class="order-1 lg:order-2">
+                    <div class="relative rounded-2xl overflow-hidden">
+                        <img
+                            src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&h=600&fit=crop"
+                            alt="Business professional taking a call"
+                            class="w-full h-auto object-cover"
+                            loading="lazy"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                        <!-- Bottom info -->
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-phone-alt text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-semibold text-sm">AI Agent Active</div>
+                                        <div class="text-white/60 text-xs">Handling call...</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    <span class="text-white text-xs font-medium">Live</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section - Clean minimal style -->
+    <section id="features" class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Powerful Features</h2>
+                <p class="text-white/50">Everything you need to automate customer conversations</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-5">
+                        <i class="fas fa-project-diagram text-blue-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Visual Workflow Builder</h3>
+                    <p class="text-white/60 text-sm mb-4">Launch your first agent in minutes. Drag, drop, and deploy—no coding required.</p>
+                    <ul class="space-y-2 text-sm text-white/50">
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>Industry-proven templates</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>Real-time preview</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>Advanced branching</li>
+                    </ul>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-5">
+                        <i class="fas fa-brain text-purple-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">AI Agent Generator</h3>
+                    <p class="text-white/60 text-sm mb-4">Describe your ideal call and AI builds the entire workflow automatically.</p>
+                    <ul class="space-y-2 text-sm text-white/50">
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>AI-powered scripts</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>50+ templates</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>Dynamic personalization</li>
+                    </ul>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-5">
+                        <i class="fas fa-microphone text-green-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Ultra-Realistic Voices</h3>
+                    <p class="text-white/60 text-sm mb-4">Powered by ElevenLabs. Prospects won't believe they're talking to AI.</p>
+                    <ul class="space-y-2 text-sm text-white/50">
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>100+ voices</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>29+ languages</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-400 text-xs"></i>Natural emotions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section - Clean minimal style -->
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">How It Works</h2>
+                <p class="text-white/50">Get started in minutes, not weeks</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">1</div>
-                    <h3 class="text-xl font-bold text-white mb-3">Choose Your Agent</h3>
-                    <p class="text-gray-400">Select from pre-built templates or create a custom AI agent for your specific needs</p>
+                    <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-5">1</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Choose Your Agent</h3>
+                    <p class="text-white/50 text-sm">Select from pre-built templates or create custom</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">2</div>
-                    <h3 class="text-xl font-bold text-white mb-3">Customize & Train</h3>
-                    <p class="text-gray-400">Configure your agent's voice, personality, and conversation flow with our visual builder</p>
+                    <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-5">2</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Customize & Train</h3>
+                    <p class="text-white/50 text-sm">Configure voice, personality, and conversation flow</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">3</div>
-                    <h3 class="text-xl font-bold text-white mb-3">Deploy & Scale</h3>
-                    <p class="text-gray-400">Launch your agent and watch it handle unlimited conversations 24/7</p>
+                    <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-5">3</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Deploy & Scale</h3>
+                    <p class="text-white/50 text-sm">Launch and handle unlimited conversations 24/7</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Mobile App Download Section -->
-    <section id="download-app" class="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0a0a0b] via-[#0f172a] to-[#1a1a2e] relative overflow-hidden">
-        <!-- Background decoration -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500 rounded-full blur-3xl"></div>
-        </div>
-
-        <div class="max-w-7xl mx-auto relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <!-- Mobile App Download Section - Clean minimal style -->
+    <section id="download-app" class="py-20 sm:py-28 px-6 sm:px-8 bg-black relative overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 <!-- Left: Content -->
                 <div class="order-2 lg:order-1">
-                    <!-- Badge -->
-                    <div class="inline-flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full px-4 py-2 mb-6">
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                        <span class="text-sm font-semibold text-green-400">Now Available on iOS & Android</span>
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full mb-6">
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-green-400">Now on iOS & Android</span>
                     </div>
 
-                    <h2 class="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
-                        Your AI Assistant,<br/>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">In Your Pocket</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+                        Your AI Assistant,<br/>In Your Pocket
                     </h2>
 
-                    <p class="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed">
-                        Never miss a lead again. The VoiceFlow mobile app automatically handles missed calls, responds to texts with AI, and syncs everything to your CRM—even when you're asleep.
+                    <p class="text-white/60 mb-8">
+                        Never miss a lead. Handle calls, respond to texts, and sync to your CRM—even when you're asleep.
                     </p>
 
-                    <!-- Feature List -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-phone-volume text-blue-400"></i>
+                    <!-- Features -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-phone-volume text-blue-400 text-sm"></i>
                             </div>
-                            <div>
-                                <h4 class="font-semibold text-white">AI Call-Back</h4>
-                                <p class="text-sm text-gray-400">Missed calls? AI calls them back instantly</p>
-                            </div>
+                            <span class="text-white/80 text-sm">AI Call-Back</span>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-comment-dots text-purple-400"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-comment-dots text-purple-400 text-sm"></i>
                             </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Smart SMS</h4>
-                                <p class="text-sm text-gray-400">AI responds to texts professionally</p>
-                            </div>
+                            <span class="text-white/80 text-sm">Smart SMS</span>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-user-plus text-green-400"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-plus text-green-400 text-sm"></i>
                             </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Lead Capture</h4>
-                                <p class="text-sm text-gray-400">Auto-qualify & sync to CRM</p>
-                            </div>
+                            <span class="text-white/80 text-sm">Lead Capture</span>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-calendar-check text-orange-400"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-check text-orange-400 text-sm"></i>
                             </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Book Meetings</h4>
-                                <p class="text-sm text-gray-400">AI schedules appointments for you</p>
-                            </div>
+                            <span class="text-white/80 text-sm">Book Meetings</span>
                         </div>
                     </div>
 
                     <!-- Download Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                        <a href="#" id="download-ios" class="group flex items-center justify-center gap-3 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-xl px-6 py-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
-                            <i class="fab fa-apple text-white text-3xl"></i>
+                    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                        <a href="#" id="download-ios" class="flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-5 py-3 transition-all">
+                            <i class="fab fa-apple text-white text-2xl"></i>
                             <div class="text-left">
-                                <div class="text-xs text-gray-400 leading-tight">Download on the</div>
-                                <div class="text-lg text-white font-bold leading-tight">App Store</div>
+                                <div class="text-[10px] text-white/40 leading-tight">Download on the</div>
+                                <div class="text-sm text-white font-semibold leading-tight">App Store</div>
                             </div>
                         </a>
-                        <a href="#" id="download-android" class="group flex items-center justify-center gap-3 bg-black hover:bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-xl px-6 py-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
-                            <i class="fab fa-google-play text-white text-3xl"></i>
+                        <a href="#" id="download-android" class="flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-5 py-3 transition-all">
+                            <i class="fab fa-google-play text-white text-2xl"></i>
                             <div class="text-left">
-                                <div class="text-xs text-gray-400 leading-tight">Get it on</div>
-                                <div class="text-lg text-white font-bold leading-tight">Google Play</div>
+                                <div class="text-[10px] text-white/40 leading-tight">Get it on</div>
+                                <div class="text-sm text-white font-semibold leading-tight">Google Play</div>
                             </div>
                         </a>
                     </div>
 
                     <!-- Trust signals -->
-                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-400">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-star text-yellow-400"></i>
-                            <span><strong class="text-white">4.9</strong> App Rating</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-download text-blue-400"></i>
-                            <span><strong class="text-white">10K+</strong> Downloads</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-shield-alt text-green-400"></i>
-                            <span>Free with subscription</span>
-                        </div>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-white/40">
+                        <span><strong class="text-white">4.9</strong> rating</span>
+                        <span class="text-white/20">•</span>
+                        <span><strong class="text-white">10K+</strong> downloads</span>
+                        <span class="text-white/20">•</span>
+                        <span>Free with subscription</span>
                     </div>
                 </div>
 
-                <!-- Right: Phone Mockup -->
+                <!-- Right: Simple Phone Mockup -->
                 <div class="order-1 lg:order-2 flex justify-center">
-                    <div class="relative" style="max-width: 320px;">
-                        <!-- Phone glow effect -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-[3rem] blur-3xl scale-110"></div>
-
+                    <div class="relative w-64">
                         <!-- iPhone Frame -->
-                        <div class="relative bg-black rounded-[3rem] p-3 shadow-2xl border-8 border-gray-900" style="animation: float 6s ease-in-out infinite;">
-                            <!-- Notch -->
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-36 h-7 bg-black rounded-b-3xl z-10"></div>
-
+                        <div class="relative bg-gray-900 rounded-[2.5rem] p-2 border border-white/10">
                             <!-- Screen -->
-                            <div class="bg-gradient-to-b from-gray-900 to-gray-950 rounded-[2.3rem] overflow-hidden relative" style="height: 580px;">
+                            <div class="bg-black rounded-[2rem] overflow-hidden" style="height: 480px;">
                                 <!-- Status Bar -->
-                                <div class="px-6 py-3 flex justify-between items-center text-xs font-semibold text-white">
+                                <div class="px-5 py-2 flex justify-between items-center text-[10px] text-white/60">
                                     <span>9:41</span>
                                     <div class="flex items-center gap-1">
-                                        <i class="fas fa-signal text-xs"></i>
-                                        <i class="fas fa-wifi text-xs"></i>
-                                        <i class="fas fa-battery-full text-xs"></i>
+                                        <i class="fas fa-signal text-[8px]"></i>
+                                        <i class="fas fa-wifi text-[8px]"></i>
+                                        <i class="fas fa-battery-full text-[8px]"></i>
                                     </div>
                                 </div>
 
-                                <!-- App Header -->
-                                <div class="px-5 pt-2 pb-4">
-                                    <div class="text-gray-400 text-sm font-medium">Welcome back</div>
-                                    <div class="text-white text-2xl font-bold">Dashboard</div>
-                                </div>
+                                <!-- App Content -->
+                                <div class="px-4 pt-2">
+                                    <div class="text-white/40 text-xs">Welcome back</div>
+                                    <div class="text-white text-lg font-bold mb-4">Dashboard</div>
 
-                                <!-- Stats Cards -->
-                                <div class="px-4 grid grid-cols-2 gap-3 mb-4">
-                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
-                                        <div class="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-2">
-                                            <i class="fas fa-phone text-blue-400 text-sm"></i>
+                                    <!-- Stats Grid -->
+                                    <div class="grid grid-cols-2 gap-2 mb-4">
+                                        <div class="bg-white/5 rounded-xl p-3">
+                                            <div class="text-xl font-bold text-white">47</div>
+                                            <div class="text-[10px] text-white/40">AI Calls</div>
                                         </div>
-                                        <div class="text-2xl font-bold text-white">47</div>
-                                        <div class="text-xs text-gray-400">AI Calls</div>
-                                    </div>
-                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
-                                        <div class="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-2">
-                                            <i class="fas fa-comment text-purple-400 text-sm"></i>
+                                        <div class="bg-white/5 rounded-xl p-3">
+                                            <div class="text-xl font-bold text-white">128</div>
+                                            <div class="text-[10px] text-white/40">SMS</div>
                                         </div>
-                                        <div class="text-2xl font-bold text-white">128</div>
-                                        <div class="text-xs text-gray-400">SMS Handled</div>
-                                    </div>
-                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
-                                        <div class="w-9 h-9 bg-green-500/20 rounded-xl flex items-center justify-center mb-2">
-                                            <i class="fas fa-users text-green-400 text-sm"></i>
+                                        <div class="bg-white/5 rounded-xl p-3">
+                                            <div class="text-xl font-bold text-white">23</div>
+                                            <div class="text-[10px] text-white/40">Leads</div>
                                         </div>
-                                        <div class="text-2xl font-bold text-white">23</div>
-                                        <div class="text-xs text-gray-400">New Leads</div>
-                                    </div>
-                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl p-4 border border-gray-700/50">
-                                        <div class="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-2">
-                                            <i class="fas fa-chart-line text-orange-400 text-sm"></i>
+                                        <div class="bg-white/5 rounded-xl p-3">
+                                            <div class="text-xl font-bold text-white">68%</div>
+                                            <div class="text-[10px] text-white/40">Close Rate</div>
                                         </div>
-                                        <div class="text-2xl font-bold text-white">68%</div>
-                                        <div class="text-xs text-gray-400">Close Rate</div>
                                     </div>
-                                </div>
 
-                                <!-- Recent Activity -->
-                                <div class="px-4 mb-4">
-                                    <div class="text-sm font-semibold text-white mb-3">Recent Activity</div>
-                                    <div class="bg-gray-800/60 backdrop-blur rounded-2xl border border-gray-700/50 overflow-hidden">
-                                        <div class="flex items-center gap-3 p-3 border-b border-gray-700/50">
-                                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-phone text-blue-400 text-xs"></i>
+                                    <!-- Activity -->
+                                    <div class="text-xs text-white mb-2">Recent Activity</div>
+                                    <div class="space-y-2">
+                                        <div class="bg-white/5 rounded-lg p-2.5 flex items-center gap-2">
+                                            <div class="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center">
+                                                <i class="fas fa-phone text-blue-400 text-[8px]"></i>
                                             </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="text-sm font-medium text-white truncate">Mike Johnson</div>
-                                                <div class="text-xs text-gray-400">AI completed call</div>
+                                            <div class="flex-1">
+                                                <div class="text-[10px] text-white">Mike Johnson</div>
+                                                <div class="text-[8px] text-white/40">AI call • 2m ago</div>
                                             </div>
-                                            <div class="text-xs text-gray-500">2m ago</div>
                                         </div>
-                                        <div class="flex items-center gap-3 p-3 border-b border-gray-700/50">
-                                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-user-plus text-green-400 text-xs"></i>
+                                        <div class="bg-white/5 rounded-lg p-2.5 flex items-center gap-2">
+                                            <div class="w-6 h-6 bg-green-500/20 rounded flex items-center justify-center">
+                                                <i class="fas fa-user-plus text-green-400 text-[8px]"></i>
                                             </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="text-sm font-medium text-white truncate">New Lead Created</div>
-                                                <div class="text-xs text-gray-400">Sarah Williams</div>
+                                            <div class="flex-1">
+                                                <div class="text-[10px] text-white">New Lead</div>
+                                                <div class="text-[8px] text-white/40">Sarah • 15m ago</div>
                                             </div>
-                                            <div class="text-xs text-gray-500">15m ago</div>
-                                        </div>
-                                        <div class="flex items-center gap-3 p-3">
-                                            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-comment text-purple-400 text-xs"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="text-sm font-medium text-white truncate">SMS Conversation</div>
-                                                <div class="text-xs text-gray-400">AI replied to inquiry</div>
-                                            </div>
-                                            <div class="text-xs text-gray-500">1h ago</div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- AI Assistant CTA -->
-                                <div class="px-4">
-                                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-4 flex items-center justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                                                <i class="fas fa-microphone text-white"></i>
-                                            </div>
-                                            <div>
-                                                <div class="text-white font-semibold">Talk to Aria</div>
-                                                <div class="text-blue-100 text-xs">Your AI assistant</div>
-                                            </div>
+                                    <!-- Aria CTA -->
+                                    <div class="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-3 flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-microphone text-white text-sm"></i>
+                                            <span class="text-white text-xs font-semibold">Talk to Aria</span>
                                         </div>
-                                        <i class="fas fa-arrow-right text-white"></i>
+                                        <i class="fas fa-arrow-right text-white text-xs"></i>
                                     </div>
                                 </div>
 
                                 <!-- Bottom Nav -->
-                                <div class="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur border-t border-gray-800 px-2 py-2">
-                                    <div class="flex justify-around items-center">
-                                        <div class="flex flex-col items-center px-3 py-1">
-                                            <i class="fas fa-home text-blue-400 text-lg"></i>
-                                            <span class="text-[10px] text-blue-400 mt-1">Home</span>
-                                        </div>
-                                        <div class="flex flex-col items-center px-3 py-1">
-                                            <i class="fas fa-phone text-gray-500 text-lg"></i>
-                                            <span class="text-[10px] text-gray-500 mt-1">Calls</span>
-                                        </div>
-                                        <div class="flex flex-col items-center px-3 py-1">
-                                            <i class="fas fa-comment text-gray-500 text-lg"></i>
-                                            <span class="text-[10px] text-gray-500 mt-1">Messages</span>
-                                        </div>
-                                        <div class="flex flex-col items-center px-3 py-1">
-                                            <i class="fas fa-users text-gray-500 text-lg"></i>
-                                            <span class="text-[10px] text-gray-500 mt-1">Leads</span>
-                                        </div>
-                                        <div class="flex flex-col items-center px-3 py-1">
-                                            <i class="fas fa-cog text-gray-500 text-lg"></i>
-                                            <span class="text-[10px] text-gray-500 mt-1">Settings</span>
-                                        </div>
-                                    </div>
+                                <div class="absolute bottom-0 left-0 right-0 bg-black/90 px-4 py-2 flex justify-around">
+                                    <i class="fas fa-home text-white/80 text-sm"></i>
+                                    <i class="fas fa-phone text-white/30 text-sm"></i>
+                                    <i class="fas fa-comment text-white/30 text-sm"></i>
+                                    <i class="fas fa-users text-white/30 text-sm"></i>
+                                    <i class="fas fa-cog text-white/30 text-sm"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Bottom features bar -->
-            <div class="mt-16 pt-12 border-t border-gray-800">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                    <div>
-                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-bolt text-blue-400 text-xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-white mb-1">Instant Setup</h4>
-                        <p class="text-sm text-gray-400">Download & connect in 2 minutes</p>
-                    </div>
-                    <div>
-                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-cloud text-purple-400 text-xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-white mb-1">Cloud Sync</h4>
-                        <p class="text-sm text-gray-400">All data synced across devices</p>
-                    </div>
-                    <div>
-                        <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-lock text-green-400 text-xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-white mb-1">Secure & Private</h4>
-                        <p class="text-sm text-gray-400">End-to-end encryption</p>
-                    </div>
-                    <div>
-                        <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-headset text-orange-400 text-xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-white mb-1">24/7 Support</h4>
-                        <p class="text-sm text-gray-400">Help when you need it</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
-    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-[#1a1a2e] relative overflow-hidden">
-        <!-- Background decoration -->
-        <div class="absolute inset-0 opacity-5">
-            <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
-        </div>
-
-        <div class="max-w-7xl mx-auto relative z-10">
-            <!-- Header -->
+    <!-- Workflows Section - Clean minimal style -->
+    <section id="workflows" class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+        <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Automated Workflows</span> That<br/>Run Your Business
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">
+                    Automated Workflows
                 </h2>
-                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-                    Powered by n8n—the enterprise-grade automation platform. Connect your entire tech stack and let AI handle the repetitive work.
+                <p class="text-white/50 max-w-2xl mx-auto mb-8">
+                    Connect your entire tech stack. Let AI handle the repetitive work.
                 </p>
 
-                <!-- Integration Badges -->
-                <div class="flex justify-center gap-3 flex-wrap max-w-3xl mx-auto">
-                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
-                        <i class="fab fa-salesforce text-blue-400 mr-2"></i>Salesforce
-                    </span>
-                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
-                        <i class="fab fa-hubspot text-orange-400 mr-2"></i>HubSpot
-                    </span>
-                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
-                        <i class="fab fa-google text-green-400 mr-2"></i>Google Sheets
-                    </span>
-                    <span class="bg-gray-900/50 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-gray-200 hover:bg-gray-800/50 transition-all">
-                        <i class="fab fa-slack text-purple-400 mr-2"></i>Slack
-                    </span>
-                    <span class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-white">
-                        <i class="fas fa-plus-circle mr-2"></i>200+ More
-                    </span>
+                <!-- Integration Badges - Simplified -->
+                <div class="flex justify-center gap-2 flex-wrap">
+                    <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/60">Salesforce</span>
+                    <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/60">HubSpot</span>
+                    <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/60">Google Sheets</span>
+                    <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/60">Slack</span>
+                    <span class="px-3 py-1.5 bg-white text-black rounded-full text-xs font-medium">+200 more</span>
                 </div>
             </div>
+
             <!-- Workflow Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                <!-- Card 1 -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-blue-500/50 transition-all duration-300 group">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <div class="flex items-start gap-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-blue-500/50 transition-all">
-                            <i class="fas fa-user-plus text-white text-xl"></i>
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user-plus text-blue-400"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Intelligent Lead Capture</h3>
-                            <p class="text-base text-gray-300 leading-relaxed">Every call automatically extracts contact info, company details, and pain points. Leads flow directly into your CRM with qualification scores.</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">Intelligent Lead Capture</h3>
+                            <p class="text-white/50 text-sm">Auto-extract contact info and pain points. Leads flow to CRM with scores.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-purple-500/50 transition-all duration-300 group">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <div class="flex items-start gap-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-purple-500/50 transition-all">
-                            <i class="fas fa-calendar text-white text-xl"></i>
+                        <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-calendar text-purple-400"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Smart Appointment Booking</h3>
-                            <p class="text-base text-gray-300 leading-relaxed">AI checks your calendar availability, books meetings in real-time, and sends automatic confirmations + reminders via SMS and email.</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">Smart Appointment Booking</h3>
+                            <p class="text-white/50 text-sm">AI checks availability, books in real-time, sends confirmations.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 3 -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-green-500/50 transition-all duration-300 group">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <div class="flex items-start gap-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-green-500/50 transition-all">
-                            <i class="fas fa-envelope text-white text-xl"></i>
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-green-400"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Automated Follow-Up Sequences</h3>
-                            <p class="text-base text-gray-300 leading-relaxed">Based on call outcomes, trigger personalized email campaigns, SMS sequences, or schedule follow-up calls. Never let a hot lead go cold.</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">Automated Follow-Up</h3>
+                            <p class="text-white/50 text-sm">Trigger emails and SMS based on call outcomes. Never lose a lead.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 4 -->
-                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-xl hover:border-yellow-500/50 transition-all duration-300 group">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <div class="flex items-start gap-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-yellow-500/50 transition-all">
-                            <i class="fas fa-database text-white text-xl"></i>
+                        <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-database text-orange-400"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Real-Time Data Enrichment</h3>
-                            <p class="text-base text-gray-300 leading-relaxed">Automatically enrich every lead with company size, revenue, tech stack, and social profiles using Clearbit, LinkedIn, and 50+ data sources.</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">Data Enrichment</h3>
+                            <p class="text-white/50 text-sm">Enrich leads with company info from 50+ data sources.</p>
                         </div>
                     </div>
                 </div>
@@ -2246,36 +1923,28 @@
         </div>
     </section>
 
-    <!-- Final CTA Section -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden">
-        <!-- Background pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        <div class="max-w-5xl mx-auto text-center relative z-10">
-            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8">
+    <!-- Final CTA Section - Clean minimal style -->
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-gray-100">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                 Ready to Transform Your Business?
             </h2>
-            <p class="text-xl sm:text-2xl md:text-3xl mb-6 opacity-95 max-w-4xl mx-auto leading-relaxed">
-                Join leading companies using AI voice agents to automate their sales and support.
-            </p>
-            <p class="text-lg sm:text-xl mb-10 opacity-90 max-w-3xl mx-auto">
-                Schedule a personalized demo with our team and see how VoiceFlow CRM can revolutionize your business operations.
+            <p class="text-gray-600 mb-10 max-w-xl mx-auto">
+                Join contractors using AI voice agents to never miss a lead again.
             </p>
 
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button id="cta-try-it-now" class="bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-white/30 transition-all transform hover:scale-105 hover:bg-gray-50">
-                    <i class="fas fa-calendar-check mr-2"></i>Try It Now
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="cta-try-it-now" class="bg-gray-900 hover:bg-black text-white px-8 py-4 rounded-xl font-semibold text-base transition-all">
+                    Get Started
+                    <i class="fas fa-arrow-right ml-2"></i>
                 </button>
-                <button id="cta-talk-to-sales" class="border-2 border-white text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all transform hover:scale-105">
-                    <i class="fas fa-phone mr-2"></i>Talk to Sales
+                <button id="cta-talk-to-sales" class="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 px-8 py-4 rounded-xl font-semibold text-base transition-all">
+                    Talk to Sales
                 </button>
             </div>
 
-            <p class="text-base sm:text-lg mt-8 opacity-90">
-                <i class="fas fa-check-circle mr-2"></i>No commitment required • Custom pricing available • White-glove onboarding
+            <p class="text-sm text-gray-500 mt-8">
+                No commitment • Free trial • 24/7 support
             </p>
         </div>
     </section>
@@ -2781,12 +2450,33 @@
             });
         }
 
-        // Show popup when "Try It Now" is clicked
+        // Show popup when "Try It Now" / "Get Started" is clicked
         const tryItNowBtn = document.getElementById('try-it-now-btn');
+        const heroDemoForm = document.getElementById('demo-form-container');
+        const closeDemoFormBtn = document.getElementById('close-demo-form');
+
         if (tryItNowBtn) {
             tryItNowBtn.addEventListener('click', () => {
-                console.log('Try It Now clicked - opening modal');
-                if (demoPopupModal) demoPopupModal.classList.remove('hidden');
+                console.log('Get Started clicked - opening demo form');
+                // Try to show the hero demo form first, fallback to popup modal
+                if (heroDemoForm) {
+                    heroDemoForm.classList.remove('hidden');
+                } else if (demoPopupModal) {
+                    demoPopupModal.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Close hero demo form
+        if (closeDemoFormBtn && heroDemoForm) {
+            closeDemoFormBtn.addEventListener('click', () => {
+                heroDemoForm.classList.add('hidden');
+            });
+            // Also close on clicking outside the form
+            heroDemoForm.addEventListener('click', (e) => {
+                if (e.target === heroDemoForm) {
+                    heroDemoForm.classList.add('hidden');
+                }
             });
         }
 
@@ -4142,6 +3832,84 @@
             }
 
             console.log('✅ Voicemail Agent Demo loaded');
+        });
+    </script>
+
+    <!-- Hero Slideshow Script (like mobile app) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            const heroTitle = document.getElementById('hero-title');
+            const heroSubtitle = document.getElementById('hero-subtitle');
+
+            const slideContent = [
+                {
+                    title: 'Focus on the Job',
+                    subtitle: 'Let AI handle your calls while you work on site'
+                },
+                {
+                    title: 'Never Miss a Lead',
+                    subtitle: "24/7 response - even when you're on a ladder"
+                },
+                {
+                    title: 'Book More Jobs',
+                    subtitle: 'Qualify leads instantly, follow up automatically'
+                }
+            ];
+
+            let currentIndex = 0;
+            const interval = 5000; // 5 seconds like mobile app
+
+            function updateSlide(index) {
+                // Fade out text
+                heroTitle.style.opacity = '0';
+                heroSubtitle.style.opacity = '0';
+
+                setTimeout(() => {
+                    // Update images
+                    slides.forEach((slide, i) => {
+                        slide.style.opacity = i === index ? '1' : '0';
+                    });
+
+                    // Update dots
+                    dots.forEach((dot, i) => {
+                        if (i === index) {
+                            dot.style.width = '24px';
+                            dot.classList.remove('bg-white/30');
+                            dot.classList.add('bg-white');
+                        } else {
+                            dot.style.width = '8px';
+                            dot.classList.remove('bg-white');
+                            dot.classList.add('bg-white/30');
+                        }
+                    });
+
+                    // Update text content
+                    heroTitle.textContent = slideContent[index].title;
+                    heroSubtitle.textContent = slideContent[index].subtitle;
+
+                    // Fade in text
+                    heroTitle.style.opacity = '1';
+                    heroSubtitle.style.opacity = '1';
+                }, 300);
+            }
+
+            // Auto-advance slides
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateSlide(currentIndex);
+            }, interval);
+
+            // Click handler for dots
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    currentIndex = i;
+                    updateSlide(currentIndex);
+                });
+            });
+
+            console.log('✅ Hero slideshow initialized');
         });
     </script>
 

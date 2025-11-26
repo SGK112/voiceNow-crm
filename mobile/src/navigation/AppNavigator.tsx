@@ -26,15 +26,18 @@ import CallScreen from '../screens/CallScreen';
 import SMSChatScreen from '../screens/SMSChatScreen';
 
 // Auth screens
+import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import SyncOnboardingScreen from '../screens/SyncOnboardingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
+const OnboardingStack = createStackNavigator();
 
-// Auth Navigator (Login, Signup, Forgot Password)
+// Auth Navigator (Welcome, Login, Signup, Forgot Password)
 function AuthNavigator() {
   const { colors } = useTheme();
 
@@ -45,10 +48,28 @@ function AuthNavigator() {
         cardStyle: { backgroundColor: colors.background },
       }}
     >
+      <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Signup" component={SignupScreen} />
       <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
+  );
+}
+
+// Onboarding Navigator (Sync accounts after first login)
+function OnboardingNavigator() {
+  const { colors } = useTheme();
+
+  return (
+    <OnboardingStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: colors.background },
+      }}
+    >
+      <OnboardingStack.Screen name="SyncOnboarding" component={SyncOnboardingScreen} />
+      <OnboardingStack.Screen name="Main" component={TabNavigator} />
+    </OnboardingStack.Navigator>
   );
 }
 
@@ -221,7 +242,7 @@ function LoadingScreen() {
 
 export default function AppNavigator() {
   const { colors, isDark } = useTheme();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding, completeOnboarding } = useAuth();
 
   // Show loading screen while checking auth status
   if (isLoading) {
@@ -270,7 +291,7 @@ export default function AppNavigator() {
         },
       }}
     >
-      {isAuthenticated ? <TabNavigator /> : <AuthNavigator />}
+      {isAuthenticated ? (needsOnboarding ? <OnboardingNavigator /> : <TabNavigator />) : <AuthNavigator />}
     </NavigationContainer>
   );
 }

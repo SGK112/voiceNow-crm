@@ -1,51 +1,67 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-11-24T21:00:37.183Z",
-  "totalConversationsAnalyzed": 24,
+  "lastUpdated": "2025-11-25T16:55:20.657Z",
+  "totalConversationsAnalyzed": 35,
   "insights": {
     "commonPhrases": [
       {
-        "word": "aria,",
-        "count": 29
+        "word": "there?",
+        "count": 36
       },
       {
-        "word": "there?",
-        "count": 28
+        "word": "aria,",
+        "count": 33
       },
       {
         "word": "send",
-        "count": 19
+        "count": 22
       },
       {
         "word": "what",
-        "count": 15
+        "count": 18
       },
       {
         "word": "test",
-        "count": 12
+        "count": 14
       },
       {
         "word": "message",
-        "count": 10
+        "count": 11
       },
       {
         "word": "text",
-        "count": 9
-      },
-      {
-        "word": "email",
-        "count": 7
-      },
-      {
-        "word": "name",
-        "count": 7
+        "count": 10
       },
       {
         "word": "name?",
+        "count": 9
+      },
+      {
+        "word": "name",
+        "count": 8
+      },
+      {
+        "word": "thank",
+        "count": 8
+      },
+      {
+        "word": "email",
+        "count": 8
+      },
+      {
+        "word": "what's",
+        "count": 7
+      },
+      {
+        "word": "many",
         "count": 7
       },
       {
         "word": "surprisegranite.com",
+        "count": 6
+      },
+      {
+        "word": "shh.",
         "count": 6
       },
       {
@@ -57,7 +73,11 @@
         "count": 5
       },
       {
-        "word": "thank",
+        "word": "josh.",
+        "count": 5
+      },
+      {
+        "word": "your",
         "count": 5
       },
       {
@@ -69,19 +89,11 @@
         "count": 4
       },
       {
-        "word": "your",
-        "count": 4
-      },
-      {
-        "word": "josh.",
-        "count": 4
-      },
-      {
-        "word": "what's",
-        "count": 4
-      },
-      {
         "word": "with",
+        "count": 4
+      },
+      {
+        "word": "have",
         "count": 4
       },
       {
@@ -97,7 +109,27 @@
         "count": 3
       },
       {
-        "word": "many",
+        "word": "don't",
+        "count": 3
+      },
+      {
+        "word": "today's",
+        "count": 3
+      },
+      {
+        "word": "date",
+        "count": 3
+      },
+      {
+        "word": "time?",
+        "count": 3
+      },
+      {
+        "word": "first",
+        "count": 3
+      },
+      {
+        "word": "last",
         "count": 3
       },
       {
@@ -121,19 +153,7 @@
         "count": 2
       },
       {
-        "word": "first",
-        "count": 2
-      },
-      {
         "word": "name,",
-        "count": 2
-      },
-      {
-        "word": "last",
-        "count": 2
-      },
-      {
-        "word": "don't",
         "count": 2
       },
       {
@@ -153,10 +173,6 @@
         "count": 2
       },
       {
-        "word": "have",
-        "count": 2
-      },
-      {
         "word": "time",
         "count": 2
       },
@@ -166,43 +182,27 @@
       },
       {
         "word": "know.",
-        "count": 1
+        "count": 2
       },
       {
-        "word": "uh-huh.",
-        "count": 1
+        "word": "hello?",
+        "count": 2
       },
       {
-        "word": "into",
-        "count": 1
+        "word": "underscore",
+        "count": 2
       },
       {
-        "word": "assistant?",
-        "count": 1
+        "word": "yourself",
+        "count": 2
       },
       {
-        "word": "👏👏👏",
-        "count": 1
+        "word": "email.",
+        "count": 2
       },
       {
-        "word": "toothpaste",
-        "count": 1
-      },
-      {
-        "word": "now,",
-        "count": 1
-      },
-      {
-        "word": "were",
-        "count": 1
-      },
-      {
-        "word": "talking",
-        "count": 1
-      },
-      {
-        "word": "earlier?",
-        "count": 1
+        "word": "commands",
+        "count": 2
       }
     ],
     "effectiveResponses": [],
@@ -231,7 +231,18 @@
         1869,
         1365,
         1219,
-        2934
+        2934,
+        1617,
+        1760,
+        1857,
+        1282,
+        1848,
+        1223,
+        1652,
+        1542,
+        1570,
+        1761,
+        2643
       ]
     },
     "userPreferences": {}

@@ -67,9 +67,9 @@ services:
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         sync: false
 
-      # Google OAuth (Backend)
+      # Google OAuth (Backend) - SET IN RENDER DASHBOARD
       - key: GOOGLE_CLIENT_ID
-        value: 710258787879-qmvg6o96r0k3pc6r47mutesavrhkttik.apps.googleusercontent.com
+        sync: false
 
       - key: GOOGLE_CLIENT_SECRET
         sync: false

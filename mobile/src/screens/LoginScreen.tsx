@@ -148,7 +148,16 @@ export default function LoginScreen({ navigation }: any) {
       }
 
       const oauthState = data.state;
+      // Extract the production base URL from the OAuth URL for polling
+      // The OAuth callback goes to production, so we must poll production for results
+      const oauthUrl = new URL(data.url);
+      const redirectUri = oauthUrl.searchParams.get('redirect_uri');
+      const productionBaseUrl = redirectUri
+        ? redirectUri.replace('/api/mobile/auth/google/callback', '')
+        : 'https://voiceflow-crm.onrender.com'; // Fallback to production
+
       console.log('Opening Google OAuth URL with state:', oauthState?.substring(0, 8) + '...');
+      console.log('Will poll production server:', productionBaseUrl);
 
       // Open browser for OAuth - no redirect URL needed, we'll poll for result
       const result = await WebBrowser.openBrowserAsync(data.url, {
@@ -161,13 +170,14 @@ export default function LoginScreen({ navigation }: any) {
       if (oauthState) {
         console.log('Polling for OAuth result...');
 
-        // Poll for result (backend stores completed OAuth in pendingOAuthStates)
+        // Poll for result - MUST poll production server since that's where OAuth callback goes
         let attempts = 0;
         const maxAttempts = 30; // 30 seconds max
 
         const pollForResult = async (): Promise<void> => {
           try {
-            const pollResponse = await fetch(`${API_URL}/api/mobile/auth/google/complete/${oauthState}`);
+            // Poll the PRODUCTION server, not local, because OAuth callback stores result there
+            const pollResponse = await fetch(`${productionBaseUrl}/api/mobile/auth/google/complete/${oauthState}`);
             const pollData = await pollResponse.json();
 
             console.log('Poll attempt', attempts + 1, '- status:', pollData.status);

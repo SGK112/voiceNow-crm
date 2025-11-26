@@ -2,8 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
-import axios from 'axios';
-import { API_BASE_URL } from './api';
+import api from './api';
 
 // Notification types for routing
 export type NotificationType = 'incoming_call' | 'incoming_sms' | 'missed_call' | 'voicemail' | 'general';
@@ -139,7 +138,7 @@ class NotificationService {
 
   private async registerTokenWithBackend(token: string) {
     try {
-      await axios.post(`${API_BASE_URL}/api/notifications/register`, {
+      await api.post('/api/notifications/register', {
         pushToken: token,
         userId: 'default',
         platform: Platform.OS,

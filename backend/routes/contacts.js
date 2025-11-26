@@ -30,7 +30,7 @@ router.get('/', auth, async (req, res) => {
     } = req.query;
 
     const query = {
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     };
 
@@ -94,7 +94,7 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     }).lean();
 
@@ -104,7 +104,7 @@ router.get('/:id', auth, async (req, res) => {
 
     // Get call history for this contact
     const calls = await CallLog.find({
-      userId: req.user.id,
+      user: req.user.id,
       $or: [
         { phoneNumber: contact.phone },
         { callerPhone: contact.phone },
@@ -116,7 +116,7 @@ router.get('/:id', auth, async (req, res) => {
 
     // Get SMS history for this contact
     const messages = await AgentSMS.find({
-      userId: req.user.id,
+      user: req.user.id,
       $or: [{ from: contact.phone }, { to: contact.phone }],
     })
       .sort({ createdAt: -1 })
@@ -161,7 +161,7 @@ router.post('/', auth, async (req, res) => {
 
     // Check for duplicate phone number
     const existing = await Contact.findOne({
-      userId: req.user.id,
+      user: req.user.id,
       phone: phone,
       isDeleted: { $ne: true },
     });
@@ -175,7 +175,7 @@ router.post('/', auth, async (req, res) => {
     }
 
     const contactData = {
-      userId: req.user.id,
+      user: req.user.id,
       name,
       phone,
       email,
@@ -224,7 +224,7 @@ router.put('/:id', auth, async (req, res) => {
 
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     });
 
@@ -235,7 +235,7 @@ router.put('/:id', auth, async (req, res) => {
     // Check for duplicate phone if changing
     if (phone && phone !== contact.phone) {
       const existing = await Contact.findOne({
-        userId: req.user.id,
+        user: req.user.id,
         phone: phone,
         _id: { $ne: req.params.id },
         isDeleted: { $ne: true },
@@ -286,7 +286,7 @@ router.delete('/:id', auth, async (req, res) => {
   try {
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
     });
 
     if (!contact) {
@@ -312,7 +312,7 @@ router.post('/:id/activity', auth, async (req, res) => {
 
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     });
 
@@ -375,7 +375,7 @@ router.post('/import', auth, async (req, res) => {
         // Check for duplicate
         if (skipDuplicates && contactData.phone) {
           const existing = await Contact.findOne({
-            userId: req.user.id,
+            user: req.user.id,
             phone: contactData.phone,
             isDeleted: { $ne: true },
           });
@@ -387,7 +387,7 @@ router.post('/import', auth, async (req, res) => {
         }
 
         const contact = await Contact.create({
-          userId: req.user.id,
+          user: req.user.id,
           name: contactData.name || 'Unknown',
           phone: contactData.phone,
           email: contactData.email,
@@ -426,7 +426,7 @@ router.get('/search/:query', auth, async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
 
     const contacts = await Contact.find({
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
       $or: [
         { name: { $regex: searchQuery, $options: 'i' } },
@@ -455,7 +455,7 @@ router.get('/by-phone/:phone', auth, async (req, res) => {
 
     // Try exact match first
     let contact = await Contact.findOne({
-      userId: req.user.id,
+      user: req.user.id,
       phone: { $regex: phone.slice(-10) },
       isDeleted: { $ne: true },
     }).lean();
@@ -470,7 +470,7 @@ router.get('/by-phone/:phone', auth, async (req, res) => {
       if (lead) {
         // Create contact from lead
         contact = await Contact.create({
-          userId: req.user.id,
+          user: req.user.id,
           name: lead.name,
           phone: lead.phone,
           email: lead.email,
@@ -498,14 +498,14 @@ router.get('/by-phone/:phone', auth, async (req, res) => {
 // @access  Private
 router.get('/stats/overview', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const user = req.user.id;
 
     const [totalContacts, contactsWithEmail, contactsWithCompany, recentContacts] = await Promise.all([
-      Contact.countDocuments({ userId, isDeleted: { $ne: true } }),
-      Contact.countDocuments({ userId, isDeleted: { $ne: true }, email: { $exists: true, $ne: '' } }),
-      Contact.countDocuments({ userId, isDeleted: { $ne: true }, company: { $exists: true, $ne: '' } }),
+      Contact.countDocuments({ user, isDeleted: { $ne: true } }),
+      Contact.countDocuments({ user, isDeleted: { $ne: true }, email: { $exists: true, $ne: '' } }),
+      Contact.countDocuments({ user, isDeleted: { $ne: true }, company: { $exists: true, $ne: '' } }),
       Contact.countDocuments({
-        userId,
+        user,
         isDeleted: { $ne: true },
         createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       }),
@@ -513,7 +513,7 @@ router.get('/stats/overview', auth, async (req, res) => {
 
     // Get activity breakdown
     const activityAggregation = await Contact.aggregate([
-      { $match: { userId: req.user._id, isDeleted: { $ne: true } } },
+      { $match: { user: req.user._id, isDeleted: { $ne: true } } },
       {
         $group: {
           _id: null,
@@ -555,7 +555,7 @@ router.post('/sync-from-leads', auth, async (req, res) => {
     for (const lead of leads) {
       // Check if contact already exists for this lead
       const existing = await Contact.findOne({
-        userId: req.user.id,
+        user: req.user.id,
         $or: [
           { leadId: lead._id },
           { phone: lead.phone },
@@ -575,7 +575,7 @@ router.post('/sync-from-leads', auth, async (req, res) => {
 
       // Create new contact from lead
       await Contact.create({
-        userId: req.user.id,
+        user: req.user.id,
         name: lead.name || 'Unknown',
         phone: lead.phone,
         email: lead.email,
@@ -605,7 +605,7 @@ router.post('/:id/link-lead', auth, async (req, res) => {
 
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     });
 
@@ -660,7 +660,7 @@ router.get('/:id/history', auth, async (req, res) => {
 
     const contact = await Contact.findOne({
       _id: req.params.id,
-      userId: req.user.id,
+      user: req.user.id,
       isDeleted: { $ne: true },
     }).lean();
 
@@ -683,7 +683,7 @@ router.get('/:id/history', auth, async (req, res) => {
 
     // Add calls from CallLog
     const calls = await CallLog.find({
-      userId: req.user.id,
+      user: req.user.id,
       $or: [
         { phoneNumber: contact.phone },
         { callerPhone: contact.phone },
@@ -711,7 +711,7 @@ router.get('/:id/history', auth, async (req, res) => {
 
     // Add SMS from AgentSMS
     const messages = await AgentSMS.find({
-      userId: req.user.id,
+      user: req.user.id,
       $or: [{ from: contact.phone }, { to: contact.phone }],
     })
       .sort({ createdAt: -1 })

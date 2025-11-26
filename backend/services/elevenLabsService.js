@@ -274,18 +274,51 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
         hasPersonalizedFirstMessage: !!personalizedFirstMessage
       });
 
-      // DEBUG: Log the full request body to verify what we're sending
-      console.log('🔍 Full request body:');
-      console.log('  - Agent ID:', requestBody.agent_id);
-      console.log('  - Has override:', !!requestBody.conversation_config_override);
-      if (requestBody.conversation_config_override) {
-        console.log('  - Override prompt length:', requestBody.conversation_config_override.agent?.prompt?.prompt?.length || 0);
-        console.log('  - Override first_message:', requestBody.conversation_config_override.agent?.first_message || 'none');
-        console.log('  - Override voice_id:', requestBody.conversation_config_override.tts?.voice_id || 'none');
-        console.log('  - First 200 chars of prompt:', requestBody.conversation_config_override.agent?.prompt?.prompt?.substring(0, 200));
+      // Use the Twilio outbound-call endpoint (works without batch calling agreement)
+      // This is the direct single-call endpoint vs batch-calling/submit which requires TOS
+      const outboundRequestBody = {
+        agent_id: agentId,
+        agent_phone_number_id: agentPhoneNumberId,
+        to_number: phoneNumber
+      };
+
+      // Add conversation config overrides if provided
+      if (personalizedScript || personalizedFirstMessage || voiceIdOverride) {
+        outboundRequestBody.conversation_config_override = {
+          agent: {}
+        };
+
+        if (personalizedScript) {
+          outboundRequestBody.conversation_config_override.agent.prompt = {
+            prompt: personalizedScript
+          };
+        }
+
+        if (personalizedFirstMessage) {
+          outboundRequestBody.conversation_config_override.agent.first_message = personalizedFirstMessage;
+        }
+
+        if (voiceIdOverride) {
+          outboundRequestBody.conversation_config_override.tts = {
+            voice_id: voiceIdOverride,
+            model_id: 'eleven_flash_v2'
+          };
+        }
       }
 
-      const response = await this.client.post('/convai/batch-calling/submit', requestBody);
+      // Add dynamic variables if provided
+      if (Object.keys(dynamicVariables).length > 0) {
+        outboundRequestBody.conversation_initiation_client_data = {
+          dynamic_variables: dynamicVariables
+        };
+      }
+
+      console.log('🔍 Using /convai/twilio/outbound-call endpoint');
+      console.log('  - Agent ID:', outboundRequestBody.agent_id);
+      console.log('  - Phone Number ID:', outboundRequestBody.agent_phone_number_id);
+      console.log('  - To:', outboundRequestBody.to_number);
+
+      const response = await this.client.post('/convai/twilio/outbound-call', outboundRequestBody);
 
       if (!response.data) {
         throw new Error('Empty response from ElevenLabs API');

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, Switch, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import axios from 'axios';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
+import api from '../services/api';
 
 export default function DevModeScreen() {
   const { colors } = useTheme();
@@ -22,7 +20,7 @@ export default function DevModeScreen() {
     try {
       setIsProcessing(true);
 
-      const response = await axios.post(`${API_URL}/api/dev/command`, {
+      const response = await api.post('/api/dev/command', {
         command: command.trim(),
         transcription: `Manual input: ${command.trim()}`
       });

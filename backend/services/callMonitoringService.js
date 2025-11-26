@@ -165,7 +165,7 @@ export class CallMonitoringService extends EventEmitter {
       );
 
       // Check if should auto-callback with interactive voicemail
-      if (autoCallBack && interactiveVoicemail) {
+      if (autoCallBack) {
         const delayMinutes = profile.ariaPreferences.autoCallBack.delayMinutes || 5;
 
         console.log(`= [AUTO CALLBACK] Scheduling callback to ${phoneNumber} in ${delayMinutes} minutes`);

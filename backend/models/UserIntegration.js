@@ -25,11 +25,13 @@ const userIntegrationSchema = new mongoose.Schema({
       'stripe',
       'google_calendar',
       'google_sheets',
+      'google_contacts',
       'hubspot',
       'salesforce',
       'zapier',
       'make',
-      'airtable'
+      'airtable',
+      'shopify'
     ],
     required: true
   },

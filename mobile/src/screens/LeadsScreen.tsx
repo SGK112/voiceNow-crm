@@ -1,11 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
+import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
-
-// Use 10.0.2.2 for Android emulator, 192.168.0.151 for physical devices
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
 export default function LeadsScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -19,7 +16,7 @@ export default function LeadsScreen({ navigation }: any) {
   const fetchLeads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/leads`, {
+      const response = await api.get('/api/mobile/leads', {
         params: { _t: Date.now() },
         headers: {
           'Cache-Control': 'no-cache',

@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import axios from 'axios';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
+import api from '../services/api';
 
 export default function MessagesScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -18,7 +16,7 @@ export default function MessagesScreen({ navigation }: any) {
   const fetchThreads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/sms-threads`, {
+      const response = await api.get('/api/mobile/sms-threads', {
         params: { _t: Date.now() },
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });

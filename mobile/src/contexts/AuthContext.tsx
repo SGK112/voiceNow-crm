@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import authService, { User, AuthResponse, LoginCredentials, SignupCredentials } from '../services/AuthService';
 import biometricService from '../services/BiometricService';
+
+const ONBOARDING_COMPLETED_KEY = '@voiceflow_onboarding_completed';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  needsOnboarding: boolean;
   biometricAvailable: boolean;
   biometricEnabled: boolean;
   biometricType: string;
@@ -21,6 +25,7 @@ interface AuthContextType {
   resetPassword: (emailOrPhone: string, code: string, newPassword: string) => Promise<AuthResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  completeOnboarding: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   isLoading: true,
   isAuthenticated: false,
+  needsOnboarding: false,
   biometricAvailable: false,
   biometricEnabled: false,
   biometricType: 'Biometric',
@@ -42,6 +48,7 @@ const AuthContext = createContext<AuthContextType>({
   resetPassword: async () => ({ success: false }),
   logout: async () => {},
   refreshUser: async () => {},
+  completeOnboarding: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -54,6 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState('Biometric');
@@ -70,6 +78,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { token: storedToken, user: storedUser } = await authService.initialize();
       setToken(storedToken);
       setUser(storedUser);
+
+      // Check if user needs onboarding
+      if (storedToken && storedUser) {
+        const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
+        setNeedsOnboarding(!onboardingCompleted);
+      }
     } catch (error) {
       console.error('Auth initialization error:', error);
     } finally {
@@ -99,6 +113,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
+      // Check onboarding status for this login
+      const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
+      setNeedsOnboarding(!onboardingCompleted);
     }
     return response;
   }, []);
@@ -108,6 +125,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
+      // New signups always need onboarding
+      setNeedsOnboarding(true);
     }
     return response;
   }, []);
@@ -117,6 +136,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
+      // Check onboarding status for this login
+      const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
+      setNeedsOnboarding(!onboardingCompleted);
     }
     return response;
   }, []);
@@ -210,6 +232,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const completeOnboarding = useCallback(async () => {
+    await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+    setNeedsOnboarding(false);
+  }, []);
+
   const isAuthenticated = !!token && !!user;
 
   return (
@@ -219,6 +246,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         token,
         isLoading,
         isAuthenticated,
+        needsOnboarding,
         biometricAvailable,
         biometricEnabled,
         biometricType,
@@ -233,6 +261,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         resetPassword,
         logout,
         refreshUser,
+        completeOnboarding,
       }}
     >
       {children}

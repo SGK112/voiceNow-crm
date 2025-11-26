@@ -184,20 +184,84 @@ export default function SignupScreen({ navigation }: any) {
         throw new Error('Failed to get OAuth URL');
       }
 
-      console.log('Opening Google OAuth URL...');
+      const oauthState = data.state;
+      // Extract the production base URL from the OAuth URL for polling
+      // The OAuth callback goes to production, so we must poll production for results
+      const oauthUrl = new URL(data.url);
+      const redirectUri = oauthUrl.searchParams.get('redirect_uri');
+      const productionBaseUrl = redirectUri
+        ? redirectUri.replace('/api/mobile/auth/google/callback', '')
+        : 'https://voiceflow-crm.onrender.com'; // Fallback to production
 
-      // Open browser for OAuth
-      const result = await WebBrowser.openAuthSessionAsync(
-        data.url,
-        'voiceflow-ai://oauth'
-      );
+      console.log('Opening Google OAuth URL with state:', oauthState?.substring(0, 8) + '...');
+      console.log('Will poll production server:', productionBaseUrl);
 
-      console.log('WebBrowser result:', result.type);
+      // Open browser for OAuth - use openBrowserAsync for polling approach
+      const result = await WebBrowser.openBrowserAsync(data.url, {
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+      });
 
-      if (result.type === 'cancel' || result.type === 'dismiss') {
+      console.log('WebBrowser closed, result type:', result.type);
+
+      // When browser closes, poll for the OAuth result
+      if (oauthState) {
+        console.log('Polling for OAuth result...');
+
+        // Poll for result - MUST poll production server since that's where OAuth callback goes
+        let attempts = 0;
+        const maxAttempts = 30; // 30 seconds max
+
+        const pollForResult = async (): Promise<void> => {
+          try {
+            // Poll the PRODUCTION server, not local, because OAuth callback stores result there
+            const pollResponse = await fetch(`${productionBaseUrl}/api/mobile/auth/google/complete/${oauthState}`);
+            const pollData = await pollResponse.json();
+
+            console.log('Poll attempt', attempts + 1, '- status:', pollData.status);
+
+            if (pollData.success && pollData.status === 'completed') {
+              // OAuth completed successfully!
+              console.log('OAuth completed for:', pollData.user?.email);
+              await handleGoogleSuccess(pollData.token, pollData.user);
+              return;
+            } else if (pollData.status === 'expired' || pollData.status === 'not_found') {
+              // OAuth session expired or not found
+              if (attempts < 2) {
+                // First couple attempts might be too early, keep trying
+                attempts++;
+                setTimeout(pollForResult, 1000);
+              } else {
+                console.log('OAuth session not found after polling');
+                setIsGoogleLoading(false);
+              }
+              return;
+            } else if (pollData.status === 'pending') {
+              // Still waiting, try again
+              attempts++;
+              if (attempts < maxAttempts) {
+                setTimeout(pollForResult, 1000);
+              } else {
+                console.log('OAuth polling timed out');
+                Alert.alert('Timeout', 'Sign-up took too long. Please try again.');
+                setIsGoogleLoading(false);
+              }
+            }
+          } catch (pollError) {
+            console.error('Poll error:', pollError);
+            attempts++;
+            if (attempts < maxAttempts) {
+              setTimeout(pollForResult, 1000);
+            } else {
+              setIsGoogleLoading(false);
+            }
+          }
+        };
+
+        // Start polling after a short delay to give user time to complete OAuth
+        setTimeout(pollForResult, 1000);
+      } else {
         setIsGoogleLoading(false);
       }
-      // Success/error will be handled via deep link callback
     } catch (error: any) {
       console.error('Google sign-up error:', error);
       Alert.alert('Error', error.message || 'Failed to start Google sign-up');

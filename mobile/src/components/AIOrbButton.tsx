@@ -2,13 +2,21 @@ import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } f
 import { View, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
-import axios from 'axios';
 import * as Haptics from 'expo-haptics';
-import { API_BASE_URL } from '../services/api';
+import api from '../utils/api';
 
-const API_URL = API_BASE_URL;
+export interface UIAction {
+  type: 'show_list' | 'confirm_sms' | 'confirm_email' | 'confirm_appointment' | 'confirm_memory' | 'error';
+  listType?: 'leads' | 'contacts' | 'appointments';
+  data: any;
+}
 
-const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
+interface AIOrbButtonProps {
+  onPress: () => void;
+  onUIAction?: (action: UIAction) => void;
+}
+
+const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) => {
   const [isListening, setIsListening] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<any[]>([]);
@@ -40,6 +48,33 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
 
   // Animation refs to stop them
   const animationsRef = useRef<Animated.CompositeAnimation[]>([]);
+
+  // Initialize audio session on mount
+  useEffect(() => {
+    const initAudio = async () => {
+      try {
+        // Request permissions
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Audio permissions not granted');
+          return;
+        }
+
+        // Set initial audio mode for playback
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false,
+          shouldDuckAndroid: true,
+        });
+      } catch (error) {
+        console.error('Failed to initialize audio:', error);
+      }
+    };
+
+    initAudio();
+  }, []);
 
   useEffect(() => {
     // Idle breathing animation
@@ -202,6 +237,7 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
 
       isPlayingAudioRef.current = true;
 
+      // Stop any existing sound first
       if (soundRef.current) {
         try {
           await soundRef.current.stopAsync();
@@ -212,19 +248,28 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
         soundRef.current = null;
       }
 
+      // Configure audio session for playback - this activates the session
       try {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           playsInSilentModeIOS: true,
           staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false,
+          shouldDuckAndroid: true,
         });
       } catch (e) {
         console.warn('Audio mode setup failed:', e);
       }
 
+      // Small delay to ensure audio session is activated
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: `data:audio/mpeg;base64,${audioBase64}` },
-        { shouldPlay: false }
+        {
+          shouldPlay: false,
+          volume: 1.0,
+        }
       );
 
       soundRef.current = newSound;
@@ -248,7 +293,14 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
         }
       });
 
-      await newSound.playAsync();
+      // Ensure sound is loaded before playing
+      const status = await newSound.getStatusAsync();
+      if (status.isLoaded) {
+        await newSound.playAsync();
+      } else {
+        console.error('Sound not loaded properly');
+        isPlayingAudioRef.current = false;
+      }
     } catch (error) {
       console.error('Error playing audio:', error);
       isPlayingAudioRef.current = false;
@@ -430,15 +482,21 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
         console.log('[MOBILE] Sending audio to backend...');
         const sendStartTime = Date.now();
 
-        const apiResponse = await axios.post(`${API_URL}/api/voice/process`, {
+        const apiResponse = await api.post('/api/voice/process', {
           audioBase64: base64Audio,
           conversationHistory: conversationHistory,
-        }, { timeout: 15000 }); // INCREASED timeout - full chain can take 5-10s
+        }, { timeout: 60000 });
 
         console.log(`[MOBILE] API response received in ${Date.now() - sendStartTime}ms`);
 
         if (apiResponse.data.success) {
           setConversationHistory(apiResponse.data.conversationHistory);
+
+          // Handle UI action if present (lists, confirmations, drafts)
+          if (apiResponse.data.uiAction && onUIAction) {
+            console.log('[MOBILE] UI Action received:', apiResponse.data.uiAction.type);
+            onUIAction(apiResponse.data.uiAction);
+          }
 
           if (apiResponse.data.audioBase64) {
             await playAudioResponse(apiResponse.data.audioBase64);
@@ -476,6 +534,32 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
     }
   };
 
+  const playWakeGreeting = async () => {
+    try {
+      // Call instant wake greeting endpoint
+      const response = await api.post('/api/aria/voice-wake');
+
+      if (response.data.success && response.data.audioResponse) {
+        // Play the greeting audio
+        const { sound } = await Audio.Sound.createAsync({
+          uri: `data:audio/mp3;base64,${response.data.audioResponse}`,
+        });
+
+        await sound.playAsync();
+
+        // Clean up after playing
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound.unloadAsync();
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Wake greeting error:', error);
+      // Silently fail - user can still use the orb
+    }
+  };
+
   const handlePress = async () => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -509,19 +593,24 @@ const AIOrbButton = forwardRef(({ onPress }: { onPress: () => void }, ref) => {
       setIsRecording(false);
       setConversationHistory([]);
     } else {
-      // Start conversation
+      // Start conversation with instant greeting
       setIsListening(true);
       isListeningRef.current = true;
+
+      // Play instant wake greeting (non-blocking)
+      playWakeGreeting();
+
+      // Start recording in parallel
       await startRecording();
     }
     onPress();
   };
 
   // Colors based on state
-  const getGradientColors = (): string[] => {
-    if (isRecording) return ['#10B981', '#059669', '#047857', '#065F46']; // Green
-    if (isListening) return ['#F59E0B', '#D97706', '#B45309', '#92400E']; // Amber
-    return ['#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6']; // Purple
+  const getGradientColors = (): readonly [string, string, ...string[]] => {
+    if (isRecording) return ['#10B981', '#059669', '#047857', '#065F46'] as const; // Green
+    if (isListening) return ['#F59E0B', '#D97706', '#B45309', '#92400E'] as const; // Amber
+    return ['#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6'] as const; // Purple
   };
 
   const getRingColor = () => {

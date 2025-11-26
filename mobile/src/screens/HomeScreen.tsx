@@ -13,11 +13,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
+import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://192.168.0.151:5001';
 
 // Collapsible Section Component
 interface CollapsibleSectionProps {
@@ -198,7 +197,7 @@ export default function HomeScreen({ navigation }: any) {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/mobile/stats`, {
+      const response = await api.get('/api/mobile/stats', {
         params: { _t: Date.now() },
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });
@@ -206,7 +205,7 @@ export default function HomeScreen({ navigation }: any) {
         setStats(response.data.stats);
       }
 
-      const activityResponse = await axios.get(`${API_URL}/api/mobile/recent-activity`, {
+      const activityResponse = await api.get('/api/mobile/recent-activity', {
         params: { limit: 5 },
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });

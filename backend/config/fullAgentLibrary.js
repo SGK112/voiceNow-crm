@@ -635,13 +635,185 @@ export const SPECIALIZED_AGENTS = {
   }
 };
 
+// Shopify/E-commerce Agents
+export const SHOPIFY_AGENTS = {
+  'shopify-order-status': {
+    id: 'shopify-order-status',
+    name: 'Shopify Order Status Agent',
+    description: 'AI agent answers "Where\'s my order?" via voice or SMS with real-time Shopify data',
+    category: 'shopify-voice',
+    icon: '📦',
+    tier: 'professional',
+    rating: 4.9,
+    downloads: 4200,
+    price: { monthly: 149, perCall: 0.08 },
+    features: [
+      'Order lookup by # or email',
+      'Real-time tracking info',
+      'Delivery estimates',
+      'Voice & SMS support',
+      'Multi-language',
+      'Human handoff'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-customer-support': {
+    id: 'shopify-customer-support',
+    name: 'Shopify Customer Support Agent',
+    description: 'Handle returns, exchanges, and order issues automatically via voice/SMS',
+    category: 'shopify-voice',
+    icon: '🎧',
+    tier: 'professional',
+    rating: 4.8,
+    downloads: 3100,
+    price: { monthly: 199, perCall: 0.12 },
+    features: [
+      'Return requests',
+      'Exchange processing',
+      'Refund status',
+      'Order modifications',
+      'Complaint handling',
+      'Escalation rules'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-abandoned-cart': {
+    id: 'shopify-abandoned-cart',
+    name: 'Shopify Cart Recovery Agent',
+    description: 'Recover abandoned carts with personalized SMS/voice follow-ups',
+    category: 'shopify-marketing',
+    icon: '🛒',
+    tier: 'professional',
+    rating: 4.9,
+    downloads: 5800,
+    price: { monthly: 129, percentRecovered: 4 },
+    features: [
+      'SMS cart reminders',
+      'Voice call recovery',
+      'Discount offers',
+      'Product images (MMS)',
+      'Timing optimization',
+      'Recovery analytics'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-order-confirmation': {
+    id: 'shopify-order-confirmation',
+    name: 'Shopify Order Confirmation Calls',
+    description: 'Automated voice calls to confirm orders and upsell',
+    category: 'shopify-voice',
+    icon: '✅',
+    tier: 'starter',
+    rating: 4.7,
+    downloads: 2400,
+    price: { monthly: 79, perCall: 0.05 },
+    features: [
+      'Order confirmation',
+      'Delivery time estimate',
+      'Upsell suggestions',
+      'Special offers',
+      'Review requests',
+      'Branded experience'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-inventory-alerts': {
+    id: 'shopify-inventory-alerts',
+    name: 'Shopify Inventory Alert Agent',
+    description: 'Low stock alerts via SMS/voice, auto-notify when products back in stock',
+    category: 'shopify-operations',
+    icon: '📊',
+    tier: 'professional',
+    rating: 4.8,
+    downloads: 1900,
+    price: { monthly: 99, perAlert: 0 },
+    features: [
+      'Low stock SMS alerts',
+      'Back-in-stock notifications',
+      'Reorder reminders',
+      'Custom thresholds',
+      'Vendor notifications',
+      'Daily reports'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-shipping-updates': {
+    id: 'shopify-shipping-updates',
+    name: 'Shopify Shipping Updates Agent',
+    description: 'Proactive shipping and delivery notifications via SMS',
+    category: 'shopify-sms',
+    icon: '🚚',
+    tier: 'starter',
+    rating: 4.9,
+    downloads: 6200,
+    price: { monthly: 69, perMessage: 0.02 },
+    features: [
+      'Shipped notifications',
+      'Tracking links',
+      'Delivery alerts',
+      'Delivery exceptions',
+      'Signature required',
+      'Carrier integration'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-product-inquiry': {
+    id: 'shopify-product-inquiry',
+    name: 'Shopify Product Inquiry Agent',
+    description: 'AI agent answers product questions via voice/SMS with store catalog data',
+    category: 'shopify-voice',
+    icon: '🏷️',
+    tier: 'professional',
+    rating: 4.7,
+    downloads: 2800,
+    price: { monthly: 149, perCall: 0.10 },
+    features: [
+      'Product Q&A',
+      'Availability checks',
+      'Size/color options',
+      'Price inquiries',
+      'Recommendations',
+      'Add to cart links'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  'shopify-review-collector': {
+    id: 'shopify-review-collector',
+    name: 'Shopify Review Collector Agent',
+    description: 'Automated SMS/voice review requests after delivery',
+    category: 'shopify-marketing',
+    icon: '⭐',
+    tier: 'starter',
+    rating: 4.8,
+    downloads: 4500,
+    price: { monthly: 59, perRequest: 0 },
+    features: [
+      'Timed review requests',
+      'Photo review prompts',
+      'Incentive offers',
+      'Negative feedback routing',
+      'Multi-platform (Shopify/Google)',
+      'Follow-up sequences'
+    ],
+    requiredIntegrations: ['shopify', 'twilio']
+  }
+};
+
 // Export combined library
 export const FULL_AGENT_LIBRARY = {
   voice: VOICE_AGENTS,
   sms: SMS_MMS_AGENTS,
   email: EMAIL_AGENTS,
   marketing: MARKETING_AGENTS,
-  specialized: SPECIALIZED_AGENTS
+  specialized: SPECIALIZED_AGENTS,
+  shopify: SHOPIFY_AGENTS
 };
 
 // Category definitions
@@ -651,7 +823,8 @@ export const AGENT_CATEGORIES = [
   { id: 'sms', name: 'SMS/MMS Agents', icon: '📱', count: Object.keys(SMS_MMS_AGENTS).length },
   { id: 'email', name: 'Email Agents', icon: '📧', count: Object.keys(EMAIL_AGENTS).length },
   { id: 'marketing', name: 'Marketing & Social', icon: '📈', count: Object.keys(MARKETING_AGENTS).length },
-  { id: 'specialized', name: 'Specialized', icon: '⚡', count: Object.keys(SPECIALIZED_AGENTS).length }
+  { id: 'specialized', name: 'Specialized', icon: '⚡', count: Object.keys(SPECIALIZED_AGENTS).length },
+  { id: 'shopify', name: 'Shopify/E-commerce', icon: '🛍️', count: Object.keys(SHOPIFY_AGENTS).length }
 ];
 
 export default FULL_AGENT_LIBRARY;
