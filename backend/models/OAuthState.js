@@ -7,6 +7,19 @@ const OAuthStateSchema = new mongoose.Schema({
     unique: true,
     index: true
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    index: true
+  },
+  service: {
+    type: String,
+    enum: ['google', 'quickbooks', 'shopify', 'slack', 'facebook'],
+    index: true
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed
+  },
   status: {
     type: String,
     enum: ['pending', 'completed', 'expired', 'error'],
