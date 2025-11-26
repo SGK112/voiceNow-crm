@@ -6,6 +6,7 @@ import { ariaSlackService } from '../services/ariaSlackService.js';
 import { pushNotificationService } from '../services/pushNotificationService.js';
 import N8nService from '../services/n8nService.js';
 import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
+import shopifySyncService from '../services/shopifySyncService.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -3547,6 +3548,24 @@ END:VCALENDAR`;
       case 'send_calendar_invite':
         return await this.sendCalendarInvite(args.recipients, args.eventDetails, args.deliveryMethod);
 
+      // ═══════════════════════════════════════════════════════════════
+      // Shopify Integration (E-commerce)
+      // ═══════════════════════════════════════════════════════════════
+      case 'get_shopify_products':
+        return await this.getShopifyProducts(args.limit, args.query);
+
+      case 'get_shopify_orders':
+        return await this.getShopifyOrders(args.limit, args.status);
+
+      case 'get_shopify_customers':
+        return await this.getShopifyCustomers(args.limit, args.query);
+
+      case 'lookup_order':
+        return await this.lookupOrder(args.orderNumber);
+
+      case 'get_order_tracking':
+        return await this.getOrderTracking(args.orderId);
+
       default:
         return {
           success: false,
@@ -3782,6 +3801,133 @@ END:VCALENDAR`;
       return await ariaIntegrationService.categorizeContact(userId, contactId, tags);
     } catch (error) {
       console.error('❌ [CLEANUP] Error tagging contact:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHOPIFY INTEGRATION
+  // ═══════════════════════════════════════════════════════════════════
+
+  async getShopifyProducts(limit = 10, query = null, userId = 'default') {
+    try {
+      console.log(`🛍️ [SHOPIFY] Getting products (limit: ${limit}, query: ${query})`);
+
+      if (query) {
+        const result = await shopifySyncService.searchProducts(userId, query);
+        return {
+          success: result.success !== false,
+          products: result.products || [],
+          count: result.products?.length || 0,
+          summary: result.products?.length > 0
+            ? `Found ${result.products.length} products matching "${query}"`
+            : `No products found matching "${query}"`
+        };
+      } else {
+        const result = await shopifySyncService.getProducts(userId, { limit });
+        return {
+          success: result.success !== false,
+          products: result.products || [],
+          count: result.products?.length || 0,
+          summary: result.products?.length > 0
+            ? `Found ${result.products.length} products in store`
+            : 'No products found in store'
+        };
+      }
+    } catch (error) {
+      console.error('❌ [SHOPIFY] Error getting products:', error.message);
+      return { success: false, error: error.message, summary: 'Shopify may not be connected' };
+    }
+  }
+
+  async getShopifyOrders(limit = 10, status = null, userId = 'default') {
+    try {
+      console.log(`🛍️ [SHOPIFY] Getting orders (limit: ${limit}, status: ${status})`);
+
+      const options = { limit };
+      if (status) options.status = status;
+
+      const result = await shopifySyncService.getOrders(userId, options);
+      return {
+        success: result.success !== false,
+        orders: result.orders || [],
+        count: result.orders?.length || 0,
+        summary: result.orders?.length > 0
+          ? `Found ${result.orders.length} orders${status ? ` with status "${status}"` : ''}`
+          : 'No orders found'
+      };
+    } catch (error) {
+      console.error('❌ [SHOPIFY] Error getting orders:', error.message);
+      return { success: false, error: error.message, summary: 'Shopify may not be connected' };
+    }
+  }
+
+  async getShopifyCustomers(limit = 10, query = null, userId = 'default') {
+    try {
+      console.log(`🛍️ [SHOPIFY] Getting customers (limit: ${limit}, query: ${query})`);
+
+      if (query) {
+        const result = await shopifySyncService.searchCustomer(userId, query);
+        return {
+          success: result.success !== false,
+          customers: result.customers || (result.customer ? [result.customer] : []),
+          count: result.customers?.length || (result.customer ? 1 : 0),
+          summary: result.customer
+            ? `Found customer: ${result.customer.first_name} ${result.customer.last_name}`
+            : 'No customer found'
+        };
+      } else {
+        const result = await shopifySyncService.getCustomers(userId, { limit });
+        return {
+          success: result.success !== false,
+          customers: result.customers || [],
+          count: result.customers?.length || 0,
+          summary: result.customers?.length > 0
+            ? `Found ${result.customers.length} customers`
+            : 'No customers found'
+        };
+      }
+    } catch (error) {
+      console.error('❌ [SHOPIFY] Error getting customers:', error.message);
+      return { success: false, error: error.message, summary: 'Shopify may not be connected' };
+    }
+  }
+
+  async lookupOrder(orderNumber, userId = 'default') {
+    try {
+      console.log(`🛍️ [SHOPIFY] Looking up order: ${orderNumber}`);
+
+      const result = await shopifySyncService.getOrderByNumber(userId, orderNumber);
+      if (result.success && result.order) {
+        return {
+          success: true,
+          order: result.order,
+          summary: `Order #${orderNumber}: ${result.order.financial_status}, ${result.order.fulfillment_status || 'unfulfilled'}, Total: $${result.order.total_price}`
+        };
+      }
+      return { success: false, summary: `Order #${orderNumber} not found` };
+    } catch (error) {
+      console.error('❌ [SHOPIFY] Error looking up order:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getOrderTracking(orderId, userId = 'default') {
+    try {
+      console.log(`🛍️ [SHOPIFY] Getting tracking for order: ${orderId}`);
+
+      const result = await shopifySyncService.getOrderTracking(userId, orderId);
+      if (result.success && result.fulfillments?.length > 0) {
+        const tracking = result.fulfillments[0];
+        return {
+          success: true,
+          tracking: result.fulfillments,
+          summary: `Tracking: ${tracking.tracking_company || 'N/A'} - ${tracking.tracking_number || 'No tracking number'}`
+        };
+      }
+      return { success: true, tracking: [], summary: 'No tracking information available yet' };
+    } catch (error) {
+      console.error('❌ [SHOPIFY] Error getting tracking:', error.message);
       return { success: false, error: error.message };
     }
   }

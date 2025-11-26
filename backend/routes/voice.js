@@ -1811,125 +1811,87 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
 
     let result;
 
-    switch (functionName) {
-      case 'send_sms':
-        // Use the existing SMS capability
-        try {
-          const smsResult = await ariaCapabilities.execute('send_sms', {
-            to: args.phone,
-            message: args.message,
-          });
-          // Ensure consistent response format
-          result = {
-            success: smsResult.success !== false,
-            message: smsResult.message || `SMS sent to ${args.phone}`,
-            phone: args.phone,
-            contactName: args.contactName || null
-          };
-        } catch (smsError) {
-          console.error('❌ [SMS] Error in realtime-tool:', smsError);
-          result = { success: false, error: smsError.message || 'SMS failed to send' };
-        }
-        break;
-
-      case 'create_lead':
-        // Create lead in database
-        const lead = new Lead({
-          userId,
-          name: args.name,
-          phone: args.phone,
-          email: args.email || '',
-          notes: args.notes || '',
-          source: args.source || 'Voice Assistant',
-          status: 'new',
+    // Special cases that need custom handling
+    if (functionName === 'switch_agent') {
+      // Handle agent switching - returns the new agent config
+      const newAgent = getAgentTemplate(args.agentId);
+      if (newAgent) {
+        console.log(`🔀 [SWITCH-AGENT] Switching to ${newAgent.name} (${args.agentId})`);
+        result = {
+          success: true,
+          action: 'switch_agent',
+          newAgentId: args.agentId,
+          newAgent: {
+            id: args.agentId,
+            name: newAgent.name,
+            icon: newAgent.icon,
+            voice: newAgent.voice || 'shimmer',
+            instructions: newAgent.systemPrompt,
+          },
+          reason: args.reason || 'User requested agent switch',
+          message: `Switching to ${newAgent.name}. ${args.reason || ''}`
+        };
+      } else {
+        result = { success: false, error: `Unknown agent: ${args.agentId}` };
+      }
+    } else if (functionName === 'start_conference_call') {
+      // Start a conference call via Twilio
+      try {
+        const conferenceResult = await ariaCapabilities.execute('initiate_conference_call', {
+          participants: args.participants,
+          moderatorPhone: null,
+          conferenceOptions: {
+            friendlyName: args.conferenceSubject || 'Aria Conference',
+          }
         });
-        await lead.save();
-        result = { success: true, lead: { id: lead._id, name: lead.name }, message: `Lead ${args.name} created successfully` };
-        break;
+        result = {
+          success: conferenceResult.success,
+          action: 'conference_call',
+          conferenceId: conferenceResult.conferenceSid,
+          participants: args.participants,
+          message: conferenceResult.message || `Conference started with ${args.participants.length} participants`
+        };
+      } catch (confError) {
+        console.error('❌ [CONFERENCE] Error:', confError);
+        result = { success: false, error: confError.message || 'Failed to start conference call' };
+      }
+    } else {
+      // Use ariaCapabilities for ALL other functions (send_sms, send_email, get_appointments, etc.)
+      try {
+        // Normalize argument names for common functions
+        let normalizedArgs = { ...args };
 
-      case 'search_contacts':
-        // Search contacts
-        const contacts = await Contact.find({
-          userId,
-          $or: [
-            { name: { $regex: args.query, $options: 'i' } },
-            { phone: { $regex: args.query, $options: 'i' } },
-            { email: { $regex: args.query, $options: 'i' } },
-          ],
-        }).limit(5);
-        result = { success: true, contacts: contacts.map(c => ({ name: c.name, phone: c.phone, email: c.email })), count: contacts.length };
-        break;
-
-      case 'get_recent_leads':
-        // Get recent leads
-        const limit = args.limit || 5;
-        const leads = await Lead.find({ userId }).sort({ createdAt: -1 }).limit(limit);
-        result = { success: true, leads: leads.map(l => ({ name: l.name, phone: l.phone, status: l.status, createdAt: l.createdAt })), count: leads.length };
-        break;
-
-      case 'schedule_appointment':
-        // Create appointment
-        const appointment = new Appointment({
-          userId,
-          title: args.title,
-          contactName: args.contactName,
-          date: new Date(args.date),
-          notes: args.notes || '',
-          status: 'scheduled',
-        });
-        await appointment.save();
-        result = { success: true, appointment: { id: appointment._id, title: appointment.title }, message: `Appointment scheduled with ${args.contactName}` };
-        break;
-
-      case 'switch_agent':
-        // Handle agent switching - returns the new agent config
-        const newAgent = getAgentTemplate(args.agentId);
-        if (newAgent) {
-          console.log(`🔀 [SWITCH-AGENT] Switching to ${newAgent.name} (${args.agentId})`);
-          result = {
-            success: true,
-            action: 'switch_agent',
-            newAgentId: args.agentId,
-            newAgent: {
-              id: args.agentId,
-              name: newAgent.name,
-              icon: newAgent.icon,
-              voice: newAgent.voice || 'shimmer',
-              instructions: newAgent.systemPrompt,
-            },
-            reason: args.reason || 'User requested agent switch',
-            message: `Switching to ${newAgent.name}. ${args.reason || ''}`
+        // Handle send_sms argument normalization
+        if (functionName === 'send_sms') {
+          normalizedArgs = {
+            to: args.phone || args.to,
+            message: args.message || args.body,
+            contactName: args.contactName
           };
-        } else {
-          result = { success: false, error: `Unknown agent: ${args.agentId}` };
         }
-        break;
 
-      case 'start_conference_call':
-        // Start a conference call via Twilio
-        try {
-          const conferenceResult = await ariaCapabilities.execute('initiate_conference_call', {
-            participants: args.participants,
-            moderatorPhone: null, // Will use default
-            conferenceOptions: {
-              friendlyName: args.conferenceSubject || 'Aria Conference',
-            }
-          });
-          result = {
-            success: conferenceResult.success,
-            action: 'conference_call',
-            conferenceId: conferenceResult.conferenceSid,
-            participants: args.participants,
-            message: conferenceResult.message || `Conference started with ${args.participants.length} participants`
+        // Handle send_email argument normalization
+        if (functionName === 'send_email') {
+          normalizedArgs = {
+            to: args.email || args.to,
+            subject: args.subject,
+            body: args.body || args.message
           };
-        } catch (confError) {
-          console.error('❌ [CONFERENCE] Error:', confError);
-          result = { success: false, error: confError.message || 'Failed to start conference call' };
         }
-        break;
 
-      default:
-        result = { success: false, error: `Unknown function: ${functionName}` };
+        // Handle schedule_appointment -> book_appointment mapping
+        const capabilityName = functionName === 'schedule_appointment' ? 'book_appointment' : functionName;
+
+        result = await ariaCapabilities.execute(capabilityName, normalizedArgs);
+
+        // Ensure success field exists
+        if (result && result.success === undefined) {
+          result.success = true;
+        }
+      } catch (execError) {
+        console.error(`❌ [REALTIME-TOOL] Error executing ${functionName}:`, execError);
+        result = { success: false, error: execError.message || `Failed to execute ${functionName}` };
+      }
     }
 
     console.log(`✅ [REALTIME-TOOL] Result:`, result);
