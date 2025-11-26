@@ -58,11 +58,112 @@ router.get('/auth/url', (req, res) => {
  * OAuth callback from Shopify
  */
 router.get('/auth/callback', async (req, res) => {
+  // HTML success page for mobile browsers
+  const successHtml = (storeName) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Shopify Connected</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+        .container {
+          text-align: center;
+          padding: 40px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+          max-width: 400px;
+          margin: 20px;
+        }
+        .success-icon {
+          font-size: 64px;
+          margin-bottom: 20px;
+        }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        p { margin: 10px 0; opacity: 0.9; }
+        .store-name { font-weight: bold; color: #4ade80; }
+        .instruction {
+          margin-top: 30px;
+          padding: 15px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>Shopify Connected!</h1>
+        <p>Your store <span class="store-name">${storeName}</span> is now connected.</p>
+        <div class="instruction">
+          You can close this window and return to the VoiceFlow AI app.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // HTML error page
+  const errorHtml = (message) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Connection Failed</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+        }
+        .container {
+          text-align: center;
+          padding: 40px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+          max-width: 400px;
+          margin: 20px;
+        }
+        .error-icon { font-size: 64px; margin-bottom: 20px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        p { margin: 10px 0; opacity: 0.9; }
+        .error-msg { font-size: 12px; opacity: 0.7; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="error-icon">✕</div>
+        <h1>Connection Failed</h1>
+        <p>We couldn't connect your Shopify store.</p>
+        <p class="error-msg">${message}</p>
+        <p>Please close this window and try again.</p>
+      </div>
+    </body>
+    </html>
+  `;
+
   try {
     const { code, shop, state, hmac } = req.query;
 
     if (!code || !shop) {
-      return res.status(400).send('Missing code or shop parameter');
+      return res.status(400).send(errorHtml('Missing code or shop parameter'));
     }
 
     // Extract userId from state
@@ -70,29 +171,20 @@ router.get('/auth/callback', async (req, res) => {
     const userId = stateParts[stateParts.length - 1];
 
     if (!userId || userId === 'anonymous') {
-      // Redirect to login with shop info
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?shopify_pending=${shop}`);
+      return res.status(400).send(errorHtml('Please log in to the app first, then try connecting Shopify again.'));
     }
 
     // Exchange code for access token
     const { accessToken, scope } = await shopifySyncService.exchangeCodeForToken(shop, code);
 
     // Store credentials
-    await shopifySyncService.storeCredentials(userId, shop, accessToken, scope);
+    const result = await shopifySyncService.storeCredentials(userId, shop, accessToken, scope);
 
-    // Redirect to success page
-    const successUrl = process.env.MOBILE_SCHEME
-      ? `${process.env.MOBILE_SCHEME}://shopify/success`
-      : `${process.env.FRONTEND_URL || 'http://localhost:3000'}/settings?shopify=connected`;
-
-    res.redirect(successUrl);
+    // Send success HTML page
+    res.send(successHtml(result.name || shop));
   } catch (error) {
     console.error('Shopify callback error:', error);
-    const errorUrl = process.env.MOBILE_SCHEME
-      ? `${process.env.MOBILE_SCHEME}://shopify/error`
-      : `${process.env.FRONTEND_URL || 'http://localhost:3000'}/settings?shopify=error`;
-
-    res.redirect(errorUrl);
+    res.status(500).send(errorHtml(error.message || 'Unknown error'));
   }
 });
 
