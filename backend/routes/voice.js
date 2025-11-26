@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import axios from 'axios';
 import { logBuffer, saveClaudeCommand, autoSaveConversation, analyzeAndSuggest } from '../utils/logCapture.js';
 import { trainer } from '../utils/conversationTrainer.js';
-import { AriaCapabilities, getCapabilityDefinitions } from '../utils/ariaCapabilities.js';
+import { AriaCapabilities, getCapabilityDefinitions, capabilities } from '../utils/ariaCapabilities.js';
 import { ariaMemoryService } from '../services/ariaMemoryService.js';
 import { ariaSlackService } from '../services/ariaSlackService.js';
 import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
@@ -16,6 +16,17 @@ import CallLog from '../models/CallLog.js';
 import TeamMessage from '../models/TeamMessage.js';
 import Contact from '../models/Contact.js';
 import Appointment from '../models/Appointment.js';
+import { optionalAuth } from '../middleware/auth.js';
+import {
+  ARIA_AGENT_TEMPLATES,
+  OPENAI_REALTIME_VOICES,
+  getAgentTemplate,
+  getAllAgentTemplates,
+  detectAgentFromMessage,
+  getAgentCapabilities,
+  getAvailableVoices,
+  getAgentVoice
+} from '../config/ariaAgentTemplates.js';
 
 const router = express.Router();
 
@@ -355,14 +366,22 @@ Voice conversation guidelines:
 
 // @desc    Combined endpoint: transcribe + chat + voice generation (OPTIMIZED)
 // @route   POST /api/voice/process
-// @access  Public
-router.post('/process', async (req, res) => {
+// @access  Public (with optional auth for personalization)
+router.post('/process', optionalAuth, async (req, res) => {
   try {
     const startTime = Date.now();
     const { audioBase64, conversationHistory = [] } = req.body;
 
     console.log(`[TIMING] ====== NEW REQUEST ======`);
     console.log(`[TIMING] Audio size: ${audioBase64?.length || 0} chars`);
+
+    // Extract user info from authenticated token if available
+    const authenticatedUser = req.user;
+    if (authenticatedUser) {
+      console.log(`[AUTH] Authenticated user: ${authenticatedUser.name} (${authenticatedUser._id})`);
+    } else {
+      console.log(`[AUTH] No authenticated user - using defaults`);
+    }
 
     if (!audioBase64) {
       return res.status(400).json({ success: false, message: 'Audio data required' });
@@ -390,9 +409,12 @@ router.post('/process', async (req, res) => {
     console.log(`[TIMING] Transcription took ${transcriptionTime}ms`);
     console.log('User said:', userMessage);
 
-    // Track conversation session (both old and new system)
-    const sessionId = req.body.sessionId || 'default';
-    const userId = req.body.userId || 'default';
+    // Track conversation session - use authenticated user ID if available
+    const userId = authenticatedUser?._id?.toString() || req.body.userId || 'default';
+    const sessionId = authenticatedUser?._id?.toString() || req.body.sessionId || 'default';
+
+    // Get user's name from authenticated profile
+    const authenticatedUserName = authenticatedUser?.name?.split(' ')[0] || null;
 
     // BACKGROUND NOISE FILTER - skip storing junk transcriptions
     const backgroundNoisePatterns = [
@@ -425,13 +447,31 @@ router.post('/process', async (req, res) => {
       });
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    // VOICE AGENT DETECTION & ROUTING
+    // Detect if user is addressing a specific agent (e.g., "hey sales", "project update")
+    // ═══════════════════════════════════════════════════════════════════
+    const selectedAgentId = req.body.agentId || null; // Agent selected in UI
+    const agentDetection = detectAgentFromMessage(userMessage);
+
+    // Use UI-selected agent or detected agent from trigger words
+    const activeAgentId = selectedAgentId || agentDetection.agentId;
+    const activeAgent = getAgentTemplate(activeAgentId);
+    const processedMessage = selectedAgentId ? userMessage : agentDetection.cleanedMessage;
+
+    console.log(`🤖 [AGENT] Active agent: ${activeAgent.name} (${activeAgentId})`);
+    if (agentDetection.agentId !== 'aria' && !selectedAgentId) {
+      console.log(`🎯 [AGENT] Detected from trigger word, cleaned message: "${processedMessage}"`);
+    }
+
     // Old session tracking
     const session = getConversationSession(sessionId);
     session.messages.push({ role: 'user', content: userMessage });
 
     // New persistent conversation tracking - only store meaningful messages
     await ariaMemoryService.addMessage(sessionId, 'user', userMessage, {
-      transcriptionTime
+      transcriptionTime,
+      agentId: activeAgentId
     });
 
     // Detect and extract user's name from introduction patterns
@@ -637,8 +677,19 @@ router.post('/process', async (req, res) => {
       console.log('[CACHE] Profile cache hit!');
     }
 
-    // Get conversation context with relevant memories
-    const context = await ariaMemoryService.getConversationContext(sessionId, userId);
+    // OPTIMIZATION: Skip expensive memory recall for simple conversational queries
+    // Only do full memory lookup for queries that likely need context
+    const needsDeepMemory = lowerMessage.includes('remember') ||
+                            lowerMessage.includes('earlier') ||
+                            lowerMessage.includes('before') ||
+                            lowerMessage.includes('last time') ||
+                            lowerMessage.includes('you said') ||
+                            lowerMessage.includes('what did');
+
+    // Get conversation context - use fast mode for most queries
+    const context = await ariaMemoryService.getConversationContext(sessionId, userId, {
+      skipMemoryRecall: !needsDeepMemory // Skip semantic search unless needed
+    });
 
     // OPTIMIZED: Get CRM data for context with caching
     let crmContext = '';
@@ -713,19 +764,22 @@ router.post('/process', async (req, res) => {
     // Build context string from memories
     let memoryContext = '';
     let conversationGoal = '';
-    // HARDCODED: Always use Josh - do NOT trust memory for name (corrupted data issue)
-    let userName = 'Josh';
+    // Priority for user name: 1) Authenticated user, 2) Profile firstName, 3) Memory, 4) Fallback
+    let userName = authenticatedUserName || 'there';  // Default to 'there' if no name available
     let userPreferences = '';
 
     // Add profile context
     if (userProfile.personalInfo) {
-      if (userProfile.personalInfo.firstName) {
+      if (userProfile.personalInfo.firstName && !authenticatedUserName) {
         userName = userProfile.personalInfo.firstName;
       }
       if (userProfile.personalInfo.bio) {
         memoryContext += `\n\nUSER PROFILE:\n- Bio: ${userProfile.personalInfo.bio}\n`;
       }
     }
+
+    // Log resolved user name for debugging
+    console.log(`[AUTH] Using name: ${userName} (source: ${authenticatedUserName ? 'authenticated' : userProfile.personalInfo?.firstName ? 'profile' : 'default'})`);
 
     // Add work context
     if (userProfile.workInfo && userProfile.workInfo.company) {
@@ -750,10 +804,14 @@ router.post('/process', async (req, res) => {
     if (context.memories && context.memories.length > 0) {
       memoryContext += '\n\nRELEVANT MEMORIES:\n';
       context.memories.forEach(mem => {
-        // SKIP user_name from memory - hardcoded to Josh due to corrupted data
+        // Use memory-based name only if no authenticated user name
         if (mem.key === 'user_name') {
-          // Ignore memory-based name - using hardcoded Josh
-          console.log(`[NAME] Ignoring memory name: ${mem.value}, using hardcoded Josh`);
+          if (!authenticatedUserName && userName === 'there') {
+            userName = mem.value;
+            console.log(`[NAME] Using memory name: ${mem.value}`);
+          } else {
+            console.log(`[NAME] Ignoring memory name: ${mem.value}, using: ${userName}`);
+          }
         }
         // Check for conversation goal
         else if (mem.key.startsWith('conversation_goal_')) {
@@ -770,7 +828,8 @@ router.post('/process', async (req, res) => {
       conversationSummary = `\n\nCONVERSATION SO FAR: ${context.summary}\n`;
     }
 
-    // Build conversation history from stored messages + request history
+    // Build conversation history - limit to last 10 messages for better recall
+    // (5 user + 5 assistant exchanges)
     const storedMessages = context.messages || [];
     const recentHistory = storedMessages.slice(-10).map(msg => ({
       role: msg.role,
@@ -792,7 +851,7 @@ router.post('/process', async (req, res) => {
           lastExchange = `YOUR LAST RESPONSE: "${mergedHistory[i].content}"`;
         }
         if (mergedHistory[i].role === 'user' && lastExchange && !currentTask) {
-          lastExchange = `JOSH'S LAST MESSAGE: "${mergedHistory[i].content}"\n${lastExchange}`;
+          lastExchange = `${userName.toUpperCase()}'S LAST MESSAGE: "${mergedHistory[i].content}"\n${lastExchange}`;
           break;
         }
       }
@@ -801,7 +860,7 @@ router.post('/process', async (req, res) => {
       const lastAssistantMsg = mergedHistory.filter(m => m.role === 'assistant').slice(-1)[0]?.content || '';
       if (lastAssistantMsg.includes('?')) {
         // Assistant asked a question - we're waiting for an answer
-        currentTask = 'WAITING FOR ANSWER - Josh is responding to your question. Use his answer to continue the task.';
+        currentTask = `WAITING FOR ANSWER - ${userName} is responding to your question. Use their answer to continue the task.`;
       } else if (lastAssistantMsg.toLowerCase().includes('client') || lastAssistantMsg.toLowerCase().includes('lead')) {
         currentTask = 'TASK IN PROGRESS - Creating a client/lead. Continue collecting info or execute.';
       } else if (lastAssistantMsg.toLowerCase().includes('estimate') || lastAssistantMsg.toLowerCase().includes('quote')) {
@@ -811,7 +870,7 @@ router.post('/process', async (req, res) => {
 
     // Build profile context string (make it prominent and actionable)
     let profileContext = '\n\nUSER PROFILE:\n';
-    profileContext += `- Owner: Josh (ALWAYS use this name)\n`;
+    profileContext += `- Owner: ${userName} (ALWAYS use this name)\n`;
     profileContext += `- Company: Surprise Granite (countertops & remodeling, Arizona)\n`;
 
     if (userProfile.personalInfo) {
@@ -833,42 +892,32 @@ router.post('/process', async (req, res) => {
       profileContext += `- Preferred style: ${userProfile.ariaPreferences.voiceStyle || 'friendly'}, ${userProfile.ariaPreferences.responseLength || 'concise'}\n`;
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    // BUILD AGENT-SPECIFIC SYSTEM PROMPT
+    // Each agent has its own personality and capabilities
+    // ═══════════════════════════════════════════════════════════════════
+    const agentSystemPrompt = activeAgent.systemPrompt || '';
+    const agentName = activeAgent.name || 'Aria';
+
     const messages = [
       {
         role: 'system',
-        content: `You are Aria, Josh's intelligent AI assistant for Surprise Granite (countertops & remodeling, Arizona).
+        content: `${agentSystemPrompt}
 
-DATE: ${currentDateTime}
-${currentTask ? `\n⚡ ${currentTask}` : ''}
-${lastExchange ? `\n📍 LAST EXCHANGE:\n${lastExchange}` : ''}
-
-CRITICAL: Josh's current message is a CONTINUATION of this conversation. Use context from above.
-
-RULES:
-1. If you asked a question, Josh is now ANSWERING it - USE his answer to proceed
-2. Progress the conversation forward - never restart or repeat questions
-3. When you have all required info, EXECUTE immediately using tools
-4. Be conversational (15-30 words), use contractions
-5. If Josh corrects you, acknowledge and adjust immediately
-6. NEVER say "I'm here" or "Still here" - always engage with what Josh said
-
-YOUR CAPABILITIES:
-📱 PHONE ACCESS: find_contact, get_phone_contacts, get_call_history, get_message_history
-👥 TEAM: get_team_members, message_team_member, assign_task_to_team, request_follow_up
-📅 SCHEDULE: get_schedule, check_availability, book_appointment, send_appointment_reminder
-🧠 KNOWLEDGE: search_knowledge (search company info, pricing, policies)
-📧 COMMUNICATION: send_sms, send_email, create_lead, create_estimate
-🧹 ORGANIZE: find_duplicate_contacts, merge_contacts, get_stale_contacts, tag_contact
+CURRENT USER: ${userName}
+${currentTask ? `ACTIVE TASK: ${currentTask}` : ''}
 ${profileContext}
-${crmContext ? `\nCRM DATA: ${crmContext}` : ''}
-${ragContext ? `${ragContext}` : ''}`
+
+Remember: Keep responses brief (15-25 words max for voice). Use contractions. Be natural.`
       },
       ...mergedHistory,
       {
         role: 'user',
-        content: userMessage
+        content: processedMessage  // Use cleaned message (trigger words removed)
       }
     ];
+
+    console.log(`🎭 [AGENT] Using ${agentName} personality`);
 
     // Log conversation history for debugging
     console.log(`[CONTEXT] Merged history has ${mergedHistory.length} messages (stored: ${storedMessages.length}, request: ${conversationHistory.length})`);
@@ -937,23 +986,35 @@ ${ragContext ? `${ragContext}` : ''}`
       lowerUserMessage.includes('clients') ||
       lowerUserMessage.includes('customers');
 
-    // Use GPT-4o for better reasoning and task completion
+    // Use gpt-4o-mini for faster voice response (speed > reasoning for voice)
+    // For complex tasks that require better reasoning, use gpt-4o
+    const useSmartModel = forceToolUsage || lowerUserMessage.includes('analyze') || lowerUserMessage.includes('explain');
     const completionOptions = {
-      model: 'gpt-4o',  // Upgraded from gpt-4o-mini for better context and task handling
+      model: useSmartModel ? 'gpt-4o' : 'gpt-4o-mini',  // mini for speed, full for complex tasks
       messages: messages,
-      max_tokens: 400, // Increased significantly to prevent cut-off responses
+      max_tokens: useSmartModel ? 400 : 150, // Shorter for voice responses
       temperature: 0.7,
     };
 
     // Only add tools if the message suggests capability use
+    // Filter capabilities based on active agent's allowed capabilities
     if (needsCapabilities) {
-      completionOptions.tools = getCapabilityDefinitions().map(cap => ({
+      const allCapabilityDefs = getCapabilityDefinitions();
+      const agentCapabilityNames = getAgentCapabilities(activeAgentId, capabilities);
+
+      // Filter to only agent's allowed capabilities
+      const filteredCapabilities = activeAgent.capabilities === 'all'
+        ? allCapabilityDefs
+        : allCapabilityDefs.filter(cap => agentCapabilityNames.includes(cap.name));
+
+      completionOptions.tools = filteredCapabilities.map(cap => ({
         type: 'function',
         function: cap
       }));
+
       // Force tool usage for explicit action commands
       completionOptions.tool_choice = forceToolUsage ? 'required' : 'auto';
-      console.log(`🔧 [TOOLS] Capabilities enabled, tool_choice: ${completionOptions.tool_choice}`);
+      console.log(`🔧 [TOOLS] ${agentName} has ${filteredCapabilities.length} capabilities enabled, tool_choice: ${completionOptions.tool_choice}`);
     }
 
     const completion = await openai.chat.completions.create(completionOptions);
@@ -1156,6 +1217,12 @@ ${ragContext ? `${ragContext}` : ''}`
     // Track in session
     session.messages.push({ role: 'assistant', content: aiResponse });
     session.conversationCount++;
+
+    // IMPORTANT: Store assistant response in persistent memory for recall
+    await ariaMemoryService.addMessage(sessionId, 'assistant', aiResponse, {
+      aiResponseTime,
+      voiceGenTime
+    });
     session.metrics.push({
       transcriptionTime,
       aiResponseTime,
@@ -1192,6 +1259,13 @@ ${ragContext ? `${ragContext}` : ''}`
       aiMessage: aiResponse,
       audioBase64: audioBase64Result,
       uiAction: uiAction, // UI action for mobile display (lists, confirmations, drafts)
+      // Active agent info for UI display
+      agent: {
+        id: activeAgentId,
+        name: activeAgent.name,
+        icon: activeAgent.icon,
+        personality: activeAgent.personality
+      },
       conversationHistory: [
         ...conversationHistory,
         { role: 'user', content: userMessage },
@@ -1445,6 +1519,516 @@ router.post('/set-goal', async (req, res) => {
     console.error('Set goal error:', error);
     res.status(500).json({
       success: false,
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get ephemeral token for OpenAI Realtime API (WebRTC)
+// @route   POST /api/voice/realtime-token
+// @access  Private (requires auth)
+router.post('/realtime-token', optionalAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id || 'default';
+    const userName = req.user?.firstName || 'User';
+
+    console.log(`🔐 [REALTIME] Generating ephemeral token for user: ${userName}`);
+
+    // Create ephemeral token using OpenAI's realtime API
+    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-realtime-preview-2024-12-17',
+        voice: 'shimmer', // Options: alloy, echo, fable, onyx, nova, shimmer - shimmer is warm & expressive
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ [REALTIME] Failed to get ephemeral token:', errorText);
+      throw new Error(`Failed to get ephemeral token: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ [REALTIME] Ephemeral token generated successfully');
+
+    res.json({
+      success: true,
+      client_secret: data.client_secret,
+      expires_at: data.expires_at,
+    });
+  } catch (error) {
+    console.error('❌ [REALTIME] Token generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Get Aria's system instructions and tools for Realtime API
+// @route   GET /api/voice/realtime-config
+// @access  Private (requires auth)
+router.get('/realtime-config', optionalAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id || 'default';
+    const userName = req.user?.firstName || 'User';
+    const companyName = req.user?.company || 'Surprise Granite';
+
+    // Get agent ID from query params
+    const agentId = req.query.agentId || 'aria';
+    const agent = getAgentTemplate(agentId);
+
+    console.log(`🤖 [REALTIME-CONFIG] Building config for agent: ${agent.name} (${agentId})`);
+
+    // Build agent-specific instructions for the Realtime API
+    const instructions = agent.systemPrompt
+      ? `${agent.systemPrompt}
+
+CURRENT USER: ${userName}
+COMPANY: ${companyName}
+
+Remember: Keep responses brief (2-3 sentences max for voice). Use natural speech patterns.`
+      : `You are Aria, ${userName}'s AI voice assistant for ${companyName}.
+
+PERSONALITY:
+- Be warm, friendly, and conversational
+- Use natural speech patterns with brief responses (2-3 sentences max)
+- Sound like a helpful colleague, not a robot
+
+CAPABILITIES:
+- Send text messages to contacts
+- Create new leads in the CRM
+- Search and find contacts
+- Schedule appointments
+- Look up CRM data
+
+IMPORTANT RULES:
+- Always confirm before sending messages or creating records
+- Be concise - this is voice, not text chat
+- If you don't know something, say so
+- Call the user by name: ${userName}
+
+When asked to perform actions, use the available tools/functions.`;
+
+    // Tool definitions for Realtime API function calling
+    const tools = [
+      {
+        type: 'function',
+        name: 'send_sms',
+        description: 'Send a text message to a contact. Always confirm the message content with the user before sending.',
+        parameters: {
+          type: 'object',
+          properties: {
+            phone: {
+              type: 'string',
+              description: 'The phone number to send the SMS to (with country code)',
+            },
+            message: {
+              type: 'string',
+              description: 'The text message content to send',
+            },
+            contactName: {
+              type: 'string',
+              description: 'Optional name of the contact for confirmation',
+            },
+          },
+          required: ['phone', 'message'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'create_lead',
+        description: 'Create a new lead in the CRM system. Collect name, phone, and optionally email and notes.',
+        parameters: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'The full name of the lead',
+            },
+            phone: {
+              type: 'string',
+              description: 'The phone number of the lead',
+            },
+            email: {
+              type: 'string',
+              description: 'The email address of the lead (optional)',
+            },
+            notes: {
+              type: 'string',
+              description: 'Any notes about the lead or their inquiry',
+            },
+            source: {
+              type: 'string',
+              description: 'How the lead was acquired (e.g., referral, website, phone call)',
+            },
+          },
+          required: ['name', 'phone'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'search_contacts',
+        description: 'Search for contacts in the CRM by name, phone, or email.',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'The search term - can be a name, phone number, or email',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'get_recent_leads',
+        description: 'Get a list of recent leads from the CRM.',
+        parameters: {
+          type: 'object',
+          properties: {
+            limit: {
+              type: 'number',
+              description: 'How many leads to return (default 5)',
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        name: 'schedule_appointment',
+        description: 'Schedule an appointment or meeting.',
+        parameters: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+              description: 'The title or purpose of the appointment',
+            },
+            contactName: {
+              type: 'string',
+              description: 'Who the appointment is with',
+            },
+            date: {
+              type: 'string',
+              description: 'The date of the appointment (natural language like "tomorrow at 2pm")',
+            },
+            notes: {
+              type: 'string',
+              description: 'Any additional notes for the appointment',
+            },
+          },
+          required: ['title', 'contactName', 'date'],
+        },
+      },
+    ];
+
+    // Get voice settings for the agent
+    const agentVoice = agent.voice || 'shimmer';
+    const voiceSettings = agent.voiceSettings || { speed: 1.0, pitch: 1.0 };
+
+    res.json({
+      success: true,
+      instructions,
+      tools,
+      voice: agentVoice,
+      voiceSettings,
+      userName,
+      agent: {
+        id: agentId,
+        name: agent.name,
+        icon: agent.icon,
+        personality: agent.personality,
+        role: agent.role || 'specialist',
+        canDelegate: agent.canDelegate || false,
+        delegationTargets: agent.delegationTargets || []
+      }
+    });
+  } catch (error) {
+    console.error('❌ [REALTIME] Config error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Execute a tool call from the Realtime API
+// @route   POST /api/voice/realtime-tool
+// @access  Private (requires auth)
+router.post('/realtime-tool', optionalAuth, async (req, res) => {
+  try {
+    const { functionName, arguments: args } = req.body;
+    const userId = req.user?.id || 'default';
+
+    console.log(`🔧 [REALTIME-TOOL] Executing ${functionName} with args:`, args);
+
+    let result;
+
+    switch (functionName) {
+      case 'send_sms':
+        // Use the existing SMS capability
+        try {
+          const smsResult = await ariaCapabilities.execute('send_sms', {
+            to: args.phone,
+            message: args.message,
+          });
+          // Ensure consistent response format
+          result = {
+            success: smsResult.success !== false,
+            message: smsResult.message || `SMS sent to ${args.phone}`,
+            phone: args.phone,
+            contactName: args.contactName || null
+          };
+        } catch (smsError) {
+          console.error('❌ [SMS] Error in realtime-tool:', smsError);
+          result = { success: false, error: smsError.message || 'SMS failed to send' };
+        }
+        break;
+
+      case 'create_lead':
+        // Create lead in database
+        const lead = new Lead({
+          userId,
+          name: args.name,
+          phone: args.phone,
+          email: args.email || '',
+          notes: args.notes || '',
+          source: args.source || 'Voice Assistant',
+          status: 'new',
+        });
+        await lead.save();
+        result = { success: true, lead: { id: lead._id, name: lead.name }, message: `Lead ${args.name} created successfully` };
+        break;
+
+      case 'search_contacts':
+        // Search contacts
+        const contacts = await Contact.find({
+          userId,
+          $or: [
+            { name: { $regex: args.query, $options: 'i' } },
+            { phone: { $regex: args.query, $options: 'i' } },
+            { email: { $regex: args.query, $options: 'i' } },
+          ],
+        }).limit(5);
+        result = { success: true, contacts: contacts.map(c => ({ name: c.name, phone: c.phone, email: c.email })), count: contacts.length };
+        break;
+
+      case 'get_recent_leads':
+        // Get recent leads
+        const limit = args.limit || 5;
+        const leads = await Lead.find({ userId }).sort({ createdAt: -1 }).limit(limit);
+        result = { success: true, leads: leads.map(l => ({ name: l.name, phone: l.phone, status: l.status, createdAt: l.createdAt })), count: leads.length };
+        break;
+
+      case 'schedule_appointment':
+        // Create appointment
+        const appointment = new Appointment({
+          userId,
+          title: args.title,
+          contactName: args.contactName,
+          date: new Date(args.date),
+          notes: args.notes || '',
+          status: 'scheduled',
+        });
+        await appointment.save();
+        result = { success: true, appointment: { id: appointment._id, title: appointment.title }, message: `Appointment scheduled with ${args.contactName}` };
+        break;
+
+      default:
+        result = { success: false, error: `Unknown function: ${functionName}` };
+    }
+
+    console.log(`✅ [REALTIME-TOOL] Result:`, result);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ [REALTIME-TOOL] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VOICE AGENT API ENDPOINTS
+// Manage in-app voice agents that users can switch between
+// ═══════════════════════════════════════════════════════════════════════════
+
+// @desc    Get all available voice agent templates
+// @route   GET /api/voice/agents
+// @access  Public
+router.get('/agents', (req, res) => {
+  try {
+    const agents = getAllAgentTemplates().map(agent => ({
+      id: agent.id,
+      name: agent.name,
+      icon: agent.icon,
+      description: agent.description,
+      triggerWords: agent.triggerWords,
+      personality: agent.personality,
+      role: agent.role || 'specialist',
+      voice: agent.voice || 'shimmer',
+      voiceSettings: agent.voiceSettings || { speed: 1.0, pitch: 1.0 },
+      canDelegate: agent.canDelegate || false,
+      capabilityCount: agent.capabilities === 'all' ? 'All' : agent.capabilities.length
+    }));
+
+    res.json({
+      success: true,
+      agents,
+      count: agents.length
+    });
+  } catch (error) {
+    console.error('Get agents error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get agents',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get a specific agent's details including capabilities
+// @route   GET /api/voice/agents/:agentId
+// @access  Public
+router.get('/agents/:agentId', (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const agent = getAgentTemplate(agentId);
+
+    if (!agent || agent.id === 'aria' && agentId !== 'aria') {
+      return res.status(404).json({
+        success: false,
+        message: `Agent '${agentId}' not found`
+      });
+    }
+
+    // Get full capability names for this agent
+    const agentCapabilityNames = getAgentCapabilities(agentId, capabilities);
+
+    res.json({
+      success: true,
+      agent: {
+        id: agent.id,
+        name: agent.name,
+        icon: agent.icon,
+        description: agent.description,
+        triggerWords: agent.triggerWords,
+        personality: agent.personality,
+        role: agent.role || 'specialist',
+        voice: agent.voice || 'shimmer',
+        voiceSettings: agent.voiceSettings || { speed: 1.0, pitch: 1.0 },
+        voiceStyle: agent.voiceStyle,
+        canDelegate: agent.canDelegate || false,
+        delegationTargets: agent.delegationTargets || [],
+        capabilities: agentCapabilityNames,
+        systemPrompt: agent.systemPrompt
+      }
+    });
+  } catch (error) {
+    console.error('Get agent error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get agent details',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Test agent detection from a message
+// @route   POST /api/voice/agents/detect
+// @access  Public
+router.post('/agents/detect', (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message is required'
+      });
+    }
+
+    const detection = detectAgentFromMessage(message);
+
+    res.json({
+      success: true,
+      detection: {
+        agentId: detection.agentId,
+        agentName: detection.agent.name,
+        agentIcon: detection.agent.icon,
+        originalMessage: detection.originalMessage,
+        cleanedMessage: detection.cleanedMessage,
+        wasExplicitTrigger: detection.agentId !== 'aria' || message.toLowerCase().startsWith('aria')
+      }
+    });
+  } catch (error) {
+    console.error('Agent detection error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to detect agent',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get available OpenAI Realtime voices
+// @route   GET /api/voice/voices
+// @access  Public
+router.get('/voices', (req, res) => {
+  try {
+    const voices = Object.entries(OPENAI_REALTIME_VOICES).map(([id, info]) => ({
+      id,
+      name: info.name,
+      description: info.description,
+      gender: info.gender
+    }));
+
+    res.json({
+      success: true,
+      voices,
+      count: voices.length,
+      note: 'These are OpenAI Realtime API voices. Each agent has a default voice that matches their personality.'
+    });
+  } catch (error) {
+    console.error('Get voices error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get voices',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get voice for a specific agent
+// @route   GET /api/voice/agents/:agentId/voice
+// @access  Public
+router.get('/agents/:agentId/voice', (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const voiceInfo = getAgentVoice(agentId);
+    const agent = getAgentTemplate(agentId);
+
+    res.json({
+      success: true,
+      agentId,
+      agentName: agent.name,
+      voice: voiceInfo.voice,
+      voiceInfo: OPENAI_REALTIME_VOICES[voiceInfo.voice] || { name: voiceInfo.voice, description: 'Custom voice' },
+      settings: voiceInfo.settings
+    });
+  } catch (error) {
+    console.error('Get agent voice error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get agent voice',
       error: error.message
     });
   }

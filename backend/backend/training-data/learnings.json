@@ -1,35 +1,51 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-11-25T16:55:20.657Z",
-  "totalConversationsAnalyzed": 35,
+  "lastUpdated": "2025-11-26T04:21:00.637Z",
+  "totalConversationsAnalyzed": 55,
   "insights": {
     "commonPhrases": [
       {
         "word": "there?",
-        "count": 36
+        "count": 51
       },
       {
         "word": "aria,",
-        "count": 33
+        "count": 44
       },
       {
         "word": "send",
-        "count": 22
+        "count": 25
       },
       {
         "word": "what",
-        "count": 18
+        "count": 25
+      },
+      {
+        "word": "text",
+        "count": 24
+      },
+      {
+        "word": "message",
+        "count": 22
+      },
+      {
+        "word": "that",
+        "count": 15
       },
       {
         "word": "test",
         "count": 14
       },
       {
-        "word": "message",
-        "count": 11
+        "word": "email",
+        "count": 14
       },
       {
-        "word": "text",
+        "word": "thank",
+        "count": 12
+      },
+      {
+        "word": "name,",
         "count": 10
       },
       {
@@ -37,23 +53,39 @@
         "count": 9
       },
       {
+        "word": "many",
+        "count": 9
+      },
+      {
         "word": "name",
         "count": 8
       },
       {
-        "word": "thank",
-        "count": 8
-      },
-      {
-        "word": "email",
-        "count": 8
-      },
-      {
         "word": "what's",
+        "count": 8
+      },
+      {
+        "word": "speech.",
+        "count": 8
+      },
+      {
+        "word": "phone",
+        "count": 8
+      },
+      {
+        "word": "last",
+        "count": 8
+      },
+      {
+        "word": "just",
+        "count": 8
+      },
+      {
+        "word": "480-255-5887.",
         "count": 7
       },
       {
-        "word": "many",
+        "word": "first",
         "count": 7
       },
       {
@@ -65,35 +97,59 @@
         "count": 6
       },
       {
-        "word": "phone",
-        "count": 5
+        "word": "text,",
+        "count": 6
       },
       {
-        "word": "480-255-5887.",
-        "count": 5
+        "word": "have",
+        "count": 6
+      },
+      {
+        "word": "number",
+        "count": 6
+      },
+      {
+        "word": "your",
+        "count": 6
+      },
+      {
+        "word": "with",
+        "count": 6
       },
       {
         "word": "josh.",
         "count": 5
       },
       {
-        "word": "your",
+        "word": "chain",
         "count": 5
       },
       {
-        "word": "number",
+        "word": "don't",
+        "count": 5
+      },
+      {
+        "word": "today's",
         "count": 4
       },
       {
-        "word": "just",
+        "word": "date",
         "count": 4
       },
       {
-        "word": "with",
+        "word": "time?",
         "count": 4
       },
       {
-        "word": "have",
+        "word": "they",
+        "count": 4
+      },
+      {
+        "word": "lights.",
+        "count": 4
+      },
+      {
+        "word": "address,",
         "count": 4
       },
       {
@@ -109,100 +165,44 @@
         "count": 3
       },
       {
-        "word": "don't",
+        "word": "email.",
         "count": 3
-      },
-      {
-        "word": "today's",
-        "count": 3
-      },
-      {
-        "word": "date",
-        "count": 3
-      },
-      {
-        "word": "time?",
-        "count": 3
-      },
-      {
-        "word": "first",
-        "count": 3
-      },
-      {
-        "word": "last",
-        "count": 3
-      },
-      {
-        "word": "voicemail",
-        "count": 2
-      },
-      {
-        "word": "provide",
-        "count": 2
-      },
-      {
-        "word": "okay.",
-        "count": 2
-      },
-      {
-        "word": "one.",
-        "count": 2
-      },
-      {
-        "word": "messages",
-        "count": 2
-      },
-      {
-        "word": "name,",
-        "count": 2
       },
       {
         "word": "turn",
-        "count": 2
-      },
-      {
-        "word": "remember",
-        "count": 2
-      },
-      {
-        "word": "today?",
-        "count": 2
-      },
-      {
-        "word": "about",
-        "count": 2
+        "count": 3
       },
       {
         "word": "time",
-        "count": 2
-      },
-      {
-        "word": "spanish?",
-        "count": 2
-      },
-      {
-        "word": "know.",
-        "count": 2
+        "count": 3
       },
       {
         "word": "hello?",
-        "count": 2
+        "count": 3
       },
       {
-        "word": "underscore",
-        "count": 2
+        "word": "straight",
+        "count": 3
       },
       {
-        "word": "yourself",
-        "count": 2
+        "word": "okay,",
+        "count": 3
       },
       {
-        "word": "email.",
-        "count": 2
+        "word": "going",
+        "count": 3
       },
       {
-        "word": "commands",
-        "count": 2
+        "word": "type",
+        "count": 3
+      },
+      {
+        "word": "e-mail",
+        "count": 3
+      },
+      {
+        "word": "address.",
+        "count": 3
       }
     ],
     "effectiveResponses": [],
@@ -242,7 +242,27 @@
         1542,
         1570,
         1761,
-        2643
+        2643,
+        1864,
+        1429,
+        1914,
+        1641,
+        1734,
+        2295,
+        5199,
+        3589,
+        1370,
+        6593,
+        1908,
+        3994,
+        2382,
+        3628,
+        3992,
+        2273,
+        1514,
+        1687,
+        1220,
+        1933
       ]
     },
     "userPreferences": {}

@@ -1,117 +1,108 @@
 import express from 'express';
 import OpenAI from 'openai';
 import axios from 'axios';
+import ttsService from '../services/ttsService.js';
 
 const router = express.Router();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// 100 instant greeting responses for immediate feedback
-const INSTANT_GREETINGS = [
-  "Hey there! What can I help you with?",
-  "Hi! I'm listening.",
-  "Hello! Go ahead.",
-  "I'm here! What's up?",
-  "Yes? I'm ready.",
-  "Hi! I'm all ears.",
-  "Hey! What do you need?",
-  "Hello! Fire away.",
-  "I'm listening! What's on your mind?",
-  "Hey! How can I help?",
-  "Hi there! I'm ready to assist.",
-  "Yes! What can I do for you?",
-  "Hey! I'm here.",
-  "Hello! What would you like to know?",
-  "I'm ready! Go ahead.",
-  "Hi! Ask me anything.",
-  "Hey there! What's up?",
-  "Hello! I'm listening.",
-  "Yes? What do you need?",
-  "Hi! Ready when you are.",
-  "Hey! What's going on?",
-  "I'm here! How can I help?",
-  "Hello! What can I assist with?",
-  "Hi! I'm all set.",
-  "Hey! Ready to help.",
-  "Yes! I'm listening.",
-  "Hi there! What do you need?",
-  "Hey! Go ahead.",
-  "Hello! I'm ready.",
-  "I'm here! What's up?",
-  "Hi! Fire away.",
-  "Hey there! Ask away.",
-  "Yes! How can I assist?",
-  "Hello! I'm all ears.",
-  "Hi! What's on your mind?",
-  "Hey! Ready and waiting.",
-  "I'm listening! Go ahead.",
-  "Hi there! Ready to help.",
-  "Hey! What can I do?",
-  "Hello! I'm here for you.",
-  "Yes! What would you like?",
-  "Hi! I'm ready to assist.",
-  "Hey there! What do you need?",
-  "I'm here! Ask me anything.",
-  "Hello! How can I help?",
-  "Hi! I'm all yours.",
-  "Hey! What's happening?",
-  "Yes! I'm here.",
-  "Hello! Ready when you are.",
-  "Hi there! Go ahead.",
-  "Hey! What can I help with?",
-  "I'm ready! What's up?",
-  "Hi! I'm listening carefully.",
-  "Hey there! Fire away.",
-  "Hello! Ask away.",
-  "Yes! Ready to assist.",
-  "Hi! What do you need?",
-  "Hey! I'm all ears.",
-  "I'm here! Ready to help.",
-  "Hello! What's on your mind?",
-  "Hi there! I'm listening.",
-  "Hey! How can I assist?",
-  "Yes! Go ahead.",
-  "Hi! Ready and waiting.",
-  "Hey there! I'm here.",
-  "Hello! What would you like?",
-  "I'm ready! Ask away.",
-  "Hi! What can I do?",
-  "Hey! I'm here for you.",
-  "Yes! What's up?",
-  "Hello! I'm all set.",
-  "Hi there! How can I help?",
-  "Hey! Ready to go.",
-  "I'm listening! What do you need?",
-  "Hi! I'm standing by.",
-  "Hey there! What can I do?",
-  "Hello! I'm ready to help.",
-  "Yes! Fire away.",
-  "Hi! Ask me anything.",
-  "Hey! What's going on?",
-  "I'm here! Ready when you are.",
-  "Hello! Go ahead.",
-  "Hi there! What's happening?",
-  "Hey! I'm all yours.",
-  "Yes! How can I help?",
-  "Hi! What would you like?",
-  "Hey there! I'm ready.",
-  "Hello! I'm listening.",
-  "I'm ready! What can I help with?",
-  "Hi! I'm here.",
-  "Hey! What's on your mind?",
-  "Yes! Ready to go.",
-  "Hello! Ask away.",
-  "Hi there! I'm all ears.",
-  "Hey! How can I assist you?",
-  "I'm listening! Fire away.",
-  "Hi! Ready to assist.",
-  "Hey there! Go ahead.",
-  "Hello! What do you need?",
-  "Yes! I'm all set.",
-  "Hi! I'm here to help.",
+// Personalized greeting templates - {name} will be replaced with user's name
+const PERSONALIZED_GREETINGS = [
+  "Hey {name}! What can I help you with?",
+  "Hi {name}! I'm listening.",
+  "Hello {name}! Go ahead.",
+  "Hey {name}! What's up?",
+  "Yes {name}? I'm ready.",
+  "Hi {name}! I'm all ears.",
+  "Hey {name}! What do you need?",
+  "Hello {name}! Fire away.",
+  "Hey {name}! How can I help?",
+  "Hi {name}! I'm ready to assist.",
+  "What can I do for you, {name}?",
+  "Hey {name}! I'm here.",
+  "Hello {name}! What would you like?",
+  "I'm ready {name}! Go ahead.",
+  "Hi {name}! Ask me anything.",
+  "Hey {name}! What's going on?",
+  "I'm here {name}! How can I help?",
+  "Hello {name}! What can I assist with?",
+  "Hi {name}! Ready when you are.",
+  "Hey {name}! Ready to help.",
+  "Yes {name}! I'm listening.",
+  "Hi {name}! What do you need?",
+  "Hey {name}! Go ahead.",
+  "Hello {name}! I'm ready.",
+  "What's up {name}?",
+  "Hi {name}! Fire away.",
+  "Hey {name}! Ask away.",
+  "Hello {name}! I'm all ears.",
+  "Hi {name}! What's on your mind?",
+  "Hey {name}! Ready and waiting.",
+  "Hey {name}! What can I do?",
+  "Hello {name}! I'm here for you.",
+  "What would you like, {name}?",
+  "Hi {name}! I'm ready to assist.",
+  "Hey {name}! What do you need?",
+  "Hello {name}! How can I help?",
+  "Hey {name}! What's happening?",
+  "Yes {name}! I'm here.",
+  "Hello {name}! Ready when you are.",
+  "Hey {name}! What can I help with?",
+  "What's up, {name}?",
+  "Hi {name}! I'm listening carefully.",
+  "Hey {name}! Fire away.",
+  "Hello {name}! Ask away.",
+  "Hi {name}! What do you need?",
+  "Hey {name}! I'm all ears.",
+  "Hello {name}! What's on your mind?",
+  "Hey {name}! How can I assist?",
+  "Hi {name}! Ready and waiting.",
+  "Hey {name}! I'm here.",
+  "Hello {name}! What would you like?",
+  "Hi {name}! What can I do?",
+  "Hey {name}! I'm here for you.",
+  "What's up {name}? How can I help?",
+  "Hi {name}! How can I help?",
+  "Hey {name}! Ready to go.",
+  "Hi {name}! I'm standing by.",
+  "Hey {name}! What can I do?",
+  "Hello {name}! I'm ready to help.",
+  "Yes {name}! Fire away.",
+  "Hi {name}! Ask me anything.",
+  "Hey {name}! What's going on?",
+  "Hi {name}! What's happening?",
+  "Hey {name}! I'm all yours.",
+  "How can I help, {name}?",
+  "Hi {name}! What would you like?",
+  "Hey {name}! I'm ready.",
+  "Hello {name}! I'm listening.",
+  "What can I help with, {name}?",
+  "Hi {name}! I'm here.",
+  "Hey {name}! What's on your mind?",
+  "Hello {name}! Ask away.",
+  "Hi {name}! I'm all ears.",
+  "Hey {name}! How can I assist you?",
+  "Hi {name}! Ready to assist.",
+  "Hey {name}! Go ahead.",
+  "Hello {name}! What do you need?",
+  "Hi {name}! I'm here to help.",
 ];
 
-function getRandomGreeting() {
-  return INSTANT_GREETINGS[Math.floor(Math.random() * INSTANT_GREETINGS.length)];
+function getRandomGreeting(userName = null) {
+  const template = PERSONALIZED_GREETINGS[Math.floor(Math.random() * PERSONALIZED_GREETINGS.length)];
+  // Replace {name} with user's name, or remove it for a generic greeting
+  if (userName) {
+    return template.replace('{name}', userName);
+  } else {
+    // Remove the name placeholder and clean up extra spaces/punctuation
+    return template
+      .replace('{name}! ', '')
+      .replace('{name}? ', '')
+      .replace('{name}, ', '')
+      .replace(', {name}', '')
+      .replace(' {name}', '')
+      .replace('{name}', '');
+  }
 }
 
 // Instant wake-up greeting endpoint (returns immediately)
@@ -244,20 +235,20 @@ router.post('/chat', async (req, res) => {
 });
 
 // Instant voice wake-up (with pre-generated greeting)
+// Uses ElevenLabs TTS (same as conversation) for consistent volume
 router.post('/voice-wake', async (req, res) => {
   try {
-    const greeting = getRandomGreeting();
+    // Get user's name from request body for personalized greeting
+    const { userName } = req.body || {};
+    const greeting = getRandomGreeting(userName);
 
-    // Generate TTS instantly for the greeting
-    const ttsResponse = await openai.audio.speech.create({
-      model: 'tts-1-hd',
-      voice: 'nova',
-      input: greeting,
-      speed: 1.1,
+    console.log(`[ARIA] Wake greeting${userName ? ` for ${userName}` : ''}: "${greeting}"`);
+
+    // Use ElevenLabs TTS with Aria voice for consistent volume with conversation
+    const audioBase64 = await ttsService.synthesizeBase64(greeting, {
+      voice: 'aria',  // Same voice as conversation responses
+      style: 'friendly'
     });
-
-    const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
-    const audioBase64 = audioBuffer.toString('base64');
 
     res.json({
       success: true,

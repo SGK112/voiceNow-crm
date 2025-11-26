@@ -117,6 +117,7 @@ import contactRoutes from './routes/contacts.js';
 import scraperRoutes from './routes/scraper.js';
 import ariaRoutes from './routes/aria.js';
 import shopifyRoutes from './routes/shopify.js';
+import slackRoutes from './routes/slack.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 import { requestIdMiddleware } from './middleware/security.js';
 
@@ -256,6 +257,7 @@ app.use('/api/contacts', contactRoutes); // Unified contacts API for mobile and 
 app.use('/api/scraper', scraperRoutes); // Web scraping for Aria AI assistant
 app.use('/api/aria', ariaRoutes); // Aria AI assistant chat with context-aware responses
 app.use('/api/shopify', shopifyRoutes); // Shopify OAuth and e-commerce integration
+app.use('/api/slack', slackRoutes); // Slack webhook and notification management
 
 app.use('/api', apiLimiter);
 

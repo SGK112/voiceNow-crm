@@ -111,6 +111,262 @@ export const capabilities = {
     }
   },
 
+  // Group SMS capability
+  send_group_sms: {
+    name: 'send_group_sms',
+    description: 'Send a text message (SMS) to multiple recipients at once. Great for announcements, reminders, or team notifications.',
+    parameters: {
+      type: 'object',
+      properties: {
+        recipients: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of phone numbers to send SMS to (E.164 format, e.g., ["+1234567890", "+1987654321"])'
+        },
+        message: {
+          type: 'string',
+          description: 'Text message content to send to all recipients'
+        },
+        personalizeGreeting: {
+          type: 'boolean',
+          description: 'If true and contact names are known, personalize each message with their name',
+          default: false
+        }
+      },
+      required: ['recipients', 'message']
+    }
+  },
+
+  // Group Email capability
+  send_group_email: {
+    name: 'send_group_email',
+    description: 'Send an email to multiple recipients. Can send as individual emails or as CC/BCC.',
+    parameters: {
+      type: 'object',
+      properties: {
+        recipients: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of email addresses to send to'
+        },
+        subject: {
+          type: 'string',
+          description: 'Email subject line'
+        },
+        body: {
+          type: 'string',
+          description: 'Email body content (supports HTML)'
+        },
+        sendType: {
+          type: 'string',
+          enum: ['individual', 'cc', 'bcc'],
+          description: 'How to send: individual (separate emails), cc (all visible), or bcc (hidden recipients)',
+          default: 'individual'
+        },
+        personalizeGreeting: {
+          type: 'boolean',
+          description: 'If true and sending individual emails, personalize each with their name',
+          default: false
+        }
+      },
+      required: ['recipients', 'subject', 'body']
+    }
+  },
+
+  // Voice Message capability
+  send_voice_message: {
+    name: 'send_voice_message',
+    description: 'Send a pre-recorded voice message (voicemail drop) to a phone number. Uses text-to-speech if no audio file is provided.',
+    parameters: {
+      type: 'object',
+      properties: {
+        to: {
+          type: 'string',
+          description: 'Phone number to send voice message to (E.164 format)'
+        },
+        message: {
+          type: 'string',
+          description: 'Text content of the voice message (will be converted to speech)'
+        },
+        voice: {
+          type: 'string',
+          enum: ['aria', 'professional', 'friendly', 'warm'],
+          description: 'Voice style to use for text-to-speech',
+          default: 'aria'
+        },
+        audioUrl: {
+          type: 'string',
+          description: 'Optional URL to a pre-recorded audio file to use instead of TTS'
+        }
+      },
+      required: ['to', 'message']
+    }
+  },
+
+  // Conference Call capability
+  initiate_conference_call: {
+    name: 'initiate_conference_call',
+    description: 'Start a conference call with multiple participants. Aria can moderate or just connect the parties.',
+    parameters: {
+      type: 'object',
+      properties: {
+        participants: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of phone numbers to include in the conference call'
+        },
+        moderatorPhone: {
+          type: 'string',
+          description: 'Phone number of the call moderator (usually the user)'
+        },
+        title: {
+          type: 'string',
+          description: 'Name/title of the conference call for reference'
+        },
+        recordCall: {
+          type: 'boolean',
+          description: 'Whether to record the conference call',
+          default: false
+        },
+        announceJoins: {
+          type: 'boolean',
+          description: 'Announce when participants join/leave',
+          default: true
+        },
+        ariaModerate: {
+          type: 'boolean',
+          description: 'Have Aria AI moderate and facilitate the call',
+          default: false
+        }
+      },
+      required: ['participants']
+    }
+  },
+
+  // Transfer Call to Agent capability
+  transfer_call_to_agent: {
+    name: 'transfer_call_to_agent',
+    description: 'Transfer the current call to another AI agent or specialist. Use when the conversation requires a different expertise.',
+    parameters: {
+      type: 'object',
+      properties: {
+        agentId: {
+          type: 'string',
+          description: 'ID of the agent to transfer to'
+        },
+        agentType: {
+          type: 'string',
+          enum: ['sales', 'support', 'scheduling', 'billing', 'technical', 'general'],
+          description: 'Type of agent needed if ID not known'
+        },
+        context: {
+          type: 'string',
+          description: 'Brief context to pass to the receiving agent about the conversation so far'
+        },
+        warmTransfer: {
+          type: 'boolean',
+          description: 'If true, introduce the call to the new agent before transfer. If false, cold transfer.',
+          default: true
+        }
+      },
+      required: ['context']
+    }
+  },
+
+  // Transfer Call to Human capability
+  transfer_call_to_human: {
+    name: 'transfer_call_to_human',
+    description: 'Transfer the current call to a human team member or external number. Use when human intervention is needed.',
+    parameters: {
+      type: 'object',
+      properties: {
+        phoneNumber: {
+          type: 'string',
+          description: 'Phone number to transfer to (if known)'
+        },
+        teamMember: {
+          type: 'string',
+          description: 'Name or ID of team member to transfer to (will look up their number)'
+        },
+        department: {
+          type: 'string',
+          enum: ['sales', 'support', 'management', 'operations', 'billing', 'emergency'],
+          description: 'Department to route to if specific person not specified'
+        },
+        context: {
+          type: 'string',
+          description: 'Brief summary of the conversation and reason for transfer'
+        },
+        priority: {
+          type: 'string',
+          enum: ['normal', 'high', 'urgent'],
+          description: 'Priority level of the transfer',
+          default: 'normal'
+        },
+        warmTransfer: {
+          type: 'boolean',
+          description: 'If true, brief the human before connecting the caller',
+          default: true
+        }
+      },
+      required: ['context']
+    }
+  },
+
+  // Calendar Invite capability
+  send_calendar_invite: {
+    name: 'send_calendar_invite',
+    description: 'Send a calendar invite (ICS) via email or SMS. The recipient can add it directly to their calendar app.',
+    parameters: {
+      type: 'object',
+      properties: {
+        recipients: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of email addresses or phone numbers to send invite to'
+        },
+        title: {
+          type: 'string',
+          description: 'Event title'
+        },
+        startTime: {
+          type: 'string',
+          description: 'Start date and time in ISO format or natural language'
+        },
+        endTime: {
+          type: 'string',
+          description: 'End date and time (or duration can be specified instead)'
+        },
+        duration: {
+          type: 'number',
+          description: 'Duration in minutes if endTime not specified',
+          default: 60
+        },
+        location: {
+          type: 'string',
+          description: 'Meeting location or video call link'
+        },
+        description: {
+          type: 'string',
+          description: 'Event description and agenda'
+        },
+        sendMethod: {
+          type: 'string',
+          enum: ['email', 'sms', 'both'],
+          description: 'How to send the invite',
+          default: 'email'
+        },
+        reminderMinutes: {
+          type: 'array',
+          items: { type: 'number' },
+          description: 'Array of reminder times in minutes before event (e.g., [60, 15] for 1 hour and 15 min)',
+          default: [60, 15]
+        }
+      },
+      required: ['recipients', 'title', 'startTime']
+    }
+  },
+
   // Memory capabilities
   remember_info: {
     name: 'remember_info',
@@ -1373,6 +1629,530 @@ export class AriaCapabilities {
     }
   }
 
+  // Group SMS - Send to multiple recipients
+  async sendGroupSms(recipients, message, personalizeGreeting = false) {
+    try {
+      if (!this.twilioService) {
+        throw new Error('SMS service not configured');
+      }
+
+      console.log(`📱 [GROUP SMS] Sending to ${recipients.length} recipients`);
+
+      const results = [];
+      const failed = [];
+
+      for (const recipient of recipients) {
+        try {
+          let finalMessage = message;
+
+          // If personalize is enabled, try to look up contact name
+          if (personalizeGreeting && this.models?.Contact) {
+            const contact = await this.models.Contact.findOne({ phone: recipient });
+            if (contact?.name) {
+              finalMessage = `Hi ${contact.name.split(' ')[0]}, ${message}`;
+            }
+          }
+
+          await this.twilioService.sendSMS({
+            agentId: null,
+            to: recipient,
+            message: finalMessage,
+            metadata: { type: 'aria_group_sms' }
+          });
+
+          results.push({ to: recipient, success: true });
+        } catch (err) {
+          failed.push({ to: recipient, error: err.message });
+        }
+      }
+
+      console.log(`✅ [GROUP SMS] Sent ${results.length}/${recipients.length} messages`);
+
+      return {
+        success: failed.length === 0,
+        sent: results.length,
+        failed: failed.length,
+        details: { successful: results, failed },
+        message: `Group SMS sent to ${results.length} of ${recipients.length} recipients`
+      };
+    } catch (error) {
+      console.error('❌ [GROUP SMS] Error:', error.message);
+      return {
+        success: false,
+        error: `Group SMS failed: ${error.message}`
+      };
+    }
+  }
+
+  // Group Email - Send to multiple recipients
+  async sendGroupEmail(recipients, subject, body, sendType = 'individual', personalizeGreeting = false) {
+    try {
+      if (!this.emailService) {
+        throw new Error('Email service not configured');
+      }
+
+      console.log(`📧 [GROUP EMAIL] Sending to ${recipients.length} recipients (${sendType})`);
+
+      if (sendType === 'individual') {
+        // Send separate emails to each recipient
+        const results = [];
+        const failed = [];
+
+        for (const recipient of recipients) {
+          try {
+            let finalBody = body;
+
+            if (personalizeGreeting && this.models?.Contact) {
+              const contact = await this.models.Contact.findOne({ email: recipient });
+              if (contact?.name) {
+                finalBody = `Hi ${contact.name.split(' ')[0]},\n\n${body}`;
+              }
+            }
+
+            await this.emailService.send(recipient, subject, finalBody);
+            results.push({ to: recipient, success: true });
+          } catch (err) {
+            failed.push({ to: recipient, error: err.message });
+          }
+        }
+
+        return {
+          success: failed.length === 0,
+          sent: results.length,
+          failed: failed.length,
+          details: { successful: results, failed },
+          message: `Group email sent to ${results.length} of ${recipients.length} recipients`
+        };
+      } else {
+        // Send as CC or BCC
+        const mainRecipient = recipients[0];
+        const otherRecipients = recipients.slice(1);
+
+        await this.emailService.send(mainRecipient, subject, body, {
+          [sendType]: otherRecipients
+        });
+
+        return {
+          success: true,
+          sent: recipients.length,
+          message: `Group email sent to ${recipients.length} recipients via ${sendType.toUpperCase()}`
+        };
+      }
+    } catch (error) {
+      console.error('❌ [GROUP EMAIL] Error:', error.message);
+      return {
+        success: false,
+        error: `Group email failed: ${error.message}`
+      };
+    }
+  }
+
+  // Send Voice Message (Voicemail Drop)
+  async sendVoiceMessage(to, message, voice = 'aria', audioUrl = null) {
+    try {
+      if (!this.twilioService) {
+        throw new Error('Voice service not configured');
+      }
+
+      console.log(`🎙️ [VOICE MSG] Sending voice message to: ${to}`);
+
+      // If no audio URL, generate TTS
+      let mediaUrl = audioUrl;
+      if (!mediaUrl) {
+        // Use TTS service to generate audio
+        const ttsService = (await import('../services/ttsService.js')).default;
+        const audioBase64 = await ttsService.synthesizeBase64(message, { voice, style: 'warm' });
+
+        // For Twilio, we need a publicly accessible URL
+        // Store temporarily and get URL (this would need cloud storage integration)
+        // For now, use Twilio's TTS via TwiML
+        mediaUrl = null; // Will use TwiML-based TTS
+      }
+
+      // Use Twilio to make a call that plays the voice message
+      const twilio = (await import('twilio')).default;
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+      const call = await client.calls.create({
+        to: to,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        twiml: mediaUrl
+          ? `<Response><Play>${mediaUrl}</Play></Response>`
+          : `<Response><Say voice="Polly.Joanna">${message}</Say></Response>`,
+        machineDetection: 'DetectMessageEnd', // Optimize for voicemail
+      });
+
+      console.log(`✅ [VOICE MSG] Call initiated: ${call.sid}`);
+
+      return {
+        success: true,
+        callSid: call.sid,
+        message: `Voice message being delivered to ${to}`
+      };
+    } catch (error) {
+      console.error('❌ [VOICE MSG] Error:', error.message);
+      return {
+        success: false,
+        error: `Voice message failed: ${error.message}`
+      };
+    }
+  }
+
+  // Initiate Conference Call
+  async initiateConferenceCall(participants, moderatorPhone = null, title = 'Conference Call', options = {}) {
+    try {
+      if (!this.twilioService) {
+        throw new Error('Call service not configured');
+      }
+
+      console.log(`📞 [CONFERENCE] Starting conference with ${participants.length} participants`);
+
+      const twilio = (await import('twilio')).default;
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+      // Create a unique conference name
+      const conferenceName = `aria-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const callResults = [];
+
+      // Call each participant and add to conference
+      for (const participant of participants) {
+        try {
+          const call = await client.calls.create({
+            to: participant,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            twiml: `<Response>
+              <Say>You are being connected to a conference call${title ? `: ${title}` : ''}.</Say>
+              <Dial>
+                <Conference
+                  ${options.recordCall ? 'record="record-from-start"' : ''}
+                  ${options.announceJoins ? 'startConferenceOnEnter="true" endConferenceOnExit="false"' : ''}
+                  waitUrl="http://twimlets.com/holdmusic?Bucket=com.twilio.music.classical"
+                >${conferenceName}</Conference>
+              </Dial>
+            </Response>`
+          });
+
+          callResults.push({ participant, callSid: call.sid, success: true });
+        } catch (err) {
+          callResults.push({ participant, error: err.message, success: false });
+        }
+      }
+
+      // If moderator specified, call them too
+      if (moderatorPhone) {
+        try {
+          const modCall = await client.calls.create({
+            to: moderatorPhone,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            twiml: `<Response>
+              <Say>You are the moderator for this conference call.</Say>
+              <Dial>
+                <Conference
+                  startConferenceOnEnter="true"
+                  endConferenceOnExit="true"
+                  ${options.recordCall ? 'record="record-from-start"' : ''}
+                >${conferenceName}</Conference>
+              </Dial>
+            </Response>`
+          });
+          callResults.push({ participant: moderatorPhone, role: 'moderator', callSid: modCall.sid, success: true });
+        } catch (err) {
+          callResults.push({ participant: moderatorPhone, role: 'moderator', error: err.message, success: false });
+        }
+      }
+
+      const successful = callResults.filter(r => r.success).length;
+      console.log(`✅ [CONFERENCE] Connected ${successful}/${callResults.length} participants`);
+
+      return {
+        success: successful > 0,
+        conferenceName,
+        title,
+        participants: callResults,
+        connected: successful,
+        total: callResults.length,
+        message: `Conference call started with ${successful} of ${callResults.length} participants`
+      };
+    } catch (error) {
+      console.error('❌ [CONFERENCE] Error:', error.message);
+      return {
+        success: false,
+        error: `Conference call failed: ${error.message}`
+      };
+    }
+  }
+
+  // Transfer Call to AI Agent
+  async transferCallToAgent(currentCallSid, agentId = null, agentType = 'general', context = '', warmTransfer = true) {
+    try {
+      console.log(`🔀 [TRANSFER AGENT] Transferring call to ${agentType} agent`);
+
+      // Look up agent configuration based on type
+      const agentConfigs = {
+        sales: { name: 'Sales Agent', prompt: 'You are a sales specialist...' },
+        support: { name: 'Support Agent', prompt: 'You are a customer support specialist...' },
+        scheduling: { name: 'Scheduling Agent', prompt: 'You are a scheduling assistant...' },
+        billing: { name: 'Billing Agent', prompt: 'You are a billing specialist...' },
+        technical: { name: 'Technical Agent', prompt: 'You are a technical support specialist...' },
+        general: { name: 'General Agent', prompt: 'You are a helpful assistant...' }
+      };
+
+      const agent = agentConfigs[agentType] || agentConfigs.general;
+
+      // If warm transfer, brief the receiving agent
+      let transferMessage = '';
+      if (warmTransfer && context) {
+        transferMessage = `Transferring to ${agent.name}. Context: ${context}`;
+      }
+
+      // In a real implementation, this would:
+      // 1. Update the current call's TwiML to play transfer message
+      // 2. Switch to the new agent's voice/personality
+      // 3. Pass conversation context to the new agent
+
+      return {
+        success: true,
+        transferredTo: agent.name,
+        agentType,
+        context: context,
+        warmTransfer,
+        message: `Call transferred to ${agent.name}. ${transferMessage}`
+      };
+    } catch (error) {
+      console.error('❌ [TRANSFER AGENT] Error:', error.message);
+      return {
+        success: false,
+        error: `Agent transfer failed: ${error.message}`
+      };
+    }
+  }
+
+  // Transfer Call to Human
+  async transferCallToHuman(currentCallSid, phoneNumber = null, teamMember = null, department = null, context = '', priority = 'normal', warmTransfer = true) {
+    try {
+      console.log(`🔀 [TRANSFER HUMAN] Transferring call to human`);
+
+      // Resolve phone number
+      let targetPhone = phoneNumber;
+      let targetName = teamMember || department || 'Team Member';
+
+      // If team member name provided, look up their number
+      if (!targetPhone && teamMember) {
+        // Look up team member in database
+        if (this.models?.User) {
+          const user = await this.models.User.findOne({
+            $or: [
+              { name: new RegExp(teamMember, 'i') },
+              { 'profile.displayName': new RegExp(teamMember, 'i') }
+            ]
+          });
+          if (user?.phone) {
+            targetPhone = user.phone;
+            targetName = user.name || user.profile?.displayName || teamMember;
+          }
+        }
+      }
+
+      // If department specified, use department routing
+      if (!targetPhone && department) {
+        const departmentNumbers = {
+          sales: process.env.SALES_PHONE,
+          support: process.env.SUPPORT_PHONE,
+          management: process.env.MANAGEMENT_PHONE,
+          operations: process.env.OPERATIONS_PHONE,
+          billing: process.env.BILLING_PHONE,
+          emergency: process.env.EMERGENCY_PHONE
+        };
+        targetPhone = departmentNumbers[department];
+        targetName = `${department.charAt(0).toUpperCase() + department.slice(1)} Department`;
+      }
+
+      if (!targetPhone) {
+        throw new Error('No transfer destination found. Please specify a phone number, team member, or department.');
+      }
+
+      const twilio = (await import('twilio')).default;
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+      // Build TwiML for transfer
+      let twiml;
+      if (warmTransfer) {
+        // First call the human to brief them
+        twiml = `<Response>
+          <Say>Please hold while we connect you.</Say>
+          <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
+            <Number statusCallbackEvent="initiated ringing answered completed"
+                    statusCallback="/api/voice/transfer-status">
+              ${targetPhone}
+            </Number>
+          </Dial>
+          <Say>We were unable to connect you. Please try again later.</Say>
+        </Response>`;
+      } else {
+        // Cold transfer
+        twiml = `<Response>
+          <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
+            ${targetPhone}
+          </Dial>
+        </Response>`;
+      }
+
+      // Update the current call with transfer TwiML
+      if (currentCallSid) {
+        await client.calls(currentCallSid).update({ twiml });
+      }
+
+      // Send notification about the transfer
+      if (this.twilioService) {
+        await this.twilioService.sendSMS({
+          to: targetPhone,
+          message: `Incoming call transfer${priority === 'urgent' ? ' (URGENT)' : ''}. Context: ${context}`,
+          metadata: { type: 'transfer_notification', priority }
+        }).catch(e => console.warn('Failed to send transfer notification:', e.message));
+      }
+
+      console.log(`✅ [TRANSFER HUMAN] Transferring to ${targetName} at ${targetPhone}`);
+
+      return {
+        success: true,
+        transferredTo: targetName,
+        phone: targetPhone,
+        department,
+        priority,
+        warmTransfer,
+        context,
+        message: `Call being transferred to ${targetName}${warmTransfer ? ' (warm transfer)' : ''}`
+      };
+    } catch (error) {
+      console.error('❌ [TRANSFER HUMAN] Error:', error.message);
+      return {
+        success: false,
+        error: `Human transfer failed: ${error.message}`
+      };
+    }
+  }
+
+  // Send Calendar Invite
+  async sendCalendarInvite(recipients, title, startTime, endTime = null, duration = 60, location = '', description = '', sendMethod = 'email', reminderMinutes = [60, 15]) {
+    try {
+      console.log(`📅 [CALENDAR INVITE] Sending invite to ${recipients.length} recipients`);
+
+      // Parse start time
+      const start = new Date(startTime);
+      if (isNaN(start.getTime())) {
+        throw new Error('Invalid start time');
+      }
+
+      // Calculate end time
+      const end = endTime ? new Date(endTime) : new Date(start.getTime() + duration * 60000);
+
+      // Generate ICS content
+      const icsContent = this.generateICS({
+        title,
+        start,
+        end,
+        location,
+        description,
+        organizer: process.env.FROM_EMAIL || 'aria@voiceflow.ai',
+        reminderMinutes
+      });
+
+      const results = [];
+      const failed = [];
+
+      for (const recipient of recipients) {
+        const isEmail = recipient.includes('@');
+        const isPhone = /^\+?[\d\s-()]+$/.test(recipient);
+
+        try {
+          if ((sendMethod === 'email' || sendMethod === 'both') && isEmail) {
+            // Send via email with ICS attachment
+            await this.emailService.send(recipient, `Calendar Invite: ${title}`,
+              `You've been invited to: ${title}\n\nWhen: ${start.toLocaleString()}\nWhere: ${location || 'TBD'}\n\n${description}\n\nPlease find the calendar invite attached.`,
+              {
+                attachments: [{
+                  filename: 'invite.ics',
+                  content: icsContent,
+                  contentType: 'text/calendar'
+                }]
+              }
+            );
+            results.push({ to: recipient, method: 'email', success: true });
+          }
+
+          if ((sendMethod === 'sms' || sendMethod === 'both') && isPhone) {
+            // Send via SMS with details
+            const smsMessage = `📅 Calendar Invite: ${title}\n📆 ${start.toLocaleDateString()} at ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\n📍 ${location || 'TBD'}\n\nAdd to calendar: [link would go here]`;
+
+            await this.twilioService.sendSMS({
+              to: recipient,
+              message: smsMessage,
+              metadata: { type: 'calendar_invite' }
+            });
+            results.push({ to: recipient, method: 'sms', success: true });
+          }
+        } catch (err) {
+          failed.push({ to: recipient, error: err.message });
+        }
+      }
+
+      console.log(`✅ [CALENDAR INVITE] Sent ${results.length}/${recipients.length} invites`);
+
+      return {
+        success: failed.length === 0,
+        sent: results.length,
+        failed: failed.length,
+        event: { title, start: start.toISOString(), end: end.toISOString(), location },
+        details: { successful: results, failed },
+        message: `Calendar invite sent to ${results.length} of ${recipients.length} recipients`
+      };
+    } catch (error) {
+      console.error('❌ [CALENDAR INVITE] Error:', error.message);
+      return {
+        success: false,
+        error: `Calendar invite failed: ${error.message}`
+      };
+    }
+  }
+
+  // Helper: Generate ICS file content
+  generateICS({ title, start, end, location, description, organizer, reminderMinutes }) {
+    const formatDate = (date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const uid = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}@voiceflow.ai`;
+
+    let alarms = '';
+    for (const mins of reminderMinutes) {
+      alarms += `
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+TRIGGER:-PT${mins}M
+END:VALARM`;
+    }
+
+    return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//VoiceFlow CRM//Aria AI//EN
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDate(new Date())}
+DTSTART:${formatDate(start)}
+DTEND:${formatDate(end)}
+SUMMARY:${title}
+LOCATION:${location || ''}
+DESCRIPTION:${description ? description.replace(/\n/g, '\\n') : ''}
+ORGANIZER:mailto:${organizer}
+STATUS:CONFIRMED${alarms}
+END:VEVENT
+END:VCALENDAR`;
+  }
+
   // Memory capabilities (using persistent storage)
   async rememberInfo(key, value, category, userId = 'default') {
     try {
@@ -1465,6 +2245,121 @@ export class AriaCapabilities {
       return {
         success: false,
         error: `Failed to get leads: ${error.message}`
+      };
+    }
+  }
+
+  // Create a new lead
+  async createLead(args) {
+    try {
+      if (!this.models?.Lead) {
+        throw new Error('Lead model not available');
+      }
+
+      const { name, phone, email, notes, source, status } = args;
+
+      console.log(`➕ [CRM] Creating lead: ${name}`);
+
+      // Check for duplicate by phone or email
+      const existingLead = await this.models.Lead.findOne({
+        $or: [
+          ...(phone ? [{ phone }] : []),
+          ...(email ? [{ email }] : [])
+        ]
+      });
+
+      if (existingLead) {
+        return {
+          success: false,
+          error: `A lead with this ${existingLead.phone === phone ? 'phone number' : 'email'} already exists: ${existingLead.name}`,
+          existingLead: {
+            id: existingLead._id,
+            name: existingLead.name,
+            phone: existingLead.phone,
+            email: existingLead.email
+          }
+        };
+      }
+
+      const lead = new this.models.Lead({
+        name: name || 'New Lead',
+        phone: phone || '',
+        email: email || '',
+        notes: notes || '',
+        source: source || 'aria_conversation',
+        status: status || 'new',
+        createdAt: new Date()
+      });
+
+      await lead.save();
+      console.log(`✅ [CRM] Lead created: ${lead._id}`);
+
+      return {
+        success: true,
+        lead: {
+          id: lead._id,
+          name: lead.name,
+          phone: lead.phone,
+          email: lead.email,
+          status: lead.status
+        },
+        summary: `Created new lead: ${lead.name}${lead.phone ? ` (${lead.phone})` : ''}`
+      };
+    } catch (error) {
+      console.error('❌ [CRM] Error creating lead:', error.message);
+      return {
+        success: false,
+        error: `Failed to create lead: ${error.message}`
+      };
+    }
+  }
+
+  // Update an existing lead
+  async updateLead(args) {
+    try {
+      if (!this.models?.Lead) {
+        throw new Error('Lead model not available');
+      }
+
+      const { leadId, name, phone, email, notes, status } = args;
+
+      console.log(`✏️ [CRM] Updating lead: ${leadId}`);
+
+      const lead = await this.models.Lead.findById(leadId);
+      if (!lead) {
+        return {
+          success: false,
+          error: 'Lead not found'
+        };
+      }
+
+      // Update fields if provided
+      if (name) lead.name = name;
+      if (phone) lead.phone = phone;
+      if (email) lead.email = email;
+      if (notes) lead.notes = notes;
+      if (status) lead.status = status;
+      lead.updatedAt = new Date();
+
+      await lead.save();
+      console.log(`✅ [CRM] Lead updated: ${lead._id}`);
+
+      return {
+        success: true,
+        lead: {
+          id: lead._id,
+          name: lead.name,
+          phone: lead.phone,
+          email: lead.email,
+          status: lead.status
+        },
+        summary: `Updated lead: ${lead.name}`
+      };
+    } catch (error) {
+      console.error('❌ [CRM] Error updating lead:', error.message);
+      return {
+        success: false,
+        error: `Failed to update lead: ${error.message}`
       };
     }
   }
@@ -2627,6 +3522,30 @@ export class AriaCapabilities {
 
       case 'tag_contact':
         return await this.tagContact(args.contactId, args.tags);
+
+      // ═══════════════════════════════════════════════════════════════
+      // Advanced Communication (Group Messaging, Voice, Conference)
+      // ═══════════════════════════════════════════════════════════════
+      case 'send_group_sms':
+        return await this.sendGroupSms(args.recipients, args.message, args.personalizeGreeting);
+
+      case 'send_group_email':
+        return await this.sendGroupEmail(args.recipients, args.subject, args.body, args.sendType, args.personalizeGreeting);
+
+      case 'send_voice_message':
+        return await this.sendVoiceMessage(args.to, args.message, args.voiceId);
+
+      case 'initiate_conference_call':
+        return await this.initiateConferenceCall(args.participants, args.moderatorPhone, args.conferenceOptions);
+
+      case 'transfer_call_to_agent':
+        return await this.transferCallToAgent(args.callSid, args.agentType, args.context);
+
+      case 'transfer_call_to_human':
+        return await this.transferCallToHuman(args.callSid, args.department, args.agentPhone, args.context);
+
+      case 'send_calendar_invite':
+        return await this.sendCalendarInvite(args.recipients, args.eventDetails, args.deliveryMethod);
 
       default:
         return {

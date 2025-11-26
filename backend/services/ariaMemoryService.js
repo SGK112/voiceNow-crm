@@ -248,16 +248,30 @@ export class AriaMemoryService {
    * Get or create conversation session
    */
   async getConversation(sessionId, userId = 'default') {
+    // First check for active conversation
     let conversation = await AriaConversation.findOne({ sessionId, status: 'active' });
 
     if (!conversation) {
-      conversation = await AriaConversation.create({
-        sessionId,
-        userId,
-        messages: [],
-        status: 'active'
-      });
-      console.log(`🎬 [CONTEXT] New conversation created: ${sessionId}`);
+      // Check if there's an ended conversation we can reactivate
+      const existingConversation = await AriaConversation.findOne({ sessionId });
+
+      if (existingConversation) {
+        // Reactivate existing conversation
+        existingConversation.status = 'active';
+        existingConversation.updatedAt = new Date();
+        await existingConversation.save();
+        console.log(`🎬 [SESSION] New conversation started: ${sessionId}`);
+        conversation = existingConversation;
+      } else {
+        // Create brand new conversation
+        conversation = await AriaConversation.create({
+          sessionId,
+          userId,
+          messages: [],
+          status: 'active'
+        });
+        console.log(`🎬 [SESSION] New conversation started: ${sessionId}`);
+      }
     }
 
     return conversation;
@@ -280,13 +294,17 @@ export class AriaMemoryService {
 
   /**
    * Get conversation context with relevant memories
+   * @param {Object} options - { skipMemoryRecall: boolean } - skip expensive semantic search
    */
-  async getConversationContext(sessionId, userId = 'default') {
+  async getConversationContext(sessionId, userId = 'default', options = {}) {
     try {
-      // Check cache
-      const cacheKey = `context:${sessionId}`;
+      const { skipMemoryRecall = false } = options;
+
+      // Check cache - use different key for fast mode
+      const cacheKey = skipMemoryRecall ? `context:fast:${sessionId}` : `context:${sessionId}`;
       const cached = await this.safeRedisGet(cacheKey);
       if (cached) {
+        console.log(`[CONTEXT] Cache hit (${skipMemoryRecall ? 'fast' : 'full'} mode)`);
         return JSON.parse(cached);
       }
 
@@ -295,16 +313,23 @@ export class AriaMemoryService {
       // Get recent messages (sliding window)
       const recentMessages = conversation.getRecentMessages(this.MAX_CONTEXT_MESSAGES);
 
-      // Get relevant memories based on recent conversation
-      const conversationText = recentMessages
-        .map(m => m.content)
-        .join(' ')
-        .slice(-500); // Last 500 chars
+      let relevantMemories = { memories: [] };
 
-      const relevantMemories = await this.recallMemory(userId, conversationText, {
-        limit: 5,
-        minImportance: 3
-      });
+      // Only do expensive memory recall if needed
+      if (!skipMemoryRecall) {
+        // Get relevant memories based on recent conversation
+        const conversationText = recentMessages
+          .map(m => m.content)
+          .join(' ')
+          .slice(-500); // Last 500 chars
+
+        relevantMemories = await this.recallMemory(userId, conversationText, {
+          limit: 5,
+          minImportance: 3
+        });
+      } else {
+        console.log('[CONTEXT] Skipping memory recall (fast mode)');
+      }
 
       const context = {
         sessionId,
@@ -316,8 +341,9 @@ export class AriaMemoryService {
         messageCount: conversation.messages.length
       };
 
-      // Cache for 60 seconds
-      await this.safeRedisSet(cacheKey, JSON.stringify(context), 60);
+      // Cache for 60 seconds (fast mode) or 30 seconds (full mode)
+      const ttl = skipMemoryRecall ? 60 : 30;
+      await this.safeRedisSet(cacheKey, JSON.stringify(context), ttl);
 
       return context;
     } catch (error) {

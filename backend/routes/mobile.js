@@ -96,38 +96,142 @@ router.get('/auth/google/callback', async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Failed</title>
+  <title>Login Failed - VoiceFlow AI</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      background: #0F172A;
       min-height: 100vh;
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
+      position: relative;
+      overflow: hidden;
     }
-    .container { text-align: center; padding: 40px; max-width: 400px; }
-    .error-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(239, 68, 68, 0.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    .orb {
+      position: absolute;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 24px; font-size: 40px;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
     }
-    h1 { font-size: 24px; margin: 0 0 12px; }
-    p { color: #9ca3af; margin: 0 0 24px; font-size: 15px; }
-    .error-msg { color: #f87171; font-size: 13px; background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      top: -100px;
+      right: -50px;
+    }
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(135deg, #F97316, #EF4444);
+      bottom: -80px;
+      left: -60px;
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .card {
+      background: #1E293B;
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .card-accent {
+      height: 4px;
+      background: linear-gradient(90deg, #EF4444, #F97316);
+      border-radius: 24px 24px 0 0;
+      margin: -40px -32px 32px -32px;
+    }
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    }
+    .error-x { font-size: 40px; line-height: 1; }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 12px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
+    }
+    p {
+      color: #94A3B8;
+      margin: 0 0 20px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .error-msg {
+      color: #FCA5A5;
+      font-size: 13px;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      margin-bottom: 24px;
+      word-break: break-word;
+    }
+    .hint { color: #64748B; font-size: 13px; }
+    .brand {
+      margin-top: 24px;
+      color: #475569;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #EF4444, #F97316);
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
+  <div class="dot-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
   <div class="container">
-    <div class="error-icon">✕</div>
-    <h1>Login Failed</h1>
-    <p>Something went wrong during sign in.</p>
-    <p class="error-msg">${errorMsg}</p>
-    <p style="margin-top: 24px;">Please close this window and try again.</p>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="icon-container">
+        <span class="error-x">✕</span>
+      </div>
+      <h1>Login Failed</h1>
+      <p>Something went wrong during sign in.</p>
+      <div class="error-msg">${errorMsg}</div>
+      <p class="hint">Please close this window and try again in the app.</p>
+    </div>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      VoiceFlow AI
+    </div>
   </div>
 </body>
 </html>`;
@@ -316,85 +420,202 @@ router.get('/auth/google/callback', async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Successful</title>
+  <title>Login Successful - VoiceFlow AI</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      background: #0F172A;
       min-height: 100vh;
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Dot grid background */
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    /* Gradient orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      top: -100px;
+      right: -50px;
+    }
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(135deg, #10B981, #3B82F6);
+      bottom: -80px;
+      left: -60px;
     }
     .container {
+      position: relative;
+      z-index: 10;
       text-align: center;
-      padding: 40px;
+      padding: 24px;
       max-width: 400px;
+      width: 100%;
     }
-    .checkmark {
+    .card {
+      background: #1E293B;
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .card-accent {
+      height: 4px;
+      background: linear-gradient(90deg, #10B981, #3B82F6);
+      border-radius: 24px 24px 0 0;
+      margin: -40px -32px 32px -32px;
+    }
+    .icon-container {
       width: 80px;
       height: 80px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 50%;
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    }
+    .checkmark {
       font-size: 40px;
+      line-height: 1;
+    }
+    .welcome-text {
+      font-size: 14px;
+      color: #94A3B8;
+      margin: 0 0 4px;
+      letter-spacing: 0.5px;
     }
     h1 {
-      font-size: 24px;
-      margin: 0 0 12px;
-      font-weight: 600;
+      font-size: 28px;
+      margin: 0 0 16px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    p {
-      color: #9ca3af;
-      margin: 0 0 32px;
-      font-size: 15px;
-      line-height: 1.5;
+    .email-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60A5FA;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 28px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
     }
     .btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
       color: white;
-      padding: 14px 40px;
+      padding: 16px 32px;
       border-radius: 12px;
       text-decoration: none;
       font-size: 16px;
       font-weight: 600;
-      margin-bottom: 16px;
       transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
     }
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+    }
+    .btn-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
     }
     .hint {
-      color: #6b7280;
+      color: #64748B;
       font-size: 13px;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+    .brand {
       margin-top: 24px;
+      color: #475569;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .email {
-      color: #60a5fa;
-      font-weight: 500;
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border-radius: 50%;
     }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.1); opacity: 0.6; }
+    }
+    .orb { animation: pulse 4s ease-in-out infinite; }
+    .orb-2 { animation-delay: -2s; }
   </style>
 </head>
 <body>
+  <div class="dot-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
   <div class="container">
-    <div class="checkmark">✓</div>
-    <h1>Login Successful!</h1>
-    <p>Welcome back, <span class="email">${email}</span></p>
-    <a href="${appSchemeUrl}" class="btn" id="openApp">Open App</a>
-    <p class="hint">You can close this window and return to the app.</p>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="icon-container">
+        <span class="checkmark">✓</span>
+      </div>
+      <p class="welcome-text">Welcome to VoiceFlow AI</p>
+      <h1>Login Successful!</h1>
+      <div class="email-badge">${email}</div>
+      <a href="${appSchemeUrl}" class="btn" id="openApp">
+        Continue to App
+        <span class="btn-icon">→</span>
+      </a>
+      <p class="hint">Redirecting automatically... or tap the button above.</p>
+    </div>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      VoiceFlow AI
+    </div>
   </div>
   <script>
     // Try to open the app automatically after a short delay
     setTimeout(function() {
       window.location.href = "${appSchemeUrl}";
-    }, 500);
+    }, 1500);
   </script>
 </body>
 </html>
@@ -411,38 +632,148 @@ router.get('/auth/google/callback', async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Failed</title>
+  <title>Login Failed - VoiceFlow AI</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      background: #0F172A;
       min-height: 100vh;
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
+      position: relative;
+      overflow: hidden;
     }
-    .container { text-align: center; padding: 40px; max-width: 400px; }
-    .error-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(239, 68, 68, 0.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    .orb {
+      position: absolute;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 24px; font-size: 40px;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
     }
-    h1 { font-size: 24px; margin: 0 0 12px; }
-    p { color: #9ca3af; margin: 0 0 24px; font-size: 15px; }
-    .error-msg { color: #f87171; font-size: 13px; background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      top: -100px;
+      right: -50px;
+    }
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(135deg, #F97316, #EF4444);
+      bottom: -80px;
+      left: -60px;
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .card {
+      background: #1E293B;
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .card-accent {
+      height: 4px;
+      background: linear-gradient(90deg, #EF4444, #F97316);
+      border-radius: 24px 24px 0 0;
+      margin: -40px -32px 32px -32px;
+    }
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    }
+    .error-x {
+      font-size: 40px;
+      line-height: 1;
+    }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 12px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
+    }
+    p {
+      color: #94A3B8;
+      margin: 0 0 20px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .error-msg {
+      color: #FCA5A5;
+      font-size: 13px;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      margin-bottom: 24px;
+      word-break: break-word;
+    }
+    .hint {
+      color: #64748B;
+      font-size: 13px;
+    }
+    .brand {
+      margin-top: 24px;
+      color: #475569;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #EF4444, #F97316);
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
+  <div class="dot-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
   <div class="container">
-    <div class="error-icon">✕</div>
-    <h1>Login Failed</h1>
-    <p>Something went wrong during sign in.</p>
-    <p class="error-msg">${error.message}</p>
-    <p style="margin-top: 24px;">Please close this window and try again.</p>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="icon-container">
+        <span class="error-x">✕</span>
+      </div>
+      <h1>Login Failed</h1>
+      <p>Something went wrong during sign in.</p>
+      <div class="error-msg">${error.message}</div>
+      <p class="hint">Please close this window and try again in the app.</p>
+    </div>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      VoiceFlow AI
+    </div>
   </div>
 </body>
 </html>

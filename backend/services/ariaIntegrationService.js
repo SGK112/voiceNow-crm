@@ -453,10 +453,13 @@ class AriaIntegrationService {
     const { limit = 5, threshold = 0.6 } = options;
 
     try {
-      const results = await ragService.searchKnowledgeBase(userId, query, {
+      const ragResponse = await ragService.searchKnowledgeBase(userId, query, {
         limit,
         threshold
       });
+
+      // Handle both array response (legacy) and object response (new format)
+      const results = Array.isArray(ragResponse) ? ragResponse : (ragResponse?.results || []);
 
       if (!results || results.length === 0) {
         return {

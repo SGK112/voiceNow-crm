@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import mongoose from 'mongoose';
 import KnowledgeBase from '../models/KnowledgeBase.js';
 
 /**
@@ -67,6 +68,14 @@ class RAGService {
     try {
       if (!this.openai) {
         throw new Error('OpenAI API key not configured');
+      }
+
+      // Validate userId is a valid ObjectId before querying
+      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return {
+          results: [],
+          message: 'Invalid or missing user ID for knowledge base search'
+        };
       }
 
       // Generate query embedding

@@ -436,15 +436,31 @@ class ShopifySyncService {
    */
   normalizeShopDomain(shop) {
     let domain = shop.toLowerCase().trim();
+
+    // Remove protocol and trailing slashes
     domain = domain.replace(/^https?:\/\//, '');
     domain = domain.replace(/\/$/, '');
 
-    if (!domain.includes('.myshopify.com')) {
-      domain = domain.replace(/\.myshopify\.com$/, '');
-      domain = `${domain}.myshopify.com`;
+    // Remove any path components
+    domain = domain.split('/')[0];
+
+    // If already has .myshopify.com, return as-is
+    if (domain.endsWith('.myshopify.com')) {
+      return domain;
     }
 
-    return domain;
+    // Remove any existing partial .myshopify suffix
+    domain = domain.replace(/\.myshopify.*$/, '');
+
+    // Remove "store." prefix if user accidentally included it
+    // (Shopify stores don't typically have "store." prefix)
+    if (domain.startsWith('store.')) {
+      console.log(`[Shopify] Removing 'store.' prefix from domain: ${domain}`);
+      domain = domain.replace(/^store\./, '');
+    }
+
+    // Add .myshopify.com suffix
+    return `${domain}.myshopify.com`;
   }
 
   /**
