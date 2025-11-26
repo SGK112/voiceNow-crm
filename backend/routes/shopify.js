@@ -7,6 +7,8 @@ import express from 'express';
 import crypto from 'crypto';
 import shopifySyncService from '../services/shopifySyncService.js';
 import { getOAuthRedirectUri } from '../utils/oauthConfig.js';
+import { protect as auth } from '../middleware/auth.js';
+import OAuthState from '../models/OAuthState.js';
 
 const router = express.Router();
 
@@ -19,7 +21,7 @@ const router = express.Router();
  * Get OAuth URL for connecting Shopify store
  * Query params: shop (required) - e.g., "mystore" or "mystore.myshopify.com"
  */
-router.get('/auth/url', (req, res) => {
+router.get('/auth/url', auth, async (req, res) => {
   try {
     const { shop } = req.query;
 
@@ -34,13 +36,18 @@ router.get('/auth/url', (req, res) => {
     // Generate state for CSRF protection
     const state = crypto.randomBytes(16).toString('hex');
 
-    // Store state in session or temporary storage
-    // For simplicity, we'll include userId in state (in production, use proper session)
-    const stateWithUser = `${state}_${req.user?._id || 'anonymous'}`;
+    // Store state in MongoDB (works across local/production servers)
+    await OAuthState.create({
+      state,
+      userId: req.user.userId || req.user._id,
+      service: 'shopify',
+      metadata: { shop: shopifySyncService.normalizeShopDomain(shop) },
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    });
 
     const redirectUri = getOAuthRedirectUri('shopify');
 
-    const url = shopifySyncService.getOAuthUrl(shop, redirectUri, stateWithUser);
+    const url = shopifySyncService.getOAuthUrl(shop, redirectUri, state);
 
     res.json({
       success: true,
@@ -166,11 +173,20 @@ router.get('/auth/callback', async (req, res) => {
       return res.status(400).send(errorHtml('Missing code or shop parameter'));
     }
 
-    // Extract userId from state
-    const stateParts = state?.split('_') || [];
-    const userId = stateParts[stateParts.length - 1];
+    // Look up state from MongoDB
+    const storedState = await OAuthState.findOneAndDelete({
+      state,
+      service: 'shopify',
+      expiresAt: { $gt: new Date() }
+    });
 
-    if (!userId || userId === 'anonymous') {
+    if (!storedState) {
+      return res.status(400).send(errorHtml('Invalid or expired state token. Please try connecting again.'));
+    }
+
+    const userId = storedState.userId;
+
+    if (!userId) {
       return res.status(400).send(errorHtml('Please log in to the app first, then try connecting Shopify again.'));
     }
 
@@ -196,12 +212,9 @@ router.get('/auth/callback', async (req, res) => {
  * GET /api/shopify/status
  * Get Shopify connection status
  */
-router.get('/status', async (req, res) => {
+router.get('/status', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const status = await shopifySyncService.getIntegrationStatus(userId);
     res.json({ success: true, ...status });
@@ -215,12 +228,9 @@ router.get('/status', async (req, res) => {
  * POST /api/shopify/disconnect
  * Disconnect Shopify store
  */
-router.post('/disconnect', async (req, res) => {
+router.post('/disconnect', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     await shopifySyncService.disconnect(userId);
     res.json({ success: true, message: 'Shopify disconnected' });
@@ -238,12 +248,9 @@ router.post('/disconnect', async (req, res) => {
  * GET /api/shopify/products
  * Get products from connected store
  */
-router.get('/products', async (req, res) => {
+router.get('/products', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const { limit, status, collection_id } = req.query;
     const result = await shopifySyncService.getProducts(userId, {
@@ -263,12 +270,9 @@ router.get('/products', async (req, res) => {
  * GET /api/shopify/products/:id
  * Get single product
  */
-router.get('/products/:id', async (req, res) => {
+router.get('/products/:id', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const result = await shopifySyncService.getProduct(userId, req.params.id);
     res.json(result);
@@ -282,12 +286,9 @@ router.get('/products/:id', async (req, res) => {
  * GET /api/shopify/products/search
  * Search products by title
  */
-router.get('/products/search', async (req, res) => {
+router.get('/products/search', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const { q } = req.query;
     if (!q) {
@@ -310,12 +311,9 @@ router.get('/products/search', async (req, res) => {
  * GET /api/shopify/orders
  * Get orders from connected store
  */
-router.get('/orders', async (req, res) => {
+router.get('/orders', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const { limit, status, financial_status, fulfillment_status } = req.query;
     const result = await shopifySyncService.getOrders(userId, {
@@ -336,12 +334,9 @@ router.get('/orders', async (req, res) => {
  * GET /api/shopify/orders/:id
  * Get single order by ID
  */
-router.get('/orders/:id', async (req, res) => {
+router.get('/orders/:id', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const result = await shopifySyncService.getOrder(userId, req.params.id);
     res.json(result);
@@ -355,12 +350,9 @@ router.get('/orders/:id', async (req, res) => {
  * GET /api/shopify/orders/lookup/:orderNumber
  * Lookup order by order number (e.g., #1001)
  */
-router.get('/orders/lookup/:orderNumber', async (req, res) => {
+router.get('/orders/lookup/:orderNumber', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const orderNumber = req.params.orderNumber.replace('#', '');
     const result = await shopifySyncService.getOrderByNumber(userId, orderNumber);
@@ -375,12 +367,9 @@ router.get('/orders/lookup/:orderNumber', async (req, res) => {
  * GET /api/shopify/orders/:id/tracking
  * Get order tracking info
  */
-router.get('/orders/:id/tracking', async (req, res) => {
+router.get('/orders/:id/tracking', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const result = await shopifySyncService.getOrderTracking(userId, req.params.id);
     res.json(result);
@@ -398,12 +387,9 @@ router.get('/orders/:id/tracking', async (req, res) => {
  * GET /api/shopify/customers
  * Get customers from connected store
  */
-router.get('/customers', async (req, res) => {
+router.get('/customers', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const { limit } = req.query;
     const result = await shopifySyncService.getCustomers(userId, {
@@ -421,12 +407,9 @@ router.get('/customers', async (req, res) => {
  * GET /api/shopify/customers/search
  * Search customers by email/phone
  */
-router.get('/customers/search', async (req, res) => {
+router.get('/customers/search', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const { q } = req.query;
     if (!q) {
@@ -445,12 +428,9 @@ router.get('/customers/search', async (req, res) => {
  * GET /api/shopify/customers/:id/orders
  * Get orders for a specific customer
  */
-router.get('/customers/:id/orders', async (req, res) => {
+router.get('/customers/:id/orders', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const result = await shopifySyncService.getCustomerOrders(userId, req.params.id);
     res.json(result);
@@ -464,12 +444,9 @@ router.get('/customers/:id/orders', async (req, res) => {
  * POST /api/shopify/sync/customers
  * Sync Shopify customers to CRM contacts
  */
-router.post('/sync/customers', async (req, res) => {
+router.post('/sync/customers', auth, async (req, res) => {
   try {
-    const userId = req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    const userId = req.user.userId || req.user._id;
 
     const result = await shopifySyncService.syncCustomersToContacts(userId);
     res.json(result);
