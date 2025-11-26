@@ -7,6 +7,7 @@ import { pushNotificationService } from '../services/pushNotificationService.js'
 import N8nService from '../services/n8nService.js';
 import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
 import shopifySyncService from '../services/shopifySyncService.js';
+import replicateMediaService from '../services/replicateMediaService.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -1392,6 +1393,171 @@ export const capabilities = {
       },
       required: ['contactId', 'tags']
     }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // AI IMAGE GENERATION & VISION (via Replicate)
+  // ═══════════════════════════════════════════════════════════════════
+
+  generate_image: {
+    name: 'generate_image',
+    description: 'Generate AI images from text descriptions using Replicate (Flux, SDXL models). Great for creating marketing materials, product visualizations, before/after mockups, social media content, and project visualizations.',
+    parameters: {
+      type: 'object',
+      properties: {
+        prompt: {
+          type: 'string',
+          description: 'Detailed description of the image to generate. Be specific about style, colors, composition, lighting, etc.'
+        },
+        model: {
+          type: 'string',
+          enum: ['flux_schnell', 'flux_dev', 'flux_pro', 'sdxl'],
+          description: 'AI model to use: flux_schnell (fast, good quality), flux_dev (better quality), flux_pro (best quality), sdxl (Stable Diffusion XL)',
+          default: 'flux_schnell'
+        },
+        aspectRatio: {
+          type: 'string',
+          enum: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+          description: 'Image aspect ratio: 1:1 (square), 16:9 (landscape), 9:16 (portrait/story), 4:3, 3:4',
+          default: '1:1'
+        },
+        style: {
+          type: 'string',
+          enum: ['photorealistic', 'artistic', 'cartoon', 'sketch', '3d_render', 'watercolor', 'oil_painting'],
+          description: 'Visual style for the generated image',
+          default: 'photorealistic'
+        },
+        numOutputs: {
+          type: 'number',
+          description: 'Number of images to generate (1-4)',
+          default: 1
+        }
+      },
+      required: ['prompt']
+    }
+  },
+
+  analyze_image: {
+    name: 'analyze_image',
+    description: 'Analyze an image using AI vision to understand its contents, extract text (OCR), identify objects, describe scenes, or answer questions about the image. Use this when users upload photos, screenshots, or documents.',
+    parameters: {
+      type: 'object',
+      properties: {
+        imageUrl: {
+          type: 'string',
+          description: 'URL of the image to analyze'
+        },
+        question: {
+          type: 'string',
+          description: 'Specific question to answer about the image, or leave blank for general description'
+        },
+        analysisType: {
+          type: 'string',
+          enum: ['general', 'ocr', 'objects', 'scene', 'document', 'product', 'construction'],
+          description: 'Type of analysis: general (describe), ocr (extract text), objects (identify items), scene (describe setting), document (analyze docs), product (identify products), construction (analyze job site/progress)',
+          default: 'general'
+        }
+      },
+      required: ['imageUrl']
+    }
+  },
+
+  save_image_to_project: {
+    name: 'save_image_to_project',
+    description: 'Save an image to a CRM project or contact for organization and project management. Useful for storing before/after photos, job site images, receipts, documents, and progress photos.',
+    parameters: {
+      type: 'object',
+      properties: {
+        imageUrl: {
+          type: 'string',
+          description: 'URL of the image to save'
+        },
+        projectId: {
+          type: 'string',
+          description: 'ID of the project/deal to attach the image to (optional)'
+        },
+        contactId: {
+          type: 'string',
+          description: 'ID of the contact to attach the image to (optional)'
+        },
+        category: {
+          type: 'string',
+          enum: ['before', 'after', 'progress', 'receipt', 'document', 'product', 'site_photo', 'marketing', 'other'],
+          description: 'Category for organizing the image',
+          default: 'other'
+        },
+        description: {
+          type: 'string',
+          description: 'Description or notes about the image'
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Tags for searchability (e.g., ["kitchen", "remodel", "day-1"])'
+        }
+      },
+      required: ['imageUrl']
+    }
+  },
+
+  get_project_images: {
+    name: 'get_project_images',
+    description: 'Get all images associated with a project or contact',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: 'ID of the project to get images for'
+        },
+        contactId: {
+          type: 'string',
+          description: 'ID of the contact to get images for'
+        },
+        category: {
+          type: 'string',
+          enum: ['all', 'before', 'after', 'progress', 'receipt', 'document', 'product', 'site_photo', 'marketing', 'other'],
+          description: 'Filter by image category',
+          default: 'all'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of images to return',
+          default: 20
+        }
+      }
+    }
+  },
+
+  // Enhanced web scraping with intelligent extraction
+  scrape_webpage: {
+    name: 'scrape_webpage',
+    description: 'Scrape and intelligently extract structured data from a webpage. Better than fetch_url for extracting specific information like prices, contact info, product details, or lists.',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'URL of the webpage to scrape'
+        },
+        extractionType: {
+          type: 'string',
+          enum: ['full_text', 'contact_info', 'prices', 'products', 'links', 'tables', 'article', 'custom'],
+          description: 'What type of data to extract',
+          default: 'full_text'
+        },
+        customSelector: {
+          type: 'string',
+          description: 'For custom extraction, provide a CSS selector or description of what to extract'
+        },
+        summarize: {
+          type: 'boolean',
+          description: 'Whether to provide an AI summary of the extracted content',
+          default: true
+        }
+      },
+      required: ['url']
+    }
   }
 };
 
@@ -1403,6 +1569,8 @@ export function getCapabilityDefinitions() {
 // Initialize n8n service singleton
 const n8nService = new N8nService();
 
+// Replicate media service singleton (imported above)
+
 // Capability implementations
 export class AriaCapabilities {
   constructor(services = {}) {
@@ -1411,6 +1579,7 @@ export class AriaCapabilities {
     this.memoryStore = services.memoryStore || new Map();
     this.models = services.models; // Database models
     this.n8nService = n8nService;
+    this.replicateService = replicateMediaService;
   }
 
   // Web scraping
@@ -3566,6 +3735,24 @@ END:VCALENDAR`;
       case 'get_order_tracking':
         return await this.getOrderTracking(args.orderId);
 
+      // ═══════════════════════════════════════════════════════════════
+      // AI Image Generation & Vision (via Replicate)
+      // ═══════════════════════════════════════════════════════════════
+      case 'generate_image':
+        return await this.generateImage(args.prompt, args.model, args.aspectRatio, args.style, args.numOutputs);
+
+      case 'analyze_image':
+        return await this.analyzeImage(args.imageUrl, args.question, args.analysisType);
+
+      case 'save_image_to_project':
+        return await this.saveImageToProject(args.imageUrl, args.projectId, args.contactId, args.category, args.description, args.tags);
+
+      case 'get_project_images':
+        return await this.getProjectImages(args.projectId, args.contactId, args.category, args.limit);
+
+      case 'scrape_webpage':
+        return await this.scrapeWebpage(args.url, args.extractionType, args.customSelector, args.summarize);
+
       default:
         return {
           success: false,
@@ -3929,6 +4116,372 @@ END:VCALENDAR`;
     } catch (error) {
       console.error('❌ [SHOPIFY] Error getting tracking:', error.message);
       return { success: false, error: error.message };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // AI IMAGE GENERATION & VISION (via Replicate)
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Generate AI images from text prompts using Replicate
+   */
+  async generateImage(prompt, model = 'flux_schnell', aspectRatio = '1:1', style = 'photorealistic', numOutputs = 1) {
+    try {
+      console.log(`🎨 [IMAGE GEN] Generating image: "${prompt}" with ${model}`);
+
+      // Enhance prompt with style if provided
+      let enhancedPrompt = prompt;
+      if (style && style !== 'photorealistic') {
+        const styleEnhancements = {
+          artistic: 'artistic style, painterly,',
+          cartoon: 'cartoon style, animated,',
+          sketch: 'pencil sketch style, hand-drawn,',
+          '3d_render': '3D render, CGI, detailed,',
+          watercolor: 'watercolor painting style,',
+          oil_painting: 'oil painting style, classic art,'
+        };
+        if (styleEnhancements[style]) {
+          enhancedPrompt = `${styleEnhancements[style]} ${prompt}`;
+        }
+      }
+
+      const result = await this.replicateService.generateImage('default', {
+        prompt: enhancedPrompt,
+        model,
+        aspectRatio,
+        numOutputs: Math.min(numOutputs, 4),
+        style
+      });
+
+      if (result.success) {
+        console.log(`✅ [IMAGE GEN] Generated ${result.images.length} image(s)`);
+        return {
+          success: true,
+          images: result.images,
+          model: result.model,
+          creditsUsed: result.creditsUsed,
+          summary: `Generated ${result.images.length} image(s) with ${model}. View: ${result.images[0]}`
+        };
+      }
+
+      return { success: false, error: 'Image generation failed', summary: 'Failed to generate image' };
+    } catch (error) {
+      console.error('❌ [IMAGE GEN] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to generate image: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Analyze an image using AI vision (GPT-4 Vision)
+   */
+  async analyzeImage(imageUrl, question = null, analysisType = 'general') {
+    try {
+      console.log(`👁️ [IMAGE ANALYSIS] Analyzing image: ${imageUrl}`);
+
+      // Build the analysis prompt based on type
+      let systemPrompt = 'You are an AI assistant that analyzes images.';
+      let userPrompt = question || 'Describe what you see in this image.';
+
+      switch (analysisType) {
+        case 'ocr':
+          systemPrompt = 'You are an OCR specialist. Extract and return all text visible in the image.';
+          userPrompt = question || 'Extract all text from this image. Return the text exactly as it appears.';
+          break;
+        case 'objects':
+          systemPrompt = 'You are an object detection specialist.';
+          userPrompt = question || 'List all objects and items you can identify in this image.';
+          break;
+        case 'scene':
+          systemPrompt = 'You are a scene analysis specialist.';
+          userPrompt = question || 'Describe the scene, setting, and environment in this image.';
+          break;
+        case 'document':
+          systemPrompt = 'You are a document analysis specialist.';
+          userPrompt = question || 'Analyze this document. Extract key information, summarize content, and identify the document type.';
+          break;
+        case 'product':
+          systemPrompt = 'You are a product identification specialist.';
+          userPrompt = question || 'Identify any products in this image. Include brand, model, specifications if visible.';
+          break;
+        case 'construction':
+          systemPrompt = 'You are a construction and renovation specialist.';
+          userPrompt = question || 'Analyze this construction/renovation image. Describe the work being done, progress status, and any notable observations.';
+          break;
+      }
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: userPrompt },
+              { type: 'image_url', image_url: { url: imageUrl } }
+            ]
+          }
+        ],
+        max_tokens: 1000
+      });
+
+      const analysis = response.choices[0]?.message?.content || 'Unable to analyze image';
+
+      console.log(`✅ [IMAGE ANALYSIS] Analysis complete`);
+      return {
+        success: true,
+        analysis,
+        analysisType,
+        imageUrl,
+        summary: analysis.substring(0, 200) + (analysis.length > 200 ? '...' : '')
+      };
+    } catch (error) {
+      console.error('❌ [IMAGE ANALYSIS] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to analyze image: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Save an image to a project or contact in the CRM
+   */
+  async saveImageToProject(imageUrl, projectId = null, contactId = null, category = 'other', description = '', tags = []) {
+    try {
+      console.log(`📁 [IMAGE SAVE] Saving image to project/contact`);
+
+      // Import MediaAsset model
+      const MediaAsset = (await import('../models/MediaAsset.js')).default;
+
+      const mediaAsset = new MediaAsset({
+        userId: 'default',
+        type: 'image',
+        url: imageUrl,
+        category,
+        description,
+        tags: tags || [],
+        projectId: projectId || undefined,
+        contactId: contactId || undefined,
+        source: 'aria_capability',
+        metadata: {
+          savedAt: new Date(),
+          savedBy: 'Aria'
+        }
+      });
+
+      await mediaAsset.save();
+
+      console.log(`✅ [IMAGE SAVE] Saved image as asset ${mediaAsset._id}`);
+      return {
+        success: true,
+        assetId: mediaAsset._id,
+        category,
+        summary: `Image saved to ${projectId ? 'project' : contactId ? 'contact' : 'library'} with category: ${category}`
+      };
+    } catch (error) {
+      console.error('❌ [IMAGE SAVE] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to save image: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Get images associated with a project or contact
+   */
+  async getProjectImages(projectId = null, contactId = null, category = 'all', limit = 20) {
+    try {
+      console.log(`📸 [IMAGE GET] Getting images for project/contact`);
+
+      const MediaAsset = (await import('../models/MediaAsset.js')).default;
+
+      const query = { type: 'image' };
+      if (projectId) query.projectId = projectId;
+      if (contactId) query.contactId = contactId;
+      if (category && category !== 'all') query.category = category;
+
+      const images = await MediaAsset.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      console.log(`✅ [IMAGE GET] Found ${images.length} images`);
+      return {
+        success: true,
+        images,
+        count: images.length,
+        summary: `Found ${images.length} image(s)${category !== 'all' ? ` in category: ${category}` : ''}`
+      };
+    } catch (error) {
+      console.error('❌ [IMAGE GET] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to get images: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Enhanced web scraping with intelligent data extraction
+   */
+  async scrapeWebpage(url, extractionType = 'full_text', customSelector = null, summarize = true) {
+    try {
+      console.log(`🕷️ [SCRAPE] Scraping ${url} for ${extractionType}`);
+
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; AriaBot/1.0; +https://remodely.ai)'
+        },
+        timeout: 15000,
+        maxContentLength: 5 * 1024 * 1024 // 5MB max
+      });
+
+      const $ = cheerio.load(response.data);
+
+      // Remove unwanted elements
+      $('script, style, noscript, iframe, nav, footer, header, .ad, .ads, .advertisement').remove();
+
+      let extractedData = {};
+
+      switch (extractionType) {
+        case 'contact_info':
+          extractedData = {
+            emails: [],
+            phones: [],
+            addresses: []
+          };
+          // Extract emails
+          const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+          const bodyText = $('body').text();
+          const emails = bodyText.match(emailRegex);
+          if (emails) extractedData.emails = [...new Set(emails)];
+          // Extract phones
+          const phoneRegex = /(\+?1?[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g;
+          const phones = bodyText.match(phoneRegex);
+          if (phones) extractedData.phones = [...new Set(phones)].slice(0, 5);
+          break;
+
+        case 'prices':
+          extractedData = { prices: [] };
+          const priceRegex = /\$[\d,]+\.?\d*/g;
+          const priceText = $('body').text();
+          const prices = priceText.match(priceRegex);
+          if (prices) extractedData.prices = [...new Set(prices)].slice(0, 20);
+          break;
+
+        case 'products':
+          extractedData = { products: [] };
+          $('[class*="product"], [class*="item"], [data-product], article').each((i, el) => {
+            if (i >= 10) return;
+            const title = $(el).find('h1, h2, h3, h4, [class*="title"], [class*="name"]').first().text().trim();
+            const price = $(el).find('[class*="price"]').first().text().trim();
+            if (title) {
+              extractedData.products.push({ title, price: price || 'N/A' });
+            }
+          });
+          break;
+
+        case 'links':
+          extractedData = { links: [] };
+          $('a[href]').each((i, el) => {
+            if (i >= 30) return;
+            const href = $(el).attr('href');
+            const text = $(el).text().trim();
+            if (href && text && !href.startsWith('#') && !href.startsWith('javascript:')) {
+              extractedData.links.push({ text: text.substring(0, 100), href });
+            }
+          });
+          break;
+
+        case 'tables':
+          extractedData = { tables: [] };
+          $('table').each((i, table) => {
+            if (i >= 5) return;
+            const rows = [];
+            $(table).find('tr').each((j, row) => {
+              if (j >= 20) return;
+              const cells = [];
+              $(row).find('td, th').each((k, cell) => {
+                cells.push($(cell).text().trim());
+              });
+              if (cells.length) rows.push(cells);
+            });
+            if (rows.length) extractedData.tables.push(rows);
+          });
+          break;
+
+        case 'article':
+          const articleEl = $('article, [class*="article"], [class*="content"], main').first();
+          extractedData = {
+            title: $('h1').first().text().trim() || $('title').text().trim(),
+            content: (articleEl.length ? articleEl.text() : $('body').text())
+              .replace(/\s+/g, ' ')
+              .trim()
+              .substring(0, 5000)
+          };
+          break;
+
+        case 'custom':
+          if (customSelector) {
+            extractedData = { results: [] };
+            $(customSelector).each((i, el) => {
+              if (i >= 20) return;
+              extractedData.results.push($(el).text().trim());
+            });
+          }
+          break;
+
+        case 'full_text':
+        default:
+          extractedData = {
+            title: $('title').text().trim(),
+            content: $('body').text().replace(/\s+/g, ' ').trim().substring(0, 5000)
+          };
+      }
+
+      // Optional AI summary
+      let aiSummary = null;
+      if (summarize && extractedData.content) {
+        try {
+          const summaryResponse = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: 'Summarize the following web content in 2-3 sentences.' },
+              { role: 'user', content: extractedData.content.substring(0, 3000) }
+            ],
+            max_tokens: 200
+          });
+          aiSummary = summaryResponse.choices[0]?.message?.content;
+        } catch (e) {
+          console.log('Summary generation skipped:', e.message);
+        }
+      }
+
+      console.log(`✅ [SCRAPE] Extraction complete`);
+      return {
+        success: true,
+        url,
+        extractionType,
+        data: extractedData,
+        aiSummary,
+        summary: aiSummary || `Extracted ${extractionType} data from ${url}`
+      };
+    } catch (error) {
+      console.error('❌ [SCRAPE] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to scrape webpage: ${error.message}`
+      };
     }
   }
 }

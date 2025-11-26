@@ -1146,6 +1146,153 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// @desc    Get daily summary for push notifications
+// @route   GET /api/mobile/daily-summary
+// @access  Private
+router.get('/daily-summary', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    // Get yesterday's date range
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get stats for yesterday
+    const yesterdayFilter = {
+      createdAt: { $gte: yesterday, $lt: today }
+    };
+
+    // If we have userId, filter by it
+    const userFilter = userId ? { user: userId, ...yesterdayFilter } : yesterdayFilter;
+
+    const callsHandled = await Lead.countDocuments({ ...userFilter, source: 'call' });
+    const smsHandled = await Lead.countDocuments({ ...userFilter, source: 'sms' });
+    const leadsCapured = await Lead.countDocuments({ ...userFilter, status: 'new' });
+    const appointmentsBooked = await Appointment.countDocuments({
+      userId,
+      createdAt: { $gte: yesterday, $lt: today }
+    });
+
+    // Calculate estimated time saved (minutes)
+    // Call handling: 5 min per call (answering + logging)
+    // SMS replies: 2 min per message
+    // Lead capture: 3 min per lead (data entry)
+    const timeSavedMinutes = (callsHandled * 5) + (smsHandled * 2) + (leadsCapured * 3);
+
+    // Get hot leads (new leads from yesterday that need follow-up)
+    const hotLeads = await Lead.find({
+      ...userFilter,
+      status: { $in: ['new', 'contacted'] }
+    })
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .select('name phone source status');
+
+    // Format the summary message
+    let summaryMessage = '';
+    const parts = [];
+
+    if (callsHandled > 0) parts.push(`${callsHandled} call${callsHandled > 1 ? 's' : ''} handled`);
+    if (leadsCapured > 0) parts.push(`${leadsCapured} lead${leadsCapured > 1 ? 's' : ''} captured`);
+    if (appointmentsBooked > 0) parts.push(`${appointmentsBooked} appointment${appointmentsBooked > 1 ? 's' : ''} booked`);
+    if (smsHandled > 0) parts.push(`${smsHandled} message${smsHandled > 1 ? 's' : ''} auto-replied`);
+
+    if (parts.length > 0) {
+      summaryMessage = `Yesterday: ${parts.join(', ')}.`;
+    } else {
+      summaryMessage = 'No activity yesterday. Your AI is ready to help!';
+    }
+
+    // Add hot lead teaser if available
+    let hotLeadTeaser = null;
+    if (hotLeads.length > 0) {
+      const lead = hotLeads[0];
+      hotLeadTeaser = `Hot lead: ${lead.name} - follow up today!`;
+    }
+
+    res.json({
+      success: true,
+      summary: {
+        date: yesterday.toISOString().split('T')[0],
+        callsHandled,
+        smsHandled,
+        leadsCapured,
+        appointmentsBooked,
+        timeSavedMinutes,
+        message: summaryMessage,
+        hotLeadTeaser,
+        hotLeads: hotLeads.map(l => ({
+          name: l.name,
+          phone: l.phone,
+          source: l.source,
+          status: l.status
+        })),
+        greeting: `Good morning${user?.company ? ', ' + user.company : ''}!`
+      }
+    });
+  } catch (error) {
+    console.error('Get daily summary error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+});
+
+// @desc    Get AI time saved stats
+// @route   GET /api/mobile/time-saved
+// @access  Private
+router.get('/time-saved', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { period = 'today' } = req.query;
+
+    let startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+
+    if (period === 'week') {
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (period === 'month') {
+      startDate.setMonth(startDate.getMonth() - 1);
+    }
+
+    const dateFilter = { createdAt: { $gte: startDate } };
+    const userFilter = userId ? { user: userId, ...dateFilter } : dateFilter;
+
+    const callsHandled = await Lead.countDocuments({ ...userFilter, source: 'call' });
+    const smsHandled = await Lead.countDocuments({ ...userFilter, source: 'sms' });
+    const leadsCapured = await Lead.countDocuments(userFilter);
+
+    // Time estimates per action (in minutes)
+    const callMinutes = callsHandled * 5;  // 5 min per call
+    const smsMinutes = smsHandled * 2;     // 2 min per SMS
+    const leadMinutes = leadsCapured * 3;  // 3 min per lead entry
+
+    const totalMinutes = callMinutes + smsMinutes + leadMinutes;
+
+    res.json({
+      success: true,
+      timeSaved: {
+        period,
+        totalMinutes,
+        breakdown: [
+          { label: 'Calls handled', count: callsHandled, minutes: callMinutes },
+          { label: 'SMS auto-replies', count: smsHandled, minutes: smsMinutes },
+          { label: 'Leads captured', count: leadsCapured, minutes: leadMinutes }
+        ],
+        formatted: totalMinutes >= 60
+          ? `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`
+          : `${totalMinutes} minutes`
+      }
+    });
+  } catch (error) {
+    console.error('Get time saved error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+});
+
 // @desc    Get recent CRM activity
 // @route   GET /api/mobile/recent-activity
 // @access  Public (for testing)
@@ -1505,6 +1652,8 @@ router.post('/contacts/import', auth, async (req, res) => {
     const userId = req.user.id;
     const { contacts } = req.body;
 
+    console.log(`📥 Contact import request: ${contacts?.length || 0} contacts from user ${userId}`);
+
     if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
       return res.status(400).json({
         success: false,
@@ -1516,6 +1665,8 @@ router.post('/contacts/import', auth, async (req, res) => {
     const results = {
       imported: 0,
       skipped: 0,
+      duplicates: 0,
+      invalid: 0,
       errors: []
     };
 
@@ -1524,18 +1675,27 @@ router.post('/contacts/import', auth, async (req, res) => {
       try {
         // Skip if missing required fields
         if (!contactData.name || !contactData.phone) {
+          results.invalid++;
           results.skipped++;
           continue;
         }
 
-        // Check if contact already exists
+        // Normalize phone number for comparison (strip non-digits)
+        const normalizedPhone = contactData.phone.replace(/\D/g, '');
+
+        // Check if contact already exists (check both original and normalized phone)
         const existing = await Contact.findOne({
           user: userId,
-          phone: contactData.phone,
+          $or: [
+            { phone: contactData.phone },
+            { phone: normalizedPhone },
+            { phone: { $regex: normalizedPhone.slice(-10) + '$' } }
+          ],
           isDeleted: false
         });
 
         if (existing) {
+          results.duplicates++;
           results.skipped++;
           continue;
         }
@@ -1561,12 +1721,20 @@ router.post('/contacts/import', auth, async (req, res) => {
       }
     }
 
+    console.log(`📥 Import results: ${results.imported} imported, ${results.duplicates} duplicates, ${results.invalid} invalid`);
+
     res.json({
       success: true,
       imported: results.imported,
       skipped: results.skipped,
+      duplicates: results.duplicates,
+      invalid: results.invalid,
       errors: results.errors,
-      message: `Successfully imported ${results.imported} contact(s). ${results.skipped} skipped (duplicates or invalid).`
+      message: results.imported > 0
+        ? `Successfully imported ${results.imported} contact(s).${results.duplicates > 0 ? ` ${results.duplicates} already existed.` : ''}`
+        : results.duplicates > 0
+          ? `All ${results.duplicates} contacts already exist in your CRM.`
+          : `No valid contacts to import. ${results.invalid} had missing name or phone.`
     });
   } catch (error) {
     console.error('Import contacts error:', error);
@@ -2254,6 +2422,197 @@ router.post('/google/sync/all', auth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to complete sync'
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// ARIA SETTINGS ROUTES
+// ═══════════════════════════════════════════════════════════════════
+
+// @desc    Get Aria automation settings
+// @route   GET /api/mobile/aria/settings
+// @access  Private
+router.get('/aria/settings', auth, async (req, res) => {
+  try {
+    let profile = await UserProfile.findOne({ user: req.user.id });
+
+    if (!profile) {
+      // Create default profile with Aria settings
+      profile = await UserProfile.create({
+        user: req.user.id,
+        userId: req.user.id,
+        ariaSettings: {
+          autoRespondSMS: true,
+          autoRespondEmail: false,
+          autoCallbackMissed: false,
+          notifyMissedCalls: true,
+          autoFollowUpLeads: true,
+          workflowOptimization: true,
+          dailySummary: true,
+          businessHoursOnly: true,
+          businessHoursStart: 8,
+          businessHoursEnd: 18
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      settings: profile.ariaSettings || {
+        autoRespondSMS: true,
+        autoRespondEmail: false,
+        autoCallbackMissed: false,
+        notifyMissedCalls: true,
+        autoFollowUpLeads: true,
+        workflowOptimization: true,
+        dailySummary: true,
+        businessHoursOnly: true,
+        businessHoursStart: 8,
+        businessHoursEnd: 18
+      }
+    });
+  } catch (error) {
+    console.error('Get Aria settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to get Aria settings'
+    });
+  }
+});
+
+// @desc    Update Aria automation settings
+// @route   PUT /api/mobile/aria/settings
+// @access  Private
+router.put('/aria/settings', auth, async (req, res) => {
+  try {
+    const {
+      autoRespondSMS,
+      autoRespondEmail,
+      autoCallbackMissed,
+      notifyMissedCalls,
+      autoFollowUpLeads,
+      workflowOptimization,
+      dailySummary,
+      businessHoursOnly,
+      businessHoursStart,
+      businessHoursEnd
+    } = req.body;
+
+    const updateFields = {};
+    if (autoRespondSMS !== undefined) updateFields['ariaSettings.autoRespondSMS'] = autoRespondSMS;
+    if (autoRespondEmail !== undefined) updateFields['ariaSettings.autoRespondEmail'] = autoRespondEmail;
+    if (autoCallbackMissed !== undefined) updateFields['ariaSettings.autoCallbackMissed'] = autoCallbackMissed;
+    if (notifyMissedCalls !== undefined) updateFields['ariaSettings.notifyMissedCalls'] = notifyMissedCalls;
+    if (autoFollowUpLeads !== undefined) updateFields['ariaSettings.autoFollowUpLeads'] = autoFollowUpLeads;
+    if (workflowOptimization !== undefined) updateFields['ariaSettings.workflowOptimization'] = workflowOptimization;
+    if (dailySummary !== undefined) updateFields['ariaSettings.dailySummary'] = dailySummary;
+    if (businessHoursOnly !== undefined) updateFields['ariaSettings.businessHoursOnly'] = businessHoursOnly;
+    if (businessHoursStart !== undefined) updateFields['ariaSettings.businessHoursStart'] = businessHoursStart;
+    if (businessHoursEnd !== undefined) updateFields['ariaSettings.businessHoursEnd'] = businessHoursEnd;
+
+    const profile = await UserProfile.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: updateFields },
+      { new: true, upsert: true }
+    );
+
+    console.log(`📱 Aria settings updated for user ${req.user.id}:`, updateFields);
+
+    res.json({
+      success: true,
+      settings: profile.ariaSettings,
+      message: 'Aria settings updated successfully'
+    });
+  } catch (error) {
+    console.error('Update Aria settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update Aria settings'
+    });
+  }
+});
+
+// @desc    Get Aria background service status
+// @route   GET /api/mobile/aria/status
+// @access  Private
+router.get('/aria/status', auth, async (req, res) => {
+  try {
+    const ariaBackgroundService = (await import('../services/ariaBackgroundService.js')).default;
+
+    const profile = await UserProfile.findOne({ user: req.user.id });
+
+    // Get recent activity stats
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const stats = {
+      smsAutoResponded: await AgentSMS.countDocuments({
+        userId: req.user.id,
+        'metadata.type': 'aria_ai_response',
+        createdAt: { $gte: oneDayAgo }
+      }),
+      callbacksInitiated: await CallLog.countDocuments({
+        userId: req.user.id,
+        'metadata.type': 'aria_callback',
+        createdAt: { $gte: oneDayAgo }
+      }),
+      followUpsSent: await Lead.countDocuments({
+        userId: req.user.id,
+        'metadata.ariaFollowupAt': { $gte: oneDayAgo }
+      })
+    };
+
+    res.json({
+      success: true,
+      isRunning: ariaBackgroundService.isRunning,
+      settings: profile?.ariaSettings || {},
+      last24Hours: stats
+    });
+  } catch (error) {
+    console.error('Get Aria status error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to get Aria status'
+    });
+  }
+});
+
+// @desc    Manually trigger Aria callback to a phone number
+// @route   POST /api/mobile/aria/callback
+// @access  Private
+router.post('/aria/callback', auth, async (req, res) => {
+  try {
+    const { phoneNumber, contactName, reason } = req.body;
+
+    if (!phoneNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is required'
+      });
+    }
+
+    const ariaBackgroundService = (await import('../services/ariaBackgroundService.js')).default;
+
+    // Create a mock call log for the callback
+    const callLog = {
+      userId: req.user.id,
+      phoneNumber,
+      callerName: contactName || 'Manual Callback',
+      createdAt: new Date(),
+      metadata: { reason: reason || 'manual_request' }
+    };
+
+    await ariaBackgroundService.initiateCallback(callLog);
+
+    res.json({
+      success: true,
+      message: `Callback initiated to ${phoneNumber}`,
+      phoneNumber
+    });
+  } catch (error) {
+    console.error('Manual callback error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to initiate callback'
     });
   }
 });

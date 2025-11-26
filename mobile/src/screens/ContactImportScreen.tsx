@@ -152,11 +152,27 @@ export default function ContactImportScreen({ navigation }: any) {
         // Clear cache to force refresh
         await AsyncStorage.removeItem('contacts');
 
+        const { imported, duplicates, skipped, message } = response.data;
+
+        // Build a helpful message based on what happened
+        let alertMessage = message;
+        let alertTitle = 'Import Complete';
+
+        if (imported > 0) {
+          alertTitle = 'Success';
+          alertMessage = `Successfully imported ${imported} contact${imported !== 1 ? 's' : ''}.`;
+          if (duplicates > 0) {
+            alertMessage += ` ${duplicates} already existed.`;
+          }
+        } else if (duplicates > 0) {
+          alertMessage = `All ${duplicates} contacts already exist in your CRM. No new contacts were added.`;
+        } else {
+          alertMessage = message || 'No contacts were imported.';
+        }
+
         Alert.alert(
-          'Success',
-          `Successfully imported ${response.data.imported} contact${
-            response.data.imported > 1 ? 's' : ''
-          }`,
+          alertTitle,
+          alertMessage,
           [
             {
               text: 'OK',
