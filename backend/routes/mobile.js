@@ -6,6 +6,7 @@ import Contact from '../models/Contact.js';
 import Usage from '../models/Usage.js';
 import Appointment from '../models/Appointment.js';
 import UserIntegration from '../models/UserIntegration.js';
+import OAuthState from '../models/OAuthState.js';
 import googleSyncService from '../services/googleSyncService.js';
 import crypto from 'crypto';
 import { getOAuthRedirectUri } from '../utils/oauthConfig.js';
@@ -16,13 +17,10 @@ const router = express.Router();
 // MOBILE GOOGLE OAUTH ENDPOINTS
 // ============================================
 
-// Store pending OAuth states (in production use Redis)
-const pendingOAuthStates = new Map();
-
 // @desc    Get Google OAuth URL for mobile
 // @route   GET /api/mobile/auth/google/url
 // @access  Public
-router.get('/auth/google/url', (req, res) => {
+router.get('/auth/google/url', async (req, res) => {
   try {
     // Generate unique state for security
     const state = crypto.randomBytes(32).toString('hex');
@@ -31,19 +29,13 @@ router.get('/auth/google/url', (req, res) => {
     // Check if extended scopes are requested (for Gmail, Calendar, Contacts sync)
     const extended = req.query.extended === 'true';
 
-    // Store state with expiration (5 minutes)
-    pendingOAuthStates.set(state, {
-      created: Date.now(),
-      expires: Date.now() + 5 * 60 * 1000,
-      extended // Track if extended scopes were requested
+    // Store state in MongoDB with 5-minute expiration
+    await OAuthState.create({
+      state,
+      status: 'pending',
+      extended,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
     });
-
-    // Clean up expired states
-    for (const [key, value] of pendingOAuthStates.entries()) {
-      if (Date.now() > value.expires) {
-        pendingOAuthStates.delete(key);
-      }
-    }
 
     // Basic scopes for auth
     const basicScopes = 'openid email profile';
@@ -150,18 +142,16 @@ router.get('/auth/google/callback', async (req, res) => {
       return showError('Missing authorization code or state parameter');
     }
 
-    // Verify state
-    const pendingState = pendingOAuthStates.get(state);
+    // Verify state from MongoDB
+    const pendingState = await OAuthState.findOne({ state });
     if (!pendingState) {
       return showError('Invalid or expired session. Please try signing in again.');
     }
 
-    if (Date.now() > pendingState.expires) {
-      pendingOAuthStates.delete(state);
+    if (new Date() > pendingState.expiresAt) {
+      await OAuthState.deleteOne({ state });
       return showError('Session expired. Please try signing in again.');
     }
-
-    pendingOAuthStates.delete(state);
 
     // Exchange code for tokens - must match the URI used in the auth URL
     const redirectUri = getOAuthRedirectUri('google-mobile');
@@ -306,12 +296,14 @@ router.get('/auth/google/callback', async (req, res) => {
 
     console.log('✅ Mobile OAuth successful for:', email);
 
-    // Store the completed OAuth result for polling
-    pendingOAuthStates.set(state, {
-      ...pendingState,
-      completed: true,
-      result: { token, user: userDataObj }
-    });
+    // Store the completed OAuth result in MongoDB for polling
+    await OAuthState.findOneAndUpdate(
+      { state },
+      {
+        status: 'completed',
+        result: { token, user: userDataObj }
+      }
+    );
 
     // Build deep link URLs for different scenarios
     const userData = encodeURIComponent(JSON.stringify(userDataObj));
@@ -465,21 +457,27 @@ router.get('/auth/google/callback', async (req, res) => {
 router.get('/auth/google/complete/:state', async (req, res) => {
   try {
     const { state } = req.params;
-    const pendingState = pendingOAuthStates.get(state);
+    const pendingState = await OAuthState.findOne({ state });
 
     if (!pendingState) {
       return res.json({ success: false, status: 'not_found' });
     }
 
-    if (pendingState.completed) {
-      // OAuth completed, return the result
-      const result = { ...pendingState.result };
-      pendingOAuthStates.delete(state);
-      return res.json({ success: true, status: 'completed', ...result });
+    if (pendingState.status === 'completed') {
+      // OAuth completed, return the result and delete the state
+      const result = pendingState.result;
+      await OAuthState.deleteOne({ state });
+      return res.json({ success: true, status: 'completed', token: result.token, user: result.user });
     }
 
-    if (Date.now() > pendingState.expires) {
-      pendingOAuthStates.delete(state);
+    if (pendingState.status === 'error') {
+      const error = pendingState.result?.error || 'Unknown error';
+      await OAuthState.deleteOne({ state });
+      return res.json({ success: false, status: 'error', error });
+    }
+
+    if (new Date() > pendingState.expiresAt) {
+      await OAuthState.deleteOne({ state });
       return res.json({ success: false, status: 'expired' });
     }
 
