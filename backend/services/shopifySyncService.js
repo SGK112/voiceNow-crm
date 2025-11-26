@@ -459,6 +459,11 @@ class ShopifySyncService {
       domain = domain.replace(/^store\./, '');
     }
 
+    // Remove common TLD suffixes that users might accidentally include
+    // e.g., "surprise-granite.com" should become "surprise-granite"
+    // But preserve hyphenated names like "my-store-name"
+    domain = domain.replace(/\.(com|net|org|co|io|shop|store)$/i, '');
+
     // Add .myshopify.com suffix
     return `${domain}.myshopify.com`;
   }
