@@ -6,9 +6,7 @@ import qbService from '../services/quickbooksService.js';
 import crypto from 'crypto';
 import Invoice from '../models/Invoice.js';
 import Lead from '../models/Lead.js';
-
-// Store state tokens temporarily (in production, use Redis)
-const stateStore = new Map();
+import OAuthState from '../models/OAuthState.js';
 
 // Step 1: Initiate OAuth flow
 router.get('/connect', auth, async (req, res) => {
@@ -16,14 +14,13 @@ router.get('/connect', auth, async (req, res) => {
     // Generate random state token for CSRF protection
     const state = crypto.randomBytes(32).toString('hex');
 
-    // Store state with user ID (expires in 10 minutes)
-    stateStore.set(state, {
+    // Store state in MongoDB (works across local/production)
+    await OAuthState.create({
+      state,
       userId: req.user.userId,
-      createdAt: Date.now()
+      service: 'quickbooks',
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
     });
-
-    // Clean up expired states
-    setTimeout(() => stateStore.delete(state), 10 * 60 * 1000);
 
     // Get authorization URL
     const authUrl = qbService.getAuthorizationUrl(state);
@@ -37,30 +34,142 @@ router.get('/connect', auth, async (req, res) => {
 
 // Step 2: Handle OAuth callback
 router.get('/callback', async (req, res) => {
+  // HTML success page for mobile browsers
+  const successHtml = (companyName) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>QuickBooks Connected</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background: linear-gradient(135deg, #2CA01C 0%, #0077C5 100%);
+          color: white;
+        }
+        .container {
+          text-align: center;
+          padding: 40px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+          max-width: 400px;
+          margin: 20px;
+        }
+        .success-icon { font-size: 64px; margin-bottom: 20px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        p { margin: 10px 0; opacity: 0.9; }
+        .company-name { font-weight: bold; color: #90EE90; }
+        .instruction {
+          margin-top: 30px;
+          padding: 15px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>QuickBooks Connected!</h1>
+        <p>Your QuickBooks account${companyName ? ` <span class="company-name">${companyName}</span>` : ''} is now connected.</p>
+        <div class="instruction">
+          You can close this window and return to the VoiceFlow AI app.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // HTML error page
+  const errorHtml = (message) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Connection Failed</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+        }
+        .container {
+          text-align: center;
+          padding: 40px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+          max-width: 400px;
+          margin: 20px;
+        }
+        .error-icon { font-size: 64px; margin-bottom: 20px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        p { margin: 10px 0; opacity: 0.9; }
+        .error-msg { font-size: 12px; opacity: 0.7; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="error-icon">✕</div>
+        <h1>Connection Failed</h1>
+        <p>We couldn't connect your QuickBooks account.</p>
+        <p class="error-msg">${message}</p>
+        <p>Please close this window and try again.</p>
+      </div>
+    </body>
+    </html>
+  `;
+
   try {
     const { code, state, realmId, error } = req.query;
 
     // Handle user cancellation
     if (error) {
-      return res.redirect(`${process.env.FRONTEND_URL}/app/extensions?qb_error=${error}`);
+      return res.status(400).send(errorHtml(`User cancelled: ${error}`));
     }
 
-    // Verify state token
-    const storedState = stateStore.get(state);
+    // Verify state token from MongoDB
+    const storedState = await OAuthState.findOneAndDelete({
+      state,
+      service: 'quickbooks',
+      expiresAt: { $gt: new Date() }
+    });
+
     if (!storedState) {
-      return res.redirect(`${process.env.FRONTEND_URL}/app/extensions?qb_error=invalid_state`);
+      return res.status(400).send(errorHtml('Invalid or expired state token. Please try connecting again.'));
     }
 
     const userId = storedState.userId;
-    stateStore.delete(state);
 
     // Exchange code for tokens
     const tokens = await qbService.getTokens(code);
 
     // Find QuickBooks extension
-    const qbExtension = await Extension.findOne({ slug: 'quickbooks-online' });
+    let qbExtension = await Extension.findOne({ slug: 'quickbooks-online' });
+
+    // Create extension if it doesn't exist
     if (!qbExtension) {
-      return res.redirect(`${process.env.FRONTEND_URL}/app/extensions?qb_error=extension_not_found`);
+      qbExtension = await Extension.create({
+        name: 'QuickBooks Online',
+        slug: 'quickbooks-online',
+        description: 'Sync invoices, customers, and payments with QuickBooks Online',
+        category: 'accounting',
+        icon: 'receipt',
+        status: 'active',
+        stats: { activeInstalls: 0 }
+      });
     }
 
     // Create or update user extension
@@ -99,16 +208,16 @@ router.get('/callback', async (req, res) => {
     await userExtension.save();
 
     // Update extension stats
-    if (qbExtension) {
-      qbExtension.stats.activeInstalls += 1;
-      await qbExtension.save();
-    }
+    qbExtension.stats.activeInstalls += 1;
+    await qbExtension.save();
 
-    // Redirect back to frontend
-    res.redirect(`${process.env.FRONTEND_URL}/app/extensions?qb_success=true`);
+    console.log(`✅ QuickBooks connected for user ${userId}: realmId ${realmId}`);
+
+    // Send success HTML page (works for mobile and web)
+    res.send(successHtml());
   } catch (error) {
     console.error('QB Callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL}/app/extensions?qb_error=connection_failed`);
+    res.status(500).send(errorHtml(error.message || 'Unknown error'));
   }
 });
 

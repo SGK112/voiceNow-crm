@@ -1,11 +1,11 @@
 import axios from 'axios';
 import crypto from 'crypto';
+import { getOAuthRedirectUri } from '../utils/oauthConfig.js';
 
 class QuickBooksService {
   constructor() {
     this.clientId = process.env.QB_CLIENT_ID;
     this.clientSecret = process.env.QB_CLIENT_SECRET;
-    this.redirectUri = process.env.QB_REDIRECT_URI;
     this.environment = process.env.QB_ENVIRONMENT || 'sandbox';
 
     this.baseUrl = this.environment === 'production'
@@ -17,6 +17,11 @@ class QuickBooksService {
     this.revokeUrl = 'https://developer.api.intuit.com/v2/oauth2/tokens/revoke';
   }
 
+  // Get redirect URI (uses production for mobile compatibility)
+  getRedirectUri() {
+    return getOAuthRedirectUri('quickbooks');
+  }
+
   // Generate OAuth authorization URL
   getAuthorizationUrl(state) {
     const scopes = [
@@ -26,10 +31,12 @@ class QuickBooksService {
       'email'
     ].join(' ');
 
+    const redirectUri = this.getRedirectUri();
+
     const params = new URLSearchParams({
       client_id: this.clientId,
       scope: scopes,
-      redirect_uri: this.redirectUri,
+      redirect_uri: redirectUri,
       response_type: 'code',
       state: state
     });
@@ -40,13 +47,14 @@ class QuickBooksService {
   // Exchange authorization code for tokens
   async getTokens(code) {
     const auth = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+    const redirectUri = this.getRedirectUri();
 
     const response = await axios.post(
       this.tokenUrl,
       new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: this.redirectUri
+        redirect_uri: redirectUri
       }),
       {
         headers: {

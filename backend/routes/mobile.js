@@ -826,6 +826,10 @@ router.get('/settings', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     const settings = {
       voiceAgentEnabled: true,
       smsAgentEnabled: true,
