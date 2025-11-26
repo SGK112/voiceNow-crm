@@ -9,6 +9,7 @@ import {
   Switch,
   Alert,
   Linking,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../utils/api';
@@ -18,12 +19,22 @@ import { useAuth } from '../contexts/AuthContext';
 import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
 
-export default function ProfileScreen() {
+const VOICES = [
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', accent: 'British' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', accent: 'American' },
+  { id: 'jBpfuIE2acCO8z3wKNLl', name: 'Gigi', accent: 'American' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', accent: 'British' },
+  { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', accent: 'American' },
+  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', accent: 'American' },
+];
+
+export default function ProfileScreen({ navigation }: any) {
   const { colors, isDark, toggleTheme } = useTheme();
   const { showSuccess, showError, showInfo } = useNotification();
   const { user, logout, biometricAvailable, biometricEnabled, biometricType, enableBiometric, disableBiometric } = useAuth();
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [togglingBiometric, setTogglingBiometric] = useState(false);
   const [contactCount, setContactCount] = useState(0);
@@ -32,6 +43,12 @@ export default function ProfileScreen() {
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [shopifyConnected, setShopifyConnected] = useState(false);
   const [shopifyStore, setShopifyStore] = useState<string | null>(null);
+  const [quickbooksConnected, setQuickbooksConnected] = useState(false);
+
+  // Profile & Aria
+  const [bio, setBio] = useState('');
+  const [selectedVoice, setSelectedVoice] = useState('EXAVITQu4vr4xnSDxMaL');
+  const [autoCallback, setAutoCallback] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -40,11 +57,13 @@ export default function ProfileScreen() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [contactsRes, calendarRes, googleRes, shopifyRes] = await Promise.all([
+      const [contactsRes, calendarRes, googleRes, shopifyRes, quickbooksRes, settingsRes] = await Promise.all([
         api.get('/api/mobile/contacts').catch(() => ({ data: { count: 0 } })),
         api.get('/api/mobile/calendar-events?upcoming=false').catch(() => ({ data: { count: 0 } })),
         api.get('/api/mobile/google/status').catch(() => ({ data: { connected: false } })),
         api.get('/api/shopify/status').catch(() => ({ data: { connected: false } })),
+        api.get('/api/quickbooks/status').catch(() => ({ data: { connected: false } })),
+        api.get('/api/mobile/settings').catch(() => ({ data: { settings: {} } })),
       ]);
       setContactCount(contactsRes.data.count || 0);
       setCalendarCount(calendarRes.data.count || 0);
@@ -52,11 +71,30 @@ export default function ProfileScreen() {
       setGoogleEmail(googleRes.data.email || null);
       setShopifyConnected(shopifyRes.data.connected || false);
       setShopifyStore(shopifyRes.data.shop || null);
+      setQuickbooksConnected(quickbooksRes.data.connected || false);
+
+      const settings = settingsRes.data.settings || {};
+      setBio(settings.bio || '');
+      setSelectedVoice(settings.voiceId || 'EXAVITQu4vr4xnSDxMaL');
+      setAutoCallback(settings.autoCallback || false);
     } catch (e) {
       console.error('Load error:', e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveSettings = async () => {
+    setSaving(true);
+    try {
+      await api.put('/api/mobile/settings', {
+        bio,
+        voiceId: selectedVoice,
+        autoCallback,
+      });
+      showSuccess('Saved');
+    } catch { showError('Save failed'); }
+    finally { setSaving(false); }
   };
 
   const syncContacts = async () => {
@@ -203,6 +241,43 @@ export default function ProfileScreen() {
     finally { setSyncing(null); }
   };
 
+  const connectQuickbooks = async () => {
+    setSyncing('quickbooks');
+    try {
+      const res = await api.get('/api/quickbooks/connect');
+      if (res.data.authUrl) {
+        await Linking.openURL(res.data.authUrl);
+        showInfo('Complete sign-in in browser');
+        setTimeout(() => { loadData(); setSyncing(null); }, 5000);
+      }
+    } catch { showError('Failed'); setSyncing(null); }
+  };
+
+  const disconnectQuickbooks = () => {
+    Alert.alert('Disconnect', 'Remove QuickBooks account?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Disconnect', style: 'destructive', onPress: async () => {
+        try {
+          await api.post('/api/quickbooks/disconnect');
+          setQuickbooksConnected(false);
+          showSuccess('Disconnected');
+        } catch { showError('Failed'); }
+      }},
+    ]);
+  };
+
+  const syncQuickbooks = async () => {
+    setSyncing('quickbooks-sync');
+    try {
+      const res = await api.post('/api/quickbooks/sync');
+      if (res.data.message) {
+        showSuccess('QuickBooks synced');
+        loadData();
+      }
+    } catch { showError('Sync failed'); }
+    finally { setSyncing(null); }
+  };
+
   const handleBiometric = async () => {
     setTogglingBiometric(true);
     try {
@@ -227,7 +302,7 @@ export default function ProfileScreen() {
     );
   }
 
-  const Row = ({ icon, label, value, onPress, isLoading, chevron = true, color }: any) => (
+  const Row = ({ icon, label, value, onPress, isLoading, chevron = true, color, status }: any) => (
     <TouchableOpacity
       style={[styles.row, { borderBottomColor: colors.border }]}
       onPress={onPress}
@@ -237,11 +312,18 @@ export default function ProfileScreen() {
       <View style={[styles.iconBox, { backgroundColor: color || colors.primary }]}>
         <Ionicons name={icon} size={16} color="#fff" />
       </View>
-      <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
+      <View style={styles.rowContent}>
+        <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
+        {value !== undefined && !isLoading && (
+          <Text style={[styles.rowSubtext, { color: colors.textSecondary }]} numberOfLines={1}>{value}</Text>
+        )}
+      </View>
       {isLoading ? (
         <ActivityIndicator size="small" color={colors.primary} />
-      ) : value !== undefined ? (
-        <Text style={[styles.rowValue, { color: colors.textSecondary }]}>{value}</Text>
+      ) : status ? (
+        <View style={[styles.statusBadge, { backgroundColor: '#34C75920' }]}>
+          <Text style={[styles.statusText, { color: '#34C759' }]}>{status}</Text>
+        </View>
       ) : null}
       {chevron && onPress && !isLoading && (
         <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
@@ -274,6 +356,18 @@ export default function ProfileScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
+      {/* Close Button */}
+      <View style={styles.closeRow}>
+        <TouchableOpacity
+          style={[styles.closeBtn, { backgroundColor: colors.card }]}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="close" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>Profile</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
       {/* Header */}
       <View style={styles.header}>
         <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
@@ -284,6 +378,60 @@ export default function ProfileScreen() {
           <Text style={[styles.badgeText, { color: colors.primary }]}>
             {user?.plan === 'trial' ? 'Free Trial' : user?.plan || 'Free'}
           </Text>
+        </View>
+      </View>
+
+      {/* Bio */}
+      <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>ABOUT YOU</Text>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <TextInput
+          style={[styles.bioInput, { color: colors.text, borderColor: colors.border }]}
+          value={bio}
+          onChangeText={setBio}
+          placeholder="Brief bio for Aria (e.g., 'I'm a realtor in Miami specializing in luxury homes')"
+          placeholderTextColor={colors.textTertiary}
+          multiline
+          numberOfLines={3}
+          onBlur={saveSettings}
+        />
+      </View>
+
+      {/* Aria Voice */}
+      <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>ARIA VOICE</Text>
+      <View style={[styles.section, { backgroundColor: colors.card, paddingVertical: 12 }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.voiceScroll}>
+          {VOICES.map((voice) => (
+            <TouchableOpacity
+              key={voice.id}
+              style={[
+                styles.voiceChip,
+                {
+                  backgroundColor: selectedVoice === voice.id ? colors.primary : colors.background,
+                  borderColor: selectedVoice === voice.id ? colors.primary : colors.border,
+                },
+              ]}
+              onPress={() => { setSelectedVoice(voice.id); saveSettings(); }}
+            >
+              <Text style={[styles.voiceName, { color: selectedVoice === voice.id ? '#fff' : colors.text }]}>
+                {voice.name}
+              </Text>
+              <Text style={[styles.voiceAccent, { color: selectedVoice === voice.id ? 'rgba(255,255,255,0.7)' : colors.textTertiary }]}>
+                {voice.accent}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <View style={[styles.row, { borderBottomWidth: 0, marginTop: 8 }]}>
+          <View style={[styles.iconBox, { backgroundColor: '#FF9500' }]}>
+            <Ionicons name="call" size={16} color="#fff" />
+          </View>
+          <Text style={[styles.rowLabel, { color: colors.text }]}>Auto Callback</Text>
+          <Switch
+            value={autoCallback}
+            onValueChange={(v) => { setAutoCallback(v); saveSettings(); }}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#fff"
+          />
         </View>
       </View>
 
@@ -313,8 +461,9 @@ export default function ProfileScreen() {
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Row
           icon="logo-google"
-          label={googleConnected ? 'Connected' : 'Connect Google'}
-          value={googleEmail}
+          label={googleConnected ? 'Google Account' : 'Connect Google'}
+          value={googleConnected ? googleEmail : undefined}
+          status={googleConnected ? 'Connected' : undefined}
           onPress={googleConnected ? disconnectGoogle : connectGoogle}
           isLoading={syncing === 'google'}
           color="#4285F4"
@@ -344,8 +493,9 @@ export default function ProfileScreen() {
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Row
           icon="storefront"
-          label={shopifyConnected ? 'Connected' : 'Connect Shopify'}
-          value={shopifyStore}
+          label={shopifyConnected ? 'Shopify Store' : 'Connect Shopify'}
+          value={shopifyConnected ? shopifyStore : undefined}
+          status={shopifyConnected ? 'Connected' : undefined}
           onPress={shopifyConnected ? disconnectShopify : connectShopify}
           isLoading={syncing === 'shopify'}
           color="#95BF47"
@@ -357,6 +507,28 @@ export default function ProfileScreen() {
             onPress={syncShopifyCustomers}
             isLoading={syncing === 'shopify-customers'}
             color="#5C6AC4"
+          />
+        )}
+      </View>
+
+      {/* QuickBooks */}
+      <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>QUICKBOOKS</Text>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Row
+          icon="calculator"
+          label={quickbooksConnected ? 'QuickBooks Online' : 'Connect QuickBooks'}
+          status={quickbooksConnected ? 'Connected' : undefined}
+          onPress={quickbooksConnected ? disconnectQuickbooks : connectQuickbooks}
+          isLoading={syncing === 'quickbooks'}
+          color="#2CA01C"
+        />
+        {quickbooksConnected && (
+          <Row
+            icon="sync"
+            label="Sync Data"
+            onPress={syncQuickbooks}
+            isLoading={syncing === 'quickbooks-sync'}
+            color="#0077C5"
           />
         )}
       </View>
@@ -383,6 +555,35 @@ export default function ProfileScreen() {
         )}
       </View>
 
+      {/* Feedback & Support */}
+      <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>FEEDBACK & SUPPORT</Text>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Row
+          icon="chatbox-ellipses"
+          label="Send Feedback"
+          onPress={() => Linking.openURL('mailto:feedback@voiceflow-crm.com?subject=App Feedback')}
+          color="#5856D6"
+        />
+        <Row
+          icon="star"
+          label="Rate the App"
+          onPress={() => Alert.alert('Rate Us', 'Thanks for your support! Rating will be available when the app is live on the App Store.')}
+          color="#FF9500"
+        />
+        <Row
+          icon="help-circle"
+          label="Help & FAQ"
+          onPress={() => Linking.openURL('https://voiceflow-crm.com/help')}
+          color="#34C759"
+        />
+        <Row
+          icon="bug"
+          label="Report a Bug"
+          onPress={() => Linking.openURL('mailto:support@voiceflow-crm.com?subject=Bug Report')}
+          color="#FF3B30"
+        />
+      </View>
+
       {/* Account */}
       <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>ACCOUNT</Text>
       <View style={[styles.section, { backgroundColor: colors.card }]}>
@@ -403,7 +604,26 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   center: { alignItems: 'center', justifyContent: 'center' },
-  content: { paddingTop: 60, paddingBottom: 40 },
+  content: { paddingTop: 20, paddingBottom: 40 },
+  closeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 10,
+  },
+  closeBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  screenTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
   header: { alignItems: 'center', paddingVertical: 20 },
   avatar: {
     width: 72,
@@ -444,7 +664,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowLabel: { flex: 1, fontSize: 16 },
+  rowContent: { flex: 1 },
+  rowLabel: { fontSize: 16 },
+  rowSubtext: { fontSize: 13, marginTop: 2 },
   rowValue: { fontSize: 15 },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginRight: 4,
+  },
+  statusText: { fontSize: 12, fontWeight: '600' },
+  bioInput: {
+    padding: 16,
+    fontSize: 15,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  voiceScroll: {
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  voiceChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    minWidth: 70,
+  },
+  voiceName: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  voiceAccent: {
+    fontSize: 11,
+    marginTop: 2,
+  },
   version: { textAlign: 'center', fontSize: 12, marginTop: 32 },
 });
