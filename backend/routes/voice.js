@@ -28,6 +28,7 @@ import {
   getAgentVoice
 } from '../config/ariaAgentTemplates.js';
 import errorReportingService from '../services/errorReportingService.js';
+import materialSourcingService from '../services/materialSourcingService.js';
 
 const router = express.Router();
 
@@ -1883,35 +1884,44 @@ When asked to perform actions, use the available tools/functions.`;
           required: ['url'],
         },
       },
+      // ═══════════════════════════════════════════════════════════════
+      // MATERIAL SOURCING & VISUALIZATION TOOLS
+      // Comprehensive system for construction material search & display
+      // ═══════════════════════════════════════════════════════════════
       {
         type: 'function',
-        name: 'search_products',
-        description: 'Search for building materials, surfaces, tiles, stone, flooring, and construction products. Prioritizes local Miami/South Florida suppliers first, then national retailers. Returns product images and details. Use when client asks about specific materials, wants to see product options, or needs pricing on supplies.',
+        name: 'search_materials',
+        description: 'Intelligent material search for construction/renovation projects. Searches MSI, Daltile, Boulder Images, Floor & Decor, Home Depot, Lowes and more. Prioritizes local Miami suppliers, returns images, prices, and availability. Use for countertops, tile, flooring, stone, cabinets, fixtures. Can filter by style (modern, traditional, farmhouse), color, and price range.',
         parameters: {
           type: 'object',
           properties: {
             query: {
               type: 'string',
-              description: 'Product search query (e.g., "white marble countertop", "porcelain floor tile", "quartz surface")',
+              description: 'What to search for (e.g., "white quartz countertop", "wood look porcelain tile", "carrara marble backsplash")',
             },
             category: {
               type: 'string',
-              enum: ['tile', 'stone', 'countertops', 'flooring', 'surfaces', 'cabinets', 'fixtures', 'paint', 'lumber', 'roofing', 'general'],
-              description: 'Product category to search',
+              enum: ['countertops', 'tile', 'flooring', 'stone', 'cabinets', 'fixtures', 'paint', 'auto'],
+              description: 'Material category (use "auto" to detect from query)',
             },
-            supplier: {
+            style: {
               type: 'string',
-              enum: ['local_first', 'msi', 'daltile', 'boulder_images', 'home_depot', 'lowes', 'floor_decor', 'all'],
-              description: 'Preferred supplier - local_first searches Miami area suppliers first',
+              enum: ['modern', 'traditional', 'transitional', 'farmhouse', 'industrial', 'coastal', 'mediterranean', 'mid_century_modern'],
+              description: 'Design style to match',
+            },
+            color: {
+              type: 'string',
+              description: 'Color preference (white, gray, beige, warm tones, cool tones, etc.)',
             },
             priceRange: {
               type: 'string',
               enum: ['budget', 'mid', 'premium', 'luxury', 'any'],
-              description: 'Price range filter',
+              description: 'Budget level for materials',
             },
-            includeImages: {
-              type: 'boolean',
-              description: 'Include product images in results (default true)',
+            suppliers: {
+              type: 'string',
+              enum: ['local_first', 'msi_only', 'daltile_only', 'big_box_only', 'all'],
+              description: 'Which suppliers to search (local_first = Miami suppliers prioritized)',
             },
           },
           required: ['query'],
@@ -1919,22 +1929,136 @@ When asked to perform actions, use the available tools/functions.`;
       },
       {
         type: 'function',
-        name: 'show_product_images',
-        description: 'Display product images to the user. Use after search_products to show visual options, or when user wants to see what a specific material looks like.',
+        name: 'compare_materials',
+        description: 'Compare multiple materials side by side. Shows price differences, availability, pros/cons. Use when client is deciding between options.',
         parameters: {
           type: 'object',
           properties: {
-            products: {
+            materials: {
               type: 'array',
-              description: 'Array of product objects with imageUrl, name, price, supplier',
+              description: 'Array of material names or product objects to compare',
+            },
+            compareFactors: {
+              type: 'array',
+              description: 'What to compare: price, durability, maintenance, appearance, availability',
+            },
+          },
+          required: ['materials'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'create_moodboard',
+        description: 'Create a visual moodboard/collection from selected materials for client presentation. Groups materials by room or project.',
+        parameters: {
+          type: 'object',
+          properties: {
+            materials: {
+              type: 'array',
+              description: 'Array of selected material objects',
+            },
+            name: {
+              type: 'string',
+              description: 'Name for the moodboard (e.g., "Kitchen Selections", "Master Bath Options")',
+            },
+            style: {
+              type: 'string',
+              description: 'Overall design style theme',
+            },
+            projectId: {
+              type: 'string',
+              description: 'Link to a specific project/lead',
+            },
+          },
+          required: ['materials'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'estimate_materials',
+        description: 'Calculate material quantities needed for a project based on dimensions. Includes waste/overage calculations.',
+        parameters: {
+          type: 'object',
+          properties: {
+            projectType: {
+              type: 'string',
+              enum: ['kitchen_remodel', 'bathroom', 'flooring', 'backsplash', 'countertops', 'full_renovation'],
+              description: 'Type of project',
+            },
+            dimensions: {
+              type: 'object',
+              description: 'Room/area dimensions: length, width, countertopLength, backsplashSqft, etc.',
+            },
+            materials: {
+              type: 'array',
+              description: 'Selected materials to estimate for',
+            },
+          },
+          required: ['projectType'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'get_supplier_info',
+        description: 'Get contact info and details for a specific supplier. Use when client wants to visit showroom or place an order.',
+        parameters: {
+          type: 'object',
+          properties: {
+            supplier: {
+              type: 'string',
+              description: 'Supplier name (MSI, Daltile, Boulder Images, Floor & Decor, Home Depot, Lowes)',
+            },
+          },
+          required: ['supplier'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'get_price_guidance',
+        description: 'Get typical price ranges for a material type. Helps with budgeting and setting client expectations.',
+        parameters: {
+          type: 'object',
+          properties: {
+            materialType: {
+              type: 'string',
+              description: 'Type of material (quartz, granite, marble, porcelain tile, hardwood, etc.)',
+            },
+            category: {
+              type: 'string',
+              enum: ['countertops', 'tile', 'flooring', 'stone', 'cabinets'],
+              description: 'Material category',
+            },
+            quality: {
+              type: 'string',
+              enum: ['entry', 'mid', 'premium', 'luxury'],
+              description: 'Quality level',
+            },
+          },
+          required: ['materialType'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'show_material_images',
+        description: 'Display material images to the user in various layouts. Use to present search results or curated selections.',
+        parameters: {
+          type: 'object',
+          properties: {
+            materials: {
+              type: 'array',
+              description: 'Array of material objects with imageUrl, name, supplier, price',
             },
             displayMode: {
               type: 'string',
-              enum: ['grid', 'carousel', 'comparison', 'single'],
+              enum: ['grid', 'carousel', 'comparison', 'fullscreen', 'moodboard'],
               description: 'How to display the images',
             },
+            title: {
+              type: 'string',
+              description: 'Title for the display (e.g., "Countertop Options", "Your Selections")',
+            },
           },
-          required: ['products'],
+          required: ['materials'],
         },
       },
     ];
@@ -2088,6 +2212,98 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
           }
         }
       };
+
+    // ═══════════════════════════════════════════════════════════════
+    // MATERIAL SOURCING HANDLERS
+    // ═══════════════════════════════════════════════════════════════
+    } else if (functionName === 'search_materials') {
+      try {
+        console.log(`🔍 [MATERIAL-SEARCH] Searching for: "${args.query}"`);
+        result = await materialSourcingService.searchMaterials(args.query, {
+          category: args.category || 'auto',
+          style: args.style,
+          color: args.color,
+          priceRange: args.priceRange || 'any',
+          suppliersToSearch: args.suppliers || 'local_first',
+          includeImages: true
+        });
+      } catch (error) {
+        console.error('❌ [MATERIAL-SEARCH] Error:', error);
+        result = { success: false, error: error.message, message: "I had trouble searching for materials. Let me try a different approach." };
+      }
+
+    } else if (functionName === 'compare_materials') {
+      try {
+        result = await materialSourcingService.compareMaterials(args.materials);
+      } catch (error) {
+        console.error('❌ [COMPARE-MATERIALS] Error:', error);
+        result = { success: false, error: error.message };
+      }
+
+    } else if (functionName === 'create_moodboard') {
+      try {
+        result = await materialSourcingService.createMoodboard(args.materials, {
+          name: args.name,
+          style: args.style,
+          projectId: args.projectId
+        });
+      } catch (error) {
+        console.error('❌ [MOODBOARD] Error:', error);
+        result = { success: false, error: error.message };
+      }
+
+    } else if (functionName === 'estimate_materials') {
+      try {
+        result = await materialSourcingService.estimateMaterials({
+          type: args.projectType,
+          dimensions: args.dimensions || {},
+          materials: args.materials || []
+        });
+      } catch (error) {
+        console.error('❌ [ESTIMATE] Error:', error);
+        result = { success: false, error: error.message };
+      }
+
+    } else if (functionName === 'get_supplier_info') {
+      try {
+        result = materialSourcingService.getSupplierContact(args.supplier);
+      } catch (error) {
+        console.error('❌ [SUPPLIER-INFO] Error:', error);
+        result = { success: false, error: error.message };
+      }
+
+    } else if (functionName === 'get_price_guidance') {
+      try {
+        const category = args.category || 'countertops';
+        result = materialSourcingService.getPriceGuidance(category, args.materialType);
+        if (!result) {
+          result = { success: true, message: `For ${args.materialType}, prices vary widely based on quality and supplier. Would you like me to search for specific options?` };
+        } else {
+          result.success = true;
+          result.message = `${args.materialType} typically costs ${result.priceRange} ${result.unit}. ${result.note || ''}`;
+        }
+      } catch (error) {
+        console.error('❌ [PRICE-GUIDANCE] Error:', error);
+        result = { success: false, error: error.message };
+      }
+
+    } else if (functionName === 'show_material_images') {
+      result = {
+        success: true,
+        action: 'display_materials',
+        materials: args.materials,
+        displayMode: args.displayMode || 'grid',
+        title: args.title || 'Material Options',
+        uiAction: {
+          type: 'show_materials',
+          data: {
+            materials: args.materials,
+            displayMode: args.displayMode || 'grid',
+            title: args.title
+          }
+        }
+      };
+
     } else {
       // Use ariaCapabilities for ALL other functions (send_sms, send_email, get_appointments, etc.)
       try {
