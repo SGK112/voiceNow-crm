@@ -70,6 +70,64 @@ const userProfileSchema = new mongoose.Schema({
     }
   },
 
+  // Language Preferences for Translation Services
+  languagePreferences: {
+    // Primary/native language
+    nativeLanguage: {
+      type: String,
+      default: 'en'
+    },
+    // Preferred language for communication
+    preferredLanguage: {
+      type: String,
+      default: 'en'
+    },
+    // Other languages the user speaks/understands
+    otherLanguages: [{
+      code: String,
+      proficiency: {
+        type: String,
+        enum: ['basic', 'intermediate', 'advanced', 'fluent', 'native'],
+        default: 'intermediate'
+      }
+    }],
+    // Auto-detect language from user input
+    autoDetectLanguage: {
+      type: Boolean,
+      default: true
+    },
+    // Automatically translate incoming messages from contacts
+    autoTranslateIncoming: {
+      type: Boolean,
+      default: false
+    },
+    // Automatically translate outgoing messages to contact's language
+    autoTranslateOutgoing: {
+      type: Boolean,
+      default: false
+    },
+    // Default target language for translations
+    defaultTranslationTarget: {
+      type: String,
+      default: 'en'
+    },
+    // Regional dialect preference (e.g., 'es-MX' for Mexican Spanish)
+    dialectPreference: String,
+    // Translation formality level
+    formalityLevel: {
+      type: String,
+      enum: ['informal', 'neutral', 'formal'],
+      default: 'neutral'
+    },
+    // Translation history settings
+    saveTranslationHistory: {
+      type: Boolean,
+      default: true
+    },
+    // Translation notes for specific contacts/contexts
+    translationNotes: String
+  },
+
   // Contact Preferences
   contactPreferences: {
     preferredContactMethod: {
@@ -217,6 +275,60 @@ const userProfileSchema = new mongoose.Schema({
         type: Boolean,
         default: true
       }
+    }
+  },
+
+  // Aria Background Automation Settings
+  ariaSettings: {
+    // SMS auto-response
+    autoRespondSMS: {
+      type: Boolean,
+      default: true
+    },
+    // Email auto-response
+    autoRespondEmail: {
+      type: Boolean,
+      default: false
+    },
+    // Auto callback for missed calls
+    autoCallbackMissed: {
+      type: Boolean,
+      default: false
+    },
+    // Notify about missed calls
+    notifyMissedCalls: {
+      type: Boolean,
+      default: true
+    },
+    // Auto follow-up stale leads
+    autoFollowUpLeads: {
+      type: Boolean,
+      default: true
+    },
+    // Workflow optimization suggestions
+    workflowOptimization: {
+      type: Boolean,
+      default: true
+    },
+    // Daily summary notifications
+    dailySummary: {
+      type: Boolean,
+      default: true
+    },
+    // Only operate during business hours
+    businessHoursOnly: {
+      type: Boolean,
+      default: true
+    },
+    // Business hours start (0-23)
+    businessHoursStart: {
+      type: Number,
+      default: 8
+    },
+    // Business hours end (0-23)
+    businessHoursEnd: {
+      type: Number,
+      default: 18
     }
   },
 

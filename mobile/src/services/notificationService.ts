@@ -2,10 +2,14 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from './api';
 
 // Notification types for routing
-export type NotificationType = 'incoming_call' | 'incoming_sms' | 'missed_call' | 'voicemail' | 'general';
+export type NotificationType = 'incoming_call' | 'incoming_sms' | 'missed_call' | 'voicemail' | 'general' | 'daily_summary';
+
+const DAILY_SUMMARY_ENABLED_KEY = '@voiceflow_daily_summary_enabled';
+const DAILY_SUMMARY_HOUR_KEY = '@voiceflow_daily_summary_hour';
 
 export interface NotificationData {
   type: NotificationType;
@@ -329,6 +333,107 @@ class NotificationService {
   // Set badge count
   async setBadgeCount(count: number): Promise<void> {
     await Notifications.setBadgeCountAsync(count);
+  }
+
+  // ============================================
+  // DAILY SUMMARY NOTIFICATIONS
+  // ============================================
+
+  // Schedule daily summary notification
+  async scheduleDailySummary(hour: number = 8): Promise<void> {
+    try {
+      // Cancel any existing daily summary
+      await this.cancelDailySummary();
+
+      // Store preference
+      await AsyncStorage.setItem(DAILY_SUMMARY_ENABLED_KEY, 'true');
+      await AsyncStorage.setItem(DAILY_SUMMARY_HOUR_KEY, hour.toString());
+
+      // Schedule daily notification
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'Your AI Assistant Summary',
+          body: 'Tap to see what your AI handled yesterday',
+          data: { type: 'daily_summary' },
+          sound: true,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour,
+          minute: 0,
+        },
+        identifier: 'daily-summary',
+      });
+
+      console.log(`Daily summary scheduled for ${hour}:00`);
+    } catch (error) {
+      console.error('Failed to schedule daily summary:', error);
+    }
+  }
+
+  // Cancel daily summary notification
+  async cancelDailySummary(): Promise<void> {
+    try {
+      await Notifications.cancelScheduledNotificationAsync('daily-summary');
+      await AsyncStorage.setItem(DAILY_SUMMARY_ENABLED_KEY, 'false');
+    } catch (error) {
+      console.error('Failed to cancel daily summary:', error);
+    }
+  }
+
+  // Check if daily summary is enabled
+  async isDailySummaryEnabled(): Promise<boolean> {
+    const enabled = await AsyncStorage.getItem(DAILY_SUMMARY_ENABLED_KEY);
+    return enabled === 'true';
+  }
+
+  // Get daily summary hour
+  async getDailySummaryHour(): Promise<number> {
+    const hour = await AsyncStorage.getItem(DAILY_SUMMARY_HOUR_KEY);
+    return hour ? parseInt(hour, 10) : 8;
+  }
+
+  // Fetch and show daily summary immediately (for testing or manual trigger)
+  async showDailySummaryNow(): Promise<void> {
+    try {
+      const response = await api.get('/api/mobile/daily-summary');
+
+      if (response.data.success && response.data.summary) {
+        const { summary } = response.data;
+
+        let body = summary.message;
+        if (summary.hotLeadTeaser) {
+          body += ` ${summary.hotLeadTeaser}`;
+        }
+        if (summary.timeSavedMinutes > 0) {
+          body += ` Saved you ~${summary.timeSavedMinutes} min.`;
+        }
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: summary.greeting || 'Good morning!',
+            body,
+            data: {
+              type: 'daily_summary',
+              summary
+            },
+            sound: true,
+          },
+          trigger: null, // Show immediately
+        });
+      }
+    } catch (error) {
+      console.error('Failed to show daily summary:', error);
+    }
+  }
+
+  // Initialize daily summary on app startup (if previously enabled)
+  async initializeDailySummary(): Promise<void> {
+    const enabled = await this.isDailySummaryEnabled();
+    if (enabled) {
+      const hour = await this.getDailySummaryHour();
+      await this.scheduleDailySummary(hour);
+    }
   }
 }
 

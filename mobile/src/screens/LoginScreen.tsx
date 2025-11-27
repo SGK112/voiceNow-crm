@@ -140,7 +140,11 @@ export default function LoginScreen({ navigation }: any) {
 
     try {
       // Get OAuth URL from backend
-      const response = await fetch(`${API_URL}/api/mobile/auth/google/url`);
+      const response = await fetch(`${API_URL}/api/mobile/auth/google/url`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
       const data = await response.json();
 
       if (!data.success || !data.url) {
@@ -158,13 +162,27 @@ export default function LoginScreen({ navigation }: any) {
 
       console.log('Opening Google OAuth URL with state:', oauthState?.substring(0, 8) + '...');
       console.log('Will poll production server:', productionBaseUrl);
+      console.log('Full OAuth URL:', data.url);
 
-      // Open browser for OAuth - no redirect URL needed, we'll poll for result
-      const result = await WebBrowser.openBrowserAsync(data.url, {
-        presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-      });
+      // Try using Linking.openURL for better iOS compatibility
+      // This opens in Safari instead of in-app browser, which is more reliable
+      const canOpen = await Linking.canOpenURL(data.url);
+      console.log('Can open URL:', canOpen);
 
-      console.log('WebBrowser closed, result type:', result.type);
+      if (canOpen) {
+        await Linking.openURL(data.url);
+        console.log('URL opened with Linking.openURL');
+      } else {
+        // Fallback to WebBrowser if Linking fails
+        console.log('Fallback to WebBrowser.openAuthSessionAsync');
+        const result = await WebBrowser.openAuthSessionAsync(
+          data.url,
+          'voiceflow-ai://oauth'
+        );
+        console.log('WebBrowser closed, result type:', result.type);
+      }
+
+      // Start polling immediately since we can't wait for browser to close with Linking.openURL
 
       // When browser closes, poll for the OAuth result
       if (oauthState) {
@@ -209,12 +227,15 @@ export default function LoginScreen({ navigation }: any) {
                 setIsGoogleLoading(false);
               }
             }
-          } catch (pollError) {
-            console.error('Poll error:', pollError);
+          } catch (pollError: any) {
+            // Use warn instead of error to avoid red modal in dev
+            console.warn('Poll network error (will retry):', pollError?.message || pollError);
             attempts++;
             if (attempts < maxAttempts) {
-              setTimeout(pollForResult, 1000);
+              // Wait a bit longer on network errors
+              setTimeout(pollForResult, 2000);
             } else {
+              Alert.alert('Network Error', 'Could not connect to server. Please check your connection and try again.');
               setIsGoogleLoading(false);
             }
           }

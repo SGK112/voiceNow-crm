@@ -45,9 +45,16 @@ export default function ContactsScreen({ navigation }: any) {
       if (!forceRefresh) setLoading(true);
       const fetchedContacts = await contactService.getContacts(forceRefresh);
       setContacts(fetchedContacts);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching contacts:', err);
-      Alert.alert('Error', 'Failed to fetch contacts. Please try again.');
+      // Check for 401 unauthorized - don't show alert, just show empty state
+      if (err?.response?.status === 401) {
+        console.log('Unauthorized - user may need to re-login');
+        setContacts([]);
+      } else if (!forceRefresh) {
+        // Only show alert on initial load, not on refresh
+        Alert.alert('Error', 'Failed to fetch contacts. Please try again.');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -242,6 +249,12 @@ export default function ContactsScreen({ navigation }: any) {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity
+          style={[styles.closeBtn, { backgroundColor: colors.backgroundSecondary }]}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="close" size={22} color={colors.text} />
+        </TouchableOpacity>
         <Text style={[styles.title, { color: colors.text }]}>Contacts</Text>
         <TouchableOpacity
           style={[styles.headerBtn, { backgroundColor: colors.backgroundSecondary }]}
@@ -328,10 +341,16 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
   },
+  closeBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: '700',
-    letterSpacing: -0.5,
   },
   headerBtn: {
     width: 40,

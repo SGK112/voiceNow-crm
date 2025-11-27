@@ -1,0 +1,34 @@
+# EAS Build ignore file for monorepo
+# Exclude everything except mobile folder
+
+# Backend
+backend/
+
+# Frontend
+frontend/
+
+# N8N nodes
+n8n-nodes-voiceflow/
+
+# Root node_modules
+node_modules/
+
+# Scripts
+scripts/
+
+# Docs
+docs/
+
+# Other root files
+*.md
+dump.rdb
+
+# Mobile native folders (will be regenerated)
+mobile/ios/
+mobile/android/
+mobile/node_modules/
+
+# Common ignores
+.git/
+.DS_Store
+*.log

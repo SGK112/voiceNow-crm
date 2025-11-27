@@ -7,12 +7,16 @@ const api = axios.create({
   timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   },
 });
 
+// Use the same key as AuthService for consistency
+const AUTH_TOKEN_KEY = 'authToken';
+
 // Add auth token to requests
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token');
+  const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

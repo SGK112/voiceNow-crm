@@ -66,15 +66,14 @@ class AuthService {
         }
 
         // Validate token by fetching current user
-        try {
-          const response = await this.getCurrentUser();
-          if (response.success && response.user) {
-            this.user = response.user;
-            await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
-            return { token: this.token, user: this.user };
-          }
-        } catch (error) {
-          // Token invalid, clear storage
+        const response = await this.getCurrentUser();
+        if (response.success && response.user) {
+          this.user = response.user;
+          await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
+          return { token: this.token, user: this.user };
+        } else {
+          // Token invalid (401 or other error), clear storage and logout
+          console.log('Token validation failed, logging out');
           await this.logout();
           return { token: null, user: null };
         }

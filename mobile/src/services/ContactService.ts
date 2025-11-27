@@ -83,8 +83,13 @@ class ContactService {
       }
 
       return await this.fetchAndCacheContacts();
-    } catch (error) {
-      console.error('Error getting contacts:', error);
+    } catch (error: any) {
+      // Silently handle 401 errors (user not authenticated)
+      if (error?.response?.status === 401) {
+        console.log('Contacts: User not authenticated');
+        return [];
+      }
+      console.warn('Error getting contacts:', error?.message || error);
       // Return cached data as fallback
       const cached = await this.getCachedContacts();
       return cached || [];

@@ -1529,26 +1529,26 @@ export const capabilities = {
     }
   },
 
-  // Enhanced web scraping with intelligent extraction
+  // Enhanced web scraping with intelligent extraction - Construction-focused
   scrape_webpage: {
     name: 'scrape_webpage',
-    description: 'Scrape and intelligently extract structured data from a webpage. Better than fetch_url for extracting specific information like prices, contact info, product details, or lists.',
+    description: 'Scrape and intelligently extract data from any webpage. Use for supplier pricing, material specs, building codes, permit info, competitor research, job postings, and more. No content restrictions for legitimate business research.',
     parameters: {
       type: 'object',
       properties: {
         url: {
           type: 'string',
-          description: 'URL of the webpage to scrape'
+          description: 'URL of the webpage to scrape (any site - suppliers, codes, specs, etc.)'
         },
         extractionType: {
           type: 'string',
-          enum: ['full_text', 'contact_info', 'prices', 'products', 'links', 'tables', 'article', 'custom'],
-          description: 'What type of data to extract',
+          enum: ['full_text', 'contact_info', 'prices', 'products', 'links', 'tables', 'article', 'specs', 'building_codes', 'materials', 'custom'],
+          description: 'What to extract: full_text, contact_info, prices (supplier pricing), products (catalog items), specs (technical specifications), building_codes (code requirements), materials (material data/SDS), tables, article, custom',
           default: 'full_text'
         },
         customSelector: {
           type: 'string',
-          description: 'For custom extraction, provide a CSS selector or description of what to extract'
+          description: 'For custom extraction, describe what to extract (e.g., "lumber prices", "plumbing specs", "permit requirements")'
         },
         summarize: {
           type: 'boolean',

@@ -1,0 +1,24 @@
+# EAS Build ignore file
+# Native folders - EAS will generate fresh ones
+ios/
+android/
+
+# Dependencies - EAS will install fresh
+node_modules/
+
+# Expo cache
+.expo/
+
+# Build outputs
+dist/
+web-build/
+
+# macOS
+.DS_Store
+
+# Git
+.git/
+
+# IDE
+.idea/
+.vscode/

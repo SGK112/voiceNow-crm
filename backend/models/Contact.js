@@ -107,6 +107,48 @@ const contactSchema = new mongoose.Schema({
     of: mongoose.Schema.Types.Mixed
   },
 
+  // Language Preferences for Translation Services
+  languagePreferences: {
+    // Contact's native/primary language
+    nativeLanguage: {
+      type: String,
+      default: null
+    },
+    // Preferred language for communication with this contact
+    preferredLanguage: {
+      type: String,
+      default: null
+    },
+    // Other languages the contact speaks/understands
+    otherLanguages: [{
+      code: String,
+      proficiency: {
+        type: String,
+        enum: ['basic', 'intermediate', 'advanced', 'fluent', 'native'],
+        default: 'intermediate'
+      }
+    }],
+    // Detected language from past conversations (auto-detected)
+    detectedLanguage: {
+      code: String,
+      confidence: Number,
+      detectedAt: Date
+    },
+    // Automatically translate messages to/from this contact
+    autoTranslate: {
+      type: Boolean,
+      default: false
+    },
+    // Translation formality level preference for this contact
+    formalityLevel: {
+      type: String,
+      enum: ['informal', 'neutral', 'formal'],
+      default: 'neutral'
+    },
+    // Notes about language/communication style with this contact
+    languageNotes: String
+  },
+
   // Soft delete
   isDeleted: {
     type: Boolean,
@@ -161,6 +203,64 @@ contactSchema.statics.searchContacts = function(userId, query) {
       { phone: searchRegex },
       { email: searchRegex },
       { company: searchRegex }
+    ]
+  }).sort({ name: 1 });
+};
+
+// Method to update language preferences
+contactSchema.methods.updateLanguagePreferences = function(preferences) {
+  if (!this.languagePreferences) {
+    this.languagePreferences = {};
+  }
+
+  const allowedFields = [
+    'nativeLanguage', 'preferredLanguage', 'otherLanguages',
+    'autoTranslate', 'formalityLevel', 'languageNotes'
+  ];
+
+  for (const field of allowedFields) {
+    if (preferences[field] !== undefined) {
+      this.languagePreferences[field] = preferences[field];
+    }
+  }
+
+  return this.save();
+};
+
+// Method to update detected language (auto-detected from conversations)
+contactSchema.methods.updateDetectedLanguage = function(languageCode, confidence) {
+  if (!this.languagePreferences) {
+    this.languagePreferences = {};
+  }
+
+  this.languagePreferences.detectedLanguage = {
+    code: languageCode,
+    confidence: confidence,
+    detectedAt: new Date()
+  };
+
+  return this.save();
+};
+
+// Method to get contact's effective language (preferred > detected > native > default)
+contactSchema.methods.getEffectiveLanguage = function() {
+  const prefs = this.languagePreferences || {};
+  return prefs.preferredLanguage
+    || prefs.detectedLanguage?.code
+    || prefs.nativeLanguage
+    || 'en';
+};
+
+// Static method to find contacts by language
+contactSchema.statics.findByLanguage = function(userId, languageCode) {
+  return this.find({
+    user: userId,
+    isDeleted: false,
+    $or: [
+      { 'languagePreferences.nativeLanguage': languageCode },
+      { 'languagePreferences.preferredLanguage': languageCode },
+      { 'languagePreferences.otherLanguages.code': languageCode },
+      { 'languagePreferences.detectedLanguage.code': languageCode }
     ]
   }).sort({ name: 1 });
 };

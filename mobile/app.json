@@ -21,24 +21,18 @@
         "NSContactsUsageDescription": "We need access to your contacts to identify callers and personalize AI responses",
         "NSPhoneCallHistoryUsageDescription": "We need to detect missed calls so our AI can call them back automatically",
         "NSFaceIDUsageDescription": "Use Face ID to quickly and securely sign in to your account",
+        "NSLocationWhenInUseUsageDescription": "Aria uses your location to find nearby businesses, provide local search results, and give you relevant recommendations",
+        "NSLocationAlwaysUsageDescription": "Aria uses your location in the background to proactively suggest nearby services and provide location-aware assistance",
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "1"
     },
-    "notification": {
-      "icon": "./assets/icon.png",
-      "color": "#5865F2",
-      "sounds": ["./assets/notification.wav"],
-      "androidMode": "default",
-      "androidCollapsedTitle": "Aria AI"
-    },
     "plugins": [
       [
-        "expo-notifications",
+        "@config-plugins/react-native-webrtc",
         {
-          "icon": "./assets/icon.png",
-          "color": "#5865F2",
-          "sounds": ["./assets/notification.wav"]
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for video calls",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice conversations with Aria AI"
         }
       ]
     ],
@@ -59,7 +53,9 @@
         "INTERNET",
         "RECORD_AUDIO",
         "FOREGROUND_SERVICE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
       ],
       "versionCode": 1,
       "edgeToEdgeEnabled": true,

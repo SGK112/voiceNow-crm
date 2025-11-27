@@ -1,150 +1,461 @@
 import React, { useState, useRef, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
   ScrollView,
-  Platform,
   TextInput,
-  KeyboardAvoidingView,
-  Keyboard,
   ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+  Modal,
   Animated,
+  Pressable,
+  Alert,
+  Image,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../contexts/ThemeContext';
-import AIOrbButton, { UIAction } from '../components/AIOrbButton';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../contexts/AuthContext';
 import AriaResponseModal from '../components/AriaResponseModal';
 import api from '../utils/api';
+import { API_URL } from '../utils/constants';
+import { Audio } from 'expo-av';
+
+// Location types (services are optional - may not work in Expo Go)
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+  city?: string;
+  state?: string;
+  country?: string;
+}
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Helper function to format time ago
+const formatTimeAgo = (date: Date): string => {
+  const now = new Date();
+  const diffMs = now.getTime() - new Date(date).getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 60) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return new Date(date).toLocaleDateString();
+};
+
+// Navigation menu items
+const MENU_ITEMS = [
+  { id: 'Dashboard', icon: 'stats-chart-outline', label: 'Dashboard' },
+  { id: 'Contacts', icon: 'people-outline', label: 'Contacts' },
+  { id: 'Calendar', icon: 'calendar-outline', label: 'Calendar' },
+  { id: 'Collaboration', icon: 'chatbubbles-outline', label: 'Team' },
+  { id: 'Profile', icon: 'person-outline', label: 'Profile' },
+];
+
+// Header tabs
+const NAV_TABS = [
+  { id: 'Ask', label: 'Ask' },
+  { id: 'History', label: 'History' },
+  { id: 'Settings', label: 'Settings' },
+];
 
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  timestamp: Date;
 }
 
-interface ChatSession {
+interface Conversation {
   id: string;
   title: string;
-  preview: string;
-  timestamp: Date;
   messages: ChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// AI Voice Options
-const AI_VOICES = [
-  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female', accent: 'British' },
-  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', gender: 'Female', accent: 'American' },
-  { id: 'jBpfuIE2acCO8z3wKNLl', name: 'Gigi', gender: 'Female', accent: 'American' },
-  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'Female', accent: 'English-Swedish' },
-  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'Male', accent: 'British' },
-  { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', gender: 'Male', accent: 'Transatlantic' },
-  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', gender: 'Male', accent: 'American' },
-  { id: 'bIHbv24MWmeRgasZH58o', name: 'Will', gender: 'Male', accent: 'American' },
-];
+interface UIAction {
+  type: string;
+  data?: any;
+}
 
 export default function AriaScreen() {
-  const { colors } = useTheme();
-  const [showDevTools, setShowDevTools] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState('EXAVITQu4vr4xnSDxMaL');
-  const [voiceStyle, setVoiceStyle] = useState('friendly');
+  const { user, logout } = useAuth();
+  const navigation = useNavigation<any>();
+
+  // State
+  const [conversationState, setConversationState] = useState<'idle' | 'listening' | 'thinking' | 'speaking'>('idle');
   const [modalVisible, setModalVisible] = useState(false);
   const [currentUIAction, setCurrentUIAction] = useState<UIAction | null>(null);
-  const orbRef = useRef<any>(null);
-
-  // Mode and chat state
-  const [isTextMode, setIsTextMode] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
-  const [activeSession, setActiveSession] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState('Ask');
+  const [inputFocused, setInputFocused] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [upgradeModalVisible, setUpgradeModalVisible] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [locationEnabled, setLocationEnabled] = useState(false);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+
   const scrollViewRef = useRef<ScrollView>(null);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const inputRef = useRef<TextInput>(null);
+  const menuSlide = useRef(new Animated.Value(-SCREEN_WIDTH * 0.8)).current;
 
-  const handleUIAction = (action: UIAction) => {
-    setCurrentUIAction(action);
-    setModalVisible(true);
-  };
-
-  const handleModalAction = (action: string, data: any) => {
-    setModalVisible(false);
-  };
-
+  // Load conversations from storage on mount and initialize location
   useEffect(() => {
-    fetchVoiceSettings();
+    loadConversationsFromStorage();
+    initializeLocation();
   }, []);
 
-  const fetchVoiceSettings = async () => {
+  // Initialize location services for Aria's awareness
+  // Note: Location requires native module - disabled for Expo Go compatibility
+  const initializeLocation = async () => {
+    // Location services disabled for Expo Go
+    // Will be enabled in production build
+    console.log('[Aria] Location services disabled in Expo Go');
+    setLocationEnabled(false);
+  };
+
+  // Save conversations to storage whenever they change
+  useEffect(() => {
+    if (conversations.length > 0) {
+      saveConversationsToStorage();
+    }
+  }, [conversations]);
+
+  const loadConversationsFromStorage = async () => {
     try {
-      const response = await api.get('/api/profile/default');
-      if (response.data.success && response.data.profile?.ariaPreferences) {
-        const prefs = response.data.profile.ariaPreferences;
-        setSelectedVoice(prefs.elevenLabsVoiceId || 'EXAVITQu4vr4xnSDxMaL');
-        setVoiceStyle(prefs.voiceStyle || 'friendly');
+      const stored = await AsyncStorage.getItem('aria_conversations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert date strings back to Date objects
+        const convs = parsed.map((c: any) => ({
+          ...c,
+          createdAt: new Date(c.createdAt),
+          updatedAt: new Date(c.updatedAt),
+        }));
+        setConversations(convs);
       }
     } catch (error) {
-      console.error('Error fetching voice settings:', error);
+      console.error('Error loading conversations:', error);
     }
   };
 
-  // Toggle mode with animation
-  const toggleMode = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsTextMode(!isTextMode);
-      setShowHistory(false); // Always start in chat view, not history
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
-
-  // Generate session title from first message
-  const generateSessionTitle = (message: string): string => {
-    const words = message.split(' ').slice(0, 4).join(' ');
-    return words.length > 25 ? words.substring(0, 25) + '...' : words;
-  };
-
-  // Start new chat session
-  const startNewChat = () => {
-    // Save current session if it has messages
-    if (chatMessages.length > 0 && activeSession) {
-      const updatedSessions = chatSessions.map(s =>
-        s.id === activeSession ? { ...s, messages: chatMessages } : s
-      );
-      setChatSessions(updatedSessions);
+  const saveConversationsToStorage = async () => {
+    try {
+      await AsyncStorage.setItem('aria_conversations', JSON.stringify(conversations));
+    } catch (error) {
+      console.error('Error saving conversations:', error);
     }
+  };
 
+  // Generate title from first message
+  const generateTitle = (message: string) => {
+    const truncated = message.slice(0, 40);
+    return truncated.length < message.length ? `${truncated}...` : truncated;
+  };
+
+  // Start new conversation
+  const startNewConversation = () => {
+    // Save current conversation if it has messages
+    if (chatMessages.length > 0 && currentConversationId) {
+      setConversations(prev => prev.map(conv =>
+        conv.id === currentConversationId
+          ? { ...conv, messages: chatMessages, updatedAt: new Date() }
+          : conv
+      ));
+    }
     setChatMessages([]);
-    setActiveSession(null);
-    setShowHistory(false);
+    setCurrentConversationId(null);
+    setActiveTab('Ask');
   };
 
-  // Load a previous session
-  const loadSession = (session: ChatSession) => {
-    // Save current session first
-    if (chatMessages.length > 0 && activeSession) {
-      const updatedSessions = chatSessions.map(s =>
-        s.id === activeSession ? { ...s, messages: chatMessages } : s
+  // Load a conversation from history
+  const loadConversation = (conversation: Conversation) => {
+    // Save current conversation first
+    if (chatMessages.length > 0 && currentConversationId) {
+      setConversations(prev => prev.map(conv =>
+        conv.id === currentConversationId
+          ? { ...conv, messages: chatMessages, updatedAt: new Date() }
+          : conv
+      ));
+    }
+    setChatMessages(conversation.messages);
+    setCurrentConversationId(conversation.id);
+    setActiveTab('Ask');
+  };
+
+  // Delete a conversation
+  const deleteConversation = (id: string) => {
+    setConversations(prev => prev.filter(conv => conv.id !== id));
+    if (currentConversationId === id) {
+      setChatMessages([]);
+      setCurrentConversationId(null);
+    }
+  };
+
+  // Clear all history
+  const clearAllHistory = async () => {
+    setConversations([]);
+    setChatMessages([]);
+    setCurrentConversationId(null);
+    await AsyncStorage.removeItem('aria_conversations');
+  };
+
+  const openMenu = () => {
+    setMenuOpen(true);
+    Animated.spring(menuSlide, {
+      toValue: 0,
+      friction: 10,
+      tension: 50,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeMenu = () => {
+    Animated.timing(menuSlide, {
+      toValue: -SCREEN_WIDTH * 0.8,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setMenuOpen(false));
+  };
+
+  const handleMenuNav = (screenId: string) => {
+    closeMenu();
+    setTimeout(() => navigation.navigate(screenId), 200);
+  };
+
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      console.log('[Aria] Requesting audio permissions...');
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant microphone access to use voice mode.');
+        return;
+      }
+
+      console.log('[Aria] Setting audio mode...');
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      console.log('[Aria] Starting recording...');
+      // Use WAV format which is universally supported by OpenAI Whisper
+      const recordingOptions = {
+        isMeteringEnabled: true,
+        android: {
+          extension: '.wav',
+          outputFormat: 1, // DEFAULT - will create WAV
+          audioEncoder: 1, // DEFAULT
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 256000,
+        },
+        ios: {
+          extension: '.wav',
+          outputFormat: 'lpcm', // Linear PCM for WAV
+          audioQuality: 96, // High quality
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 256000,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+        web: {
+          mimeType: 'audio/webm',
+          bitsPerSecond: 128000,
+        },
+      };
+      const { recording: newRecording } = await Audio.Recording.createAsync(
+        recordingOptions
       );
-      setChatSessions(updatedSessions);
+
+      setRecording(newRecording);
+      setIsRecording(true);
+      setConversationState('listening');
+      console.log('[Aria] Recording started successfully');
+    } catch (error) {
+      console.error('[Aria] Failed to start recording:', error);
+      Alert.alert('Voice Recording', 'Could not start recording. Please try again.');
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) {
+      console.log('[Aria] No recording to stop');
+      return;
     }
 
-    setChatMessages(session.messages);
-    setActiveSession(session.id);
-    setShowHistory(false);
+    try {
+      console.log('[Aria] Stopping recording...');
+      setIsRecording(false);
+      setConversationState('thinking');
+      setIsLoading(true);
+
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+      console.log('[Aria] Recording stopped, URI:', uri);
+
+      if (uri) {
+        // Send audio to backend for transcription
+        console.log('[Aria] API_URL:', API_URL);
+        console.log('[Aria] Sending audio for transcription to:', `${API_URL}/api/aria/transcribe`);
+        const formData = new FormData();
+        formData.append('audio', {
+          uri,
+          type: 'audio/wav',
+          name: 'recording.wav',
+        } as any);
+
+        try {
+          console.log('[Aria] Making POST request...');
+          const response = await api.post('/api/aria/transcribe', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 30000, // 30 second timeout for transcription
+          });
+
+          console.log('[Aria] Transcription response status:', response.status);
+          console.log('[Aria] Transcription response:', response.data);
+
+          if (response.data.success && response.data.text) {
+            // Auto-send the transcribed message to Aria
+            const transcribedText = response.data.text;
+            setConversationState('idle');
+
+            // Send directly to Aria
+            const userMessage: ChatMessage = {
+              id: Date.now().toString(),
+              role: 'user',
+              content: transcribedText,
+            };
+
+            // Create new conversation if needed
+            const isNewConversation = chatMessages.length === 0 && !currentConversationId;
+            let convId = currentConversationId;
+
+            if (isNewConversation) {
+              convId = Date.now().toString();
+              const newConversation: Conversation = {
+                id: convId,
+                title: generateTitle(userMessage.content),
+                messages: [userMessage],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+              setConversations(prev => [newConversation, ...prev]);
+              setCurrentConversationId(convId);
+            }
+
+            setChatMessages(prev => [...prev, userMessage]);
+            setIsLoading(true);
+
+            // Send to Aria API
+            const ariaResponse = await api.post('/api/aria/chat', {
+              message: transcribedText,
+              conversationHistory: chatMessages.map(m => ({ role: m.role, content: m.content })),
+            });
+
+            if (ariaResponse.data.success) {
+              const assistantMessage: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: ariaResponse.data.response,
+              };
+
+              setChatMessages(prev => {
+                const newMessages = [...prev, assistantMessage];
+                if (convId) {
+                  setConversations(convs => convs.map(conv =>
+                    conv.id === convId
+                      ? { ...conv, messages: newMessages, updatedAt: new Date() }
+                      : conv
+                  ));
+                }
+                return newMessages;
+              });
+
+              setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+            }
+            setIsLoading(false);
+          } else {
+            setConversationState('idle');
+            Alert.alert('Could not transcribe', 'Please try again or type your message.');
+          }
+        } catch (error: any) {
+          console.error('[Aria] Transcription error:', error);
+          console.error('[Aria] Error response:', error.response?.data);
+          console.error('[Aria] Error status:', error.response?.status);
+          console.error('[Aria] Error message:', error.message);
+          setConversationState('idle');
+          setIsLoading(false);
+          Alert.alert('Error', `Failed to transcribe audio: ${error.message}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      setConversationState('idle');
+    }
   };
 
-  // Send text message
+  const handleVoicePress = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  // Image/file picker function
+  const pickImage = async () => {
+    // Image picker requires a development build - show info for now
+    Alert.alert(
+      'Image Attachments',
+      'Image attachments will be available in the production build. For now, describe what you want to share with Aria.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const removeAttachedImage = () => {
+    setAttachedImage(null);
+  };
+
+  // SuperAria upgrade handler
+  const handleUpgradePress = () => {
+    setUpgradeModalVisible(true);
+  };
+
+  const handleUpgradeAction = (action: string) => {
+    setUpgradeModalVisible(false);
+    if (action === 'upgrade') {
+      // Navigate to subscription/billing screen or open web link
+      navigation.navigate('Profile', { tab: 'subscription' });
+    }
+  };
+
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
+
   const sendTextMessage = async () => {
     if (!textInput.trim() || isLoading) return;
 
@@ -152,20 +463,23 @@ export default function AriaScreen() {
       id: Date.now().toString(),
       role: 'user',
       content: textInput.trim(),
-      timestamp: new Date(),
     };
 
-    // Create new session if needed
-    if (!activeSession) {
-      const newSession: ChatSession = {
-        id: Date.now().toString(),
-        title: generateSessionTitle(textInput.trim()),
-        preview: textInput.trim(),
-        timestamp: new Date(),
-        messages: [],
+    // Create new conversation if this is the first message
+    const isNewConversation = chatMessages.length === 0 && !currentConversationId;
+    let convId = currentConversationId;
+
+    if (isNewConversation) {
+      convId = Date.now().toString();
+      const newConversation: Conversation = {
+        id: convId,
+        title: generateTitle(userMessage.content),
+        messages: [userMessage],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-      setChatSessions(prev => [newSession, ...prev]);
-      setActiveSession(newSession.id);
+      setConversations(prev => [newConversation, ...prev]);
+      setCurrentConversationId(convId);
     }
 
     setChatMessages(prev => [...prev, userMessage]);
@@ -173,20 +487,22 @@ export default function AriaScreen() {
     setIsLoading(true);
     Keyboard.dismiss();
 
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
 
     try {
-      const conversationHistory = chatMessages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      // Include location data for Aria's awareness
+      const locationData = userLocation ? {
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        city: userLocation.city,
+        state: userLocation.state,
+        country: userLocation.country,
+      } : null;
 
       const response = await api.post('/api/aria/chat', {
         message: userMessage.content,
-        conversationHistory,
-        context: {},
+        conversationHistory: chatMessages.map(m => ({ role: m.role, content: m.content })),
+        location: locationData,
       });
 
       if (response.data.success) {
@@ -194,30 +510,27 @@ export default function AriaScreen() {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: response.data.response,
-          timestamp: new Date(),
         };
-        setChatMessages(prev => [...prev, assistantMessage]);
 
-        // Update session preview
-        if (activeSession) {
-          setChatSessions(prev => prev.map(s =>
-            s.id === activeSession
-              ? { ...s, preview: response.data.response.substring(0, 50) + '...' }
-              : s
-          ));
-        }
-
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
+        setChatMessages(prev => {
+          const newMessages = [...prev, assistantMessage];
+          // Update conversation in history
+          if (convId) {
+            setConversations(convs => convs.map(conv =>
+              conv.id === convId
+                ? { ...conv, messages: newMessages, updatedAt: new Date() }
+                : conv
+            ));
+          }
+          return newMessages;
+        });
+        setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date(),
+        content: 'Sorry, something went wrong.',
       };
       setChatMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -225,341 +538,473 @@ export default function AriaScreen() {
     }
   };
 
-  const getSelectedVoice = () => {
-    return AI_VOICES.find(v => v.id === selectedVoice) || AI_VOICES[1];
-  };
-
-  const voice = getSelectedVoice();
-  const genderColor = voice.gender === 'Female' ? '#EC4899' : '#3B82F6';
-
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatDate = (date: Date) => {
-    const d = new Date(date);
-    const today = new Date();
-    if (d.toDateString() === today.toDateString()) return 'Today';
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  };
-
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={0}
     >
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        {isTextMode ? (
-          /* ===== TEXT CHAT INTERFACE ===== */
-          <View style={styles.chatWrapper}>
-            {/* Chat Header */}
-            <View style={[styles.chatHeader, { borderBottomColor: colors.border }]}>
-              <TouchableOpacity onPress={toggleMode} style={styles.backButton}>
-                <Ionicons name="chevron-back" size={24} color={colors.primary} />
-              </TouchableOpacity>
-
-              <View style={styles.chatHeaderCenter}>
-                <View style={styles.chatHeaderTitle}>
-                  <Ionicons name="sparkles" size={16} color={colors.primary} />
-                  <Text style={[styles.chatHeaderText, { color: colors.text }]}>Aria</Text>
-                </View>
-                <Text style={[styles.chatHeaderStatus, { color: colors.success }]}>Online</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.menuButton} onPress={openMenu}>
+              <View style={styles.menuLines}>
+                <View style={styles.menuLine} />
+                <View style={[styles.menuLine, styles.menuLineShort]} />
               </View>
-
-              <View style={styles.chatHeaderActions}>
-                {chatSessions.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => setShowHistory(!showHistory)}
-                    style={[styles.historyButton, { backgroundColor: colors.card }]}
-                  >
-                    <Ionicons name="time-outline" size={18} color={colors.textSecondary} />
-                  </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                  onPress={startNewChat}
-                  style={[styles.newChatButton, { backgroundColor: colors.card }]}
-                >
-                  <Ionicons name="add" size={20} color={colors.primary} />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {showHistory ? (
-              /* Chat History / Checkpoints */
-              <ScrollView style={styles.historyContainer} showsVerticalScrollIndicator={false}>
-                <Text style={[styles.historyTitle, { color: colors.text }]}>Conversations</Text>
-                <Text style={[styles.historySubtitle, { color: colors.textTertiary }]}>
-                  Pick up where you left off
-                </Text>
-
-                {chatSessions.map((session) => (
-                  <TouchableOpacity
-                    key={session.id}
-                    style={[styles.sessionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    onPress={() => loadSession(session)}
-                  >
-                    <View style={styles.sessionHeader}>
-                      <View style={[styles.sessionIcon, { backgroundColor: colors.primary + '15' }]}>
-                        <Ionicons name="chatbubble" size={14} color={colors.primary} />
-                      </View>
-                      <View style={styles.sessionInfo}>
-                        <Text style={[styles.sessionTitle, { color: colors.text }]} numberOfLines={1}>
-                          {session.title}
-                        </Text>
-                        <Text style={[styles.sessionDate, { color: colors.textTertiary }]}>
-                          {formatDate(session.timestamp)}
-                        </Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-                    </View>
-                    <Text style={[styles.sessionPreview, { color: colors.textSecondary }]} numberOfLines={2}>
-                      {session.preview}
-                    </Text>
-                    <View style={styles.sessionMeta}>
-                      <Text style={[styles.sessionMessages, { color: colors.textTertiary }]}>
-                        {session.messages.length} messages
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-
-                <TouchableOpacity
-                  style={[styles.newChatCard, { borderColor: colors.primary }]}
-                  onPress={startNewChat}
-                >
-                  <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-                  <Text style={[styles.newChatText, { color: colors.primary }]}>Start New Conversation</Text>
-                </TouchableOpacity>
-              </ScrollView>
-            ) : (
-              /* Active Chat */
-              <>
-                {/* Messages Area */}
-                <ScrollView
-                  ref={scrollViewRef}
-                  style={styles.messagesContainer}
-                  contentContainerStyle={[
-                    styles.messagesContent,
-                    chatMessages.length === 0 && styles.messagesContentEmpty
-                  ]}
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  {chatMessages.length === 0 ? (
-                    <View style={styles.emptyChat}>
-                      <View style={[styles.emptyChatIcon, { backgroundColor: colors.primary + '10' }]}>
-                        <Ionicons name="sparkles" size={32} color={colors.primary} />
-                      </View>
-                      <Text style={[styles.emptyChatTitle, { color: colors.text }]}>
-                        Chat with Aria
-                      </Text>
-                      <Text style={[styles.emptyChatText, { color: colors.textTertiary }]}>
-                        Type a message below or try a suggestion
-                      </Text>
-
-                      {/* Quick prompts - now send immediately */}
-                      <View style={styles.quickPrompts}>
-                        {['What\'s on my schedule?', 'Find a contact', 'Help me draft a message'].map((prompt, i) => (
-                          <TouchableOpacity
-                            key={i}
-                            style={[styles.quickPrompt, { backgroundColor: colors.card, borderColor: colors.border }]}
-                            onPress={() => {
-                              setTextInput(prompt);
-                              // Auto-send after a brief delay to show the text
-                              setTimeout(() => {
-                                const fakeEvent = { trim: () => prompt };
-                                if (prompt.trim()) {
-                                  // Directly send the prompt
-                                  const msg: ChatMessage = {
-                                    id: Date.now().toString(),
-                                    role: 'user',
-                                    content: prompt,
-                                    timestamp: new Date(),
-                                  };
-                                  setChatMessages(prev => [...prev, msg]);
-                                  setTextInput('');
-                                  setIsLoading(true);
-
-                                  api.post('/api/aria/chat', {
-                                    message: prompt,
-                                    conversationHistory: [],
-                                    context: {},
-                                  }).then(response => {
-                                    if (response.data.success) {
-                                      const assistantMsg: ChatMessage = {
-                                        id: (Date.now() + 1).toString(),
-                                        role: 'assistant',
-                                        content: response.data.response,
-                                        timestamp: new Date(),
-                                      };
-                                      setChatMessages(prev => [...prev, assistantMsg]);
-                                    }
-                                  }).catch(() => {
-                                    const errorMsg: ChatMessage = {
-                                      id: (Date.now() + 1).toString(),
-                                      role: 'assistant',
-                                      content: 'Sorry, I encountered an error.',
-                                      timestamp: new Date(),
-                                    };
-                                    setChatMessages(prev => [...prev, errorMsg]);
-                                  }).finally(() => {
-                                    setIsLoading(false);
-                                  });
-                                }
-                              }, 100);
-                            }}
-                          >
-                            <Ionicons name="chatbubble-outline" size={14} color={colors.primary} style={{ marginRight: 8 }} />
-                            <Text style={[styles.quickPromptText, { color: colors.text }]}>{prompt}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </View>
-                  ) : (
-                    chatMessages.map((message, index) => (
-                      <View key={message.id}>
-                        {index === 0 || (index > 0 &&
-                          new Date(message.timestamp).getTime() - new Date(chatMessages[index-1].timestamp).getTime() > 300000) && (
-                          <Text style={[styles.timeSeparator, { color: colors.textTertiary }]}>
-                            {formatTime(message.timestamp)}
-                          </Text>
-                        )}
-                        <View
-                          style={[
-                            styles.messageBubble,
-                            message.role === 'user' ? styles.userBubble : styles.assistantBubble,
-                            {
-                              backgroundColor: message.role === 'user'
-                                ? colors.primary
-                                : colors.card,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.messageText,
-                              { color: message.role === 'user' ? '#fff' : colors.text },
-                            ]}
-                          >
-                            {message.content}
-                          </Text>
-                        </View>
-                      </View>
-                    ))
-                  )}
-                  {isLoading && (
-                    <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: colors.card }]}>
-                      <View style={styles.typingDots}>
-                        <ActivityIndicator size="small" color={colors.primary} />
-                        <Text style={[styles.typingText, { color: colors.textTertiary }]}>Aria is thinking...</Text>
-                      </View>
-                    </View>
-                  )}
-                </ScrollView>
-
-                {/* Input Area - ALWAYS VISIBLE */}
-                <View style={[styles.inputArea, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                  <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <TextInput
-                      style={[styles.textInput, { color: colors.text }]}
-                      placeholder="Type your message..."
-                      placeholderTextColor={colors.textTertiary}
-                      value={textInput}
-                      onChangeText={setTextInput}
-                      multiline
-                      maxLength={500}
-                    />
-                    <TouchableOpacity
-                      style={[
-                        styles.sendButton,
-                        { backgroundColor: textInput.trim() ? colors.primary : colors.backgroundSecondary },
-                      ]}
-                      onPress={sendTextMessage}
-                      disabled={!textInput.trim() || isLoading}
-                    >
-                      <Ionicons
-                        name="send"
-                        size={18}
-                        color={textInput.trim() ? '#fff' : colors.textTertiary}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </>
-            )}
-          </View>
-        ) : (
-          /* ===== VOICE INTERFACE ===== */
-          <View style={styles.voiceWrapper}>
-            <Text style={[styles.title, { color: colors.primary }]}>ARIA</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Your AI Voice Assistant</Text>
-
-            {/* Voice Badge */}
-            <View style={[styles.voiceBadge, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <View style={[styles.voiceBadgeIcon, { backgroundColor: genderColor + '20' }]}>
-                <Ionicons name={voice.gender === 'Female' ? 'woman' : 'man'} size={14} color={genderColor} />
-              </View>
-              <Text style={[styles.voiceBadgeText, { color: colors.text }]}>
-                Speaking as {voice.name}
-              </Text>
-              <Text style={[styles.voiceBadgeAccent, { color: colors.textTertiary }]}>
-                {voice.accent}
-              </Text>
-            </View>
-
-            {/* Sleek Text Mode Button */}
-            <TouchableOpacity
-              style={[styles.textModeButton, { backgroundColor: colors.card, borderColor: colors.border }]}
-              onPress={toggleMode}
-            >
-              <Ionicons name="chatbubble-outline" size={16} color={colors.primary} />
-              <Text style={[styles.textModeButtonText, { color: colors.text }]}>Text Chat</Text>
             </TouchableOpacity>
 
-            {/* Orb */}
-            <View style={styles.orbWrapper}>
-              <AIOrbButton ref={orbRef} onPress={() => {}} onUIAction={handleUIAction} />
+            <View style={styles.headerTabs}>
+              {NAV_TABS.map((tab) => (
+                <TouchableOpacity
+                  key={tab.id}
+                  onPress={() => setActiveTab(tab.id)}
+                  style={styles.headerTab}
+                >
+                  <Text style={[
+                    styles.headerTabText,
+                    activeTab === tab.id && styles.headerTabTextActive
+                  ]}>
+                    {tab.label}
+                  </Text>
+                  {activeTab === tab.id && <View style={styles.headerTabUnderline} />}
+                </TouchableOpacity>
+              ))}
             </View>
 
-            <Text style={[styles.hint, { color: colors.textTertiary }]}>Tap to speak with Aria</Text>
+            <TouchableOpacity
+              style={styles.headerIcon}
+              onPress={() => setActiveTab('History')}
+            >
+              <Ionicons
+                name={activeTab === 'History' ? 'chatbubble' : 'chatbubble-outline'}
+                size={22}
+                color="#1a1a1a"
+              />
+            </TouchableOpacity>
           </View>
-        )}
-      </Animated.View>
 
-      {/* Dev Tools */}
-      {!isTextMode && (
-        <TouchableOpacity
-          style={[styles.devToggleButton, { backgroundColor: colors.card, borderColor: colors.border }]}
-          onPress={() => setShowDevTools(!showDevTools)}
-        >
-          <Ionicons name={showDevTools ? 'close' : 'code-slash'} size={14} color={colors.textSecondary} />
-        </TouchableOpacity>
-      )}
+          {/* Main Content Area */}
+          <View style={styles.mainArea}>
+            {activeTab === 'Ask' && (
+              <>
+                {chatMessages.length === 0 ? (
+                  <View style={styles.emptyState}>
+                    <View style={styles.logoContainer}>
+                      <View style={styles.logoIcon}>
+                        <Ionicons name="flash" size={36} color="#d1d5db" />
+                        <View style={styles.logoOrbit} />
+                      </View>
+                      <View style={styles.sparkle}>
+                        <Ionicons name="sparkles" size={16} color="#d1d5db" />
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <ScrollView
+                    ref={scrollViewRef}
+                    style={styles.chatMessages}
+                    contentContainerStyle={styles.chatMessagesContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    {chatMessages.map((msg) => (
+                      <View
+                        key={msg.id}
+                        style={[
+                          styles.chatBubble,
+                          msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
+                        ]}
+                      >
+                        <Text style={[
+                          styles.chatBubbleText,
+                          msg.role === 'user' && styles.userBubbleText,
+                        ]}>
+                          {msg.content}
+                        </Text>
+                      </View>
+                    ))}
+                    {isLoading && (
+                      <View style={[styles.chatBubble, styles.assistantBubble]}>
+                        <ActivityIndicator size="small" color="#3b82f6" />
+                      </View>
+                    )}
+                  </ScrollView>
+                )}
+              </>
+            )}
 
-      {showDevTools && !isTextMode && (
-        <View style={[styles.devToolsPanel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <ScrollView style={styles.devToolsScroll}>
-            <Text style={[styles.devToolsTitle, { color: colors.text }]}>Developer Tools</Text>
-            <View style={styles.devSection}>
-              <Text style={[styles.devSectionTitle, { color: colors.primary }]}>Voice</Text>
-              <Text style={[styles.devInfo, { color: colors.textSecondary }]}>Voice: {voice.name} ({voice.accent})</Text>
-              <Text style={[styles.devInfo, { color: colors.textSecondary }]}>Style: {voiceStyle}</Text>
-              <Text style={[styles.devInfo, { color: colors.textSecondary }]}>Model: GPT-4o-mini</Text>
+            {activeTab === 'History' && (
+              <View style={styles.historyContainer}>
+                <View style={styles.historyHeader}>
+                  <Text style={styles.historyTitle}>Conversations</Text>
+                  <TouchableOpacity
+                    style={styles.newChatBtn}
+                    onPress={startNewConversation}
+                  >
+                    <Ionicons name="add" size={20} color="#3b82f6" />
+                    <Text style={styles.newChatBtnText}>New Chat</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {conversations.length === 0 ? (
+                  <View style={styles.emptyHistory}>
+                    <Ionicons name="chatbubbles-outline" size={48} color="#d1d5db" />
+                    <Text style={styles.emptyHistoryText}>No conversations yet</Text>
+                    <Text style={styles.emptyHistorySubtext}>
+                      Start chatting with Aria to see your history here
+                    </Text>
+                  </View>
+                ) : (
+                  <ScrollView
+                    style={styles.historyList}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    {conversations.map((conv) => (
+                      <TouchableOpacity
+                        key={conv.id}
+                        style={[
+                          styles.historyItem,
+                          currentConversationId === conv.id && styles.historyItemActive,
+                        ]}
+                        onPress={() => loadConversation(conv)}
+                      >
+                        <View style={styles.historyItemIcon}>
+                          <Ionicons
+                            name="chatbubble-outline"
+                            size={18}
+                            color={currentConversationId === conv.id ? '#3b82f6' : '#6b7280'}
+                          />
+                        </View>
+                        <View style={styles.historyItemContent}>
+                          <Text
+                            style={[
+                              styles.historyItemTitle,
+                              currentConversationId === conv.id && styles.historyItemTitleActive,
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {conv.title}
+                          </Text>
+                          <Text style={styles.historyItemMeta}>
+                            {conv.messages.length} messages · {formatTimeAgo(conv.updatedAt)}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.historyItemDelete}
+                          onPress={() => deleteConversation(conv.id)}
+                        >
+                          <Ionicons name="trash-outline" size={16} color="#9ca3af" />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
+              </View>
+            )}
+
+            {activeTab === 'Settings' && (
+              <ScrollView style={styles.settingsContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.settingsSection}>
+                  <Text style={styles.settingsSectionTitle}>Voice</Text>
+                  <TouchableOpacity style={styles.settingsItem}>
+                    <Ionicons name="mic-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Voice Settings</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.settingsItem}>
+                    <Ionicons name="volume-high-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Response Voice</Text>
+                    <Text style={styles.settingsItemValue}>Nova</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.settingsSection}>
+                  <Text style={styles.settingsSectionTitle}>Notifications</Text>
+                  <TouchableOpacity style={styles.settingsItem}>
+                    <Ionicons name="notifications-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Daily Summary</Text>
+                    <View style={styles.settingsToggle}>
+                      <View style={[styles.settingsToggleTrack, styles.settingsToggleTrackOn]}>
+                        <View style={[styles.settingsToggleThumb, styles.settingsToggleThumbOn]} />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.settingsSection}>
+                  <Text style={styles.settingsSectionTitle}>Data</Text>
+                  <TouchableOpacity style={styles.settingsItem}>
+                    <Ionicons name="cloud-download-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Export Conversations</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.settingsItem} onPress={clearAllHistory}>
+                    <Ionicons name="trash-outline" size={22} color="#ef4444" />
+                    <Text style={[styles.settingsItemText, { color: '#ef4444' }]}>Clear All History</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            )}
+          </View>
+
+          {/* Bottom Section */}
+          <View style={styles.bottomSection}>
+            {/* Quick Action Pills */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.quickActions}
+            >
+              <TouchableOpacity
+                style={[styles.quickAction, styles.quickActionPrimary]}
+                onPress={handleUpgradePress}
+              >
+                <View style={styles.quickActionIcon}>
+                  <Ionicons name="flash" size={16} color="#3b82f6" />
+                </View>
+                <Text style={styles.quickActionTextPrimary}>Get SuperAria</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.quickAction, isRecording && styles.quickActionRecording]}
+                onPress={handleVoicePress}
+              >
+                <View style={[styles.quickActionIcon, isRecording && styles.quickActionIconRecording]}>
+                  <Ionicons
+                    name={isRecording ? "stop" : "mic-outline"}
+                    size={16}
+                    color={isRecording ? "#ef4444" : "#6b7280"}
+                  />
+                </View>
+                <Text style={[styles.quickActionText, isRecording && styles.quickActionTextRecording]}>
+                  {isRecording ? "Stop" : "Voice Mode"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.quickActionImage} onPress={pickImage}>
+                {attachedImage ? (
+                  <View style={styles.attachedImageContainer}>
+                    <Image source={{ uri: attachedImage }} style={styles.attachedImageThumb} />
+                    <TouchableOpacity style={styles.removeImageBtn} onPress={removeAttachedImage}>
+                      <Ionicons name="close-circle" size={18} color="#ef4444" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View style={styles.imagePlaceholder}>
+                    <Ionicons name="image-outline" size={18} color="#9ca3af" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Input Box */}
+            <TouchableOpacity
+              style={[styles.inputBox, inputFocused && styles.inputBoxFocused]}
+              onPress={focusInput}
+              activeOpacity={1}
+            >
+              <TextInput
+                ref={inputRef}
+                style={styles.inputText}
+                value={textInput}
+                onChangeText={setTextInput}
+                placeholder="Ask Anything"
+                placeholderTextColor="#9ca3af"
+                onSubmitEditing={sendTextMessage}
+                returnKeyType="send"
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                multiline
+              />
+
+              <View style={styles.inputActions}>
+                <TouchableOpacity style={styles.inputActionBtn} onPress={pickImage}>
+                  <Ionicons
+                    name={attachedImage ? "image" : "attach-outline"}
+                    size={20}
+                    color={attachedImage ? "#3b82f6" : "#9ca3af"}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.modeBadge}>
+                  <Ionicons name="flash" size={12} color="#6b7280" />
+                  <Text style={styles.modeBadgeText}>Fast</Text>
+                  <Ionicons name="chevron-down" size={12} color="#6b7280" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.speakBtn,
+                    isRecording && styles.speakBtnRecording,
+                  ]}
+                  onPress={textInput.trim() ? sendTextMessage : handleVoicePress}
+                >
+                  {textInput.trim() ? (
+                    <Ionicons name="arrow-up" size={16} color="#fff" />
+                  ) : (
+                    <Image
+                      source={require('../../assets/voiceflow-logo.png')}
+                      style={styles.speakBtnLogo}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Response Modal */}
+          <AriaResponseModal
+            visible={modalVisible}
+            uiAction={currentUIAction}
+            onClose={() => setModalVisible(false)}
+            onAction={() => setModalVisible(false)}
+          />
+
+          {/* Slide-out Menu */}
+          <Modal
+            visible={menuOpen}
+            transparent
+            animationType="none"
+            onRequestClose={closeMenu}
+          >
+            <View style={styles.menuOverlay}>
+              <Pressable style={styles.menuBackdrop} onPress={closeMenu} />
+              <Animated.View
+                style={[
+                  styles.menuDrawer,
+                  { transform: [{ translateX: menuSlide }] },
+                ]}
+              >
+                {/* Menu Header */}
+                <View style={styles.menuHeader}>
+                  <View style={styles.menuLogoRow}>
+                    <View style={styles.menuLogo}>
+                      <Ionicons name="flash" size={20} color="#3b82f6" />
+                    </View>
+                    <Text style={styles.menuTitle}>Aria</Text>
+                  </View>
+                  <TouchableOpacity onPress={closeMenu} style={styles.menuClose}>
+                    <Ionicons name="close" size={24} color="#6b7280" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* User Info */}
+                {user && (
+                  <View style={styles.menuUser}>
+                    <View style={styles.menuAvatar}>
+                      <Text style={styles.menuAvatarText}>
+                        {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                      </Text>
+                    </View>
+                    <View style={styles.menuUserInfo}>
+                      <Text style={styles.menuUserName}>{user.name || 'User'}</Text>
+                      <Text style={styles.menuUserEmail}>{user.email}</Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* Menu Items */}
+                <View style={styles.menuItems}>
+                  {MENU_ITEMS.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.menuItem}
+                      onPress={() => handleMenuNav(item.id)}
+                    >
+                      <Ionicons name={item.icon as any} size={22} color="#374151" />
+                      <Text style={styles.menuItemText}>{item.label}</Text>
+                      <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Menu Footer */}
+                <View style={styles.menuFooter}>
+                  <TouchableOpacity style={styles.menuFooterBtn} onPress={logout}>
+                    <Ionicons name="log-out-outline" size={20} color="#ef4444" />
+                    <Text style={styles.menuFooterBtnText}>Sign Out</Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
             </View>
-          </ScrollView>
-        </View>
-      )}
+          </Modal>
 
-      <AriaResponseModal
-        visible={modalVisible}
-        uiAction={currentUIAction}
-        onClose={() => setModalVisible(false)}
-        onAction={handleModalAction}
-      />
+          {/* SuperAria Upgrade Modal */}
+          <Modal
+            visible={upgradeModalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setUpgradeModalVisible(false)}
+          >
+            <View style={styles.upgradeOverlay}>
+              <View style={styles.upgradeModal}>
+                {/* Close button */}
+                <TouchableOpacity
+                  style={styles.upgradeClose}
+                  onPress={() => setUpgradeModalVisible(false)}
+                >
+                  <Ionicons name="close" size={24} color="#6b7280" />
+                </TouchableOpacity>
+
+                {/* Icon */}
+                <View style={styles.upgradeIconContainer}>
+                  <View style={styles.upgradeIcon}>
+                    <Ionicons name="flash" size={32} color="#3b82f6" />
+                  </View>
+                  <View style={styles.upgradeSparkle}>
+                    <Ionicons name="sparkles" size={16} color="#f59e0b" />
+                  </View>
+                </View>
+
+                {/* Title */}
+                <Text style={styles.upgradeTitle}>Unlock SuperAria</Text>
+                <Text style={styles.upgradeSubtitle}>
+                  Get unlimited conversations, priority responses, and advanced features.
+                </Text>
+
+                {/* Features */}
+                <View style={styles.upgradeFeatures}>
+                  <View style={styles.upgradeFeature}>
+                    <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                    <Text style={styles.upgradeFeatureText}>Unlimited voice conversations</Text>
+                  </View>
+                  <View style={styles.upgradeFeature}>
+                    <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                    <Text style={styles.upgradeFeatureText}>Priority AI responses</Text>
+                  </View>
+                  <View style={styles.upgradeFeature}>
+                    <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                    <Text style={styles.upgradeFeatureText}>Image analysis & understanding</Text>
+                  </View>
+                  <View style={styles.upgradeFeature}>
+                    <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                    <Text style={styles.upgradeFeatureText}>Advanced CRM integrations</Text>
+                  </View>
+                </View>
+
+                {/* CTA Buttons */}
+                <TouchableOpacity
+                  style={styles.upgradeCta}
+                  onPress={() => handleUpgradeAction('upgrade')}
+                >
+                  <Ionicons name="flash" size={18} color="#fff" />
+                  <Text style={styles.upgradeCtaText}>Upgrade Now</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.upgradeLater}
+                  onPress={() => setUpgradeModalVisible(false)}
+                >
+                  <Text style={styles.upgradeLaterText}>Maybe Later</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </View>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
@@ -567,356 +1012,696 @@ export default function AriaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fafafa',
   },
-  content: {
-    flex: 1,
-  },
-  // Voice Interface
-  voiceWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 56,
-    fontWeight: '700',
-    letterSpacing: 12,
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    marginBottom: 20,
-    letterSpacing: 2,
-  },
-  voiceBadge: {
+
+  // Header
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginBottom: 12,
-    gap: 8,
+    justifyContent: 'space-between',
+    paddingTop: Platform.OS === 'ios' ? 60 : 44,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
-  voiceBadgeIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
+  menuButton: {
+    width: 44,
+    height: 44,
     justifyContent: 'center',
   },
-  voiceBadgeText: {
-    fontSize: 14,
-    fontWeight: '600',
+  menuLines: {
+    gap: 5,
   },
-  voiceBadgeAccent: {
-    fontSize: 12,
+  menuLine: {
+    width: 20,
+    height: 2,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 1,
   },
-  textModeButton: {
+  menuLineShort: {
+    width: 14,
+  },
+  headerTabs: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: 6,
-    marginBottom: 30,
+    gap: 32,
   },
-  textModeButtonText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  orbWrapper: {
-    marginBottom: 20,
-  },
-  hint: {
-    fontSize: 14,
-    fontStyle: 'italic',
-  },
-  // Chat Interface
-  chatWrapper: {
-    flex: 1,
-  },
-  chatContent: {
-    flex: 1,
-  },
-  chatHeader: {
-    flexDirection: 'row',
+  headerTab: {
     alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
+    paddingVertical: 4,
   },
-  backButton: {
-    padding: 4,
-  },
-  chatHeaderCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  chatHeaderTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  chatHeaderText: {
+  headerTabText: {
     fontSize: 17,
+    fontWeight: '500',
+    color: '#9ca3af',
+    letterSpacing: -0.3,
+  },
+  headerTabTextActive: {
+    color: '#1a1a1a',
     fontWeight: '600',
   },
-  chatHeaderStatus: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  chatHeaderActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  historyButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  newChatButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // History
-  historyContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  historyTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  historySubtitle: {
-    fontSize: 14,
-    marginBottom: 24,
-  },
-  sessionCard: {
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 12,
-  },
-  sessionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  sessionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sessionInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  sessionTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  sessionDate: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  sessionPreview: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 8,
-  },
-  sessionMeta: {
-    flexDirection: 'row',
-  },
-  sessionMessages: {
-    fontSize: 11,
-  },
-  newChatCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    gap: 8,
+  headerTabUnderline: {
     marginTop: 8,
+    width: 16,
+    height: 2,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 1,
   },
-  newChatText: {
-    fontSize: 14,
-    fontWeight: '600',
+  headerIcon: {
+    width: 44,
+    height: 44,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  // Messages
-  messagesContainer: {
+
+  // Main Area
+  mainArea: {
     flex: 1,
   },
-  messagesContent: {
-    padding: 16,
-    paddingBottom: 8,
-    flexGrow: 1,
-  },
-  messagesContentEmpty: {
-    justifyContent: 'center',
-  },
-  emptyChat: {
+  emptyState: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
+  },
+  logoContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoIcon: {
+    position: 'relative',
+  },
+  logoOrbit: {
+    position: 'absolute',
+    top: -8,
+    left: -8,
+    right: -8,
+    bottom: -8,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+  },
+  sparkle: {
+    position: 'absolute',
+    bottom: -4,
+    right: -12,
+  },
+
+  // Chat Messages
+  chatMessages: {
+    flex: 1,
     paddingHorizontal: 20,
   },
-  emptyChatIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+  chatMessagesContent: {
+    paddingVertical: 20,
   },
-  emptyChatTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  emptyChatText: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
-  },
-  quickPrompts: {
-    gap: 8,
-    width: '100%',
-  },
-  quickPrompt: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  chatBubble: {
+    maxWidth: '82%',
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  quickPromptText: {
-    fontSize: 14,
-    flex: 1,
-  },
-  timeSeparator: {
-    textAlign: 'center',
-    fontSize: 11,
-    marginVertical: 16,
-  },
-  messageBubble: {
-    maxWidth: '80%',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 20,
-    marginBottom: 6,
+    marginBottom: 10,
   },
   userBubble: {
     alignSelf: 'flex-end',
+    backgroundColor: '#1a1a1a',
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
     alignSelf: 'flex-start',
+    backgroundColor: '#f3f4f6',
     borderBottomLeftRadius: 6,
   },
-  messageText: {
+  chatBubbleText: {
     fontSize: 15,
-    lineHeight: 21,
+    lineHeight: 22,
+    color: '#374151',
   },
-  typingDots: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 2,
+  userBubbleText: {
+    color: '#ffffff',
   },
-  typingText: {
-    fontSize: 13,
-    fontStyle: 'italic',
-  },
-  // Input
-  inputArea: {
+
+  // Bottom Section
+  bottomSection: {
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 100, // Account for bottom tab bar (85px) + extra padding
-    borderTopWidth: 1,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+    gap: 12,
   },
-  inputWrapper: {
+
+  // Quick Actions
+  quickActions: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  quickAction: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f3f4f6',
     borderRadius: 24,
-    borderWidth: 1,
-    paddingLeft: 16,
-    paddingRight: 6,
-    paddingVertical: 6,
-    minHeight: 48,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    gap: 8,
   },
-  textInput: {
-    flex: 1,
-    fontSize: 16,
-    minHeight: 36,
+  quickActionPrimary: {
+    backgroundColor: '#eff6ff',
+  },
+  quickActionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  quickActionText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    letterSpacing: -0.2,
+  },
+  quickActionTextPrimary: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3b82f6',
+    letterSpacing: -0.2,
+  },
+  quickActionImage: {
+    backgroundColor: '#f3f4f6',
+    borderRadius: 16,
+    padding: 8,
+  },
+  imagePlaceholder: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Input Box
+  inputBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  inputBoxFocused: {
+    borderColor: '#d1d5db',
+    shadowOpacity: 0.06,
+  },
+  inputText: {
+    fontSize: 17,
+    color: '#1a1a1a',
+    minHeight: 24,
     maxHeight: 100,
-    paddingVertical: 8,
-    paddingRight: 8,
+    paddingVertical: 0,
+    marginBottom: 12,
   },
-  sendButton: {
+  inputActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  inputActionBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
+    backgroundColor: '#f9fafb',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Dev tools
-  devToggleButton: {
-    position: 'absolute',
-    top: 60,
-    right: 16,
+  modeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 5,
+  },
+  modeBadgeText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  speakBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 'auto',
+  },
+  speakBtnRecording: {
+    backgroundColor: '#374151',
+  },
+  speakBtnLogo: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    tintColor: '#fff',
+  },
+
+  // Menu Drawer
+  menuOverlay: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  menuBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  menuDrawer: {
+    width: SCREEN_WIDTH * 0.8,
+    maxWidth: 320,
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 60 : 44,
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  menuHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  menuLogoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  menuLogo: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#eff6ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    letterSpacing: -0.5,
+  },
+  menuClose: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuUser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+    gap: 12,
+  },
+  menuAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuAvatarText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  menuUserInfo: {
+    flex: 1,
+  },
+  menuUserName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  menuUserEmail: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  menuItems: {
+    flex: 1,
+    paddingTop: 12,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 14,
+  },
+  menuItemText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#374151',
+  },
+  menuFooter: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+  },
+  menuFooterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  menuFooterBtnText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#ef4444',
+  },
+
+  // History Tab
+  historyContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
+  },
+  newChatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#eff6ff',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 4,
+  },
+  newChatBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3b82f6',
+  },
+  emptyHistory: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 80,
+  },
+  emptyHistoryText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#374151',
+    marginTop: 16,
+  },
+  emptyHistorySubtext: {
+    fontSize: 14,
+    color: '#9ca3af',
+    marginTop: 6,
+    textAlign: 'center',
+    maxWidth: 240,
+  },
+  historyList: {
+    flex: 1,
+    paddingTop: 8,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginBottom: 4,
+    gap: 12,
+  },
+  historyItemActive: {
+    backgroundColor: '#eff6ff',
+  },
+  historyItemIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyItemContent: {
+    flex: 1,
+  },
+  historyItemTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 2,
+  },
+  historyItemTitleActive: {
+    color: '#3b82f6',
+    fontWeight: '600',
+  },
+  historyItemMeta: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+  historyItemDelete: {
     width: 32,
     height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
-  devToolsPanel: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '35%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderTopWidth: 1,
-  },
-  devToolsScroll: {
+
+  // Settings Tab
+  settingsContainer: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
-  devToolsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
+  settingsSection: {
+    paddingTop: 24,
+    paddingBottom: 8,
   },
-  devSection: {
-    marginBottom: 16,
-  },
-  devSectionTitle: {
+  settingsSectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
-  devInfo: {
-    fontSize: 12,
-    marginBottom: 3,
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginBottom: 8,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  settingsItemText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#374151',
+  },
+  settingsItemValue: {
+    fontSize: 14,
+    color: '#9ca3af',
+    marginRight: 4,
+  },
+  settingsToggle: {
+    marginLeft: 'auto',
+  },
+  settingsToggleTrack: {
+    width: 44,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#e5e7eb',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  settingsToggleTrackOn: {
+    backgroundColor: '#3b82f6',
+  },
+  settingsToggleThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  settingsToggleThumbOn: {
+    alignSelf: 'flex-end',
+  },
+
+  // Voice Recording Styles
+  quickActionRecording: {
+    backgroundColor: '#fef2f2',
+  },
+  quickActionIconRecording: {
+    backgroundColor: '#fee2e2',
+  },
+  quickActionTextRecording: {
+    color: '#ef4444',
+    fontWeight: '600',
+  },
+
+  // Attached Image Styles
+  attachedImageContainer: {
+    position: 'relative',
+  },
+  attachedImageThumb: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+  },
+
+  // Upgrade Modal Styles
+  upgradeOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  upgradeModal: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 28,
+    width: '100%',
+    maxWidth: 360,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 30,
+    elevation: 20,
+  },
+  upgradeClose: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upgradeIconContainer: {
+    position: 'relative',
+    marginBottom: 20,
+    marginTop: 8,
+  },
+  upgradeIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: '#eff6ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upgradeSparkle: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+  },
+  upgradeTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  upgradeSubtitle: {
+    fontSize: 15,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  upgradeFeatures: {
+    width: '100%',
+    gap: 12,
+    marginBottom: 28,
+  },
+  upgradeFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  upgradeFeatureText: {
+    fontSize: 15,
+    color: '#374151',
+  },
+  upgradeCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3b82f6',
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 8,
+  },
+  upgradeCtaText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  upgradeLater: {
+    paddingVertical: 14,
+  },
+  upgradeLaterText: {
+    fontSize: 15,
+    color: '#9ca3af',
+    fontWeight: '500',
   },
 });

@@ -1,9 +1,16 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Use ngrok for HTTPS (required by iOS)
-// WARNING: Update this URL when you restart ngrok!
-const DEFAULT_API_URL = 'https://3b1fa9556f6b.ngrok-free.app';
+// API URL configuration
+// Set to 'local' for development, 'production' for live
+const USE_LOCAL_API = true; // Testing locally before deploying
+
+// Get local machine IP for development
+const LOCAL_API_URL = 'http://192.168.0.153:5001'; // Your local machine IP
+const PRODUCTION_API_URL = 'https://voiceflow-crm.onrender.com';
+
+// Use local API in dev mode for testing new features, production otherwise
+const DEFAULT_API_URL = USE_LOCAL_API ? LOCAL_API_URL : PRODUCTION_API_URL;
 
 export const API_URL = Constants.expoConfig?.extra?.API_URL || DEFAULT_API_URL;
 export const ELEVENLABS_API_KEY = Constants.expoConfig?.extra?.ELEVENLABS_API_KEY || '';

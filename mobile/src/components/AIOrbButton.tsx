@@ -3,7 +3,22 @@ import { View, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-na
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
+import * as Speech from 'expo-speech';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../utils/api';
+
+// Cache key for wake greetings
+const WAKE_GREETINGS_CACHE_KEY = 'aria_wake_greetings';
+const THINKING_CACHE_KEY = 'aria_thinking_audio';
+
+// Thinking phrases Aria says when processing takes long
+const THINKING_PHRASES = [
+  "Let me think about that...",
+  "One moment...",
+  "Looking into that...",
+  "Let me check...",
+  "Working on it...",
+];
 
 export interface UIAction {
   type: 'show_list' | 'confirm_sms' | 'confirm_email' | 'confirm_appointment' | 'confirm_memory' | 'error';
@@ -14,9 +29,10 @@ export interface UIAction {
 interface AIOrbButtonProps {
   onPress: () => void;
   onUIAction?: (action: UIAction) => void;
+  userName?: string;  // User's first name for personalized greeting
 }
 
-const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) => {
+const AIOrbButton = forwardRef(({ onPress, onUIAction, userName }: AIOrbButtonProps, ref) => {
   const [isListening, setIsListening] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<any[]>([]);
@@ -29,6 +45,16 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const meteringIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastSoundTimeRef = useRef<number>(Date.now());
+
+  // Cached wake greetings for instant playback
+  const cachedGreetingsRef = useRef<string[]>([]);
+  const greetingIndexRef = useRef(0);
+
+  // Thinking audio ref for timeout
+  const thinkingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const thinkingSoundRef = useRef<Audio.Sound | null>(null);
+  const cachedThinkingRef = useRef<string[]>([]);
+  const thinkingIndexRef = useRef(0);
 
   // Core animations
   const breatheAnim = useRef(new Animated.Value(1)).current;
@@ -75,6 +101,114 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
 
     initAudio();
   }, []);
+
+  // Preload personalized greetings when userName changes
+  useEffect(() => {
+    const loadAndPreloadGreetings = async () => {
+      // Clear any old non-personalized cached greetings
+      await AsyncStorage.removeItem(WAKE_GREETINGS_CACHE_KEY);
+
+      // Try to load user-specific cached greetings first
+      const cacheKey = userName ? `${WAKE_GREETINGS_CACHE_KEY}_${userName}` : WAKE_GREETINGS_CACHE_KEY;
+      try {
+        const cached = await AsyncStorage.getItem(cacheKey);
+        if (cached) {
+          const greetings = JSON.parse(cached);
+          if (Array.isArray(greetings) && greetings.length > 0) {
+            cachedGreetingsRef.current = greetings;
+            console.log(`[ARIA] Loaded ${greetings.length} cached greetings for ${userName || 'anonymous'}`);
+            return; // Use cached greetings
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load cached greetings:', error);
+      }
+
+      // No cache found, preload fresh greetings
+      console.log(`[ARIA] Preloading greetings${userName ? ` for ${userName}` : ''}...`);
+      preloadGreetings();
+    };
+
+    loadAndPreloadGreetings();
+  }, [userName]);
+
+  // Load cached greetings from AsyncStorage
+  const loadCachedGreetings = async () => {
+    try {
+      const cached = await AsyncStorage.getItem(WAKE_GREETINGS_CACHE_KEY);
+      if (cached) {
+        const greetings = JSON.parse(cached);
+        if (Array.isArray(greetings) && greetings.length > 0) {
+          cachedGreetingsRef.current = greetings;
+          console.log(`[ARIA] Loaded ${greetings.length} cached greetings`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load cached greetings:', error);
+    }
+  };
+
+  // Preload multiple greetings in background (personalized with userName)
+  const preloadGreetings = async () => {
+    try {
+      console.log(`[ARIA] Preloading greetings${userName ? ` for ${userName}` : ''}...`);
+      const greetings: string[] = [];
+
+      // Fetch 3 greetings to have variety
+      for (let i = 0; i < 3; i++) {
+        try {
+          const response = await api.post('/api/aria/voice-wake', { userName });
+          if (response.data.success && response.data.audioResponse) {
+            greetings.push(response.data.audioResponse);
+          }
+        } catch (e) {
+          // Continue even if one fails
+        }
+      }
+
+      if (greetings.length > 0) {
+        cachedGreetingsRef.current = greetings;
+        // Cache with userName in key so different users get different greetings
+        const cacheKey = userName ? `${WAKE_GREETINGS_CACHE_KEY}_${userName}` : WAKE_GREETINGS_CACHE_KEY;
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(greetings));
+        console.log(`[ARIA] Preloaded and cached ${greetings.length} personalized greetings`);
+      }
+    } catch (error) {
+      console.warn('Failed to preload greetings:', error);
+    }
+  };
+
+  // Thinking audio disabled - was causing low volume whisper issue
+  const playThinkingAudio = async () => {
+    // Disabled - don't play any thinking audio
+    console.log('[ARIA] Thinking audio disabled');
+  };
+
+  // Cancel thinking feedback
+  const cancelThinkingFeedback = () => {
+    if (thinkingTimeoutRef.current) {
+      clearTimeout(thinkingTimeoutRef.current);
+      thinkingTimeoutRef.current = null;
+    }
+    if (thinkingSoundRef.current) {
+      thinkingSoundRef.current.stopAsync().catch(() => {});
+      thinkingSoundRef.current.unloadAsync().catch(() => {});
+      thinkingSoundRef.current = null;
+    }
+    // Also stop any expo-speech
+    try {
+      Speech.stop();
+    } catch (e) {}
+  };
+
+  // Start thinking feedback timer
+  const startThinkingTimer = () => {
+    cancelThinkingFeedback();
+    // Play thinking audio after 3 seconds if response hasn't arrived
+    thinkingTimeoutRef.current = setTimeout(() => {
+      playThinkingAudio();
+    }, 3000);
+  };
 
   useEffect(() => {
     // Idle breathing animation
@@ -400,21 +534,41 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
 
   const startRecording = async () => {
     try {
-      if (isRecordingRef.current) return;
+      if (isRecordingRef.current) {
+        console.log('[ARIA] Already recording, skipping');
+        return;
+      }
+
+      console.log('[ARIA] Starting recording...');
 
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
+        console.warn('[ARIA] Audio permission not granted');
         setIsListening(false);
         isListeningRef.current = false;
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+      // CRITICAL: Switch audio mode to recording mode
+      // This must be done BEFORE creating the recording
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false,
+          shouldDuckAndroid: true,
+        });
+        console.log('[ARIA] Audio mode set for recording');
+      } catch (audioModeError) {
+        console.error('[ARIA] Failed to set audio mode:', audioModeError);
+        // Try to continue anyway
+      }
 
-      // Use LOW_QUALITY for faster encoding - speech doesn't need high quality
+      // Small delay to let iOS audio session fully switch
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Use recording settings optimized for speech
       const { recording: newRecording } = await Audio.Recording.createAsync({
         ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
         android: {
@@ -432,10 +586,11 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
       recordingRef.current = newRecording;
       isRecordingRef.current = true;
       setIsRecording(true);
+      console.log('[ARIA] Recording started successfully');
 
       startVoiceActivityDetection();
     } catch (error) {
-      console.error('Error starting recording:', error);
+      console.error('[ARIA] Error starting recording:', error);
       isRecordingRef.current = false;
       setIsListening(false);
       isListeningRef.current = false;
@@ -482,10 +637,16 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
         console.log('[MOBILE] Sending audio to backend...');
         const sendStartTime = Date.now();
 
+        // Start thinking timer - will say "Let me think..." if response takes > 3 seconds
+        startThinkingTimer();
+
         const apiResponse = await api.post('/api/voice/process', {
           audioBase64: base64Audio,
           conversationHistory: conversationHistory,
         }, { timeout: 60000 });
+
+        // Cancel thinking feedback since we got a response
+        cancelThinkingFeedback();
 
         console.log(`[MOBILE] API response received in ${Date.now() - sendStartTime}ms`);
 
@@ -515,6 +676,9 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
           }
         }
       } catch (error: any) {
+        // Cancel thinking feedback on error too
+        cancelThinkingFeedback();
+
         console.error('[MOBILE] Error sending to AI:', error?.message || error);
         if (error?.code === 'ECONNABORTED') {
           console.error('[MOBILE] Request timed out - backend may be slow');
@@ -536,26 +700,88 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
 
   const playWakeGreeting = async () => {
     try {
-      // Call instant wake greeting endpoint
-      const response = await api.post('/api/aria/voice-wake');
+      let audioBase64: string | null = null;
 
-      if (response.data.success && response.data.audioResponse) {
-        // Play the greeting audio
-        const { sound } = await Audio.Sound.createAsync({
-          uri: `data:audio/mp3;base64,${response.data.audioResponse}`,
+      // Try to use cached greeting first for instant playback
+      if (cachedGreetingsRef.current.length > 0) {
+        // Get next greeting in rotation
+        audioBase64 = cachedGreetingsRef.current[greetingIndexRef.current];
+        greetingIndexRef.current = (greetingIndexRef.current + 1) % cachedGreetingsRef.current.length;
+        console.log('[ARIA] Using cached greeting (instant)');
+      } else {
+        // Fall back to API call if no cache - with personalized name
+        console.log(`[ARIA] No cached greeting, fetching from API${userName ? ` for ${userName}` : ''}...`);
+        const response = await api.post('/api/aria/voice-wake', { userName });
+        if (response.data.success && response.data.audioResponse) {
+          audioBase64 = response.data.audioResponse;
+          // Cache this for next time with user-specific key
+          cachedGreetingsRef.current.push(audioBase64);
+          const cacheKey = userName ? `${WAKE_GREETINGS_CACHE_KEY}_${userName}` : WAKE_GREETINGS_CACHE_KEY;
+          AsyncStorage.setItem(cacheKey, JSON.stringify(cachedGreetingsRef.current)).catch(() => {});
+        }
+      }
+
+      if (audioBase64) {
+        // CRITICAL: Configure audio mode EXACTLY like playAudioResponse for consistent volume
+        // This activates the audio session and routes to the main speaker
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false,
+          shouldDuckAndroid: true,  // Match conversation playback settings
         });
 
-        await sound.playAsync();
+        // Small delay to ensure iOS audio session is fully activated
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Clean up after playing
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            sound.unloadAsync();
+        // Play the greeting audio at full volume using mpeg format
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: `data:audio/mpeg;base64,${audioBase64}` },  // Use audio/mpeg like conversation
+          {
+            shouldPlay: false,  // Don't auto-play, we'll manually start
+            volume: 1.0,
           }
+        );
+
+        // Ensure sound is loaded before playing
+        const status = await sound.getStatusAsync();
+        if (status.isLoaded) {
+          await sound.playAsync();
+          console.log('[ARIA] Wake greeting playing at full volume');
+        }
+
+        // Wait for playback to finish before returning
+        await new Promise<void>((resolve) => {
+          sound.setOnPlaybackStatusUpdate((playStatus) => {
+            if (playStatus.isLoaded && playStatus.didJustFinish) {
+              sound.unloadAsync().catch(() => {});
+              console.log('[ARIA] Wake greeting finished playing');
+              resolve();
+            }
+          });
+
+          // Timeout after 3 seconds max (in case callback doesn't fire)
+          setTimeout(() => {
+            sound.unloadAsync().catch(() => {});
+            console.log('[ARIA] Wake greeting timeout, moving on');
+            resolve();
+          }, 3000);
         });
+
+        // CRITICAL: Reset audio mode to allow recording after playback
+        console.log('[ARIA] Resetting audio mode for recording...');
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false,
+          shouldDuckAndroid: true,
+        });
+        console.log('[ARIA] Audio mode reset complete');
       }
     } catch (error) {
-      console.error('Wake greeting error:', error);
+      console.error('[ARIA] Wake greeting error:', error);
       // Silently fail - user can still use the orb
     }
   };
@@ -593,15 +819,15 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction }: AIOrbButtonProps, ref) 
       setIsRecording(false);
       setConversationHistory([]);
     } else {
-      // Start conversation with instant greeting
+      // Start conversation - no wake greeting, just start recording immediately
+      console.log('[ARIA] Starting conversation...');
       setIsListening(true);
       isListeningRef.current = true;
 
-      // Play instant wake greeting (non-blocking)
-      playWakeGreeting();
-
-      // Start recording in parallel
+      // Start recording immediately - no greeting delay
+      console.log('[ARIA] Starting recording...');
       await startRecording();
+      console.log('[ARIA] Recording started');
     }
     onPress();
   };

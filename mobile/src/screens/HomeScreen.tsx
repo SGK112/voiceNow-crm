@@ -177,6 +177,67 @@ const ActivityItem = ({ type, title, description, timeAgo }: ActivityItemProps) 
   );
 };
 
+// Time Saved Card Component
+interface TimeSavedCardProps {
+  totalMinutes: number;
+  breakdown: Array<{ label: string; count: number; minutes: number }>;
+}
+
+const TimeSavedCard = ({ totalMinutes, breakdown }: TimeSavedCardProps) => {
+  const { colors } = useTheme();
+
+  const formatTime = (mins: number) => {
+    if (mins >= 60) {
+      const hours = Math.floor(mins / 60);
+      const minutes = mins % 60;
+      return `${hours}h ${minutes}m`;
+    }
+    return `${mins} min`;
+  };
+
+  return (
+    <View
+      style={[
+        styles.timeSavedCard,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+        },
+      ]}
+    >
+      <LinearGradient
+        colors={['#10B981', '#059669']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.timeSavedAccent}
+      />
+      <View style={styles.timeSavedHeader}>
+        <View style={styles.timeSavedIconWrapper}>
+          <Ionicons name="time" size={20} color="#10B981" />
+        </View>
+        <Text style={[styles.timeSavedLabel, { color: colors.textSecondary }]}>
+          AI Time Saved Today
+        </Text>
+      </View>
+      <Text style={[styles.timeSavedValue, { color: colors.text }]}>
+        {formatTime(totalMinutes)}
+      </Text>
+      <View style={styles.timeSavedBreakdown}>
+        {breakdown.filter(b => b.count > 0).map((item, index) => (
+          <View key={index} style={styles.breakdownItem}>
+            <Text style={[styles.breakdownCount, { color: colors.primary }]}>
+              {item.count}
+            </Text>
+            <Text style={[styles.breakdownLabel, { color: colors.textTertiary }]}>
+              {item.label.toLowerCase()}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
 export default function HomeScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const [stats, setStats] = useState({
@@ -187,6 +248,10 @@ export default function HomeScreen({ navigation }: any) {
     activeLeads: 0,
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [timeSaved, setTimeSaved] = useState<{
+    totalMinutes: number;
+    breakdown: Array<{ label: string; count: number; minutes: number }>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -211,6 +276,19 @@ export default function HomeScreen({ navigation }: any) {
       });
       if (activityResponse.data.success) {
         setRecentActivity(activityResponse.data.activity || []);
+      }
+
+      // Fetch time saved stats
+      try {
+        const timeSavedResponse = await api.get('/api/mobile/time-saved', {
+          params: { period: 'today' },
+          headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+        });
+        if (timeSavedResponse.data.success) {
+          setTimeSaved(timeSavedResponse.data.timeSaved);
+        }
+      } catch (err) {
+        console.log('Time saved endpoint not available:', err);
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
@@ -262,13 +340,18 @@ export default function HomeScreen({ navigation }: any) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Welcome back</Text>
+          <TouchableOpacity
+            style={[styles.closeBtn, { backgroundColor: colors.card }]}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="close" size={22} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerCenter}>
             <Text style={[styles.headerTitle, { color: colors.text }]}>Dashboard</Text>
           </View>
           <TouchableOpacity
             style={[styles.notificationBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={() => navigation.navigate('Contacts', { screen: 'CRMActivity' })}
+            onPress={() => navigation.navigate('CRMActivity')}
           >
             <Ionicons name="notifications-outline" size={22} color={colors.text} />
             {recentActivity.length > 0 && (
@@ -276,6 +359,14 @@ export default function HomeScreen({ navigation }: any) {
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Time Saved Card - Show AI value */}
+        {timeSaved && timeSaved.totalMinutes > 0 && (
+          <TimeSavedCard
+            totalMinutes={timeSaved.totalMinutes}
+            breakdown={timeSaved.breakdown}
+          />
+        )}
 
         {/* Stats Section */}
         <CollapsibleSection title="Performance Overview">
@@ -427,16 +518,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 28,
   },
-  greeting: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
+  closeBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: '700',
     letterSpacing: -0.5,
   },
@@ -683,5 +780,66 @@ const styles = StyleSheet.create({
 
   bottomSpacer: {
     height: 20,
+  },
+
+  // Time Saved Card
+  timeSavedCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 20,
+    marginBottom: 24,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  timeSavedAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+  },
+  timeSavedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  timeSavedIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  timeSavedLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  timeSavedValue: {
+    fontSize: 42,
+    fontWeight: '700',
+    letterSpacing: -1,
+    marginBottom: 16,
+  },
+  timeSavedBreakdown: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  breakdownItem: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  breakdownCount: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  breakdownLabel: {
+    fontSize: 13,
   },
 });

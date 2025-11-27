@@ -1,8 +1,6 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,13 +9,14 @@ import { useAuth } from '../contexts/AuthContext';
 import AriaScreen from '../screens/AriaScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import DevModeScreen from '../screens/DevModeScreen';
 import ContactsScreen from '../screens/ContactsScreen';
 import ContactDetailsScreen from '../screens/ContactDetailsScreen';
 import AddEditContactScreen from '../screens/AddEditContactScreen';
 import ContactImportScreen from '../screens/ContactImportScreen';
 import DataImportScreen from '../screens/DataImportScreen';
 import CalendarImportScreen from '../screens/CalendarImportScreen';
+import CalendarScreen from '../screens/CalendarScreen';
+import CollaborationScreen from '../screens/CollaborationScreen';
 import CallHistoryImportScreen from '../screens/CallHistoryImportScreen';
 import CallsScreen from '../screens/CallsScreen';
 import MessagesScreen from '../screens/MessagesScreen';
@@ -31,8 +30,8 @@ import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import SyncOnboardingScreen from '../screens/SyncOnboardingScreen';
+import AriaOnboardingScreen from '../screens/AriaOnboardingScreen';
 
-const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
 const OnboardingStack = createStackNavigator();
@@ -56,7 +55,7 @@ function AuthNavigator() {
   );
 }
 
-// Onboarding Navigator (Sync accounts after first login)
+// Onboarding Navigator (Aria intro + Sync accounts after first login)
 function OnboardingNavigator() {
   const { colors } = useTheme();
 
@@ -67,14 +66,16 @@ function OnboardingNavigator() {
         cardStyle: { backgroundColor: colors.background },
       }}
     >
+      {/* Start with Aria introduction */}
+      <OnboardingStack.Screen name="AriaOnboarding" component={AriaOnboardingScreen} />
       <OnboardingStack.Screen name="SyncOnboarding" component={SyncOnboardingScreen} />
-      <OnboardingStack.Screen name="Main" component={TabNavigator} />
+      <OnboardingStack.Screen name="Main" component={MainNavigator} />
     </OnboardingStack.Navigator>
   );
 }
 
-// Contacts Stack Navigator
-function ContactsStack() {
+// Main Navigator - Aria-centric with modal screens
+function MainNavigator() {
   const { colors } = useTheme();
 
   return (
@@ -84,148 +85,131 @@ function ContactsStack() {
         cardStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="ContactsList" component={ContactsScreen} />
-      <Stack.Screen name="ContactDetails" component={ContactDetailsScreen} />
-      <Stack.Screen name="AddEditContact" component={AddEditContactScreen} />
-      <Stack.Screen name="DataImport" component={DataImportScreen} />
-      <Stack.Screen name="ContactImport" component={ContactImportScreen} />
-      <Stack.Screen name="CalendarImport" component={CalendarImportScreen} />
-      <Stack.Screen name="CallHistoryImport" component={CallHistoryImportScreen} />
-      <Stack.Screen name="Calls" component={CallsScreen} />
-      <Stack.Screen name="Messages" component={MessagesScreen} />
-      <Stack.Screen name="CRMActivity" component={CRMActivityScreen} />
-      <Stack.Screen name="Call" component={CallScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="SMSChat" component={SMSChatScreen} />
-    </Stack.Navigator>
-  );
-}
+      {/* Aria is the base/home screen */}
+      <Stack.Screen name="Aria" component={AriaScreen} />
 
-// Tab Bar Icon Component
-interface TabIconProps {
-  name: keyof typeof Ionicons.glyphMap;
-  outlineName: keyof typeof Ionicons.glyphMap;
-  focused: boolean;
-  color: string;
-}
-
-const TabIcon = ({ name, outlineName, focused, color }: TabIconProps) => {
-  const { colors } = useTheme();
-
-  return (
-    <View style={styles.iconContainer}>
-      <Ionicons
-        name={focused ? name : outlineName}
-        size={24}
-        color={focused ? colors.tabBarActive : color}
-      />
-      {focused && (
-        <View style={[styles.activeIndicator, { backgroundColor: colors.tabBarActive }]} />
-      )}
-    </View>
-  );
-};
-
-function TabNavigator() {
-  const { colors, isDark } = useTheme();
-
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.tabBar,
-          borderTopColor: colors.tabBarBorder,
-          borderTopWidth: 1,
-          paddingBottom: 28,
-          paddingTop: 12,
-          height: 85,
-          position: 'absolute',
-          elevation: isDark ? 0 : 8,
-          shadowColor: colors.shadow,
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: isDark ? 0 : 0.08,
-          shadowRadius: 12,
-        },
-        tabBarActiveTintColor: colors.tabBarActive,
-        tabBarInactiveTintColor: colors.tabBarInactive,
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginTop: 4,
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Aria"
-        component={AriaScreen}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name="radio"
-              outlineName="radio-outline"
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Contacts"
-        component={ContactsStack}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name="chatbox"
-              outlineName="chatbox-outline"
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
+      {/* Modal screens - slide up from bottom */}
+      <Stack.Screen
         name="Dashboard"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name="stats-chart"
-              outlineName="stats-chart-outline"
-              focused={focused}
-              color={color}
-            />
-          ),
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
         }}
       />
-      <Tab.Screen
+      <Stack.Screen
+        name="Contacts"
+        component={ContactsScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="Collaboration"
+        component={CollaborationScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name="person"
-              outlineName="person-outline"
-              focused={focused}
-              color={color}
-            />
-          ),
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
         }}
       />
-      <Tab.Screen
-        name="Dev Tools"
-        component={DevModeScreen}
+
+      {/* Sub-screens for contacts flow */}
+      <Stack.Screen
+        name="ContactDetails"
+        component={ContactDetailsScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name="code-slash"
-              outlineName="code-slash-outline"
-              focused={focused}
-              color={color}
-            />
-          ),
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
-    </Tab.Navigator>
+      <Stack.Screen
+        name="AddEditContact"
+        component={AddEditContactScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="DataImport"
+        component={DataImportScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}
+      />
+      <Stack.Screen
+        name="ContactImport"
+        component={ContactImportScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="CalendarImport"
+        component={CalendarImportScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="CallHistoryImport"
+        component={CallHistoryImportScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Calls"
+        component={CallsScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Messages"
+        component={MessagesScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="CRMActivity"
+        component={CRMActivityScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Call"
+        component={CallScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="SMSChat"
+        component={SMSChatScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+    </Stack.Navigator>
   );
 }
 
@@ -242,7 +226,7 @@ function LoadingScreen() {
 
 export default function AppNavigator() {
   const { colors, isDark } = useTheme();
-  const { isAuthenticated, isLoading, needsOnboarding, completeOnboarding } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
 
   // Show loading screen while checking auth status
   if (isLoading) {
@@ -291,22 +275,12 @@ export default function AppNavigator() {
         },
       }}
     >
-      {isAuthenticated ? (needsOnboarding ? <OnboardingNavigator /> : <TabNavigator />) : <AuthNavigator />}
+      {isAuthenticated ? (needsOnboarding ? <OnboardingNavigator /> : <MainNavigator />) : <AuthNavigator />}
     </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeIndicator: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 4,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -16,6 +16,8 @@ import * as Calendar from 'expo-calendar';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../utils/constants';
+import DotGridBackground from '../components/DotGridBackground';
+import notificationService from '../services/notificationService';
 
 interface SyncOption {
   id: string;
@@ -64,8 +66,6 @@ export default function SyncOnboardingScreen({ navigation }: any) {
           Contacts.Fields.PhoneNumbers,
           Contacts.Fields.Emails,
           Contacts.Fields.Company,
-          Contacts.Fields.JobTitle,
-          Contacts.Fields.Note,
         ],
       });
 
@@ -81,8 +81,6 @@ export default function SyncOnboardingScreen({ navigation }: any) {
         phone: contact.phoneNumbers?.[0]?.number || '',
         email: contact.emails?.[0]?.email || '',
         company: contact.company || '',
-        title: contact.jobTitle || '',
-        notes: contact.note || '',
         source: 'device_sync',
       })).filter(c => c.firstName || c.lastName || c.phone || c.email);
 
@@ -183,24 +181,21 @@ export default function SyncOnboardingScreen({ navigation }: any) {
   };
 
   const handleSkip = async () => {
+    // Initialize notification service for daily summaries
+    await notificationService.initializeDailySummary();
     await completeOnboarding();
   };
 
   const handleContinue = async () => {
+    // Initialize notification service for daily summaries
+    await notificationService.initializeDailySummary();
     await completeOnboarding();
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={isDark
-          ? ['#1E3A8A', '#7C3AED', '#0F172A']
-          : ['#3B82F6', '#8B5CF6', '#F1F5F9']
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerGradient}
-      />
+    <View style={[styles.container, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
+      {/* Dot Grid Background */}
+      <DotGridBackground />
 
       <ScrollView
         style={styles.scrollView}
@@ -217,107 +212,111 @@ export default function SyncOnboardingScreen({ navigation }: any) {
               <Ionicons name="sync" size={32} color="#3B82F6" />
             </LinearGradient>
           </View>
-          <Text style={styles.title}>Sync Your Accounts</Text>
-          <Text style={styles.subtitle}>
-            Import your contacts and calendar to get started with VoiceFlow
+          <Text style={styles.welcomeText}>Almost there!</Text>
+          <Text style={styles.title}>Sync Your Data</Text>
+          <Text style={[styles.subtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+            Import your contacts and calendar to get started with VoiceFlow AI
           </Text>
         </View>
 
-        {/* Sync Options */}
-        <View style={styles.optionsContainer}>
-          {syncOptions.map((option) => {
-            const isSyncing = syncingItem === option.id;
-            const isSynced = syncedItems.has(option.id);
+        {/* Sync Options Card */}
+        <View style={[
+          styles.card,
+          {
+            backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+            shadowColor: isDark ? '#000' : '#64748B',
+          }
+        ]}>
+          {/* Card Header Accent */}
+          <LinearGradient
+            colors={['#3B82F6', '#8B5CF6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.cardAccent}
+          />
 
-            return (
-              <TouchableOpacity
-                key={option.id}
-                style={[
-                  styles.optionCard,
-                  {
-                    backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
-                    borderColor: isSynced ? '#10B981' : isDark ? '#334155' : '#E2E8F0',
-                    borderWidth: isSynced ? 2 : 1,
-                  },
-                ]}
-                onPress={() => handleSync(option.id)}
-                disabled={isSyncing || isSynced}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.optionIconContainer, { backgroundColor: `${option.color}15` }]}>
-                  <Ionicons name={option.icon} size={28} color={option.color} />
-                </View>
-                <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, { color: colors.text }]}>
-                    {option.title}
-                  </Text>
-                  <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
-                    {option.description}
-                  </Text>
-                </View>
-                <View style={styles.optionAction}>
-                  {isSyncing ? (
-                    <ActivityIndicator color={option.color} size="small" />
-                  ) : isSynced ? (
-                    <View style={styles.syncedBadge}>
-                      <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+          <View style={styles.cardContent}>
+            {syncOptions.map((option, index) => {
+              const isSyncing = syncingItem === option.id;
+              const isSynced = syncedItems.has(option.id);
+
+              return (
+                <React.Fragment key={option.id}>
+                  <TouchableOpacity
+                    style={[
+                      styles.optionCard,
+                      {
+                        backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                        borderColor: isSynced ? '#10B981' : isDark ? '#334155' : '#E2E8F0',
+                        borderWidth: isSynced ? 2 : 1,
+                      },
+                    ]}
+                    onPress={() => handleSync(option.id)}
+                    disabled={isSyncing || isSynced}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.optionIconContainer, { backgroundColor: `${option.color}15` }]}>
+                      <Ionicons name={option.icon} size={24} color={option.color} />
                     </View>
-                  ) : (
-                    <View style={[styles.syncButton, { backgroundColor: option.color }]}>
-                      <Text style={styles.syncButtonText}>Sync</Text>
+                    <View style={styles.optionContent}>
+                      <Text style={[styles.optionTitle, { color: isDark ? '#F1F5F9' : '#1E293B' }]}>
+                        {option.title}
+                      </Text>
+                      <Text style={[styles.optionDescription, { color: isDark ? '#64748B' : '#94A3B8' }]}>
+                        {option.description}
+                      </Text>
                     </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+                    <View style={styles.optionAction}>
+                      {isSyncing ? (
+                        <ActivityIndicator color={option.color} size="small" />
+                      ) : isSynced ? (
+                        <View style={styles.syncedBadge}>
+                          <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                        </View>
+                      ) : (
+                        <View style={[styles.syncButton, { backgroundColor: option.color }]}>
+                          <Text style={styles.syncButtonText}>Sync</Text>
+                        </View>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                  {index < syncOptions.length - 1 && <View style={styles.optionSpacer} />}
+                </React.Fragment>
+              );
+            })}
+
+            {/* Info Card */}
+            <View style={[styles.infoCard, { backgroundColor: isDark ? '#0F172A' : '#F0F9FF' }]}>
+              <Ionicons name="shield-checkmark" size={18} color="#3B82F6" />
+              <Text style={[styles.infoText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+                Your data stays private and secure. We only sync to help you manage your business better.
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {/* Info Card */}
-        <View style={[styles.infoCard, { backgroundColor: isDark ? '#1E293B' : '#F0F9FF' }]}>
-          <Ionicons name="shield-checkmark" size={20} color="#3B82F6" />
-          <Text style={[styles.infoText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
-            Your data stays private and secure. We only sync to help you manage your business better.
-          </Text>
-        </View>
-      </ScrollView>
-
-      {/* Bottom Actions */}
-      <View style={[styles.bottomActions, { backgroundColor: colors.background }]}>
-        {syncedItems.size > 0 ? (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-            activeOpacity={0.9}
+        {/* Continue Button */}
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={handleContinue}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={syncedItems.size > 0 ? ['#10B981', '#059669'] : ['#334155', '#1E293B']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.continueButtonGradient}
           >
-            <LinearGradient
-              colors={['#10B981', '#059669']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.continueButtonGradient}
-            >
-              <Text style={styles.continueButtonText}>Continue to App</Text>
+            <Text style={styles.continueButtonText}>
+              {syncedItems.size > 0 ? 'Continue to App' : 'Get Started'}
+            </Text>
+            <View style={styles.continueButtonIcon}>
               <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-            </LinearGradient>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={['#3B82F6', '#2563EB']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.continueButtonGradient}
-            >
-              <Text style={styles.continueButtonText}>Get Started</Text>
-              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
+        {/* Skip Link */}
         <TouchableOpacity
           style={styles.skipButton}
           onPress={handleSkip}
@@ -331,7 +330,7 @@ export default function SyncOnboardingScreen({ navigation }: any) {
         <Text style={[styles.laterText, { color: isDark ? '#475569' : '#CBD5E1' }]}>
           You can always sync later from Profile Settings
         </Text>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -340,20 +339,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 280,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'ios' ? 80 : 60,
-    paddingBottom: 200,
+    paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
@@ -363,8 +355,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   iconGradient: {
-    width: 72,
-    height: 72,
+    width: 64,
+    height: 64,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -374,39 +366,53 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  welcomeText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    marginBottom: 4,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 12,
-    textAlign: 'center',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
     paddingHorizontal: 20,
   },
-  optionsContainer: {
-    gap: 16,
+  card: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 32,
+    elevation: 16,
     marginBottom: 24,
+  },
+  cardAccent: {
+    height: 4,
+  },
+  cardContent: {
+    padding: 20,
   },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+  },
+  optionSpacer: {
+    height: 12,
   },
   optionIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -415,7 +421,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
@@ -443,47 +449,46 @@ const styles = StyleSheet.create({
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 14,
     borderRadius: 12,
-    gap: 12,
+    marginTop: 16,
+    gap: 10,
   },
   infoText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 12,
     lineHeight: 18,
   },
-  bottomActions: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-  },
   continueButton: {
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 12,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   continueButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    gap: 8,
+    height: 54,
+    paddingHorizontal: 24,
   },
   continueButtonText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
+    marginRight: 8,
+  },
+  continueButtonIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   skipButton: {
     alignItems: 'center',
