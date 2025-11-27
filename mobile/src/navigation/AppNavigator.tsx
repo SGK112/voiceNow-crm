@@ -32,6 +32,10 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import SyncOnboardingScreen from '../screens/SyncOnboardingScreen';
 import AriaOnboardingScreen from '../screens/AriaOnboardingScreen';
 
+// Design screens
+import DesignScreen from '../screens/DesignScreen';
+import MoodboardDetailScreen from '../screens/MoodboardDetailScreen';
+
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
 const OnboardingStack = createStackNavigator();
@@ -122,6 +126,14 @@ function MainNavigator() {
         }}
       />
       <Stack.Screen
+        name="Design"
+        component={DesignScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
@@ -205,6 +217,13 @@ function MainNavigator() {
       <Stack.Screen
         name="SMSChat"
         component={SMSChatScreen}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="MoodboardDetail"
+        component={MoodboardDetailScreen}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}
