@@ -20,7 +20,7 @@ services:
     branch: main
     buildCommand: rm -rf frontend/dist && cd frontend && npm ci && npm run build && cd ../backend && npm ci
     startCommand: cd backend && npm start
-    healthCheckPath: /api/health
+    healthCheckPath: /api/monitoring/health
 
     envVars:
       - key: NODE_ENV
