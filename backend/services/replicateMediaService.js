@@ -15,7 +15,7 @@ class ReplicateMediaService {
     // Pricing per generation (in credits)
     this.pricing = {
       image: {
-        flux_schnell: 1,      // Fast, good quality
+        flux_schnell: 1,      // Fast, good quality (default)
         flux_dev: 2,          // Better quality
         flux_pro: 5,          // Best quality
         sdxl: 1,              // Stable Diffusion XL
@@ -368,17 +368,24 @@ class ReplicateMediaService {
       throw new Error('User not found');
     }
 
-    // Initialize media credits if not exists
+    // Initialize media credits if not exists - give 50 free credits to new users
     if (!user.mediaCredits) {
       user.mediaCredits = {
-        balance: 0,
+        balance: 50, // Welcome bonus credits
         used: 0,
         purchased: 0
       };
+      console.log(`🎁 Gave ${user.email} 50 free media credits as welcome bonus`);
+    }
+
+    // If user has 0 credits and hasn't purchased, give them welcome bonus
+    if (user.mediaCredits.balance === 0 && user.mediaCredits.purchased === 0 && user.mediaCredits.used === 0) {
+      user.mediaCredits.balance = 50;
+      console.log(`🎁 Gave ${user.email} 50 free media credits (existing user bonus)`);
     }
 
     if (user.mediaCredits.balance < creditsNeeded) {
-      throw new Error(`Insufficient credits. Need ${creditsNeeded}, have ${user.mediaCredits.balance}`);
+      throw new Error(`Insufficient credits. Need ${creditsNeeded}, have ${user.mediaCredits.balance}. Purchase more credits in Settings.`);
     }
 
     // Deduct credits

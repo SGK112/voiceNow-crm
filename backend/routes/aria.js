@@ -4,9 +4,12 @@ import axios from 'axios';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import ttsService from '../services/ttsService.js';
 import networkDiscoveryService from '../services/networkDiscoveryService.js';
 import translationService from '../services/translationService.js';
+import AIAgent from '../models/AIAgent.js';
+import replicateMediaService from '../services/replicateMediaService.js';
 
 const router = express.Router();
 
@@ -618,6 +621,965 @@ function detectTranslationIntent(message) {
   ];
   const lower = message.toLowerCase();
   return translationKeywords.some(kw => lower.includes(kw));
+}
+
+// Agent creation and management tools
+const AGENT_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'create_agent',
+      description: 'Create a new AI agent with a custom prompt and configuration. Use this when the user wants to create a bot, assistant, or automated agent for specific tasks like customer support, sales, lead qualification, etc.',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Name of the agent (e.g., "Sales Assistant", "Customer Support Bot")' },
+          type: { type: 'string', enum: ['chat', 'voice', 'email', 'sms'], description: 'Type of agent - chat for web/messaging, voice for phone calls, email for email automation, sms for text messages' },
+          systemPrompt: { type: 'string', description: 'The system prompt that defines the agent\'s personality, capabilities, and behavior. Be detailed and specific.' },
+          category: { type: 'string', enum: ['customer_support', 'sales', 'lead_qualification', 'faq', 'general', 'custom'], description: 'Category of the agent' },
+          provider: { type: 'string', enum: ['openai', 'anthropic'], description: 'AI provider to use (default: openai)' },
+          model: { type: 'string', description: 'Model to use (e.g., gpt-4o-mini, gpt-4o, claude-3-sonnet)' },
+          temperature: { type: 'number', description: 'Temperature for responses (0-2, default 0.7)' },
+          department: { type: 'string', description: 'Department this agent belongs to (e.g., Sales, Support, Billing)' },
+          capabilities: {
+            type: 'object',
+            properties: {
+              webSearch: { type: 'boolean', description: 'Can search the web' },
+              imageGeneration: { type: 'boolean', description: 'Can generate images' },
+              functionCalling: { type: 'boolean', description: 'Can call functions/tools' },
+            },
+          },
+        },
+        required: ['name', 'systemPrompt'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'list_agents',
+      description: 'List all AI agents created by the user',
+      parameters: {
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['draft', 'testing', 'active', 'paused', 'all'], description: 'Filter by deployment status' },
+          category: { type: 'string', description: 'Filter by category' },
+          department: { type: 'string', description: 'Filter by department' },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_agent',
+      description: 'Get details of a specific AI agent by ID or name',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID' },
+          name: { type: 'string', description: 'Agent name (if ID not provided)' },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'update_agent',
+      description: 'Update an existing AI agent\'s configuration, prompt, or settings',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID to update' },
+          name: { type: 'string', description: 'New name' },
+          systemPrompt: { type: 'string', description: 'New system prompt' },
+          temperature: { type: 'number', description: 'New temperature setting' },
+          enabled: { type: 'boolean', description: 'Enable or disable the agent' },
+        },
+        required: ['agentId'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'deploy_agent',
+      description: 'Deploy an agent to make it active and ready to use',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID to deploy' },
+        },
+        required: ['agentId'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pause_agent',
+      description: 'Pause a deployed agent',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID to pause' },
+        },
+        required: ['agentId'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'delete_agent',
+      description: 'Delete an AI agent (archives it)',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID to delete' },
+        },
+        required: ['agentId'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'test_agent',
+      description: 'Send a test message to an agent to see how it responds',
+      parameters: {
+        type: 'object',
+        properties: {
+          agentId: { type: 'string', description: 'Agent ID to test' },
+          message: { type: 'string', description: 'Test message to send' },
+        },
+        required: ['agentId', 'message'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'generate_agent_prompt',
+      description: 'Generate a professional system prompt for an AI agent based on the use case and requirements',
+      parameters: {
+        type: 'object',
+        properties: {
+          useCase: { type: 'string', description: 'What the agent is for (e.g., "customer support for a plumbing company", "lead qualification for solar sales")' },
+          companyName: { type: 'string', description: 'Company name to personalize the prompt' },
+          tone: { type: 'string', enum: ['professional', 'friendly', 'casual', 'formal'], description: 'Desired tone of the agent' },
+          keyCapabilities: { type: 'array', items: { type: 'string' }, description: 'Key capabilities or tasks the agent should handle' },
+          restrictions: { type: 'array', items: { type: 'string' }, description: 'Things the agent should NOT do' },
+          additionalContext: { type: 'string', description: 'Any additional context about the business or requirements' },
+        },
+        required: ['useCase'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_agent_templates',
+      description: 'Get pre-built agent templates for common use cases',
+      parameters: {
+        type: 'object',
+        properties: {
+          category: { type: 'string', enum: ['customer_support', 'sales', 'lead_qualification', 'faq', 'appointment_booking', 'all'], description: 'Filter templates by category' },
+        },
+        required: [],
+      },
+    },
+  },
+];
+
+// Execute agent tool calls
+async function executeAgentTool(toolName, args, userId) {
+  console.log(`[Aria] Executing agent tool: ${toolName}`, args);
+  try {
+    switch (toolName) {
+      case 'create_agent': {
+        const agentData = {
+          userId,
+          name: args.name,
+          type: args.type || 'chat',
+          provider: args.provider || 'openai',
+          model: args.model || 'gpt-4o-mini',
+          systemPrompt: args.systemPrompt,
+          category: args.category || 'general',
+          configuration: {
+            temperature: args.temperature || 0.7,
+            maxTokens: 1000,
+          },
+          capabilities: args.capabilities || {
+            webSearch: false,
+            imageGeneration: false,
+            functionCalling: true,
+          },
+          organization: {
+            department: args.department,
+          },
+          deployment: {
+            status: 'draft',
+            apiKey: `ai_${crypto.randomBytes(32).toString('hex')}`,
+          },
+          enabled: false,
+        };
+
+        const agent = new AIAgent(agentData);
+        await agent.save();
+
+        return {
+          success: true,
+          message: `Agent "${args.name}" created successfully!`,
+          agent: {
+            id: agent._id,
+            name: agent.name,
+            type: agent.type,
+            category: agent.category,
+            status: agent.deployment.status,
+            model: agent.model,
+          },
+        };
+      }
+
+      case 'list_agents': {
+        const query = { userId, archived: false };
+        if (args.status && args.status !== 'all') {
+          query['deployment.status'] = args.status;
+        }
+        if (args.category) {
+          query.category = args.category;
+        }
+        if (args.department) {
+          query['organization.department'] = args.department;
+        }
+
+        const agents = await AIAgent.find(query).select('name type category deployment.status model enabled organization createdAt').sort('-createdAt');
+
+        return {
+          success: true,
+          count: agents.length,
+          agents: agents.map(a => ({
+            id: a._id,
+            name: a.name,
+            type: a.type,
+            category: a.category,
+            status: a.deployment?.status || 'draft',
+            model: a.model,
+            enabled: a.enabled,
+            department: a.organization?.department,
+            createdAt: a.createdAt,
+          })),
+        };
+      }
+
+      case 'get_agent': {
+        let agent;
+        if (args.agentId) {
+          agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        } else if (args.name) {
+          agent = await AIAgent.findOne({ name: new RegExp(args.name, 'i'), userId, archived: false });
+        }
+
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        return {
+          success: true,
+          agent: {
+            id: agent._id,
+            name: agent.name,
+            type: agent.type,
+            category: agent.category,
+            status: agent.deployment?.status,
+            model: agent.model,
+            provider: agent.provider,
+            systemPrompt: agent.systemPrompt,
+            temperature: agent.configuration?.temperature,
+            enabled: agent.enabled,
+            department: agent.organization?.department,
+            capabilities: agent.capabilities,
+            analytics: agent.analytics,
+            createdAt: agent.createdAt,
+            updatedAt: agent.updatedAt,
+          },
+        };
+      }
+
+      case 'update_agent': {
+        const agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        if (args.name) agent.name = args.name;
+        if (args.systemPrompt) agent.systemPrompt = args.systemPrompt;
+        if (args.temperature !== undefined) agent.configuration.temperature = args.temperature;
+        if (args.enabled !== undefined) agent.enabled = args.enabled;
+
+        await agent.save();
+
+        return {
+          success: true,
+          message: `Agent "${agent.name}" updated successfully`,
+          agent: {
+            id: agent._id,
+            name: agent.name,
+            status: agent.deployment?.status,
+          },
+        };
+      }
+
+      case 'deploy_agent': {
+        const agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        agent.deployment.status = 'active';
+        agent.deployment.lastDeployedAt = new Date();
+        agent.enabled = true;
+        await agent.save();
+
+        return {
+          success: true,
+          message: `Agent "${agent.name}" is now deployed and active!`,
+          agent: {
+            id: agent._id,
+            name: agent.name,
+            status: 'active',
+            apiKey: agent.deployment.apiKey,
+          },
+        };
+      }
+
+      case 'pause_agent': {
+        const agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        agent.deployment.status = 'paused';
+        agent.enabled = false;
+        await agent.save();
+
+        return {
+          success: true,
+          message: `Agent "${agent.name}" has been paused`,
+        };
+      }
+
+      case 'delete_agent': {
+        const agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        agent.archived = true;
+        agent.archivedAt = new Date();
+        agent.enabled = false;
+        await agent.save();
+
+        return {
+          success: true,
+          message: `Agent "${agent.name}" has been deleted`,
+        };
+      }
+
+      case 'test_agent': {
+        const agent = await AIAgent.findOne({ _id: args.agentId, userId });
+        if (!agent) {
+          return { success: false, error: 'Agent not found' };
+        }
+
+        // Send test message to the agent
+        const response = await openai.chat.completions.create({
+          model: agent.model || 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: agent.systemPrompt },
+            { role: 'user', content: args.message },
+          ],
+          temperature: agent.configuration?.temperature || 0.7,
+          max_tokens: 500,
+        });
+
+        return {
+          success: true,
+          testInput: args.message,
+          testOutput: response.choices[0].message.content,
+          agent: {
+            id: agent._id,
+            name: agent.name,
+          },
+        };
+      }
+
+      case 'generate_agent_prompt': {
+        const { useCase, companyName, tone, keyCapabilities, restrictions, additionalContext } = args;
+
+        const promptGenerationRequest = `Generate a professional system prompt for an AI agent with these requirements:
+
+Use Case: ${useCase}
+${companyName ? `Company: ${companyName}` : ''}
+${tone ? `Tone: ${tone}` : 'Tone: professional but friendly'}
+${keyCapabilities?.length ? `Key Capabilities:\n${keyCapabilities.map(c => `- ${c}`).join('\n')}` : ''}
+${restrictions?.length ? `Restrictions (things NOT to do):\n${restrictions.map(r => `- ${r}`).join('\n')}` : ''}
+${additionalContext ? `Additional Context: ${additionalContext}` : ''}
+
+Create a detailed, well-structured system prompt that:
+1. Clearly defines the agent's role and personality
+2. Lists specific capabilities and how to use them
+3. Includes appropriate guardrails and boundaries
+4. Provides guidance on handling edge cases
+5. Is optimized for the specific industry/use case
+
+Output ONLY the system prompt, nothing else.`;
+
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'You are an expert at writing AI agent system prompts. Create detailed, professional prompts that are specific to the use case and industry.' },
+            { role: 'user', content: promptGenerationRequest },
+          ],
+          temperature: 0.7,
+          max_tokens: 2000,
+        });
+
+        return {
+          success: true,
+          generatedPrompt: response.choices[0].message.content,
+          useCase,
+          tone: tone || 'professional',
+        };
+      }
+
+      case 'get_agent_templates': {
+        const templates = {
+          customer_support: {
+            name: 'Customer Support Agent',
+            systemPrompt: `You are a helpful customer support agent for {COMPANY_NAME}. Your role is to:
+- Answer customer questions about products and services
+- Help troubleshoot common issues
+- Process returns and exchanges when appropriate
+- Escalate complex issues to human agents
+- Maintain a friendly, professional tone at all times
+
+Guidelines:
+- Always greet customers warmly
+- Ask clarifying questions when needed
+- Provide step-by-step solutions
+- If you can't help, offer to connect them with a human
+- Never share internal company information or make promises you can't keep`,
+            category: 'customer_support',
+            type: 'chat',
+          },
+          sales: {
+            name: 'Sales Assistant',
+            systemPrompt: `You are a sales assistant for {COMPANY_NAME}. Your role is to:
+- Qualify leads by understanding their needs and budget
+- Present relevant products/services based on customer needs
+- Answer questions about pricing, features, and availability
+- Schedule appointments or demos when appropriate
+- Follow up on interested prospects
+
+Guidelines:
+- Be consultative, not pushy
+- Focus on understanding the customer's pain points
+- Highlight value and benefits, not just features
+- Ask for contact information when there's genuine interest
+- Know when to involve a human sales rep`,
+            category: 'sales',
+            type: 'chat',
+          },
+          lead_qualification: {
+            name: 'Lead Qualification Bot',
+            systemPrompt: `You are a lead qualification specialist for {COMPANY_NAME}. Your job is to:
+- Gather key information from potential customers
+- Determine if they're a good fit for our services
+- Collect contact details and project requirements
+- Score leads based on budget, timeline, and need
+- Route qualified leads to the appropriate sales rep
+
+Questions to ask:
+1. What service are you interested in?
+2. What's your timeline for this project?
+3. What's your approximate budget?
+4. What's the best way to reach you?
+
+Be conversational and friendly while efficiently gathering this information.`,
+            category: 'lead_qualification',
+            type: 'chat',
+          },
+          appointment_booking: {
+            name: 'Appointment Scheduler',
+            systemPrompt: `You are an appointment scheduling assistant for {COMPANY_NAME}. Your role is to:
+- Help customers book appointments or consultations
+- Check availability and offer suitable time slots
+- Collect necessary information (name, contact, service type)
+- Send confirmation details
+- Handle rescheduling and cancellations
+
+Guidelines:
+- Be efficient but personable
+- Confirm all details before booking
+- Offer alternatives if preferred times aren't available
+- Remind customers what to bring/prepare
+- Handle cancellations gracefully`,
+            category: 'appointment_booking',
+            type: 'chat',
+          },
+          faq: {
+            name: 'FAQ Assistant',
+            systemPrompt: `You are an FAQ assistant for {COMPANY_NAME}. Your role is to:
+- Answer frequently asked questions about our products/services
+- Provide accurate information from the knowledge base
+- Direct users to relevant resources
+- Escalate questions you can't answer
+
+Guidelines:
+- Give concise, accurate answers
+- Link to relevant documentation when available
+- If unsure, say so and offer to connect with support
+- Be helpful and patient with repeated questions`,
+            category: 'faq',
+            type: 'chat',
+          },
+        };
+
+        if (args.category && args.category !== 'all') {
+          return {
+            success: true,
+            template: templates[args.category] || null,
+          };
+        }
+
+        return {
+          success: true,
+          templates: Object.values(templates),
+          count: Object.keys(templates).length,
+        };
+      }
+
+      default:
+        return { success: false, error: `Unknown agent tool: ${toolName}` };
+    }
+  } catch (error) {
+    console.error(`[Aria] Agent tool error (${toolName}):`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Detect if message is about creating or managing AI agents
+function detectAgentIntent(message) {
+  const agentKeywords = [
+    'create agent', 'create a bot', 'create bot', 'make agent', 'make a bot',
+    'build agent', 'build a bot', 'new agent', 'new bot', 'setup agent',
+    'ai agent', 'chatbot', 'chat bot', 'assistant bot', 'virtual assistant',
+    'my agents', 'list agents', 'show agents', 'agent list', 'all agents',
+    'update agent', 'edit agent', 'modify agent', 'change agent',
+    'deploy agent', 'activate agent', 'launch agent', 'start agent',
+    'pause agent', 'stop agent', 'disable agent', 'deactivate agent',
+    'delete agent', 'remove agent',
+    'test agent', 'try agent', 'agent test',
+    'agent prompt', 'write prompt', 'generate prompt', 'create prompt',
+    'agent template', 'bot template', 'preset agent',
+    'customer support bot', 'sales bot', 'lead bot', 'faq bot',
+    'appointment bot', 'scheduling bot', 'booking bot',
+  ];
+  const lower = message.toLowerCase();
+  return agentKeywords.some(kw => lower.includes(kw));
+}
+
+// Image generation tools using Nano Banana and other models
+const IMAGE_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'generate_image',
+      description: 'Generate an image using AI. Use Google Nano Banana for best results with construction/renovation scenes, before/after images, and detailed visualizations. Ask clarifying questions to build the best prompt.',
+      parameters: {
+        type: 'object',
+        properties: {
+          prompt: { type: 'string', description: 'Detailed description of the image to generate. Be specific about subject, style, lighting, composition, and any technical details.' },
+          model: {
+            type: 'string',
+            enum: ['flux_schnell', 'flux_dev', 'flux_pro', 'sdxl'],
+            description: 'Model to use: flux_schnell (fast, default), flux_dev (balanced), flux_pro (highest quality), sdxl (stable diffusion)'
+          },
+          aspectRatio: {
+            type: 'string',
+            enum: ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3'],
+            description: 'Aspect ratio: 1:1 (square), 16:9 (landscape/presentation), 9:16 (portrait/mobile), 4:3, 3:2'
+          },
+          style: {
+            type: 'string',
+            enum: ['photorealistic', 'professional', 'artistic', 'technical', 'sketch', 'render'],
+            description: 'Visual style of the image'
+          },
+          imageInputs: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'URLs of reference images (for Nano Banana editing/fusion)'
+          }
+        },
+        required: ['prompt'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'craft_image_prompt',
+      description: 'Help the user craft the perfect image generation prompt through conversation. Gather details about what they want to create and build an optimized prompt.',
+      parameters: {
+        type: 'object',
+        properties: {
+          subject: { type: 'string', description: 'Main subject of the image (e.g., "kitchen renovation", "plumbing diagram", "job site photo")' },
+          purpose: { type: 'string', description: 'What the image is for (e.g., "client proposal", "before/after", "marketing", "documentation")' },
+          style: { type: 'string', description: 'Desired style (e.g., "photorealistic", "professional", "technical illustration", "3D render")' },
+          details: { type: 'string', description: 'Specific details to include (colors, materials, lighting, perspective)' },
+          mood: { type: 'string', description: 'Mood/feeling (e.g., "bright and clean", "professional", "warm and inviting")' },
+          referenceDescription: { type: 'string', description: 'Description of any reference images or inspiration' }
+        },
+        required: ['subject'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'generate_before_after',
+      description: 'Generate a before/after renovation or transformation image. Perfect for proposals and client presentations.',
+      parameters: {
+        type: 'object',
+        properties: {
+          projectType: { type: 'string', description: 'Type of project (e.g., "kitchen remodel", "bathroom renovation", "deck replacement", "roof repair")' },
+          beforeDescription: { type: 'string', description: 'Description of the "before" state (e.g., "dated 1990s kitchen with oak cabinets and laminate counters")' },
+          afterDescription: { type: 'string', description: 'Description of the "after" state (e.g., "modern white shaker cabinets with quartz countertops and stainless appliances")' },
+          style: { type: 'string', description: 'Style: split (side by side), overlay, or separate images' }
+        },
+        required: ['projectType', 'beforeDescription', 'afterDescription'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'generate_technical_diagram',
+      description: 'Generate a technical or instructional diagram for construction/trades (plumbing, electrical, HVAC, framing, etc.)',
+      parameters: {
+        type: 'object',
+        properties: {
+          diagramType: { type: 'string', description: 'Type of diagram (e.g., "plumbing system", "electrical panel", "HVAC layout", "framing detail", "roof structure")' },
+          description: { type: 'string', description: 'What the diagram should show' },
+          style: { type: 'string', enum: ['isometric', 'cross-section', 'schematic', 'exploded-view', 'blueprint'], description: 'Diagram style' },
+          labels: { type: 'boolean', description: 'Include labels and callouts' }
+        },
+        required: ['diagramType', 'description'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'edit_image',
+      description: 'Edit or modify an existing image using AI. Describe what changes you want.',
+      parameters: {
+        type: 'object',
+        properties: {
+          imageUrl: { type: 'string', description: 'URL of the image to edit' },
+          editInstructions: { type: 'string', description: 'Natural language description of the edits (e.g., "change the cabinet color to white", "add a kitchen island", "remove the old appliances")' }
+        },
+        required: ['imageUrl', 'editInstructions'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'upscale_image',
+      description: 'Upscale/enhance an image to higher resolution',
+      parameters: {
+        type: 'object',
+        properties: {
+          imageUrl: { type: 'string', description: 'URL of the image to upscale' },
+          scale: { type: 'number', enum: [2, 4], description: 'Scale factor (2x or 4x)' }
+        },
+        required: ['imageUrl'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'remove_background',
+      description: 'Remove the background from an image (useful for product photos, headshots, etc.)',
+      parameters: {
+        type: 'object',
+        properties: {
+          imageUrl: { type: 'string', description: 'URL of the image' }
+        },
+        required: ['imageUrl'],
+      },
+    },
+  },
+];
+
+// Execute image generation tool calls
+async function executeImageTool(toolName, args, userId) {
+  console.log(`[Aria] Executing image tool: ${toolName}`, args);
+  try {
+    switch (toolName) {
+      case 'generate_image': {
+        const result = await replicateMediaService.generateImage(userId, {
+          prompt: args.prompt,
+          model: args.model || 'flux_schnell',
+          aspectRatio: args.aspectRatio || '16:9',
+          style: args.style || 'photorealistic',
+          numOutputs: 1,
+          imageInputs: args.imageInputs
+        });
+        return {
+          success: true,
+          message: 'Image generated successfully!',
+          imageUrl: result.images[0],
+          model: result.model,
+          creditsUsed: result.creditsUsed,
+          prompt: args.prompt
+        };
+      }
+
+      case 'craft_image_prompt': {
+        // Build an optimized prompt based on the gathered details
+        const { subject, purpose, style, details, mood, referenceDescription } = args;
+
+        let craftedPrompt = '';
+
+        // Build the prompt systematically
+        if (style === 'photorealistic' || style === 'professional') {
+          craftedPrompt += `Professional photograph of ${subject}`;
+        } else if (style === 'technical illustration') {
+          craftedPrompt += `Technical illustration showing ${subject}`;
+        } else if (style === '3D render') {
+          craftedPrompt += `High-quality 3D render of ${subject}`;
+        } else {
+          craftedPrompt += subject;
+        }
+
+        if (details) {
+          craftedPrompt += `, ${details}`;
+        }
+
+        if (mood) {
+          craftedPrompt += `, ${mood} atmosphere`;
+        }
+
+        // Add photography/rendering terms for better results
+        if (style === 'photorealistic' || style === 'professional') {
+          craftedPrompt += ', professional lighting, high resolution, detailed';
+        }
+
+        // Suggest optimal settings based on purpose
+        let suggestedModel = 'flux_schnell';
+        let suggestedAspectRatio = '16:9';
+
+        if (purpose === 'documentation' || purpose === 'before/after') {
+          suggestedAspectRatio = '4:3';
+        } else if (purpose === 'social media') {
+          suggestedAspectRatio = '1:1';
+        } else if (purpose === 'mobile' || purpose === 'portrait') {
+          suggestedAspectRatio = '9:16';
+        }
+
+        return {
+          success: true,
+          craftedPrompt,
+          suggestedModel,
+          suggestedAspectRatio,
+          message: `I've crafted this prompt for you: "${craftedPrompt}". Would you like me to generate this image, or would you like to adjust anything?`
+        };
+      }
+
+      case 'generate_before_after': {
+        const { projectType, beforeDescription, afterDescription, style } = args;
+
+        // Generate a split before/after image
+        const prompt = `Professional before and after split image of a ${projectType}. Left side shows: ${beforeDescription}. Right side shows: ${afterDescription}. Clean dividing line in the middle, professional real estate photography style, bright natural lighting, high resolution`;
+
+        const result = await replicateMediaService.generateImage(userId, {
+          prompt,
+          model: 'flux_schnell',
+          aspectRatio: '16:9',
+          style: 'photorealistic',
+          numOutputs: 1
+        });
+
+        return {
+          success: true,
+          message: `Before/after image for ${projectType} generated!`,
+          imageUrl: result.images[0],
+          creditsUsed: result.creditsUsed,
+          prompt
+        };
+      }
+
+      case 'generate_technical_diagram': {
+        const { diagramType, description, style, labels } = args;
+
+        let prompt = '';
+
+        switch (style) {
+          case 'isometric':
+            prompt = `Isometric 3D technical diagram of ${diagramType}, showing ${description}, clean white background, professional technical illustration style`;
+            break;
+          case 'cross-section':
+            prompt = `Cross-section cutaway diagram of ${diagramType}, showing ${description}, technical illustration with clear labels, educational style`;
+            break;
+          case 'schematic':
+            prompt = `Schematic diagram of ${diagramType}, showing ${description}, clean lines, professional engineering drawing style`;
+            break;
+          case 'exploded-view':
+            prompt = `Exploded view technical diagram of ${diagramType}, showing ${description}, all components separated to show assembly, professional technical illustration`;
+            break;
+          case 'blueprint':
+            prompt = `Blueprint style technical drawing of ${diagramType}, showing ${description}, white lines on dark blue background, architectural drawing style`;
+            break;
+          default:
+            prompt = `Technical diagram of ${diagramType}, showing ${description}, clean professional illustration style`;
+        }
+
+        if (labels) {
+          prompt += ', with clear labels and callouts for each component';
+        }
+
+        const result = await replicateMediaService.generateImage(userId, {
+          prompt,
+          model: 'flux_schnell',
+          aspectRatio: '16:9',
+          style: 'technical',
+          numOutputs: 1
+        });
+
+        return {
+          success: true,
+          message: `Technical diagram generated!`,
+          imageUrl: result.images[0],
+          creditsUsed: result.creditsUsed,
+          diagramType,
+          style: style || 'standard'
+        };
+      }
+
+      case 'edit_image': {
+        const { imageUrl, editInstructions } = args;
+
+        // Use Nano Banana with the image input for editing
+        const prompt = editInstructions;
+
+        const result = await replicateMediaService.generateImage(userId, {
+          prompt,
+          model: 'flux_schnell',
+          aspectRatio: '16:9',
+          numOutputs: 1,
+          imageInputs: [imageUrl]
+        });
+
+        return {
+          success: true,
+          message: 'Image edited successfully!',
+          imageUrl: result.images[0],
+          creditsUsed: result.creditsUsed,
+          editInstructions
+        };
+      }
+
+      case 'upscale_image': {
+        const result = await replicateMediaService.upscaleImage(userId, args.imageUrl, args.scale || 4);
+        return {
+          success: true,
+          message: 'Image upscaled!',
+          imageUrl: result.image,
+          creditsUsed: result.creditsUsed
+        };
+      }
+
+      case 'remove_background': {
+        const result = await replicateMediaService.removeBackground(userId, args.imageUrl);
+        return {
+          success: true,
+          message: 'Background removed!',
+          imageUrl: result.image,
+          creditsUsed: result.creditsUsed
+        };
+      }
+
+      default:
+        return { success: false, error: `Unknown image tool: ${toolName}` };
+    }
+  } catch (error) {
+    console.error(`[Aria] Image tool error (${toolName}):`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Detect if message is about image generation
+function detectImageIntent(message, conversationHistory = []) {
+  const imageKeywords = [
+    'generate image', 'create image', 'make image', 'draw', 'render',
+    'picture of', 'photo of', 'image of', 'visualization',
+    'before and after', 'before/after', 'renovation render',
+    'diagram', 'schematic', 'blueprint', 'technical drawing',
+    'upscale', 'enhance image', 'higher resolution',
+    'remove background', 'cut out', 'transparent background',
+    'edit image', 'modify image', 'change the', 'add to image',
+    'show me what', 'visualize', 'mockup', 'concept image',
+    'generate a', 'create a', 'make a', 'design a',
+    'nano banana', 'flux', 'ai image', 'ai art',
+    'kitchen render', 'bathroom render', 'room visualization',
+    'job site photo', 'project photo', 'proposal image',
+  ];
+
+  // Confirmation keywords that suggest following up on image generation
+  const confirmationKeywords = [
+    'yes', 'yeah', 'please', 'go ahead', 'do it', 'generate it',
+    'that looks good', 'perfect', 'create it', 'make it', 'sounds good',
+    'let\'s do it', 'proceed', 'generate that', 'create that',
+  ];
+
+  // Image context keywords that indicate previous message was about images
+  const imageContextKeywords = [
+    'image', 'picture', 'photo', 'render', 'visualization',
+    'prompt', 'crafted', 'would you like me to generate',
+  ];
+
+  const lower = message.toLowerCase();
+
+  // Direct image intent from current message
+  if (imageKeywords.some(kw => lower.includes(kw))) {
+    return true;
+  }
+
+  // Check if this is a confirmation following an image-related conversation
+  if (conversationHistory && conversationHistory.length > 0) {
+    const isConfirmation = confirmationKeywords.some(kw => lower.includes(kw));
+    if (isConfirmation) {
+      // Check if the last assistant message was about images
+      const lastAssistantMsg = [...conversationHistory].reverse()
+        .find(m => m.role === 'assistant');
+      if (lastAssistantMsg) {
+        const lastContent = lastAssistantMsg.content.toLowerCase();
+        if (imageContextKeywords.some(kw => lastContent.includes(kw))) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 // Language and dialect detection patterns
@@ -1296,14 +2258,18 @@ router.post('/chat', async (req, res) => {
     const needsNetwork = detectNetworkIntent(message);
     const needsLocation = detectLocationIntent(message);
     const needsTranslation = detectTranslationIntent(message);
+    const needsAgent = detectAgentIntent(message);
+    const needsImage = detectImageIntent(message, conversationHistory);
     let scrapedData = null;
     let sources = [];
     let networkActions = [];
     let locationActions = [];
     let translationActions = [];
+    let agentActions = [];
+    let imageActions = [];
 
-    // Get userId from context for translation history
-    const userId = context?.user?.id || context?.userId;
+    // Get userId from context for translation history and image generation
+    const userId = context?.user?._id || context?.user?.id || context?.userId;
 
     if (needsScraping) {
       // Extract URL or search terms from message
@@ -1340,6 +2306,8 @@ router.post('/chat', async (req, res) => {
     if (needsNetwork) tools.push(...NETWORK_TOOLS);
     if (needsLocation) tools.push(...LOCATION_TOOLS);
     if (needsTranslation) tools.push(...TRANSLATION_TOOLS);
+    if (needsAgent) tools.push(...AGENT_TOOLS);
+    if (needsImage) tools.push(...IMAGE_TOOLS);
 
     if (tools.length > 0) {
       completionOptions.tools = tools;
@@ -1378,6 +2346,12 @@ router.post('/chat', async (req, res) => {
         } else if (TRANSLATION_TOOLS.some(t => t.function.name === toolName)) {
           result = await executeTranslationTool(toolName, toolArgs, userId);
           translationActions.push({ tool: toolName, args: toolArgs, result });
+        } else if (AGENT_TOOLS.some(t => t.function.name === toolName)) {
+          result = await executeAgentTool(toolName, toolArgs, userId);
+          agentActions.push({ tool: toolName, args: toolArgs, result });
+        } else if (IMAGE_TOOLS.some(t => t.function.name === toolName)) {
+          result = await executeImageTool(toolName, toolArgs, userId);
+          imageActions.push({ tool: toolName, args: toolArgs, result });
         } else {
           result = { success: false, error: `Unknown tool: ${toolName}` };
         }
@@ -1420,6 +2394,12 @@ router.post('/chat', async (req, res) => {
     if (translationActions.length > 0) {
       sources.push('Translation Services');
     }
+    if (agentActions.length > 0) {
+      sources.push('Agent Management');
+    }
+    if (imageActions.length > 0) {
+      sources.push('Image Generation');
+    }
 
     res.json({
       success: true,
@@ -1428,6 +2408,8 @@ router.post('/chat', async (req, res) => {
       networkActions: networkActions.length > 0 ? networkActions : undefined,
       locationActions: locationActions.length > 0 ? locationActions : undefined,
       translationActions: translationActions.length > 0 ? translationActions : undefined,
+      agentActions: agentActions.length > 0 ? agentActions : undefined,
+      imageActions: imageActions.length > 0 ? imageActions : undefined,
       detectedLanguage: detectedLanguage.code !== 'en' ? {
         code: detectedLanguage.code,
         name: detectedLanguage.name,
