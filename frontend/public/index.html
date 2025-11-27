@@ -3295,7 +3295,7 @@
                 </div>
             </a>
             <div style="display: flex; align-items: center; gap: 16px;">
-                <a href="#voice-demo" class="demo-button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 28px; border-radius: 50px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-flex; align-items: center; gap: 8px; position: relative; overflow: hidden;">
+                <a href="#" id="tryDemoBtn" class="demo-button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 28px; border-radius: 50px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-flex; align-items: center; gap: 8px; position: relative; overflow: hidden;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
                         <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
@@ -4992,6 +4992,24 @@
             voiceModeContainer.classList.add('active');
             chatInputContainer.style.display = 'none';
         });
+
+        // Try Demo button - opens chat widget in voice mode
+        const tryDemoBtn = document.getElementById('tryDemoBtn');
+        if (tryDemoBtn) {
+            tryDemoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Open the chat widget
+                widget.classList.add('open');
+                toggleBtn.classList.add('hidden');
+                // Switch to voice mode
+                currentMode = 'voice';
+                voiceModeBtn.classList.add('active');
+                chatModeBtn.classList.remove('active');
+                chatMessages.style.display = 'none';
+                voiceModeContainer.classList.add('active');
+                chatInputContainer.style.display = 'none';
+            });
+        }
 
         // Chat functionality
         function addMessage(text, isUser = false) {
