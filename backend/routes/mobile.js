@@ -2111,7 +2111,7 @@ router.post('/aria/contacts/:id/note', auth, async (req, res) => {
 // @access  Private
 router.post('/calendar/import', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { events } = req.body;
 
     if (!events || !Array.isArray(events) || events.length === 0) {
