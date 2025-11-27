@@ -1,13 +1,13 @@
 import express from 'express';
 import Moodboard from '../models/Moodboard.js';
 import User from '../models/User.js';
-import { authenticateToken, optionalAuth } from '../middleware/auth.js';
+import { protect, optionalAuth } from '../middleware/auth.js';
 import materialSourcingService from '../services/materialSourcingService.js';
 
 const router = express.Router();
 
 // Get all moodboards for user (owned + shared)
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', protect, async (req, res) => {
   try {
     const { status = 'active', category, style, projectId, leadId, contactId, search } = req.query;
 
@@ -60,7 +60,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get single moodboard
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id)
       .populate('userId', 'name email avatar')
@@ -136,7 +136,7 @@ router.get('/public/:publicUrl', optionalAuth, async (req, res) => {
 });
 
 // Create moodboard
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const {
       name, description, category, style, tags,
@@ -175,7 +175,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Update moodboard
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -221,7 +221,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Add item to moodboard
-router.post('/:id/items', authenticateToken, async (req, res) => {
+router.post('/:id/items', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -257,7 +257,7 @@ router.post('/:id/items', authenticateToken, async (req, res) => {
 });
 
 // Remove item from moodboard
-router.delete('/:id/items/:itemId', authenticateToken, async (req, res) => {
+router.delete('/:id/items/:itemId', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -293,7 +293,7 @@ router.delete('/:id/items/:itemId', authenticateToken, async (req, res) => {
 });
 
 // Share moodboard (add collaborator)
-router.post('/:id/share', authenticateToken, async (req, res) => {
+router.post('/:id/share', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -348,7 +348,7 @@ router.post('/:id/share', authenticateToken, async (req, res) => {
 });
 
 // Remove collaborator
-router.delete('/:id/share/:collaboratorId', authenticateToken, async (req, res) => {
+router.delete('/:id/share/:collaboratorId', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -372,7 +372,7 @@ router.delete('/:id/share/:collaboratorId', authenticateToken, async (req, res) 
 });
 
 // Toggle public sharing
-router.post('/:id/public', authenticateToken, async (req, res) => {
+router.post('/:id/public', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -412,7 +412,7 @@ router.post('/:id/public', authenticateToken, async (req, res) => {
 });
 
 // Add comment
-router.post('/:id/comments', authenticateToken, async (req, res) => {
+router.post('/:id/comments', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -448,7 +448,7 @@ router.post('/:id/comments', authenticateToken, async (req, res) => {
 });
 
 // Resolve comment
-router.post('/:id/comments/:commentId/resolve', authenticateToken, async (req, res) => {
+router.post('/:id/comments/:commentId/resolve', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -479,7 +479,7 @@ router.post('/:id/comments/:commentId/resolve', authenticateToken, async (req, r
 });
 
 // Create version snapshot
-router.post('/:id/versions', authenticateToken, async (req, res) => {
+router.post('/:id/versions', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -516,7 +516,7 @@ router.post('/:id/versions', authenticateToken, async (req, res) => {
 });
 
 // Restore version
-router.post('/:id/versions/:versionNumber/restore', authenticateToken, async (req, res) => {
+router.post('/:id/versions/:versionNumber/restore', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -556,7 +556,7 @@ router.post('/:id/versions/:versionNumber/restore', authenticateToken, async (re
 });
 
 // Submit for approval
-router.post('/:id/submit', authenticateToken, async (req, res) => {
+router.post('/:id/submit', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -585,7 +585,7 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
 });
 
 // Approve/Reject moodboard
-router.post('/:id/review', authenticateToken, async (req, res) => {
+router.post('/:id/review', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -653,7 +653,7 @@ router.post('/:id/client-approve', optionalAuth, async (req, res) => {
 });
 
 // Duplicate moodboard
-router.post('/:id/duplicate', authenticateToken, async (req, res) => {
+router.post('/:id/duplicate', protect, async (req, res) => {
   try {
     const original = await Moodboard.findById(req.params.id);
 
@@ -696,7 +696,7 @@ router.post('/:id/duplicate', authenticateToken, async (req, res) => {
 });
 
 // Search materials (uses materialSourcingService)
-router.get('/search/materials', authenticateToken, async (req, res) => {
+router.get('/search/materials', protect, async (req, res) => {
   try {
     const { query, category, style, color, priceRange, suppliers } = req.query;
 
@@ -717,7 +717,7 @@ router.get('/search/materials', authenticateToken, async (req, res) => {
 });
 
 // Delete moodboard (soft delete)
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
@@ -741,7 +741,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // Archive moodboard
-router.post('/:id/archive', authenticateToken, async (req, res) => {
+router.post('/:id/archive', protect, async (req, res) => {
   try {
     const moodboard = await Moodboard.findById(req.params.id);
 
