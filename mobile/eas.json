@@ -14,8 +14,10 @@
     },
     "preview": {
       "distribution": "internal",
+      "developmentClient": false,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "credentialsSource": "remote"
       },
       "android": {
         "buildType": "apk"
