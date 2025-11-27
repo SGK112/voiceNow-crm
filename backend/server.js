@@ -120,6 +120,7 @@ import shopifyRoutes from './routes/shopify.js';
 import slackRoutes from './routes/slack.js';
 import networkDeviceRoutes from './routes/networkDevices.js';
 import translationRoutes from './routes/translation.js';
+import fleetRoutes from './routes/fleet.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 // Aria Background Service - auto-starts on import
@@ -265,6 +266,7 @@ app.use('/api/shopify', shopifyRoutes); // Shopify OAuth and e-commerce integrat
 app.use('/api/slack', slackRoutes); // Slack webhook and notification management
 app.use('/api/network', networkDeviceRoutes); // Network device discovery and control for Aria IoT
 app.use('/api/translation', translationRoutes); // Translation service for Aria multilingual support
+app.use('/api/fleet', fleetRoutes); // Fleet management for people, places, and things
 
 app.use('/api', apiLimiter);
 

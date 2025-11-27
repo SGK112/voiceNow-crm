@@ -25,6 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import AriaResponseModal from '../components/AriaResponseModal';
 import RealtimeOrbButton from '../components/RealtimeOrbButton';
+import LocalSearchResults from '../components/LocalSearchResults';
 import api from '../utils/api';
 
 // Location types (services are optional - may not work in Expo Go)
@@ -74,6 +75,7 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  uiAction?: UIAction | null;
 }
 
 interface Conversation {
@@ -121,6 +123,24 @@ export default function AriaScreen() {
   useEffect(() => {
     loadConversationsFromStorage();
     initializeLocation();
+
+    // Auto-start voice session when AriaScreen opens
+    const startVoiceSession = async () => {
+      // Small delay to ensure component is mounted
+      await new Promise(resolve => setTimeout(resolve, 500));
+      if (realtimeOrbRef.current && !realtimeOrbRef.current.isActive()) {
+        console.log('[Aria] Auto-starting voice session...');
+        realtimeOrbRef.current.handlePress();
+      }
+    };
+    startVoiceSession();
+
+    // Cleanup: stop session when leaving screen
+    return () => {
+      if (realtimeOrbRef.current && realtimeOrbRef.current.isActive()) {
+        realtimeOrbRef.current.stopSession();
+      }
+    };
   }, []);
 
   // Initialize location services for Aria's awareness
@@ -350,6 +370,7 @@ export default function AriaScreen() {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: response.data.response,
+          uiAction: response.data.uiAction || null,
         };
 
         setChatMessages(prev => {
@@ -450,19 +471,24 @@ export default function AriaScreen() {
                     keyboardShouldPersistTaps="handled"
                   >
                     {chatMessages.map((msg) => (
-                      <View
-                        key={msg.id}
-                        style={[
-                          styles.chatBubble,
-                          msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
-                        ]}
-                      >
-                        <Text style={[
-                          styles.chatBubbleText,
-                          msg.role === 'user' && styles.userBubbleText,
-                        ]}>
-                          {msg.content}
-                        </Text>
+                      <View key={msg.id}>
+                        <View
+                          style={[
+                            styles.chatBubble,
+                            msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
+                          ]}
+                        >
+                          <Text style={[
+                            styles.chatBubbleText,
+                            msg.role === 'user' && styles.userBubbleText,
+                          ]}>
+                            {msg.content}
+                          </Text>
+                        </View>
+                        {/* Render LocalSearchResults for location-based UI actions */}
+                        {msg.uiAction && ['local_search_results', 'place_details', 'directions'].includes(msg.uiAction.type) && (
+                          <LocalSearchResults uiAction={msg.uiAction} />
+                        )}
                       </View>
                     ))}
                     {isLoading && (

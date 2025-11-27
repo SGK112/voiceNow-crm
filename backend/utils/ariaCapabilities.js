@@ -8,6 +8,7 @@ import N8nService from '../services/n8nService.js';
 import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
 import shopifySyncService from '../services/shopifySyncService.js';
 import replicateMediaService from '../services/replicateMediaService.js';
+import FleetAsset from '../models/FleetAsset.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -1557,6 +1558,437 @@ export const capabilities = {
         }
       },
       required: ['url']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // LOCATION-BASED SEARCH - Google Places API
+  // ═══════════════════════════════════════════════════════════════════
+
+  local_search: {
+    name: 'local_search',
+    description: 'Search for local businesses, suppliers, contractors, and services near a location using Google Places. ALWAYS use this for location-based searches - suppliers, material yards, tool rentals, subcontractors, permit offices, etc. Returns detailed info including distance, ratings, phone, address, hours.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'What to search for (e.g., "plumbing suppliers", "concrete contractors", "HVAC repair", "lumber yards", "building permit office")'
+        },
+        location: {
+          type: 'object',
+          description: 'User location for search. If not provided, will use stored user location.',
+          properties: {
+            latitude: { type: 'number', description: 'Latitude coordinate' },
+            longitude: { type: 'number', description: 'Longitude coordinate' },
+            city: { type: 'string', description: 'City name (fallback if no coordinates)' },
+            state: { type: 'string', description: 'State/region' }
+          }
+        },
+        radius: {
+          type: 'number',
+          description: 'Search radius in miles (default 25, max 50)',
+          default: 25
+        },
+        category: {
+          type: 'string',
+          enum: ['suppliers', 'contractors', 'services', 'government', 'restaurants', 'all'],
+          description: 'Category filter: suppliers (material/tool), contractors (subcontractors), services (repair/maintenance), government (permit offices), restaurants (lunch spots), all',
+          default: 'all'
+        },
+        openNow: {
+          type: 'boolean',
+          description: 'Only show places that are currently open',
+          default: false
+        },
+        minRating: {
+          type: 'number',
+          description: 'Minimum Google rating (1-5)',
+          default: 0
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of results (default 10, max 20)',
+          default: 10
+        }
+      },
+      required: ['query']
+    }
+  },
+
+  get_place_details: {
+    name: 'get_place_details',
+    description: 'Get detailed information about a specific business/place including full address, phone, website, hours, reviews, photos. Use after local_search to get more details about a specific result.',
+    parameters: {
+      type: 'object',
+      properties: {
+        placeId: {
+          type: 'string',
+          description: 'Google Place ID from local_search results'
+        },
+        includeReviews: {
+          type: 'boolean',
+          description: 'Include recent reviews in response',
+          default: true
+        }
+      },
+      required: ['placeId']
+    }
+  },
+
+  get_directions: {
+    name: 'get_directions',
+    description: 'Get driving directions and travel time from current location to a destination. Useful for job site navigation.',
+    parameters: {
+      type: 'object',
+      properties: {
+        destination: {
+          type: 'string',
+          description: 'Destination address or place name'
+        },
+        destinationPlaceId: {
+          type: 'string',
+          description: 'Google Place ID (more accurate than address)'
+        },
+        origin: {
+          type: 'object',
+          description: 'Starting location. If not provided, uses user current location.',
+          properties: {
+            latitude: { type: 'number' },
+            longitude: { type: 'number' },
+            address: { type: 'string' }
+          }
+        },
+        mode: {
+          type: 'string',
+          enum: ['driving', 'walking', 'transit'],
+          description: 'Travel mode',
+          default: 'driving'
+        }
+      },
+      required: ['destination']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // FLEET MANAGEMENT - People, Places, and Things
+  // ═══════════════════════════════════════════════════════════════════
+
+  fleet_list: {
+    name: 'fleet_list',
+    description: 'List fleet assets (crew members, job sites, or equipment). Use this to see all crew, all job sites, or all equipment. Can filter by type and status.',
+    parameters: {
+      type: 'object',
+      properties: {
+        assetType: {
+          type: 'string',
+          enum: ['person', 'place', 'thing', 'all'],
+          description: 'Type of asset: person (crew members), place (job sites), thing (equipment/vehicles), or all',
+          default: 'all'
+        },
+        status: {
+          type: 'string',
+          enum: ['active', 'inactive', 'assigned', 'maintenance', 'all'],
+          description: 'Filter by status',
+          default: 'all'
+        },
+        search: {
+          type: 'string',
+          description: 'Search by name, skills, or description'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of results',
+          default: 20
+        }
+      }
+    }
+  },
+
+  fleet_summary: {
+    name: 'fleet_summary',
+    description: 'Get a summary of all fleet assets including counts of crew members, job sites, and equipment. Also shows how many are assigned and any maintenance due.',
+    parameters: {
+      type: 'object',
+      properties: {}
+    }
+  },
+
+  fleet_add_crew: {
+    name: 'fleet_add_crew',
+    description: 'Add a new crew member to the fleet. Track their role, skills, contact info, and certifications.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Full name of the crew member'
+        },
+        role: {
+          type: 'string',
+          enum: ['owner', 'foreman', 'lead', 'journeyman', 'apprentice', 'laborer', 'specialist', 'subcontractor', 'other'],
+          description: 'Role/position',
+          default: 'laborer'
+        },
+        skills: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Skills (e.g., framing, electrical, plumbing, hvac, roofing, concrete, drywall)'
+        },
+        phone: {
+          type: 'string',
+          description: 'Phone number'
+        },
+        email: {
+          type: 'string',
+          description: 'Email address'
+        },
+        hourlyRate: {
+          type: 'number',
+          description: 'Hourly pay rate'
+        },
+        availability: {
+          type: 'string',
+          enum: ['full-time', 'part-time', 'on-call', 'contract'],
+          default: 'full-time'
+        }
+      },
+      required: ['name']
+    }
+  },
+
+  fleet_add_jobsite: {
+    name: 'fleet_add_jobsite',
+    description: 'Add a new job site to the fleet. Track location, client info, and project details.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Job site name or project name'
+        },
+        siteType: {
+          type: 'string',
+          enum: ['residential', 'commercial', 'industrial', 'municipal', 'other'],
+          default: 'residential'
+        },
+        address: {
+          type: 'object',
+          properties: {
+            street: { type: 'string' },
+            city: { type: 'string' },
+            state: { type: 'string' },
+            zip: { type: 'string' }
+          }
+        },
+        clientName: {
+          type: 'string',
+          description: 'Client name'
+        },
+        clientPhone: {
+          type: 'string',
+          description: 'Client phone number'
+        },
+        projectStatus: {
+          type: 'string',
+          enum: ['planning', 'in-progress', 'on-hold', 'completed'],
+          default: 'planning'
+        },
+        contractValue: {
+          type: 'number',
+          description: 'Contract value in dollars'
+        },
+        startDate: {
+          type: 'string',
+          description: 'Project start date (YYYY-MM-DD)'
+        }
+      },
+      required: ['name']
+    }
+  },
+
+  fleet_add_equipment: {
+    name: 'fleet_add_equipment',
+    description: 'Add equipment or vehicle to the fleet. Track make, model, serial numbers, and maintenance.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Equipment name (e.g., "John Deere Excavator", "2020 Ford F-150")'
+        },
+        category: {
+          type: 'string',
+          enum: ['vehicle', 'heavy-equipment', 'power-tool', 'hand-tool', 'safety-equipment', 'trailer', 'other'],
+          default: 'power-tool'
+        },
+        make: {
+          type: 'string',
+          description: 'Manufacturer/make'
+        },
+        model: {
+          type: 'string',
+          description: 'Model name/number'
+        },
+        year: {
+          type: 'number',
+          description: 'Year manufactured'
+        },
+        serialNumber: {
+          type: 'string',
+          description: 'Serial number'
+        },
+        vin: {
+          type: 'string',
+          description: 'VIN for vehicles'
+        },
+        licensePlate: {
+          type: 'string',
+          description: 'License plate for vehicles'
+        },
+        purchasePrice: {
+          type: 'number',
+          description: 'Purchase price'
+        },
+        isRented: {
+          type: 'boolean',
+          description: 'Is this a rental?',
+          default: false
+        },
+        rentalCompany: {
+          type: 'string',
+          description: 'Rental company name if rented'
+        },
+        rentalDailyRate: {
+          type: 'number',
+          description: 'Daily rental rate'
+        }
+      },
+      required: ['name']
+    }
+  },
+
+  fleet_assign: {
+    name: 'fleet_assign',
+    description: 'Assign a crew member or piece of equipment to a job site. Use this to dispatch crew or equipment.',
+    parameters: {
+      type: 'object',
+      properties: {
+        assetId: {
+          type: 'string',
+          description: 'ID of the crew member or equipment to assign'
+        },
+        assetName: {
+          type: 'string',
+          description: 'Name of the asset (can be used instead of ID)'
+        },
+        jobSiteId: {
+          type: 'string',
+          description: 'ID of the job site to assign to'
+        },
+        jobSiteName: {
+          type: 'string',
+          description: 'Name of the job site (can be used instead of ID)'
+        },
+        notes: {
+          type: 'string',
+          description: 'Assignment notes or instructions'
+        },
+        expectedReturn: {
+          type: 'string',
+          description: 'Expected return date (YYYY-MM-DD)'
+        }
+      },
+      required: ['jobSiteName']
+    }
+  },
+
+  fleet_update_location: {
+    name: 'fleet_update_location',
+    description: 'Update the current location of a crew member, vehicle, or equipment.',
+    parameters: {
+      type: 'object',
+      properties: {
+        assetId: {
+          type: 'string',
+          description: 'ID of the asset'
+        },
+        assetName: {
+          type: 'string',
+          description: 'Name of the asset (can be used instead of ID)'
+        },
+        latitude: {
+          type: 'number',
+          description: 'Latitude coordinate'
+        },
+        longitude: {
+          type: 'number',
+          description: 'Longitude coordinate'
+        },
+        address: {
+          type: 'string',
+          description: 'Address description'
+        }
+      },
+      required: ['assetName']
+    }
+  },
+
+  fleet_get_jobsite_crew: {
+    name: 'fleet_get_jobsite_crew',
+    description: 'Get all crew members and equipment currently assigned to a specific job site.',
+    parameters: {
+      type: 'object',
+      properties: {
+        jobSiteId: {
+          type: 'string',
+          description: 'Job site ID'
+        },
+        jobSiteName: {
+          type: 'string',
+          description: 'Job site name (can be used instead of ID)'
+        }
+      }
+    }
+  },
+
+  fleet_maintenance: {
+    name: 'fleet_maintenance',
+    description: 'Add a maintenance record for equipment or mark equipment as needing maintenance.',
+    parameters: {
+      type: 'object',
+      properties: {
+        assetId: {
+          type: 'string',
+          description: 'Equipment ID'
+        },
+        assetName: {
+          type: 'string',
+          description: 'Equipment name (can be used instead of ID)'
+        },
+        maintenanceType: {
+          type: 'string',
+          enum: ['scheduled', 'repair', 'inspection', 'certification', 'other'],
+          default: 'scheduled'
+        },
+        description: {
+          type: 'string',
+          description: 'Description of maintenance performed'
+        },
+        cost: {
+          type: 'number',
+          description: 'Cost of maintenance'
+        },
+        performedBy: {
+          type: 'string',
+          description: 'Who performed the maintenance'
+        },
+        nextDueDate: {
+          type: 'string',
+          description: 'Next maintenance due date (YYYY-MM-DD)'
+        }
+      },
+      required: ['description']
     }
   }
 };
@@ -3753,6 +4185,46 @@ END:VCALENDAR`;
       case 'scrape_webpage':
         return await this.scrapeWebpage(args.url, args.extractionType, args.customSelector, args.summarize);
 
+      // ═══════════════════════════════════════════════════════════════
+      // LOCATION-BASED SEARCH
+      // ═══════════════════════════════════════════════════════════════
+      case 'local_search':
+        return await this.localSearch(args.query, args.location, args.radius, args.category, args.openNow, args.minRating, args.limit);
+
+      case 'get_place_details':
+        return await this.getPlaceDetails(args.placeId, args.includeReviews);
+
+      case 'get_directions':
+        return await this.getDirections(args.destination, args.destinationPlaceId, args.origin, args.mode);
+
+      // Fleet Management
+      case 'fleet_list':
+        return await this.fleetList(args.assetType, args.status, args.search, args.limit, userId);
+
+      case 'fleet_summary':
+        return await this.fleetSummary(userId);
+
+      case 'fleet_add_crew':
+        return await this.fleetAddCrew(args, userId);
+
+      case 'fleet_add_jobsite':
+        return await this.fleetAddJobSite(args, userId);
+
+      case 'fleet_add_equipment':
+        return await this.fleetAddEquipment(args, userId);
+
+      case 'fleet_assign':
+        return await this.fleetAssign(args, userId);
+
+      case 'fleet_update_location':
+        return await this.fleetUpdateLocation(args, userId);
+
+      case 'fleet_get_jobsite_crew':
+        return await this.fleetGetJobSiteCrew(args, userId);
+
+      case 'fleet_maintenance':
+        return await this.fleetMaintenance(args, userId);
+
       default:
         return {
           success: false,
@@ -4482,6 +4954,783 @@ END:VCALENDAR`;
         error: error.message,
         summary: `Failed to scrape webpage: ${error.message}`
       };
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // LOCATION-BASED SEARCH - Google Places API
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Search for local businesses using Google Places API
+   */
+  async localSearch(query, location = null, radius = 25, category = 'all', openNow = false, minRating = 0, limit = 10) {
+    try {
+      console.log(`📍 [LOCAL SEARCH] Query: "${query}", Location: ${JSON.stringify(location)}, Radius: ${radius}mi`);
+
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_AI_API_KEY;
+      if (!apiKey) {
+        return {
+          success: false,
+          error: 'Google Places API key not configured',
+          summary: 'Local search is not available - API key missing'
+        };
+      }
+
+      // Build location string
+      let locationStr = '';
+      if (location?.latitude && location?.longitude) {
+        locationStr = `${location.latitude},${location.longitude}`;
+      } else if (location?.city) {
+        locationStr = `${location.city}${location.state ? ', ' + location.state : ''}`;
+      } else {
+        // Default to Phoenix, AZ (common construction area)
+        locationStr = '33.4484,-112.0740';
+      }
+
+      // Convert miles to meters (Google uses meters)
+      const radiusMeters = Math.min(radius, 50) * 1609.34;
+
+      // Category to Google type mapping
+      const categoryTypes = {
+        suppliers: 'hardware_store|home_goods_store|store',
+        contractors: 'general_contractor|electrician|plumber|roofing_contractor',
+        services: 'car_repair|locksmith|moving_company',
+        government: 'local_government_office|city_hall|courthouse',
+        restaurants: 'restaurant|cafe|meal_takeaway',
+        all: ''
+      };
+
+      // Build Places API Text Search URL
+      const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
+      searchUrl.searchParams.set('query', query);
+      searchUrl.searchParams.set('location', locationStr);
+      searchUrl.searchParams.set('radius', Math.round(radiusMeters).toString());
+      searchUrl.searchParams.set('key', apiKey);
+
+      if (openNow) {
+        searchUrl.searchParams.set('opennow', 'true');
+      }
+
+      if (category !== 'all' && categoryTypes[category]) {
+        searchUrl.searchParams.set('type', categoryTypes[category].split('|')[0]);
+      }
+
+      console.log(`📍 [LOCAL SEARCH] Calling Google Places API`);
+
+      const response = await axios.get(searchUrl.toString(), { timeout: 10000 });
+
+      if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
+        console.error(`❌ [LOCAL SEARCH] API error: ${response.data.status}`);
+        return {
+          success: false,
+          error: `Google Places API error: ${response.data.status}`,
+          summary: 'Failed to search local businesses'
+        };
+      }
+
+      // Process results
+      let results = response.data.results || [];
+
+      // Filter by minimum rating
+      if (minRating > 0) {
+        results = results.filter(place => (place.rating || 0) >= minRating);
+      }
+
+      // Limit results
+      results = results.slice(0, Math.min(limit, 20));
+
+      // Format results for display
+      const formattedResults = results.map((place, index) => {
+        // Calculate distance if we have origin coordinates
+        let distance = null;
+        if (location?.latitude && location?.longitude && place.geometry?.location) {
+          distance = this.calculateDistance(
+            location.latitude,
+            location.longitude,
+            place.geometry.location.lat,
+            place.geometry.location.lng
+          );
+        }
+
+        return {
+          rank: index + 1,
+          placeId: place.place_id,
+          name: place.name,
+          address: place.formatted_address || place.vicinity,
+          rating: place.rating || null,
+          totalRatings: place.user_ratings_total || 0,
+          priceLevel: place.price_level ? '$'.repeat(place.price_level) : null,
+          isOpen: place.opening_hours?.open_now ?? null,
+          distance: distance ? `${distance.toFixed(1)} mi` : null,
+          distanceMiles: distance,
+          types: place.types?.slice(0, 3) || [],
+          photoReference: place.photos?.[0]?.photo_reference || null,
+          location: place.geometry?.location || null
+        };
+      });
+
+      // Sort by distance if available
+      formattedResults.sort((a, b) => {
+        if (a.distanceMiles && b.distanceMiles) {
+          return a.distanceMiles - b.distanceMiles;
+        }
+        return 0;
+      });
+
+      console.log(`✅ [LOCAL SEARCH] Found ${formattedResults.length} results`);
+
+      // Build summary
+      const topResults = formattedResults.slice(0, 3);
+      const summaryText = topResults.length > 0
+        ? `Found ${formattedResults.length} results. Top: ${topResults.map(r => `${r.name}${r.distance ? ` (${r.distance})` : ''}${r.rating ? ` ⭐${r.rating}` : ''}`).join(', ')}`
+        : `No results found for "${query}" in this area`;
+
+      return {
+        success: true,
+        query,
+        location: locationStr,
+        radiusMiles: radius,
+        totalResults: formattedResults.length,
+        results: formattedResults,
+        // Include UI action for mobile display
+        uiAction: {
+          type: 'local_search_results',
+          data: {
+            query,
+            results: formattedResults
+          }
+        },
+        summary: summaryText
+      };
+    } catch (error) {
+      console.error('❌ [LOCAL SEARCH] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to search local businesses: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Get detailed information about a specific place
+   */
+  async getPlaceDetails(placeId, includeReviews = true) {
+    try {
+      console.log(`📍 [PLACE DETAILS] Getting details for: ${placeId}`);
+
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_AI_API_KEY;
+      if (!apiKey) {
+        return {
+          success: false,
+          error: 'Google Places API key not configured',
+          summary: 'Place details not available - API key missing'
+        };
+      }
+
+      const fields = [
+        'name',
+        'formatted_address',
+        'formatted_phone_number',
+        'international_phone_number',
+        'website',
+        'url',
+        'rating',
+        'user_ratings_total',
+        'price_level',
+        'opening_hours',
+        'geometry',
+        'photos',
+        'types',
+        'business_status'
+      ];
+
+      if (includeReviews) {
+        fields.push('reviews');
+      }
+
+      const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+      detailsUrl.searchParams.set('place_id', placeId);
+      detailsUrl.searchParams.set('fields', fields.join(','));
+      detailsUrl.searchParams.set('key', apiKey);
+
+      const response = await axios.get(detailsUrl.toString(), { timeout: 10000 });
+
+      if (response.data.status !== 'OK') {
+        return {
+          success: false,
+          error: `Google Places API error: ${response.data.status}`,
+          summary: 'Failed to get place details'
+        };
+      }
+
+      const place = response.data.result;
+
+      // Format hours
+      let hoursFormatted = null;
+      if (place.opening_hours?.weekday_text) {
+        hoursFormatted = place.opening_hours.weekday_text;
+      }
+
+      // Format reviews
+      let reviewsFormatted = null;
+      if (includeReviews && place.reviews) {
+        reviewsFormatted = place.reviews.slice(0, 5).map(review => ({
+          author: review.author_name,
+          rating: review.rating,
+          text: review.text?.substring(0, 200),
+          timeAgo: review.relative_time_description
+        }));
+      }
+
+      const details = {
+        placeId,
+        name: place.name,
+        address: place.formatted_address,
+        phone: place.formatted_phone_number || place.international_phone_number,
+        website: place.website,
+        googleMapsUrl: place.url,
+        rating: place.rating,
+        totalRatings: place.user_ratings_total,
+        priceLevel: place.price_level ? '$'.repeat(place.price_level) : null,
+        isOpen: place.opening_hours?.open_now,
+        hours: hoursFormatted,
+        status: place.business_status,
+        types: place.types?.slice(0, 5),
+        location: place.geometry?.location,
+        reviews: reviewsFormatted,
+        photoReference: place.photos?.[0]?.photo_reference
+      };
+
+      console.log(`✅ [PLACE DETAILS] Got details for: ${place.name}`);
+
+      return {
+        success: true,
+        details,
+        uiAction: {
+          type: 'place_details',
+          data: details
+        },
+        summary: `${place.name} - ${place.formatted_address}. ${place.formatted_phone_number || 'No phone listed'}. ${place.rating ? `Rating: ${place.rating}⭐` : ''}`
+      };
+    } catch (error) {
+      console.error('❌ [PLACE DETAILS] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to get place details: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Get directions from origin to destination
+   */
+  async getDirections(destination, destinationPlaceId = null, origin = null, mode = 'driving') {
+    try {
+      console.log(`🗺️ [DIRECTIONS] To: ${destination || destinationPlaceId}, Mode: ${mode}`);
+
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_AI_API_KEY;
+      if (!apiKey) {
+        return {
+          success: false,
+          error: 'Google Directions API key not configured',
+          summary: 'Directions not available - API key missing'
+        };
+      }
+
+      // Build origin string
+      let originStr = '';
+      if (origin?.latitude && origin?.longitude) {
+        originStr = `${origin.latitude},${origin.longitude}`;
+      } else if (origin?.address) {
+        originStr = origin.address;
+      } else {
+        // Default origin (would be replaced by actual user location)
+        originStr = '33.4484,-112.0740'; // Phoenix, AZ
+      }
+
+      // Build destination string
+      let destStr = destinationPlaceId ? `place_id:${destinationPlaceId}` : destination;
+
+      const directionsUrl = new URL('https://maps.googleapis.com/maps/api/directions/json');
+      directionsUrl.searchParams.set('origin', originStr);
+      directionsUrl.searchParams.set('destination', destStr);
+      directionsUrl.searchParams.set('mode', mode);
+      directionsUrl.searchParams.set('key', apiKey);
+
+      const response = await axios.get(directionsUrl.toString(), { timeout: 10000 });
+
+      if (response.data.status !== 'OK') {
+        return {
+          success: false,
+          error: `Google Directions API error: ${response.data.status}`,
+          summary: 'Failed to get directions'
+        };
+      }
+
+      const route = response.data.routes[0];
+      const leg = route.legs[0];
+
+      const directions = {
+        origin: leg.start_address,
+        destination: leg.end_address,
+        distance: leg.distance.text,
+        duration: leg.duration.text,
+        durationInTraffic: leg.duration_in_traffic?.text,
+        steps: leg.steps.map(step => ({
+          instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
+          distance: step.distance.text,
+          duration: step.duration.text
+        })),
+        overviewPolyline: route.overview_polyline?.points,
+        googleMapsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(leg.start_address)}&destination=${encodeURIComponent(leg.end_address)}&travelmode=${mode}`
+      };
+
+      console.log(`✅ [DIRECTIONS] ${leg.distance.text} - ${leg.duration.text}`);
+
+      return {
+        success: true,
+        directions,
+        uiAction: {
+          type: 'directions',
+          data: directions
+        },
+        summary: `${leg.distance.text} (${leg.duration.text} by ${mode}). Start from ${leg.start_address}`
+      };
+    } catch (error) {
+      console.error('❌ [DIRECTIONS] Error:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        summary: `Failed to get directions: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Calculate distance between two coordinates in miles
+   */
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 3959; // Earth's radius in miles
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  toRad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // FLEET MANAGEMENT METHODS
+  // Managing people, places, and things
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * List fleet assets with optional filtering
+   */
+  async fleetList(assetType, status, search, limit = 20, userId) {
+    try {
+      console.log(`🚚 [FLEET] Listing assets - type: ${assetType}, status: ${status}, search: ${search}`);
+
+      const filter = { userId };
+      if (assetType) filter.assetType = assetType;
+      if (status) filter.status = status;
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { tags: { $in: [new RegExp(search, 'i')] } }
+        ];
+      }
+
+      const assets = await FleetAsset.find(filter)
+        .sort({ updatedAt: -1 })
+        .limit(parseInt(limit));
+
+      const typeLabels = {
+        person: 'crew members',
+        place: 'job sites',
+        thing: 'equipment'
+      };
+
+      const label = assetType ? typeLabels[assetType] : 'assets';
+
+      return {
+        success: true,
+        assets: assets.map(a => a.getSummary()),
+        count: assets.length,
+        summary: `Found ${assets.length} ${label}${search ? ` matching "${search}"` : ''}`,
+        uiAction: {
+          type: 'fleet_list',
+          data: {
+            assets: assets.map(a => a.getSummary()),
+            assetType,
+            filter: { status, search }
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] List error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Get fleet summary statistics
+   */
+  async fleetSummary(userId) {
+    try {
+      console.log('📊 [FLEET] Getting summary statistics');
+
+      const [people, places, things, assigned, maintenance] = await Promise.all([
+        FleetAsset.countDocuments({ userId, assetType: 'person', status: { $ne: 'inactive' } }),
+        FleetAsset.countDocuments({ userId, assetType: 'place', status: { $ne: 'inactive' } }),
+        FleetAsset.countDocuments({ userId, assetType: 'thing', status: { $ne: 'inactive' } }),
+        FleetAsset.countDocuments({ userId, status: 'assigned' }),
+        FleetAsset.countDocuments({ userId, assetType: 'thing', nextMaintenanceDue: { $lte: new Date() } })
+      ]);
+
+      const summary = {
+        people: { total: people, label: 'Crew Members' },
+        places: { total: places, label: 'Job Sites' },
+        things: { total: things, label: 'Equipment' },
+        assigned: { total: assigned, label: 'Currently Assigned' },
+        maintenanceDue: { total: maintenance, label: 'Maintenance Due' }
+      };
+
+      return {
+        success: true,
+        summary,
+        summaryText: `Fleet Overview: ${people} crew members, ${places} job sites, ${things} pieces of equipment. ${assigned} assets currently assigned. ${maintenance > 0 ? `⚠️ ${maintenance} items need maintenance.` : 'All maintenance up to date.'}`,
+        uiAction: {
+          type: 'fleet_summary',
+          data: summary
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Summary error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Add a crew member (person)
+   */
+  async fleetAddCrew(args, userId) {
+    try {
+      const { name, role, skills, phone, email, hourlyRate, availability } = args;
+      console.log(`👷 [FLEET] Adding crew member: ${name}`);
+
+      const asset = new FleetAsset({
+        userId,
+        assetType: 'person',
+        name,
+        status: 'active',
+        person: {
+          role: role || 'laborer',
+          skills: skills || [],
+          phone,
+          email,
+          hourlyRate,
+          availability: availability || 'full-time'
+        },
+        createdBy: userId
+      });
+
+      await asset.save();
+
+      return {
+        success: true,
+        asset: asset.getSummary(),
+        summary: `✅ Added crew member "${name}" as ${role || 'laborer'}${skills?.length ? ` with skills: ${skills.join(', ')}` : ''}`,
+        uiAction: {
+          type: 'fleet_asset_created',
+          data: asset.getSummary()
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Add crew error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Add a job site (place)
+   */
+  async fleetAddJobSite(args, userId) {
+    try {
+      const { name, siteType, address, clientName, projectName, startDate } = args;
+      console.log(`📍 [FLEET] Adding job site: ${name}`);
+
+      const asset = new FleetAsset({
+        userId,
+        assetType: 'place',
+        name,
+        status: 'active',
+        place: {
+          siteType: siteType || 'residential',
+          address: typeof address === 'string' ? { street: address } : address,
+          client: { name: clientName },
+          projectDetails: {
+            projectName: projectName || name,
+            startDate: startDate ? new Date(startDate) : new Date(),
+            status: 'planning'
+          }
+        },
+        createdBy: userId
+      });
+
+      await asset.save();
+
+      return {
+        success: true,
+        asset: asset.getSummary(),
+        summary: `✅ Added job site "${name}"${clientName ? ` for client ${clientName}` : ''}`,
+        uiAction: {
+          type: 'fleet_asset_created',
+          data: asset.getSummary()
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Add job site error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Add equipment (thing)
+   */
+  async fleetAddEquipment(args, userId) {
+    try {
+      const { name, category, make, model, year, serialNumber, isRented } = args;
+      console.log(`🔧 [FLEET] Adding equipment: ${name}`);
+
+      const asset = new FleetAsset({
+        userId,
+        assetType: 'thing',
+        name,
+        status: 'active',
+        thing: {
+          category: category || 'other',
+          make,
+          model,
+          year,
+          serialNumber,
+          isRented: isRented || false
+        },
+        createdBy: userId
+      });
+
+      await asset.save();
+
+      const description = [make, model, year].filter(Boolean).join(' ');
+
+      return {
+        success: true,
+        asset: asset.getSummary(),
+        summary: `✅ Added equipment "${name}"${description ? ` (${description})` : ''}${isRented ? ' [RENTAL]' : ''}`,
+        uiAction: {
+          type: 'fleet_asset_created',
+          data: asset.getSummary()
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Add equipment error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Assign an asset to a job site
+   */
+  async fleetAssign(args, userId) {
+    try {
+      const { assetName, jobSiteName, notes, expectedReturn } = args;
+      console.log(`📋 [FLEET] Assigning "${assetName}" to "${jobSiteName}"`);
+
+      // Find the asset by name
+      const asset = await FleetAsset.findOne({
+        userId,
+        name: { $regex: new RegExp(assetName, 'i') },
+        assetType: { $in: ['person', 'thing'] }
+      });
+
+      if (!asset) {
+        return { success: false, error: `Asset "${assetName}" not found` };
+      }
+
+      // Find the job site
+      const jobSite = await FleetAsset.findOne({
+        userId,
+        name: { $regex: new RegExp(jobSiteName, 'i') },
+        assetType: 'place'
+      });
+
+      if (!jobSite) {
+        return { success: false, error: `Job site "${jobSiteName}" not found` };
+      }
+
+      await asset.assignToJobSite(
+        jobSite._id,
+        jobSite.name,
+        { id: userId, name: 'Aria' },
+        notes,
+        expectedReturn ? new Date(expectedReturn) : null
+      );
+
+      return {
+        success: true,
+        summary: `✅ Assigned ${asset.assetType === 'person' ? '👷' : '🔧'} "${asset.name}" to job site "${jobSite.name}"${expectedReturn ? ` (return by ${new Date(expectedReturn).toLocaleDateString()})` : ''}`,
+        asset: asset.getSummary(),
+        uiAction: {
+          type: 'fleet_assignment',
+          data: {
+            asset: asset.getSummary(),
+            jobSite: jobSite.getSummary()
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Assign error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Update asset location
+   */
+  async fleetUpdateLocation(args, userId) {
+    try {
+      const { assetName, latitude, longitude, address } = args;
+      console.log(`📍 [FLEET] Updating location for "${assetName}"`);
+
+      const asset = await FleetAsset.findOne({
+        userId,
+        name: { $regex: new RegExp(assetName, 'i') }
+      });
+
+      if (!asset) {
+        return { success: false, error: `Asset "${assetName}" not found` };
+      }
+
+      await asset.updateLocation(latitude, longitude, address, 'manual');
+
+      return {
+        success: true,
+        summary: `✅ Updated location for "${asset.name}" to ${address || `${latitude}, ${longitude}`}`,
+        currentLocation: asset.currentLocation,
+        uiAction: {
+          type: 'fleet_location_updated',
+          data: {
+            asset: asset.getSummary(),
+            location: asset.currentLocation
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Update location error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Get all crew and equipment at a job site
+   */
+  async fleetGetJobSiteCrew(args, userId) {
+    try {
+      const { jobSiteName } = args;
+      console.log(`👥 [FLEET] Getting crew at "${jobSiteName}"`);
+
+      // Find the job site
+      const jobSite = await FleetAsset.findOne({
+        userId,
+        name: { $regex: new RegExp(jobSiteName, 'i') },
+        assetType: 'place'
+      });
+
+      if (!jobSite) {
+        return { success: false, error: `Job site "${jobSiteName}" not found` };
+      }
+
+      // Find all assets assigned to this job site
+      const assets = await FleetAsset.getAssetsAtJobSite(userId, jobSite._id);
+
+      const people = assets.filter(a => a.assetType === 'person');
+      const things = assets.filter(a => a.assetType === 'thing');
+
+      return {
+        success: true,
+        jobSite: jobSite.getSummary(),
+        crew: people.map(a => a.getSummary()),
+        equipment: things.map(a => a.getSummary()),
+        summary: `At "${jobSite.name}": ${people.length} crew members${people.length > 0 ? ` (${people.map(p => p.name).join(', ')})` : ''} and ${things.length} pieces of equipment${things.length > 0 ? ` (${things.map(t => t.name).join(', ')})` : ''}`,
+        uiAction: {
+          type: 'fleet_jobsite_crew',
+          data: {
+            jobSite: jobSite.getSummary(),
+            crew: people.map(a => a.getSummary()),
+            equipment: things.map(a => a.getSummary())
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Get job site crew error:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Add or schedule maintenance for equipment
+   */
+  async fleetMaintenance(args, userId) {
+    try {
+      const { equipmentName, type, description, nextDueDate, cost, performedBy } = args;
+      console.log(`🔧 [FLEET] Adding maintenance for "${equipmentName}"`);
+
+      const asset = await FleetAsset.findOne({
+        userId,
+        name: { $regex: new RegExp(equipmentName, 'i') },
+        assetType: 'thing'
+      });
+
+      if (!asset) {
+        return { success: false, error: `Equipment "${equipmentName}" not found` };
+      }
+
+      await asset.addMaintenanceRecord({
+        type: type || 'scheduled',
+        description,
+        performedBy,
+        cost,
+        date: new Date(),
+        nextDueDate: nextDueDate ? new Date(nextDueDate) : null
+      });
+
+      return {
+        success: true,
+        summary: `✅ Maintenance record added for "${asset.name}": ${description || type}${nextDueDate ? `. Next maintenance due: ${new Date(nextDueDate).toLocaleDateString()}` : ''}`,
+        asset: asset.getSummary(),
+        nextMaintenanceDue: asset.nextMaintenanceDue,
+        uiAction: {
+          type: 'fleet_maintenance_added',
+          data: {
+            asset: asset.getSummary(),
+            maintenanceHistory: asset.maintenanceHistory,
+            nextMaintenanceDue: asset.nextMaintenanceDue
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ [FLEET] Maintenance error:', error.message);
+      return { success: false, error: error.message };
     }
   }
 }
