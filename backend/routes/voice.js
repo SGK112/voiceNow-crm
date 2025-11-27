@@ -1883,6 +1883,60 @@ When asked to perform actions, use the available tools/functions.`;
           required: ['url'],
         },
       },
+      {
+        type: 'function',
+        name: 'search_products',
+        description: 'Search for building materials, surfaces, tiles, stone, flooring, and construction products. Prioritizes local Miami/South Florida suppliers first, then national retailers. Returns product images and details. Use when client asks about specific materials, wants to see product options, or needs pricing on supplies.',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Product search query (e.g., "white marble countertop", "porcelain floor tile", "quartz surface")',
+            },
+            category: {
+              type: 'string',
+              enum: ['tile', 'stone', 'countertops', 'flooring', 'surfaces', 'cabinets', 'fixtures', 'paint', 'lumber', 'roofing', 'general'],
+              description: 'Product category to search',
+            },
+            supplier: {
+              type: 'string',
+              enum: ['local_first', 'msi', 'daltile', 'boulder_images', 'home_depot', 'lowes', 'floor_decor', 'all'],
+              description: 'Preferred supplier - local_first searches Miami area suppliers first',
+            },
+            priceRange: {
+              type: 'string',
+              enum: ['budget', 'mid', 'premium', 'luxury', 'any'],
+              description: 'Price range filter',
+            },
+            includeImages: {
+              type: 'boolean',
+              description: 'Include product images in results (default true)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'show_product_images',
+        description: 'Display product images to the user. Use after search_products to show visual options, or when user wants to see what a specific material looks like.',
+        parameters: {
+          type: 'object',
+          properties: {
+            products: {
+              type: 'array',
+              description: 'Array of product objects with imageUrl, name, price, supplier',
+            },
+            displayMode: {
+              type: 'string',
+              enum: ['grid', 'carousel', 'comparison', 'single'],
+              description: 'How to display the images',
+            },
+          },
+          required: ['products'],
+        },
+      },
     ];
 
     // Get voice settings for the agent

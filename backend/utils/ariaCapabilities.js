@@ -2102,6 +2102,149 @@ export class AriaCapabilities {
     }
   }
 
+  // Product search for building materials - prioritizes local Miami suppliers
+  async searchProducts(query, options = {}) {
+    const { category = 'general', supplier = 'local_first', priceRange = 'any', includeImages = true } = options;
+
+    console.log(`🛒 [PRODUCT SEARCH] Query: "${query}", Category: ${category}, Supplier: ${supplier}`);
+
+    // Supplier configurations with Miami/South Florida focus
+    const supplierConfigs = {
+      msi: { name: 'MSI Surfaces', domain: 'msisurfaces.com', searchUrl: 'https://www.msisurfaces.com/search/?q=' },
+      daltile: { name: 'Daltile', domain: 'daltile.com', searchUrl: 'https://www.daltile.com/search?q=' },
+      boulder_images: { name: 'Boulder Images', domain: 'boulderimages.com', local: true },
+      home_depot: { name: 'Home Depot', domain: 'homedepot.com', searchUrl: 'https://www.homedepot.com/s/' },
+      lowes: { name: 'Lowes', domain: 'lowes.com', searchUrl: 'https://www.lowes.com/search?searchTerm=' },
+      floor_decor: { name: 'Floor & Decor', domain: 'flooranddecor.com', searchUrl: 'https://www.flooranddecor.com/search?q=' }
+    };
+
+    // Local Miami suppliers to prioritize
+    const localSuppliers = [
+      'boulder_images', 'msi', 'daltile', 'floor_decor'
+    ];
+
+    try {
+      const products = [];
+      let searchDomains = [];
+
+      // Determine which suppliers to search
+      if (supplier === 'local_first') {
+        searchDomains = [...localSuppliers, 'home_depot', 'lowes'];
+      } else if (supplier === 'all') {
+        searchDomains = Object.keys(supplierConfigs);
+      } else if (supplierConfigs[supplier]) {
+        searchDomains = [supplier];
+      } else {
+        searchDomains = localSuppliers;
+      }
+
+      // Build search query with category context
+      let searchQuery = query;
+      if (category !== 'general') {
+        searchQuery = `${category} ${query}`;
+      }
+
+      // Use image search for product results with images
+      const imageSearchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery + ' site:' + searchDomains.map(s => supplierConfigs[s]?.domain).filter(Boolean).join(' OR site:'))}`;
+
+      // Also do a regular web search for product info
+      const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery + ' Miami Florida price')}`;
+
+      const response = await axios.get(searchUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AriaBot/1.0)' },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+
+      // Extract results
+      $('.result').slice(0, 10).each((i, elem) => {
+        const title = $(elem).find('.result__title').text().trim();
+        const snippet = $(elem).find('.result__snippet').text().trim();
+        const url = $(elem).find('.result__url').text().trim();
+        const link = $(elem).find('.result__a').attr('href');
+
+        if (title && snippet) {
+          // Determine supplier from URL
+          let productSupplier = 'Unknown';
+          for (const [key, config] of Object.entries(supplierConfigs)) {
+            if (url.includes(config.domain)) {
+              productSupplier = config.name;
+              break;
+            }
+          }
+
+          // Extract price if present in snippet
+          const priceMatch = snippet.match(/\$[\d,]+\.?\d*/);
+          const price = priceMatch ? priceMatch[0] : null;
+
+          products.push({
+            name: title,
+            description: snippet,
+            url: link || url,
+            supplier: productSupplier,
+            price,
+            imageUrl: null, // Would need separate image search
+            isLocal: localSuppliers.some(ls => url.includes(supplierConfigs[ls]?.domain))
+          });
+        }
+      });
+
+      // Sort local suppliers first
+      products.sort((a, b) => (b.isLocal ? 1 : 0) - (a.isLocal ? 1 : 0));
+
+      console.log(`✅ [PRODUCT SEARCH] Found ${products.length} products`);
+
+      return {
+        success: true,
+        query,
+        category,
+        products: products.slice(0, 8),
+        action: 'product_search_results',
+        message: products.length > 0
+          ? `Found ${products.length} products matching "${query}". ${products.filter(p => p.isLocal).length} from local Miami suppliers.`
+          : `No products found for "${query}". Try a different search term.`,
+        uiAction: includeImages ? {
+          type: 'show_products',
+          data: { products: products.slice(0, 8), displayMode: 'grid' }
+        } : null
+      };
+
+    } catch (error) {
+      console.error('❌ [PRODUCT SEARCH] Error:', error.message);
+      return {
+        success: false,
+        error: `Product search failed: ${error.message}`,
+        message: "I had trouble searching for products. Let me try a different approach."
+      };
+    }
+  }
+
+  // Show product images to user
+  async showProductImages(products, displayMode = 'grid') {
+    console.log(`🖼️ [SHOW PRODUCTS] Displaying ${products?.length || 0} products in ${displayMode} mode`);
+
+    if (!products || products.length === 0) {
+      return {
+        success: false,
+        error: 'No products to display',
+        message: "I don't have any products to show. Would you like me to search for something?"
+      };
+    }
+
+    return {
+      success: true,
+      action: 'display_products',
+      products,
+      displayMode,
+      message: `Here are ${products.length} products for you to review.`,
+      uiAction: {
+        type: 'show_products',
+        data: { products, displayMode }
+      }
+    };
+  }
+
   // Email capability
   async sendEmail(to, subject, body) {
     try {
@@ -4183,6 +4326,17 @@ END:VCALENDAR`;
 
       case 'get_project_images':
         return await this.getProjectImages(args.projectId, args.contactId, args.category, args.limit);
+
+      case 'search_products':
+        return await this.searchProducts(args.query, {
+          category: args.category,
+          supplier: args.supplier,
+          priceRange: args.priceRange,
+          includeImages: args.includeImages
+        });
+
+      case 'show_product_images':
+        return await this.showProductImages(args.products, args.displayMode);
 
       case 'scrape_webpage':
         return await this.scrapeWebpage(args.url, args.extractionType, args.customSelector, args.summarize);
