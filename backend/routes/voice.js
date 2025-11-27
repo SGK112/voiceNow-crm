@@ -1829,6 +1829,60 @@ When asked to perform actions, use the available tools/functions.`;
           required: ['context'],
         },
       },
+      {
+        type: 'function',
+        name: 'web_search',
+        description: 'Search the web for information. Use when user needs current info, research, competitor analysis, pricing research, industry trends, or any factual information that might be outdated in your training.',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'The search query - be specific and detailed for best results',
+            },
+            numResults: {
+              type: 'number',
+              description: 'Number of results to return (default 5, max 10)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'fetch_url',
+        description: 'Fetch and read content from a specific URL. Use when user provides a link they want you to analyze, or when you need to read a specific webpage for information.',
+        parameters: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The full URL to fetch content from',
+            },
+          },
+          required: ['url'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'scrape_webpage',
+        description: 'Extract structured data from a webpage. Use for pulling contact info, product details, pricing, or other structured data from websites.',
+        parameters: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The URL to scrape',
+            },
+            extractType: {
+              type: 'string',
+              enum: ['contacts', 'products', 'pricing', 'articles', 'general'],
+              description: 'What type of data to extract',
+            },
+          },
+          required: ['url'],
+        },
+      },
     ];
 
     // Get voice settings for the agent
