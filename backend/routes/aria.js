@@ -5,11 +5,13 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import ttsService from '../services/ttsService.js';
 import networkDiscoveryService from '../services/networkDiscoveryService.js';
 import translationService from '../services/translationService.js';
 import AIAgent from '../models/AIAgent.js';
 import replicateMediaService from '../services/replicateMediaService.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
@@ -2242,6 +2244,20 @@ router.post('/chat', async (req, res) => {
       });
     }
 
+    // Extract user from JWT token if provided (for image generation credits)
+    let tokenUserId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        tokenUserId = decoded.id || decoded.userId || decoded._id;
+        console.log(`[Aria] Extracted userId from JWT: ${tokenUserId}`);
+      } catch (err) {
+        console.log('[Aria] JWT verification failed (non-critical):', err.message);
+      }
+    }
+
     // Auto-detect language and dialect from user message
     const detectedLanguage = detectLanguageAndDialect(message);
     console.log(`[Aria] Detected language: ${detectedLanguage.name} (${detectedLanguage.code}) - confidence: ${detectedLanguage.confidence}`);
@@ -2274,8 +2290,9 @@ router.post('/chat', async (req, res) => {
     let agentActions = [];
     let imageActions = [];
 
-    // Get userId from context for translation history and image generation
-    const userId = context?.user?._id || context?.user?.id || context?.userId;
+    // Get userId from JWT token, context, or request - priority: JWT > context.user > context.userId
+    const userId = tokenUserId || context?.user?._id || context?.user?.id || context?.userId;
+    console.log(`[Aria] Final userId for tools: ${userId}`);
 
     if (needsScraping) {
       // Extract URL or search terms from message
