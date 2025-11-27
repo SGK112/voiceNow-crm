@@ -1334,6 +1334,27 @@ const IMAGE_TOOLS = [
 // Execute image generation tool calls
 async function executeImageTool(toolName, args, userId) {
   console.log(`[Aria] Executing image tool: ${toolName}`, args);
+
+  // Validate user exists before attempting any image generation
+  if (!userId) {
+    return {
+      success: false,
+      error: 'LOGIN_REQUIRED',
+      message: 'Image generation requires you to be logged in. Please log out and log back in to enable this feature.'
+    };
+  }
+
+  // Pre-validate user exists in database
+  const userExists = await User.findById(userId);
+  if (!userExists) {
+    console.log(`[Aria] User ${userId} not found in database for image generation`);
+    return {
+      success: false,
+      error: 'SESSION_EXPIRED',
+      message: 'Your session has expired. Please tell the user to log out from Settings and log back in to use image generation.'
+    };
+  }
+
   try {
     switch (toolName) {
       case 'generate_image': {

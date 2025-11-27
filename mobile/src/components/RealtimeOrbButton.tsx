@@ -12,7 +12,7 @@ import InCallManager from 'react-native-incall-manager';
 import api from '../utils/api';
 
 export interface RealtimeUIAction {
-  type: 'show_list' | 'confirm_sms' | 'confirm_email' | 'confirm_appointment' | 'confirm_lead' | 'error' | 'agent_switch' | 'conference_started';
+  type: 'show_list' | 'confirm_sms' | 'confirm_email' | 'confirm_appointment' | 'confirm_lead' | 'error' | 'agent_switch' | 'conference_started' | 'image_generated' | 'request_image_upload';
   data: any;
 }
 
@@ -36,6 +36,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream>(new MediaStream());
+  const isSpeakingRef = useRef(false); // Track if Aria is speaking
 
   // Animation refs
   const breatheAnim = useRef(new Animated.Value(1)).current;
@@ -172,6 +173,16 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
     animationsRef.current.forEach(anim => anim.start());
   };
 
+  // Mute/unmute microphone to prevent feedback loop
+  const setMicrophoneMuted = (muted: boolean) => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = !muted;
+      });
+      console.log(`[REALTIME] Microphone ${muted ? 'muted' : 'unmuted'}`);
+    }
+  };
+
   const cleanup = () => {
     if (dataChannelRef.current) {
       dataChannelRef.current.close();
@@ -185,6 +196,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
       localStreamRef.current.getTracks().forEach(track => track.stop());
       localStreamRef.current = null;
     }
+    isSpeakingRef.current = false;
     InCallManager.stop();
   };
 
@@ -355,10 +367,9 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
               },
               turn_detection: {
                 type: 'server_vad',
-                threshold: 0.6,           // Balanced sensitivity
-                prefix_padding_ms: 300,
-                silence_duration_ms: 700, // Respond after 0.7s silence
-                create_response: true,
+                threshold: 0.85, // High threshold to filter out TV/background noise
+                prefix_padding_ms: 400, // Capture more context before speech
+                silence_duration_ms: 800, // Wait 800ms of silence before responding
               },
               tools: configRef.current.tools,
             },
@@ -391,12 +402,38 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
         break;
 
       case 'response.audio.delta':
-        // AI is speaking (audio is playing)
+        // AI is speaking (audio is playing) - MUTE mic to prevent feedback
+        if (!isSpeakingRef.current) {
+          isSpeakingRef.current = true;
+          setMicrophoneMuted(true);
+        }
         onStateChange?.('speaking');
         break;
 
+      case 'response.audio.done':
+        // AI finished audio output - delay unmuting to avoid echo from residual audio
+        console.log('[REALTIME] AI finished speaking, waiting before unmuting mic');
+        isSpeakingRef.current = false;
+        // Add 500ms delay to let speaker audio fully stop before unmuting mic
+        setTimeout(() => {
+          if (!isSpeakingRef.current) {
+            setMicrophoneMuted(false);
+            console.log('[REALTIME] Mic unmuted after delay');
+          }
+        }, 500);
+        break;
+
       case 'response.done':
-        // AI finished responding - back to listening
+        // AI finished responding completely - ensure mic is unmuted and back to listening
+        if (isSpeakingRef.current) {
+          isSpeakingRef.current = false;
+          // Add delay to prevent echo pickup
+          setTimeout(() => {
+            if (!isSpeakingRef.current) {
+              setMicrophoneMuted(false);
+            }
+          }, 500);
+        }
         onStateChange?.('listening');
         break;
 
@@ -497,6 +534,35 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
             agentId: result.data.newAgentId,
             agentName: result.data.newAgent.name,
             agentIcon: result.data.newAgent.icon,
+          },
+        });
+        return;
+      }
+
+      // Handle image generation result
+      if (result.data.action === 'image_generated' && result.data.success) {
+        console.log(`[REALTIME] Image generated: ${result.data.imageUrl}`);
+        onUIAction?.({
+          type: 'image_generated',
+          data: {
+            imageUrl: result.data.imageUrl,
+            prompt: result.data.prompt,
+            style: result.data.style,
+            size: result.data.size,
+            useCase: result.data.useCase,
+          },
+        });
+        return;
+      }
+
+      // Handle request for reference image upload
+      if (result.data.action === 'request_reference') {
+        console.log(`[REALTIME] Requesting reference image: ${result.data.context}`);
+        onUIAction?.({
+          type: 'request_image_upload',
+          data: {
+            context: result.data.context,
+            message: result.data.message,
           },
         });
         return;
