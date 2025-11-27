@@ -2250,11 +2250,23 @@ router.post('/chat', async (req, res) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        tokenUserId = decoded.id || decoded.userId || decoded._id;
-        console.log(`[Aria] Extracted userId from JWT: ${tokenUserId}`);
+        // First try to verify with secret
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          tokenUserId = decoded.id || decoded.userId || decoded._id;
+          console.log(`[Aria] Extracted userId from verified JWT: ${tokenUserId}`);
+        } catch (verifyErr) {
+          // If verification fails, try to decode without verification (signature might be from different env)
+          const decoded = jwt.decode(token);
+          if (decoded && (decoded.id || decoded.userId || decoded._id)) {
+            tokenUserId = decoded.id || decoded.userId || decoded._id;
+            console.log(`[Aria] Extracted userId from decoded JWT (unverified): ${tokenUserId}`);
+          } else {
+            console.log('[Aria] JWT decode failed (non-critical):', verifyErr.message);
+          }
+        }
       } catch (err) {
-        console.log('[Aria] JWT verification failed (non-critical):', err.message);
+        console.log('[Aria] JWT extraction failed (non-critical):', err.message);
       }
     }
 

@@ -365,7 +365,7 @@ class ReplicateMediaService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('SESSION_EXPIRED: Please log out and log back in to use image generation.');
     }
 
     // Initialize media credits if not exists - give 50 free credits to new users
