@@ -1194,13 +1194,13 @@ function detectAgentIntent(message) {
   return agentKeywords.some(kw => lower.includes(kw));
 }
 
-// Image generation tools using Nano Banana and other models
+// Image generation tools using Replicate (Flux models)
 const IMAGE_TOOLS = [
   {
     type: 'function',
     function: {
       name: 'generate_image',
-      description: 'Generate an image using AI. Use Google Nano Banana for best results with construction/renovation scenes, before/after images, and detailed visualizations. Ask clarifying questions to build the best prompt.',
+      description: 'Generate an image using AI. Use flux_schnell for fast results or flux_pro for best quality. Great for construction/renovation scenes, before/after images, and detailed visualizations. Ask clarifying questions to build the best prompt.',
       parameters: {
         type: 'object',
         properties: {
@@ -1223,7 +1223,7 @@ const IMAGE_TOOLS = [
           imageInputs: {
             type: 'array',
             items: { type: 'string' },
-            description: 'URLs of reference images (for Nano Banana editing/fusion)'
+            description: 'URLs of reference images for editing/fusion'
           }
         },
         required: ['prompt'],
@@ -2308,12 +2308,14 @@ router.post('/chat', async (req, res) => {
     };
 
     // Combine tools based on detected intents
-    const tools = [];
+    // ALWAYS include IMAGE_TOOLS so GPT can generate images when asked
+    const tools = [...IMAGE_TOOLS];
     if (needsNetwork) tools.push(...NETWORK_TOOLS);
     if (needsLocation) tools.push(...LOCATION_TOOLS);
     if (needsTranslation) tools.push(...TRANSLATION_TOOLS);
     if (needsAgent) tools.push(...AGENT_TOOLS);
-    if (needsImage) tools.push(...IMAGE_TOOLS);
+
+    console.log(`[Aria] Tools included: ${tools.map(t => t.function.name).join(', ')}`);
 
     if (tools.length > 0) {
       completionOptions.tools = tools;
