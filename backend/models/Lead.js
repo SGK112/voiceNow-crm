@@ -80,7 +80,7 @@ const leadSchema = new mongoose.Schema({
   },
   lastActivityType: {
     type: String,
-    enum: ['call', 'email', 'sms', 'meeting', 'note', 'ai_call']
+    enum: ['call', 'email', 'sms', 'meeting', 'note', 'ai_call', 'aria_followup']
   },
   lastActivityAt: Date,
   lastContactedAt: Date,
