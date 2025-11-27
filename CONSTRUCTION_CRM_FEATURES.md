@@ -1,6 +1,6 @@
 # Construction CRM Features - Implementation Summary
 
-This document outlines all the construction-specific features added to the VoiceFlow CRM system.
+This document outlines all the construction-specific features added to the VoiceNow CRM system.
 
 ## Overview
 

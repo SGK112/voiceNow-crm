@@ -7,7 +7,7 @@
 
 ## 🎯 Overview
 
-This implementation adds three major feature sets to VoiceFlow CRM:
+This implementation adds three major feature sets to VoiceNow CRM:
 1. **Comprehensive Security Audit & Fixes**
 2. **n8n Workflow Synchronization with OAuth**
 3. **Multi-AI Model Support (Claude, OpenAI, Gemini, Vertex AI)**
@@ -119,7 +119,7 @@ verifyTwilioWebhook(req)
 **n8n API Integration:**
 - Full REST API client for n8n workflows
 - OAuth credential management
-- Real-time workflow sync between VoiceFlow CRM and n8n
+- Real-time workflow sync between VoiceNow CRM and n8n
 - Template-based workflow creation
 
 **OAuth Support for External Services (30+ integrations):**
@@ -220,7 +220,7 @@ POST /api/n8n-sync/credentials/oauth/initiate
 }
 
 // 3. User completes OAuth on external service
-// 4. Callback to VoiceFlow CRM
+// 4. Callback to VoiceNow CRM
 POST /api/n8n-sync/credentials/oauth/callback
 {
   "code": "auth_code_from_provider",
@@ -254,11 +254,11 @@ POST /api/n8n-sync/credentials/oauth/callback
 1. **User adds node** requiring OAuth (e.g., Facebook, Shopify)
 2. **System detects** required credential type
 3. **User clicks "Connect"** → Redirected to OAuth provider
-4. **User authorizes** VoiceFlow CRM access
+4. **User authorizes** VoiceNow CRM access
 5. **Provider redirects back** with authorization code
 6. **n8n exchanges code** for access token
 7. **Credential stored** in n8n (encrypted)
-8. **VoiceFlow CRM tracks** credential availability
+8. **VoiceNow CRM tracks** credential availability
 
 Just like n8n, users can:
 - See which credentials are missing
@@ -504,7 +504,7 @@ POST /api/n8n-sync/templates/plumbing_emergency_dispatch/create
   "customName": "Emergency Plumbing Response"
 }
 
-// Workflow created in both n8n and VoiceFlow CRM
+// Workflow created in both n8n and VoiceNow CRM
 ```
 
 ### 3. Multi-AI Completions

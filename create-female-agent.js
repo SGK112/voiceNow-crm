@@ -58,7 +58,7 @@ async function createFemaleAgentAndCall() {
         },
         agent: {
           prompt: {
-            prompt: `You are a friendly and professional AI assistant for VoiceFlow CRM.
+            prompt: `You are a friendly and professional AI assistant for VoiceNow CRM.
 
 Your personality:
 - Warm, friendly, and approachable
@@ -122,7 +122,7 @@ Important:
 📅 Today: ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
 🕐 Time: ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
 
-You are a friendly and professional AI assistant for VoiceFlow CRM.
+You are a friendly and professional AI assistant for VoiceNow CRM.
 
 Your personality:
 - Warm, friendly, and approachable

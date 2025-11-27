@@ -2,13 +2,13 @@
 
 ## Overview
 
-Your VoiceFlow CRM now **automatically configures secure webhooks** for every ElevenLabs agent you create. You no longer need to manually configure webhooks in the ElevenLabs dashboard - it's all done programmatically!
+Your VoiceNow CRM now **automatically configures secure webhooks** for every ElevenLabs agent you create. You no longer need to manually configure webhooks in the ElevenLabs dashboard - it's all done programmatically!
 
 ## How It Works
 
 ### 1. Automatic Configuration During Agent Creation
 
-When you create a new agent through your VoiceFlow CRM (via the UI or API), the system automatically:
+When you create a new agent through your VoiceNow CRM (via the UI or API), the system automatically:
 
 1. ✅ Generates secure webhook URLs
 2. ✅ Adds the `Authorization: Bearer {token}` header
@@ -167,7 +167,7 @@ export const verifyWebhookToken = (req, res, next) => {
 
 ### 1. Create a New Agent
 
-Create a new agent through the VoiceFlow CRM UI. Check the backend logs:
+Create a new agent through the VoiceNow CRM UI. Check the backend logs:
 
 ```
 🔐 Configuring secure webhooks for agent...
@@ -256,8 +256,8 @@ The `updateAgent()` function in `elevenLabsService.js` handles this automaticall
 
 ### What This Means:
 
-1. ✅ **Create agents** via VoiceFlow CRM UI → Webhooks auto-configured
-2. ✅ **Update agents** via VoiceFlow CRM UI → Webhooks maintained
+1. ✅ **Create agents** via VoiceNow CRM UI → Webhooks auto-configured
+2. ✅ **Update agents** via VoiceNow CRM UI → Webhooks maintained
 3. ✅ **All agents** get the same secure webhook configuration
 4. ✅ **No manual work** in ElevenLabs dashboard required
 
@@ -297,7 +297,7 @@ WEBHOOK_SECRET_TOKEN=1953381d572e2906b7c84b2a566e8abf37d0425a24c6b9215480f3c3670
 
 ## Summary
 
-Your VoiceFlow CRM now provides **zero-configuration webhook security** for all ElevenLabs agents:
+Your VoiceNow CRM now provides **zero-configuration webhook security** for all ElevenLabs agents:
 
 - 🚀 **Automatic**: Webhooks configured during agent creation
 - 🔐 **Secure**: Bearer token authentication on all webhooks

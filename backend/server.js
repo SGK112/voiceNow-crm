@@ -408,7 +408,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`
   ╔════════════════════════════════════════╗
-  ║   VoiceFlow CRM Server Running         ║
+  ║   VoiceNow CRM Server Running         ║
   ║   Port: ${PORT}                        ║
   ║   Environment: ${process.env.NODE_ENV || 'development'}            ║
   ║   API: http://localhost:${PORT}/api    ║

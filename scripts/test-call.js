@@ -69,7 +69,7 @@ const phoneNumber = process.argv[2] || '+14802555887';
 console.log('='.repeat(80));
 console.log('🎙️  VOICEFLOW CRM - TEST CALL SCRIPT');
 console.log('='.repeat(80));
-console.log('\nThis will use the "VoiceFlow CRM - Lead Generation Agent"');
+console.log('\nThis will use the "VoiceNow CRM - Lead Generation Agent"');
 console.log('to make a test call.\n');
 
 makeTestCall(phoneNumber);

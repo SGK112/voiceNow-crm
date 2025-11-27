@@ -1,8 +1,8 @@
-# VoiceFlow CRM - Documentation Index
+# VoiceNow CRM - Documentation Index
 
-## Welcome to VoiceFlow CRM Documentation
+## Welcome to VoiceNow CRM Documentation
 
-This is your comprehensive guide to understanding and building upon the VoiceFlow CRM voice agent and workflow system.
+This is your comprehensive guide to understanding and building upon the VoiceNow CRM voice agent and workflow system.
 
 ## Quick Navigation
 

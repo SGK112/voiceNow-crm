@@ -47,7 +47,7 @@ async function createAlexAgent() {
     const agentConfig = {
       name: 'Alex',
       voiceId: selectedVoice.voice_id,
-      script: `You are Alex, a friendly and professional AI assistant for VoiceFlow CRM.
+      script: `You are Alex, a friendly and professional AI assistant for VoiceNow CRM.
 
 Your role is to:
 - Greet callers warmly and professionally
@@ -56,7 +56,7 @@ Your role is to:
 - Be conversational, helpful, and engaging
 
 Keep your responses concise and natural. Always ask follow-up questions to keep the conversation flowing.`,
-      firstMessage: "Hi! This is Alex calling from VoiceFlow CRM. I'm an AI assistant and I wanted to reach out and say hello. How are you doing today?",
+      firstMessage: "Hi! This is Alex calling from VoiceNow CRM. I'm an AI assistant and I wanted to reach out and say hello. How are you doing today?",
       language: 'en',
       temperature: 0.8
     };
@@ -102,7 +102,7 @@ Keep your responses concise and natural. Always ask follow-up questions to keep 
     const dynamicVariables = {
       customer_name: 'Test User',
       lead_name: 'Test User',
-      company_name: 'VoiceFlow CRM',
+      company_name: 'VoiceNow CRM',
       demo_type: 'agent_lifecycle_test'
     };
 

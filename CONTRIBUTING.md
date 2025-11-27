@@ -1,6 +1,6 @@
-# Contributing to VoiceFlow CRM
+# Contributing to VoiceNow CRM
 
-First off, thank you for considering contributing to VoiceFlow CRM! It's people like you that make VoiceFlow CRM such a great tool.
+First off, thank you for considering contributing to VoiceNow CRM! It's people like you that make VoiceNow CRM such a great tool.
 
 ## 🌟 How Can I Contribute?
 
@@ -323,4 +323,4 @@ Feel free to:
 - Join our Discord community
 - Email us at help.remodely@gmail.com
 
-Thank you for contributing to VoiceFlow CRM! 🎉
+Thank you for contributing to VoiceNow CRM! 🎉

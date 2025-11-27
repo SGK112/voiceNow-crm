@@ -11,7 +11,7 @@ async function sendTestMMS() {
 
     // Use a publicly accessible image URL for testing
     const imageUrl = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400';
-    const message = 'Check out this beautiful contractor project! VoiceFlow CRM helps you manage leads like this. Try free: remodely.ai/signup';
+    const message = 'Check out this beautiful contractor project! VoiceNow CRM helps you manage leads like this. Try free: remodely.ai/signup';
 
     console.log(`   To: ${TEST_PHONE}`);
     console.log(`   Message: "${message}"`);

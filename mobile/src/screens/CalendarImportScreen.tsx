@@ -212,7 +212,7 @@ export default function CalendarImportScreen({ navigation }: any) {
       <Ionicons name="calendar" size={80} color={colors.primary} />
       <Text style={[styles.permissionTitle, { color: colors.text }]}>Access Your Calendar</Text>
       <Text style={[styles.permissionText, { color: colors.text }]}>
-        VoiceFlow CRM needs permission to access your calendar to import events.
+        VoiceNow CRM needs permission to access your calendar to import events.
       </Text>
       <Text style={[styles.permissionSubtext, { color: colors.textSecondary }]}>
         Your calendar data is private and only stored in your CRM.

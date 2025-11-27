@@ -1,4 +1,4 @@
-# VoiceFlow CRM - Setup Status
+# VoiceNow CRM - Setup Status
 
 ## ✅ Working Components
 

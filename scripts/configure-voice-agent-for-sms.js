@@ -60,13 +60,13 @@ async function configureVoiceAgentForSMS() {
 
     console.log('🎯 WHAT HAPPENS WHEN YOU CALL:');
     console.log('   1. ElevenLabs agent answers: "Hi, am I speaking with [your name]?"');
-    console.log('   2. Agent pitches VoiceFlow CRM');
+    console.log('   2. Agent pitches VoiceNow CRM');
     console.log('   3. When you say "Can you text me the link?"');
     console.log('   4. Agent sends SMS with signup link instantly');
     console.log('   5. You receive text during the call\n');
 
     console.log('💬 WHAT HAPPENS WHEN YOU REPLY TO SMS:');
-    console.log('   • Reply "HELP" → Get info about VoiceFlow CRM');
+    console.log('   • Reply "HELP" → Get info about VoiceNow CRM');
     console.log('   • Reply "STOP" → Unsubscribe from messages');
     console.log('   • Reply anything else → Get friendly auto-response\n');
 

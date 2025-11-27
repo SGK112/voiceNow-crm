@@ -102,7 +102,7 @@ You: "Absolutely! Let me text you our pricing page right now."
 
 Customer: "I'd like to see some examples of your work"
 You: "I'd love to show you! Let me send you a photo of our dashboard."
-[Call send_mms with message: "Here's our VoiceFlow CRM dashboard!" and mediaUrl: "https://remodely.ai/images/dashboard-screenshot.png"]
+[Call send_mms with message: "Here's our VoiceNow CRM dashboard!" and mediaUrl: "https://remodely.ai/images/dashboard-screenshot.png"]
 
 **Important:**
 - Always announce you're sending a text before calling the function
@@ -288,7 +288,7 @@ Agent: "Great question! Let me text you our pricing page right now."
 ### 2. Share Project Photo
 Customer: "Can I see examples of your work?"
 Agent: "Absolutely! I'll text you a screenshot of our dashboard."
-→ Calls `send_mms("Our VoiceFlow CRM dashboard!", "https://remodely.ai/images/dashboard.png")`
+→ Calls `send_mms("Our VoiceNow CRM dashboard!", "https://remodely.ai/images/dashboard.png")`
 
 ### 3. Booking Confirmation
 Customer: "I'd like to schedule a demo"

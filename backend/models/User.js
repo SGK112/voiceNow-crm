@@ -92,7 +92,7 @@ const userSchema = new mongoose.Schema({
     smtpUser: { type: String },
     smtpPassword: { type: String, select: false }, // Gmail app password
     fromEmail: { type: String },
-    fromName: { type: String, default: 'VoiceFlow CRM' }
+    fromName: { type: String, default: 'VoiceNow CRM' }
   },
   phoneNumbers: [{
     number: String,

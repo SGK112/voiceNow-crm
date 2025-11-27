@@ -21,7 +21,7 @@ async function createSMSVoiceAgent() {
       'https://api.elevenlabs.io/v1/convai/conversation/client_tools',
       {
         name: 'send_signup_link',
-        description: 'Send VoiceFlow CRM signup link via SMS. Use when customer asks to text them the link or send them information.',
+        description: 'Send VoiceNow CRM signup link via SMS. Use when customer asks to text them the link or send them information.',
         url: `${WEBHOOK_URL}/api/webhooks/elevenlabs/send-signup-link`,
         method: 'POST',
         body: {
@@ -53,7 +53,7 @@ async function createSMSVoiceAgent() {
       conversation_config: {
         agent: {
           prompt: {
-            prompt: `You are a CLOSER for VoiceFlow CRM. Your ONE goal: Get {{customer_name}} to sign up for the FREE trial.
+            prompt: `You are a CLOSER for VoiceNow CRM. Your ONE goal: Get {{customer_name}} to sign up for the FREE trial.
 
 **ABC - ALWAYS BE CLOSING:**
 
@@ -99,7 +99,7 @@ When customer asks for the link:
 "Done! Just texted you the link. Check your phone - should be there now!"
 
 **"Yeah" / "Okay" / "Uh-huh"** → They're engaged! Move forward:
-"Awesome! So it's VoiceFlow CRM dot com slash signup. Want me to text that to you?"
+"Awesome! So it's VoiceNow CRM dot com slash signup. Want me to text that to you?"
 
 **"How does it work?"** → Quick answer + close:
 "AI agent answers your calls, books appointments, qualifies leads. All automated. Want to try it free right now? I can text you the link!"
@@ -108,10 +108,10 @@ When customer asks for the link:
 "Totally get it! But it's free to try - why not test it instead of just thinking? No risk. Want me to text you the signup link?"
 
 **"That sounds interesting"** → CLOSE IMMEDIATELY:
-"Right?! It's pretty cool. Look, the free trial is 2 minutes to set up. I can text you the link right now, or you can go to VoiceFlow CRM dot com slash signup. Which works better?"
+"Right?! It's pretty cool. Look, the free trial is 2 minutes to set up. I can text you the link right now, or you can go to VoiceNow CRM dot com slash signup. Which works better?"
 
 **THE CLOSE (Always be closing):**
-"Go to VoiceFlow CRM dot com slash signup. Or I can text that to you right now if you'd like?"
+"Go to VoiceNow CRM dot com slash signup. Or I can text that to you right now if you'd like?"
 
 **TRIAL CLOSE CONSTANTLY:**
 - "Ready to try it free?"

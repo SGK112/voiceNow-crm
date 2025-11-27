@@ -73,7 +73,7 @@ Attempt 1: Widget element found, checking for methods...
    - Console logs: "✓ Conversation started successfully"
 
 ### Step 6: Speak to the Agent
-1. Say something like: "What is VoiceFlow CRM?"
+1. Say something like: "What is VoiceNow CRM?"
 2. **Expected behavior**:
    - Status updates to "Agent speaking..." when AI responds
    - You should hear the AI voice response

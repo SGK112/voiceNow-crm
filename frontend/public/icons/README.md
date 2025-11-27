@@ -1,6 +1,6 @@
 # App Icons
 
-This directory contains the PWA app icons for VoiceFlow CRM.
+This directory contains the PWA app icons for VoiceNow CRM.
 
 ## Required Icons
 

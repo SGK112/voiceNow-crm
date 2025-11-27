@@ -1,4 +1,4 @@
-# 📞 VoiceFlow CRM - How Calling Works
+# 📞 VoiceNow CRM - How Calling Works
 
 ## TL;DR
 Your CRM **exactly replicates** ElevenLabs batch calling but makes it accessible to clients through a white-labeled interface. You pay ElevenLabs wholesale, charge clients retail markup.
@@ -36,7 +36,7 @@ ELEVENLABS_SUPPORT_AGENT_ID=agent_6001k9h9myv9f3w8322g06wf8b1e
 You → ElevenLabs Dashboard → Create Batch → Upload CSV → Pay ElevenLabs
 ```
 
-### VoiceFlow CRM (What Clients Will Do)
+### VoiceNow CRM (What Clients Will Do)
 ```
 Client → Your CRM → Create Campaign → Upload CSV → Pay You → You Pay ElevenLabs
 ```
@@ -126,7 +126,7 @@ for (const contact of csvData) {
 
 **Solution**:
 1. Go to https://elevenlabs.io/app/conversational-ai
-2. Click "VoiceFlow CRM - Lead Generation Agent"
+2. Click "VoiceNow CRM - Lead Generation Agent"
 3. Go to "Phone Numbers" tab
 4. Assign a number (or use null for default pool)
 

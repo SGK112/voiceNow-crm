@@ -1,6 +1,6 @@
 # AI Agents - LangGraph Call Router
 
-This directory contains the AI agents implementation for VoiceFlow CRM, starting with an intelligent call routing system.
+This directory contains the AI agents implementation for VoiceNow CRM, starting with an intelligent call routing system.
 
 ## Overview
 

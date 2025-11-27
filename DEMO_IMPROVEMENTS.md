@@ -193,7 +193,7 @@ If you want to add appointment booking after the demo call:
 - Auto-schedule follow-up with sales team
 
 **Option 3: In-CRM Booking**
-- Use the existing Calendar feature in VoiceFlow CRM
+- Use the existing Calendar feature in VoiceNow CRM
 - Create a booking page at `/book-demo`
 - Redirect after successful demo call
 

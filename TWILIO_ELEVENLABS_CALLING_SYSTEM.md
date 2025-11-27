@@ -2,7 +2,7 @@
 
 ## Overview
 
-VoiceFlow CRM now uses **Twilio for outbound calling** with **ElevenLabs for voice** via WebSocket streaming. This eliminates the need for ElevenLabs batch calling API and gives you full control over the calling system.
+VoiceNow CRM now uses **Twilio for outbound calling** with **ElevenLabs for voice** via WebSocket streaming. This eliminates the need for ElevenLabs batch calling API and gives you full control over the calling system.
 
 ## Architecture
 

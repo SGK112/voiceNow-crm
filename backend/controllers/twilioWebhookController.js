@@ -331,7 +331,7 @@ export const handleTwilioSms = async (req, res) => {
     }
     else if (lowerBody.includes('start') || lowerBody.includes('subscribe')) {
       console.log('   User requested to start messages');
-      response.message('Welcome back! You will now receive messages from VoiceFlow CRM.');
+      response.message('Welcome back! You will now receive messages from VoiceNow CRM.');
       res.type('text/xml');
       res.send(response.toString());
       return;
@@ -388,7 +388,7 @@ export const handleTwilioSms = async (req, res) => {
             console.log(`✅ Call registered for automatic email follow-up`);
           }
 
-          response.message('Perfect! My AI voice agent is calling you right now to discuss VoiceFlow CRM. Answer and chat! 📞');
+          response.message('Perfect! My AI voice agent is calling you right now to discuss VoiceNow CRM. Answer and chat! 📞');
         } else {
           console.error(`❌ Failed to initiate call`);
           response.message('I\'d love to call you! Text "DEMO" and I\'ll get you connected, or visit remodely.ai/signup to start your free trial!');
@@ -424,13 +424,13 @@ export const handleTwilioSms = async (req, res) => {
       if (mediaType && mediaType.startsWith('image/')) {
         console.log('   Analyzing image with AI vision...');
 
-        const visionPrompt = `You are analyzing an image sent to VoiceFlow CRM (AI voice agent platform for contractors).
+        const visionPrompt = `You are analyzing an image sent to VoiceNow CRM (AI voice agent platform for contractors).
 
 The customer sent this image along with the message: "${Body || '(no text)'}"
 
 Analyze the image and provide a helpful, brief response (under 160 characters) that:
 1. Acknowledges what you see in the image
-2. Relates it to VoiceFlow CRM services if relevant
+2. Relates it to VoiceNow CRM services if relevant
 3. Offers helpful next steps or directs them to signup
 
 Keep it conversational, text-friendly, and brief.`;
@@ -444,19 +444,19 @@ Keep it conversational, text-friendly, and brief.`;
           console.log(`   AI Vision Response: "${aiMessage}"`);
         } catch (visionError) {
           console.error('   Vision analysis failed:', visionError.message);
-          aiMessage = `Thanks for the image! I'd love to help. VoiceFlow CRM provides AI voice agents for contractors. Try free: remodely.ai/signup`;
+          aiMessage = `Thanks for the image! I'd love to help. VoiceNow CRM provides AI voice agents for contractors. Try free: remodely.ai/signup`;
         }
       } else {
         // Non-image media (video, audio, etc.)
-        aiMessage = `Thanks for sharing! For best results, text or call us. Learn more about VoiceFlow CRM: remodely.ai/signup`;
+        aiMessage = `Thanks for sharing! For best results, text or call us. Learn more about VoiceNow CRM: remodely.ai/signup`;
       }
     } else {
       // Regular text-only SMS
-      const systemPrompt = `You are a helpful SMS assistant for VoiceFlow CRM, an AI voice agent platform for contractors.
+      const systemPrompt = `You are a helpful SMS assistant for VoiceNow CRM, an AI voice agent platform for contractors.
 
 Your job is to respond to customer text messages professionally and helpfully.
 
-Key info about VoiceFlow CRM:
+Key info about VoiceNow CRM:
 - AI voice agents that answer calls 24/7 for contractors
 - FREE 14-day trial (no credit card required)
 - $299/month after trial
@@ -472,13 +472,13 @@ Response rules:
 - If they seem interested, suggest either:
   1. Signup link (remodely.ai/signup)
   2. OR offer them a voice call (say "Want me to call you? Just text 'call me'")
-- Always stay in character as VoiceFlow CRM assistant
+- Always stay in character as VoiceNow CRM assistant
 - Use text-friendly language (contractions, casual tone)
 - Don't use emojis unless the customer uses them first
 - If conversation is getting long, offer to call them for a voice demo
 
 Examples:
-- "What's this about?" → "VoiceFlow CRM helps contractors never miss a call! AI answers 24/7, books appointments. Want me to call you?"
+- "What's this about?" → "VoiceNow CRM helps contractors never miss a call! AI answers 24/7, books appointments. Want me to call you?"
 - "How much?" → "$299/mo after a FREE 14-day trial (no card needed). Want a quick call to see how it works?"
 - "Tell me more" → "AI voice agent handles your calls when you're busy. Books appointments, qualifies leads. I can call you right now to explain!"
 - "Sounds interesting" → "Awesome! Want to try it free at remodely.ai/signup OR I can call you right now to walk you through it?"
@@ -506,7 +506,7 @@ User message: ${Body}`;
 
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const response = new MessagingResponse();
-    response.message('Thanks for your message! Visit remodely.ai/signup to try VoiceFlow CRM free for 14 days!');
+    response.message('Thanks for your message! Visit remodely.ai/signup to try VoiceNow CRM free for 14 days!');
 
     res.type('text/xml');
     res.send(response.toString());

@@ -11,12 +11,12 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 const AGENT_ID = process.env.ELEVENLABS_SMS_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
 const API_KEY = process.env.ELEVENLABS_API_KEY;
 
-const smsAgentPrompt = `You are a friendly AI assistant for Remodely AI (pronounced "re-MOD-uh-lee A I"). Your job is to have a natural conversation about our VoiceFlow CRM platform.
+const smsAgentPrompt = `You are a friendly AI assistant for Remodely AI (pronounced "re-MOD-uh-lee A I"). Your job is to have a natural conversation about our VoiceNow CRM platform.
 
 **PRONUNCIATION GUIDE:**
 - Remodely AI = "re-MOD-uh-lee A I"
 - VoiceFlow AI = "VOICE flow A I"
-- VoiceFlow CRM = "VOICE flow C R M"
+- VoiceNow CRM = "VOICE flow C R M"
 - www.remodely.ai = "W W W dot remodely dot A I"
 - remodely.ai = "remodely dot A I"
 - /signup = "forward slash signup"

@@ -122,7 +122,7 @@ class GoogleCalendarService {
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Remodely//VoiceFlow CRM//EN
+PRODID:-//Remodely//VoiceNow CRM//EN
 CALSCALE:GREGORIAN
 METHOD:REQUEST
 BEGIN:VEVENT

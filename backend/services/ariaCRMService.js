@@ -584,7 +584,7 @@ class AriaCRMService {
    * Have Aria decide what action to take
    */
   async decideAction(userId, context, userMessage) {
-    const systemPrompt = `You are Aria, an autonomous AI assistant for VoiceFlow CRM.
+    const systemPrompt = `You are Aria, an autonomous AI assistant for VoiceNow CRM.
 You have full access to the CRM system and can take actions autonomously.
 
 CURRENT CONTEXT:

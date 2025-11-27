@@ -1,6 +1,6 @@
 # LIMO Training Integration for Aria 🚀
 
-This directory contains the integration between VoiceFlow CRM and [LIMO (Less Is More)](https://github.com/GAIR-NLP/LIMO) for training Aria with high-quality conversation data.
+This directory contains the integration between VoiceNow CRM and [LIMO (Less Is More)](https://github.com/GAIR-NLP/LIMO) for training Aria with high-quality conversation data.
 
 ## What is LIMO?
 
@@ -121,7 +121,7 @@ Conversations are converted to LIMO's format:
 
 ```mermaid
 graph LR
-    A[VoiceFlow CRM Data] --> B[Quality Filter]
+    A[VoiceNow CRM Data] --> B[Quality Filter]
     B --> C[LIMO Format Converter]
     C --> D[Train/Eval Split]
     D --> E[LIMO Training]
@@ -311,7 +311,7 @@ Questions? Issues?
 
 1. Check LIMO documentation
 2. Review dataset quality scores
-3. Open an issue on the VoiceFlow CRM repo
+3. Open an issue on the VoiceNow CRM repo
 
 ---
 

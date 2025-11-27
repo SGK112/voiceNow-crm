@@ -128,7 +128,7 @@ IP: ${errorInfo.ip}
       const emailService = (await import('../services/emailService.js')).default;
       await emailService.sendEmail({
         to: process.env.ALERT_EMAIL,
-        subject: `🚨 VoiceFlow CRM - Critical Error on ${errorInfo.path}`,
+        subject: `🚨 VoiceNow CRM - Critical Error on ${errorInfo.path}`,
         text: alertMessage,
         html: `<pre>${alertMessage}</pre>`
       });

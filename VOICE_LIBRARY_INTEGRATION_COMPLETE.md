@@ -2,7 +2,7 @@
 
 ## 🎉 What Was Implemented
 
-You now have a **complete Voice Library Browser** integrated into your VoiceFlow CRM that gives you access to **thousands of voices** from the ElevenLabs community!
+You now have a **complete Voice Library Browser** integrated into your VoiceNow CRM that gives you access to **thousands of voices** from the ElevenLabs community!
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-All AI agents in VoiceFlow CRM now have automatic awareness of the current date and time. This ensures they can properly schedule appointments, understand timing references, and provide accurate date-based responses.
+All AI agents in VoiceNow CRM now have automatic awareness of the current date and time. This ensures they can properly schedule appointments, understand timing references, and provide accurate date-based responses.
 
 ## How It Works
 

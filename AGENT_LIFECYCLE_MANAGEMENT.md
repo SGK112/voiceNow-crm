@@ -2,7 +2,7 @@
 
 ## Overview
 
-VoiceFlow CRM now includes a complete agent lifecycle management system, similar to how n8n workflows are managed. This allows you to **build, test, and deploy** ElevenLabs conversational AI agents with full version control and deployment tracking.
+VoiceNow CRM now includes a complete agent lifecycle management system, similar to how n8n workflows are managed. This allows you to **build, test, and deploy** ElevenLabs conversational AI agents with full version control and deployment tracking.
 
 ## Features
 
@@ -346,7 +346,7 @@ xi-api-key: {ELEVENLABS_API_KEY}
   "type": "conversation_initiation_client_data",
   "dynamic_variables": {
     "customer_name": "Test User",
-    "company_name": "VoiceFlow CRM"
+    "company_name": "VoiceNow CRM"
   },
   "conversation_config_override": {
     "agent": {

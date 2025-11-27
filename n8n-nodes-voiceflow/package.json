@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-voiceflow",
   "version": "0.1.0",
-  "description": "VoiceFlow CRM nodes for n8n - Inbound Call Trigger with Twilio integration",
+  "description": "VoiceNow CRM nodes for n8n - Inbound Call Trigger with Twilio integration",
   "keywords": [
     "n8n-community-node-package",
     "voiceflow",
@@ -12,7 +12,7 @@
   "license": "MIT",
   "homepage": "https://remodely.ai",
   "author": {
-    "name": "VoiceFlow CRM",
+    "name": "VoiceNow CRM",
     "email": "support@remodely.ai"
   },
   "repository": {

@@ -26,7 +26,7 @@ async function createAgentWithTools() {
       conversationConfig: {
         agent: {
           prompt: {
-            prompt: `You are calling Josh to demonstrate the VoiceFlow CRM system with SMS and email capabilities.
+            prompt: `You are calling Josh to demonstrate the VoiceNow CRM system with SMS and email capabilities.
 
 YOUR ROLE:
 Test the multi-channel communication system during a phone call.
@@ -34,7 +34,7 @@ Test the multi-channel communication system during a phone call.
 CONVERSATION FLOW:
 
 1. GREETING (5 seconds)
-"Hi Josh! This is a demo call from VoiceFlow CRM. I can now send you texts and emails while we talk!"
+"Hi Josh! This is a demo call from VoiceNow CRM. I can now send you texts and emails while we talk!"
 
 2. DEMONSTRATE SMS (10 seconds)
 "Let me send you a quick text message right now to demonstrate..."
@@ -46,7 +46,7 @@ Wait for Josh's response.
 
 4. DEMONSTRATE EMAIL (10 seconds)
 "Great! Now let me send you an email with a call summary..."
-[USE send_email TOOL to send an email with subject "VoiceFlow CRM Call Summary" and a brief summary]
+[USE send_email TOOL to send an email with subject "VoiceNow CRM Call Summary" and a brief summary]
 
 5. END CALL
 "Perfect! You should have both a text and an email from this call. This is how the system works - agents can text and email during conversations. Thanks Josh! Goodbye!"
@@ -64,7 +64,7 @@ IMPORTANT:
 - After saying goodbye, END THE CALL using end_call tool
 
 EXAMPLE CONVERSATION:
-Agent: "Hi Josh! Demo call from VoiceFlow CRM. I can text and email during calls!"
+Agent: "Hi Josh! Demo call from VoiceNow CRM. I can text and email during calls!"
 Agent: "Sending you a text right now..." [USES send_sms]
 Josh: "Got it!"
 Agent: "Perfect! Now sending email..." [USES send_email]
@@ -72,7 +72,7 @@ Agent: "Great! You should have both. Thanks Josh, goodbye!" [USES end_call]`,
             llm: 'gemini-2.5-flash',
             temperature: 0.7
           },
-          firstMessage: "Hi Josh! Demo call from VoiceFlow CRM. I can text and email while we talk!",
+          firstMessage: "Hi Josh! Demo call from VoiceNow CRM. I can text and email while we talk!",
           language: 'en',
           clientTools: [
             {
@@ -195,7 +195,7 @@ async function makeCall(agentId) {
 }
 
 async function main() {
-  console.log('🚀 VoiceFlow CRM - Multi-Channel Demo Call\n');
+  console.log('🚀 VoiceNow CRM - Multi-Channel Demo Call\n');
   console.log('='.repeat(70));
   console.log('Target: Josh (+1 480-255-5887)');
   console.log('Capabilities: Phone + SMS + Email');

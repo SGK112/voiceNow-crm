@@ -2,7 +2,7 @@
 
 ## How to Transform Your Project Photos
 
-Your VoiceFlow CRM now has **AI-powered image transformation** that lets you upload actual project photos and transform them instantly!
+Your VoiceNow CRM now has **AI-powered image transformation** that lets you upload actual project photos and transform them instantly!
 
 ---
 

@@ -1,8 +1,8 @@
-# 🚀 VoiceFlow CRM - Smart AI Agents with Knowledge Base
+# 🚀 VoiceNow CRM - Smart AI Agents with Knowledge Base
 
 ## Overview
 
-Your VoiceFlow CRM now has a **comprehensive knowledge base system** that makes your AI agents smarter with every piece of data users upload!
+Your VoiceNow CRM now has a **comprehensive knowledge base system** that makes your AI agents smarter with every piece of data users upload!
 
 ## 🎯 What's New?
 

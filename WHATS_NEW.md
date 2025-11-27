@@ -2,7 +2,7 @@
 
 ## Summary
 
-Your VoiceFlow CRM now has **complete AI Chat Agent functionality** with multi-provider support!
+Your VoiceNow CRM now has **complete AI Chat Agent functionality** with multi-provider support!
 
 ---
 

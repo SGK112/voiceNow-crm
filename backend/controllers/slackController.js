@@ -14,13 +14,13 @@ export const testWebhook = async (req, res) => {
     }
 
     const testMessage = {
-      text: '✅ VoiceFlow CRM Slack Integration Test',
+      text: '✅ VoiceNow CRM Slack Integration Test',
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '*VoiceFlow CRM Connected!* ✅\n\nYour Slack webhook is working perfectly.'
+            text: '*VoiceNow CRM Connected!* ✅\n\nYour Slack webhook is working perfectly.'
           }
         },
         {

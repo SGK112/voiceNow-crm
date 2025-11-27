@@ -92,9 +92,9 @@ You can also test manually by creating a lead with a high score!
 
 **Fix**: In your Slack workspace, go to the channel where you want notifications and type:
 ```
-/invite @VoiceFlow CRM
+/invite @VoiceNow CRM
 ```
-(Replace "VoiceFlow CRM" with whatever you named your bot)
+(Replace "VoiceNow CRM" with whatever you named your bot)
 
 ---
 

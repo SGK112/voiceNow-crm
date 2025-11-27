@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { getRedisClient } from '../config/redis.js';
+import errorReportingService from '../services/errorReportingService.js';
 
 export const protect = async (req, res, next) => {
   let token;
@@ -32,6 +33,16 @@ export const protect = async (req, res, next) => {
       next();
     } catch (error) {
       console.error(error);
+      // Report auth errors to webhook (but rate-limit these as they can be frequent)
+      await errorReportingService.reportError(error, {
+        component: 'auth_middleware',
+        action: `${req.method} ${req.path}`,
+        input: {
+          hasToken: !!token,
+          tokenPrefix: token ? token.substring(0, 20) + '...' : 'none'
+        },
+        severity: 'warning'
+      });
       return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }

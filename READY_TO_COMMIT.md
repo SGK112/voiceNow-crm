@@ -291,7 +291,7 @@ Complete conversation...
 - Checks API connectivity
 
 #### 3. test-voiceflow-crm-agents.js
-- Tests 8 VoiceFlow CRM agents
+- Tests 8 VoiceNow CRM agents
 - Detailed agent analysis
 - Configuration verification
 

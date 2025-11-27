@@ -15,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
  * Create Stripe Products and Prices for Credit Packages
  *
  * This script creates one-time payment products in Stripe for
- * the VoiceFlow CRM credit system.
+ * the VoiceNow CRM credit system.
  */
 
 const creditPackages = [

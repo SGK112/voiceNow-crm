@@ -387,7 +387,7 @@ For additional help:
 - Review the ElevenLabs documentation: https://elevenlabs.io/docs
 - Check QuickBooks API documentation: https://developer.intuit.com
 - Contact support for voice agent customization
-- See the main VoiceFlow CRM documentation
+- See the main VoiceNow CRM documentation
 
 ## Conclusion
 

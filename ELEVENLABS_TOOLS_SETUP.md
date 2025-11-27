@@ -76,7 +76,7 @@ The `clientTools` property in our test script was **incorrect**. That property i
 
    CONVERSATION FLOW:
 
-   1. Greet: "Hi Josh! Demo call from VoiceFlow CRM."
+   1. Greet: "Hi Josh! Demo call from VoiceNow CRM."
 
    2. Send SMS: "Let me send you a text right now..."
       USE send_sms tool with:
@@ -88,7 +88,7 @@ The `clientTools` property in our test script was **incorrect**. That property i
    4. Send Email: "Now sending you an email..."
       USE send_email tool with:
       - to: "josh@example.com"
-      - subject: "VoiceFlow CRM Demo"
+      - subject: "VoiceNow CRM Demo"
       - body: "This email was sent during our call!"
 
    5. End: "Perfect! Goodbye!"

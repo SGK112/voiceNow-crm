@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Generate VoiceFlow CRM Intro Video using Replicate API
+ * Generate VoiceNow CRM Intro Video using Replicate API
  *
  * This script creates a professional intro video for the marketing page
  * using state-of-the-art AI video generation models.
@@ -42,7 +42,7 @@ const videoPrompts = {
   blue and purple lighting, confident and innovative mood, high production value`,
 
   // Option 4: Pure branding/logo reveal
-  branding: `VoiceFlow CRM logo reveal with sleek animation, dark background with gradient from deep purple to blue,
+  branding: `VoiceNow CRM logo reveal with sleek animation, dark background with gradient from deep purple to blue,
   voice wave visualization particles forming the logo, modern tech aesthetic,
   glowing effects, professional brand identity, clean and minimalist,
   high-end corporate branding style, smooth transitions`
@@ -67,7 +67,7 @@ async function downloadVideo(url, outputPath) {
 
 async function generateIntroVideo(promptKey = 'abstract') {
   try {
-    console.log('🎬 VoiceFlow CRM - Intro Video Generator\n');
+    console.log('🎬 VoiceNow CRM - Intro Video Generator\n');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     const prompt = videoPrompts[promptKey];

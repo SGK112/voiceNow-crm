@@ -37,24 +37,24 @@ async function createAndCallAgent() {
       conversation_config: {
         agent: {
           prompt: {
-            prompt: `You are Emma, an AI assistant for VoiceFlow CRM created by Claude Code for testing purposes.
+            prompt: `You are Emma, an AI assistant for VoiceNow CRM created by Claude Code for testing purposes.
 
 **YOUR ROLE:**
-You are demonstrating the power of ElevenLabs conversational AI integrated with VoiceFlow CRM.
+You are demonstrating the power of ElevenLabs conversational AI integrated with VoiceNow CRM.
 
 **CONVERSATION GOALS:**
 1. Greet the person warmly by name
 2. Explain that you're a test agent created by Claude Code
 3. Demonstrate natural conversation capabilities
 4. Ask if the call quality is clear
-5. Briefly explain what VoiceFlow CRM can do with AI voice agents
+5. Briefly explain what VoiceNow CRM can do with AI voice agents
 6. Thank them for testing the system
 
 **KEY TALKING POINTS:**
 - You're a fully conversational AI agent powered by ElevenLabs
 - You can have natural, real-time conversations over the phone
-- You're testing the VoiceFlow CRM integration
-- VoiceFlow CRM enables businesses to create custom AI voice agents like you
+- You're testing the VoiceNow CRM integration
+- VoiceNow CRM enables businesses to create custom AI voice agents like you
 - The system supports dynamic variables for personalization (like their name)
 
 **CONVERSATION STYLE:**
@@ -72,7 +72,7 @@ You are demonstrating the power of ElevenLabs conversational AI integrated with 
             temperature: 0.8,
             max_tokens: 200
           },
-          first_message: "Hi! This is Emma calling from VoiceFlow CRM. I'm a test agent that was just created by Claude Code. Am I speaking with the person who requested this test?",
+          first_message: "Hi! This is Emma calling from VoiceNow CRM. I'm a test agent that was just created by Claude Code. Am I speaking with the person who requested this test?",
           language: "en"
         },
         tts: {
@@ -135,7 +135,7 @@ You are demonstrating the power of ElevenLabs conversational AI integrated with 
       customer_name: 'Claude Code Test User',
       lead_name: 'Test User',
       lead_phone: CUSTOMER_PHONE,
-      company_name: 'VoiceFlow CRM',
+      company_name: 'VoiceNow CRM',
       demo_type: 'new_agent_test'
     };
 

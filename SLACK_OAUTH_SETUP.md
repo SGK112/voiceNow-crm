@@ -21,7 +21,7 @@
 Go to https://api.slack.com/apps and click **"Create New App"**
 
 Choose **"From scratch"** and enter:
-- **App Name**: `VoiceFlow CRM` (or your company name)
+- **App Name**: `VoiceNow CRM` (or your company name)
 - **Workspace**: Select your development workspace
 
 ### 2. Configure OAuth & Permissions
@@ -165,7 +165,7 @@ If you just want to test without OAuth setup:
 ```bash
 curl -X POST https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
   -H 'Content-Type: application/json' \
-  -d '{"text":"Test from VoiceFlow CRM!"}'
+  -d '{"text":"Test from VoiceNow CRM!"}'
 ```
 
 ### Option 2: Using OAuth (Recommended)
@@ -207,7 +207,7 @@ import slackService from '../services/slackService.js';
 
 // Using OAuth integration
 await slackService.sendOAuthMessage(userId, '#general', {
-  text: 'Hello from VoiceFlow CRM!',
+  text: 'Hello from VoiceNow CRM!',
   blocks: [
     {
       type: 'section',
@@ -254,7 +254,7 @@ They can toggle:
 
 **Cause**: Bot not added to the channel
 
-**Fix**: In Slack, type `/invite @VoiceFlow CRM` (or your bot name) in the channel where you want notifications.
+**Fix**: In Slack, type `/invite @VoiceNow CRM` (or your bot name) in the channel where you want notifications.
 
 ---
 

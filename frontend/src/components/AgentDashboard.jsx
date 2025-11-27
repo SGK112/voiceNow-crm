@@ -29,7 +29,7 @@ import api from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 
 /**
- * AgentDashboard - VoiceFlow CRM Agent Management
+ * AgentDashboard - VoiceNow CRM Agent Management
  *
  * Unified dashboard for viewing and managing all voice agents
  * Shows usage, analytics, and performance - NO external iframes

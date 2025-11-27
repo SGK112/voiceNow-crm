@@ -1,8 +1,8 @@
-# VoiceFlow CRM - Contractor Adaptation Guide
+# VoiceNow CRM - Contractor Adaptation Guide
 
 ## Problem Statement
 
-VoiceFlow CRM is optimized for **SaaS/software sales** where deals are simple:
+VoiceNow CRM is optimized for **SaaS/software sales** where deals are simple:
 - Single transaction per customer
 - One-time or subscription sales
 - Simple lead → proposal → close cycle
@@ -594,7 +594,7 @@ After contractor adaptation, you should be able to:
 
 ## Conclusion
 
-**VoiceFlow CRM can be adapted for contractors** by:
+**VoiceNow CRM can be adapted for contractors** by:
 
 1. Extending existing Deal/Lead models (Week 1)
 2. Creating dedicated Job model (Week 2)

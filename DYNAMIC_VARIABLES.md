@@ -63,7 +63,7 @@ Custom field names are converted to lowercase with spaces replaced by underscore
 ### In ElevenLabs Dashboard
 
 1. Go to https://elevenlabs.io/app/conversational-ai
-2. Click on your agent (e.g., "VoiceFlow CRM - Lead Generation Agent")
+2. Click on your agent (e.g., "VoiceNow CRM - Lead Generation Agent")
 3. Edit the **Agent Prompt** or **First Message**
 4. Reference variables using `{{variable_name}}`
 
@@ -180,7 +180,7 @@ The agent will greet them by name and reference their data!
 
 ## Example Full Agent Configuration
 
-### VoiceFlow CRM - Booking Agent
+### VoiceNow CRM - Booking Agent
 
 **First Message:**
 ```

@@ -41,7 +41,7 @@ async function createTestAgent(token) {
       type: 'custom',
       voiceId: 'EXAVITQu4vr4xnSDxMaL', // Sarah voice
       voiceName: 'Sarah',
-      script: `You are calling Josh to demonstrate the multimodal capabilities of VoiceFlow CRM.
+      script: `You are calling Josh to demonstrate the multimodal capabilities of VoiceNow CRM.
 
 YOUR GOAL:
 Test the voice conversation system and demonstrate that you can receive and process information.
@@ -49,7 +49,7 @@ Test the voice conversation system and demonstrate that you can receive and proc
 CONVERSATION FLOW:
 
 1. GREETING
-"Hi Josh! This is a test call from your VoiceFlow CRM system. I'm calling to demonstrate the new multimodal agent capabilities. Do you have a minute?"
+"Hi Josh! This is a test call from your VoiceNow CRM system. I'm calling to demonstrate the new multimodal agent capabilities. Do you have a minute?"
 
 2. DEMONSTRATE CAPABILITIES
 "I'm an AI agent that can:
@@ -88,7 +88,7 @@ IMPORTANT:
 - If Josh asks to end the call, say goodbye and hang up
 
 TONE: Professional, friendly, efficient - this is a test call, so be respectful of his time.`,
-      firstMessage: "Hi Josh! This is a test call from your VoiceFlow CRM system. I'm calling to demonstrate the new multimodal agent capabilities. Do you have a minute?",
+      firstMessage: "Hi Josh! This is a test call from your VoiceNow CRM system. I'm calling to demonstrate the new multimodal agent capabilities. Do you have a minute?",
       enabled: true,
       configuration: {
         temperature: 0.8,
@@ -123,7 +123,7 @@ async function makeTestCall(token, agent, phoneNumber) {
       phoneNumber: phoneNumber,
       dynamicVariables: {
         lead_name: 'Josh',
-        company_name: 'VoiceFlow CRM',
+        company_name: 'VoiceNow CRM',
         purpose: 'Multimodal Agent System Test'
       }
     };
@@ -137,7 +137,7 @@ async function makeTestCall(token, agent, phoneNumber) {
     console.log('   Status:', response.data.message);
     console.log('\n📱 Josh should receive the call shortly...');
     console.log('   Expected: Phone rings in 5-10 seconds');
-    console.log('   Agent will greet: "Hi Josh! This is a test call from your VoiceFlow CRM system..."');
+    console.log('   Agent will greet: "Hi Josh! This is a test call from your VoiceNow CRM system..."');
 
     return response.data;
   } catch (error) {
@@ -148,7 +148,7 @@ async function makeTestCall(token, agent, phoneNumber) {
 
 async function main() {
   try {
-    console.log('🚀 VoiceFlow CRM Test Call System\n');
+    console.log('🚀 VoiceNow CRM Test Call System\n');
     console.log('Target: Josh (480-255-5887)');
     console.log('Purpose: Test multimodal agent capabilities\n');
     console.log('=' .repeat(60));

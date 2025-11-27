@@ -55,7 +55,7 @@ async function createDemoAgents() {
 IMPORTANT: Always pronounce the company name as "Remodelee" (re-MODE-lee), not "Remodel-y".
 
 Your role:
-- Answer questions about VoiceFlow CRM features and pricing
+- Answer questions about VoiceNow CRM features and pricing
 - Help potential customers understand how AI voice agents can automate their business
 - Book demo appointments
 - Qualify leads by understanding their business needs
@@ -115,7 +115,7 @@ IMPORTANT: Always pronounce the company name as "Remodelee" (re-MODE-lee), not "
 Your role:
 - Confirm this is a good time to talk (if not, offer to schedule a callback)
 - Understand their business and pain points
-- Explain how VoiceFlow CRM can help automate their customer calls
+- Explain how VoiceNow CRM can help automate their customer calls
 - Book a product demo
 - Qualify the lead (budget, timeline, decision-maker status)
 

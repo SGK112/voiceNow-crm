@@ -260,7 +260,7 @@ Ready to create this agent?`);
     try {
       addMessage('assistant', '🚀 Creating your voice agent...');
 
-      const systemPrompt = `You are ${config.name}, an AI voice agent for VoiceFlow CRM.
+      const systemPrompt = `You are ${config.name}, an AI voice agent for VoiceNow CRM.
 
 PURPOSE: ${config.purpose}
 

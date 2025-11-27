@@ -148,7 +148,7 @@ const dynamicVariables = {
 **Prompt:** 2,446 characters
 - Friendly AI assistant for Remodely AI
 - Pronunciation guide for "Remodely" (re-MOD-uh-lee)
-- Natural conversation about VoiceFlow CRM platform
+- Natural conversation about VoiceNow CRM platform
 - Uses {{customer_name}} variable for personalization
 
 **Language:** English (en)

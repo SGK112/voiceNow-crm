@@ -1,4 +1,4 @@
-# 🎯 VoiceFlow CRM - Major Improvements Summary
+# 🎯 VoiceNow CRM - Major Improvements Summary
 
 ## 🔒 Security Improvements
 

@@ -271,7 +271,7 @@ Based on your workflow screenshot, here's how demo calls integrate:
 ## 🔧 How to Create Workflows in CRM
 
 ### Step 1: Access Workflows
-1. Log into VoiceFlow CRM
+1. Log into VoiceNow CRM
 2. Click **"Workflows"** in left sidebar
 3. Click **"+ New Workflow"**
 

@@ -105,7 +105,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           )}>
             <h1 className="text-lg font-bold whitespace-nowrap flex items-center gap-2">
               <VoiceIcon size="default" />
-              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">VoiceFlow CRM</span>
+              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">VoiceNow CRM</span>
             </h1>
           </div>
 

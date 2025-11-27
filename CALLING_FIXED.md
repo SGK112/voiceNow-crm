@@ -22,11 +22,11 @@ Batch Details:
 {
   "id": "btcal_1901k9ka8mvve41rs419qshzcsft",
   "phone_number_id": "phnum_1801k7xb68cefjv89rv10f90qykv",
-  "name": "VoiceFlow CRM Test Call",
+  "name": "VoiceNow CRM Test Call",
   "agent_id": "agent_1001k9h9ms30fe7ay0w462av0y9v",
   "total_calls_scheduled": 1,
   "status": "pending",
-  "agent_name": "VoiceFlow CRM - Lead Generation Agent"
+  "agent_name": "VoiceNow CRM - Lead Generation Agent"
 }
 
 📱 You should receive a call shortly!

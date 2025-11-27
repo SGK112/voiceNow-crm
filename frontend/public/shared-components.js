@@ -8,7 +8,7 @@ function createNavigation() {
                 <span class="logo-icon">🎙️</span>
                 <div class="logo-text-container">
                     <span class="logo-text">Remodely</span>
-                    <span class="logo-subtitle">VoiceFlow CRM</span>
+                    <span class="logo-subtitle">VoiceNow CRM</span>
                 </div>
             </a>
             <div class="nav-menu">
@@ -50,7 +50,7 @@ function createFooter() {
                         <span class="logo-icon">🎙️</span>
                         <div>
                             <div class="footer-logo-text">Remodely</div>
-                            <div class="footer-logo-subtitle">VoiceFlow CRM</div>
+                            <div class="footer-logo-subtitle">VoiceNow CRM</div>
                         </div>
                     </div>
                     <p class="footer-description">AI-powered voice agents with visual workflow automation. Transform your business communication.</p>
@@ -92,7 +92,7 @@ function createFooter() {
             </div>
 
             <div class="footer-bottom">
-                <p>© 2025 VoiceFlow CRM by Remodely.ai. All rights reserved.</p>
+                <p>© 2025 VoiceNow CRM by Remodely.ai. All rights reserved.</p>
                 <div class="footer-social">
                     <a href="#" aria-label="Twitter">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

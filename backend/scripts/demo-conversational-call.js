@@ -26,9 +26,9 @@ async function makeConversationalCall() {
       const demoAgent = await elevenLabsService.createAgent({
         name: 'VoiceFlow Demo Agent',
         voice_id: 'EXAVITQu4vr4xnSDxMaL', // Sarah voice
-        prompt: `You are a friendly demo assistant for VoiceFlow CRM.
+        prompt: `You are a friendly demo assistant for VoiceNow CRM.
 
-Your job is to briefly introduce yourself and explain what VoiceFlow CRM can do.
+Your job is to briefly introduce yourself and explain what VoiceNow CRM can do.
 
 Keep it short and natural:
 1. Greet the person warmly
@@ -39,7 +39,7 @@ Keep it short and natural:
 6. End the call politely
 
 Be conversational, natural, and friendly. This is a live demo to show the quality difference.`,
-        first_message: "Hi! This is a demo call from your VoiceFlow CRM system. I'm an actual conversational AI agent powered by ElevenLabs - not a pre-recorded message. Can you hear how much clearer and more natural I sound? I can actually listen and respond to what you say. Would you like to ask me anything about the VoiceFlow system, or should I let you go?",
+        first_message: "Hi! This is a demo call from your VoiceNow CRM system. I'm an actual conversational AI agent powered by ElevenLabs - not a pre-recorded message. Can you hear how much clearer and more natural I sound? I can actually listen and respond to what you say. Would you like to ask me anything about the VoiceFlow system, or should I let you go?",
         language: 'en'
       });
 
@@ -63,7 +63,7 @@ Be conversational, natural, and friendly. This is a live demo to show the qualit
       console.log(`✅ Found agent: ${agent.name} (${agent.agent_id})`);
 
       // Make the call with custom script
-      const personalizedScript = `You are a friendly demo assistant for VoiceFlow CRM.
+      const personalizedScript = `You are a friendly demo assistant for VoiceNow CRM.
 
 This is a demo call to show the HIGH QUALITY of ElevenLabs Conversational AI compared to text-to-speech.
 
@@ -78,7 +78,7 @@ Your job is to:
 
 Keep it natural, conversational, and under 2 minutes total.`;
 
-      const firstMessage = "Hi! This is your second demo call from VoiceFlow CRM. Can you hear the difference? I'm using ElevenLabs CONVERSATIONAL AI now instead of text-to-speech. I can actually listen and respond to you in real-time. Notice how much clearer and more natural I sound? The first call was just playing back pre-recorded audio, but I'm actually having a conversation with you right now. Pretty cool, right?";
+      const firstMessage = "Hi! This is your second demo call from VoiceNow CRM. Can you hear the difference? I'm using ElevenLabs CONVERSATIONAL AI now instead of text-to-speech. I can actually listen and respond to you in real-time. Notice how much clearer and more natural I sound? The first call was just playing back pre-recorded audio, but I'm actually having a conversation with you right now. Pretty cool, right?";
 
       const call = await elevenLabsService.initiateCall(
         agent.agent_id,

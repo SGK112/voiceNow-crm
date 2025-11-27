@@ -21,13 +21,13 @@ async function createAgent() {
       conversationConfig: {
         agent: {
           prompt: {
-            prompt: `You are calling Josh to test the VoiceFlow CRM system.
+            prompt: `You are calling Josh to test the VoiceNow CRM system.
 
 YOUR ROLE:
 This is a test call to verify the phone calling system is working.
 
 CONVERSATION:
-1. Greet Josh: "Hi Josh! This is a test call from your VoiceFlow CRM system. The phone calling feature is now working!"
+1. Greet Josh: "Hi Josh! This is a test call from your VoiceNow CRM system. The phone calling feature is now working!"
 
 2. Ask: "Can you hear me clearly?"
 
@@ -44,7 +44,7 @@ IMPORTANT:
 - Answer any questions Josh has`,
             llm: 'gemini-2.5-flash'
           },
-          firstMessage: "Hi Josh! This is a test call from your VoiceFlow CRM system. Can you hear me?",
+          firstMessage: "Hi Josh! This is a test call from your VoiceNow CRM system. Can you hear me?",
           language: 'en'
         },
         tts: {
@@ -106,7 +106,7 @@ async function makeCall(agentId, phoneNumber) {
 }
 
 async function main() {
-  console.log('🚀 VoiceFlow CRM - Real Phone Call Test\n');
+  console.log('🚀 VoiceNow CRM - Real Phone Call Test\n');
   console.log('=' .repeat(60));
   console.log('Target: Josh');
   console.log('Phone: +1 (480) 255-5887');
@@ -129,7 +129,7 @@ async function main() {
     console.log('3. ✅ Call is being placed to Josh\'s number');
     console.log('\n📱 Josh should receive the call within 10-30 seconds');
     console.log('\n💡 The agent will say:');
-    console.log('"Hi Josh! This is a test call from your VoiceFlow CRM system. Can you hear me?"');
+    console.log('"Hi Josh! This is a test call from your VoiceNow CRM system. Can you hear me?"');
     console.log('\n🎉 The system is ACTUALLY working now!');
 
   } catch (error) {

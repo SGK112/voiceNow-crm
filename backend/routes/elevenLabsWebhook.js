@@ -153,7 +153,7 @@ async function handleSendEmail(parameters, agentId, callId) {
 
     // Send email
     const info = await emailTransporter.sendMail({
-      from: `"${process.env.SMTP_FROM_NAME || 'VoiceFlow CRM'}" <${process.env.SMTP_FROM_EMAIL}>`,
+      from: `"${process.env.SMTP_FROM_NAME || 'VoiceNow CRM'}" <${process.env.SMTP_FROM_EMAIL}>`,
       to,
       subject,
       html: `
@@ -164,7 +164,7 @@ async function handleSendEmail(parameters, agentId, callId) {
           </div>
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
           <p style="color: #999; font-size: 12px;">
-            This email was sent during a phone conversation via VoiceFlow CRM.<br>
+            This email was sent during a phone conversation via VoiceNow CRM.<br>
             Call ID: ${callId} | Agent ID: ${agentId}
           </p>
         </div>
@@ -414,7 +414,7 @@ router.post('/post-call', async (req, res) => {
         } else if (leadScore >= 10) {
           smsMessage += `Thanks for chatting about ${features}. Here's your trial link: https://remodely.ai/signup - 50 free minutes, no credit card needed!`;
         } else {
-          smsMessage += `Thanks for your interest in VoiceFlow CRM. Learn more and start free: https://remodely.ai/signup`;
+          smsMessage += `Thanks for your interest in VoiceNow CRM. Learn more and start free: https://remodely.ai/signup`;
         }
 
         smsMessage += ` - Sarah from Remodely AI`;
@@ -545,7 +545,7 @@ router.post('/post-call', async (req, res) => {
               Call ID: ${call_id}<br>
               Conversation ID: ${conversation_id}<br>
               Agent ID: ${agent_id}<br>
-              Powered by VoiceFlow CRM AI
+              Powered by VoiceNow CRM AI
             </p>
           </div>
         `

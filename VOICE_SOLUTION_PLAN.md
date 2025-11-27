@@ -2,7 +2,7 @@
 
 ## The Real Problem
 
-ElevenLabs widget has issues on iPhone, but **voice AI is core to VoiceFlow CRM**. We need a working solution NOW.
+ElevenLabs widget has issues on iPhone, but **voice AI is core to VoiceNow CRM**. We need a working solution NOW.
 
 ## Solution Options (Ranked by Speed)
 
@@ -55,7 +55,7 @@ ElevenLabs widget has issues on iPhone, but **voice AI is core to VoiceFlow CRM*
 
 ## RECOMMENDED: Option 1 (Phone Integration)
 
-This is perfect for VoiceFlow CRM because:
+This is perfect for VoiceNow CRM because:
 1. ✅ Works on ALL devices (iPhone, Android, desktop)
 2. ✅ Professional user experience
 3. ✅ Uses ElevenLabs' proven phone infrastructure

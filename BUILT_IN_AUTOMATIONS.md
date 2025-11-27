@@ -2,7 +2,7 @@
 
 ## Overview
 
-Your VoiceFlow CRM now has **built-in smart automations** that run automatically after every call. No setup required, no configuration needed - they just work!
+Your VoiceNow CRM now has **built-in smart automations** that run automatically after every call. No setup required, no configuration needed - they just work!
 
 These automations analyze call outcomes and automatically create tasks, update lead statuses, and ensure nothing falls through the cracks.
 

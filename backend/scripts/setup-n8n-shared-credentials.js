@@ -18,14 +18,14 @@ const n8nClient = axios.create({
 
 const sharedCredentials = [
   {
-    name: 'VoiceFlow CRM - MongoDB',
+    name: 'VoiceNow CRM - MongoDB',
     type: 'mongoDb',
     data: {
       connectionString: process.env.MONGODB_URI
     }
   },
   {
-    name: 'VoiceFlow CRM - Twilio SMS',
+    name: 'VoiceNow CRM - Twilio SMS',
     type: 'twilioApi',
     data: {
       accountSid: process.env.TWILIO_ACCOUNT_SID,
@@ -33,7 +33,7 @@ const sharedCredentials = [
     }
   },
   {
-    name: 'VoiceFlow CRM - SMTP Email',
+    name: 'VoiceNow CRM - SMTP Email',
     type: 'smtp',
     data: {
       user: process.env.EMAIL_USER,

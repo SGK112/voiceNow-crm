@@ -169,7 +169,7 @@ STRIPE_CREDIT_MEGA_PRICE_ID=price_1SWKJ7HDbK8UKkrvofz4b2fD
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  VoiceFlow CRM Pricing                  │
+│                  VoiceNow CRM Pricing                  │
 │          Simple, Transparent, No Hidden Fees            │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │

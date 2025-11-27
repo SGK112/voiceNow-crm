@@ -137,7 +137,7 @@ async function fixAgentPauses() {
     console.log('  ✓ Gets to trial signup faster\n');
 
     console.log('💡 New Conversation Style:');
-    console.log('  OLD: "VoiceFlow CRM is a complete, plug-and-play automation..."');
+    console.log('  OLD: "VoiceNow CRM is a complete, plug-and-play automation..."');
     console.log('  NEW: "We give you AI agents. They answer calls 24/7. Useful?"');
 
   } catch (error) {

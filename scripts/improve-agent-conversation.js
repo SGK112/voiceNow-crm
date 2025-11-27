@@ -25,7 +25,7 @@ async function improveAgentConversation() {
 - If interrupted, acknowledge politely: "No problem, go ahead!"
 
 **About Remodely.ai:**
-We help businesses automate operations with AI voice agents built on VoiceFlow CRM.
+We help businesses automate operations with AI voice agents built on VoiceNow CRM.
 
 **Key Benefits:**
 - Save 70-80% on staffing costs ($0.50/min vs $15-25/hr)

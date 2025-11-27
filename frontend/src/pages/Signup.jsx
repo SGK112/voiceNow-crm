@@ -59,7 +59,7 @@ export default function Signup() {
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
               </div>
-              <span className="text-xl font-bold text-white">VoiceFlow CRM</span>
+              <span className="text-xl font-bold text-white">VoiceNow CRM</span>
             </Link>
           </div>
 
@@ -212,7 +212,7 @@ export default function Signup() {
           <h2 className="text-3xl font-bold text-white mb-8">
             Why teams choose
             <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              VoiceFlow CRM
+              VoiceNow CRM
             </span>
           </h2>
 

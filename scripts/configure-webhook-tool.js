@@ -36,7 +36,7 @@ async function configureWebhookTool() {
               {
                 type: "webhook",
                 name: "send_signup_link",
-                description: "Send the VoiceFlow CRM signup link to the customer via SMS. Use this when customer asks 'can you text me the link' or 'send me that'.",
+                description: "Send the VoiceNow CRM signup link to the customer via SMS. Use this when customer asks 'can you text me the link' or 'send me that'.",
                 webhook: {
                   url: `${WEBHOOK_URL}/api/webhooks/elevenlabs/send-signup-link`,
                   method: "POST",

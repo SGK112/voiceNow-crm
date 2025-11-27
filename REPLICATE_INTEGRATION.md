@@ -2,7 +2,7 @@
 
 ## Overview
 
-This integration enables your VoiceFlow CRM to generate AI images and videos using Replicate's API, with a groundbreaking feature: **real-time image generation during ElevenLabs voice calls**.
+This integration enables your VoiceNow CRM to generate AI images and videos using Replicate's API, with a groundbreaking feature: **real-time image generation during ElevenLabs voice calls**.
 
 ## Features
 

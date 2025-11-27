@@ -40,7 +40,7 @@ async function testEmail() {
       console.error('\n   💡 To generate an app password:');
       console.error('   1. Go to: https://myaccount.google.com/apppasswords');
       console.error('   2. Sign in as helpremodely@gmail.com');
-      console.error('   3. Create app password for "VoiceFlow CRM"');
+      console.error('   3. Create app password for "VoiceNow CRM"');
       console.error('   4. Add to .env as SMTP_PASSWORD=<16-char-password>');
     } else if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
       console.error('\n   ⚠️  Connection Error - Check SMTP host and port:');

@@ -125,7 +125,7 @@ The call should work because:
 If calls still fail with 404:
 
 1. Go to: https://elevenlabs.io/app/conversational-ai
-2. Click on "VoiceFlow CRM - Lead Generation Agent"
+2. Click on "VoiceNow CRM - Lead Generation Agent"
 3. Go to "Phone Numbers" tab
 4. Click "Add Phone Number"
 5. Purchase or assign an existing number

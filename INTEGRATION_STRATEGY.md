@@ -637,7 +637,7 @@ voice.partner-domain.com → CNAME to our servers
         "lastname": "{{lead.lastName}}",
         "phone": "{{lead.phone}}",
         "company": "{{lead.company}}",
-        "lead_source": "VoiceFlow CRM",
+        "lead_source": "VoiceNow CRM",
         "lead_score": "{{lead.qualificationScore}}"
       }
     },

@@ -64,7 +64,7 @@ class EmailService {
 
       const mailOptions = {
         from: {
-          name: process.env.SMTP_FROM_NAME || 'VoiceFlow CRM',
+          name: process.env.SMTP_FROM_NAME || 'VoiceNow CRM',
           address: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER
         },
         to,
@@ -91,7 +91,7 @@ class EmailService {
    * Send welcome email to new user
    */
   async sendWelcomeEmail(userEmail, userName) {
-    const subject = 'Welcome to VoiceFlow CRM!';
+    const subject = 'Welcome to VoiceNow CRM!';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -108,11 +108,11 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Welcome to VoiceFlow CRM! 🎉</h1>
+            <h1>Welcome to VoiceNow CRM! 🎉</h1>
           </div>
           <div class="content">
             <h2>Hi ${userName || 'there'},</h2>
-            <p>Thank you for signing up for VoiceFlow CRM! We're excited to have you on board.</p>
+            <p>Thank you for signing up for VoiceNow CRM! We're excited to have you on board.</p>
             <p>With VoiceFlow, you can:</p>
             <ul>
               <li>🤖 Deploy AI-powered voice agents</li>
@@ -126,7 +126,7 @@ class EmailService {
           </div>
           <div class="footer">
             <p>Questions? Reply to this email or visit our support center.</p>
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -134,7 +134,7 @@ class EmailService {
     `;
 
     const text = `
-      Welcome to VoiceFlow CRM!
+      Welcome to VoiceNow CRM!
 
       Hi ${userName || 'there'},
 
@@ -197,7 +197,7 @@ class EmailService {
             <p>If you have any questions or need assistance, please don't hesitate to reach out!</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -259,7 +259,7 @@ class EmailService {
             <p>If you need to reschedule, please reply to this email.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -321,7 +321,7 @@ class EmailService {
             <p>Have questions? Reply to this email or contact our billing team.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -347,7 +347,7 @@ class EmailService {
    * Send password reset email
    */
   async sendPasswordResetEmail(userEmail, resetCode, companyName) {
-    const subject = 'Password Reset Code - VoiceFlow CRM';
+    const subject = 'Password Reset Code - VoiceNow CRM';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -369,7 +369,7 @@ class EmailService {
           </div>
           <div class="content">
             <p>Hi ${companyName ? companyName : 'there'},</p>
-            <p>You requested to reset your password for VoiceFlow CRM.</p>
+            <p>You requested to reset your password for VoiceNow CRM.</p>
             <p>Use the code below to reset your password:</p>
 
             <div class="code-box">
@@ -380,7 +380,7 @@ class EmailService {
             <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -392,7 +392,7 @@ class EmailService {
 
       Hi ${companyName ? companyName : 'there'},
 
-      You requested to reset your password for VoiceFlow CRM.
+      You requested to reset your password for VoiceNow CRM.
 
       Your reset code: ${resetCode}
 
@@ -408,7 +408,7 @@ class EmailService {
    * Send password changed confirmation email
    */
   async sendPasswordChangedEmail(userEmail, companyName) {
-    const subject = 'Password Changed Successfully - VoiceFlow CRM';
+    const subject = 'Password Changed Successfully - VoiceNow CRM';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -430,7 +430,7 @@ class EmailService {
           </div>
           <div class="content">
             <p>Hi ${companyName ? companyName : 'there'},</p>
-            <p>This confirms that your VoiceFlow CRM password has been successfully changed.</p>
+            <p>This confirms that your VoiceNow CRM password has been successfully changed.</p>
 
             <div class="alert-box">
               <p style="margin: 0;"><strong>🔒 Your account is now secured with your new password.</strong></p>
@@ -449,10 +449,10 @@ class EmailService {
               If you did not change your password, please contact our support team immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'} or reset your password again.
             </div>
 
-            <p>Thank you for using VoiceFlow CRM!</p>
+            <p>Thank you for using VoiceNow CRM!</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -464,14 +464,14 @@ class EmailService {
 
       Hi ${companyName ? companyName : 'there'},
 
-      This confirms that your VoiceFlow CRM password has been successfully changed.
+      This confirms that your VoiceNow CRM password has been successfully changed.
 
       Changed on: ${new Date().toLocaleString()}
 
       ⚠️ Didn't make this change?
       If you did not change your password, please contact support immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'}
 
-      Thank you for using VoiceFlow CRM!
+      Thank you for using VoiceNow CRM!
     `;
 
     return this.sendEmail({ to: userEmail, subject, html, text });
@@ -632,9 +632,9 @@ class EmailService {
             </div>
           </div>
           <div class="footer">
-            <p><strong>VoiceFlow CRM Help Desk</strong></p>
-            <p>This is an automated notification from your VoiceFlow CRM system.</p>
-            <p>&copy; ${new Date().getFullYear()} VoiceFlow CRM. All rights reserved.</p>
+            <p><strong>VoiceNow CRM Help Desk</strong></p>
+            <p>This is an automated notification from your VoiceNow CRM system.</p>
+            <p>&copy; ${new Date().getFullYear()} VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -709,12 +709,12 @@ class EmailService {
 
     const now = new Date();
     const organizerEmailAddr = organizerEmail || process.env.SMTP_USER || 'no-reply@voiceflowcrm.com';
-    const organizerNameValue = organizerName || process.env.SMTP_FROM_NAME || 'VoiceFlow CRM';
+    const organizerNameValue = organizerName || process.env.SMTP_FROM_NAME || 'VoiceNow CRM';
 
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//VoiceFlow CRM//Calendar//EN',
+      'PRODID:-//VoiceNow CRM//Calendar//EN',
       'CALSCALE:GREGORIAN',
       'METHOD:REQUEST',
       'BEGIN:VEVENT',

@@ -271,7 +271,7 @@ return [{
           }
         },
 
-        // 12. Log to VoiceFlow CRM
+        // 12. Log to VoiceNow CRM
         {
           parameters: {
             url: `${process.env.WEBHOOK_BASE_URL}/api/call-logs`,

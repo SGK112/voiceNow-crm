@@ -1,4 +1,4 @@
-# VoiceFlow CRM - Complete In-House Voice Agent System
+# VoiceNow CRM - Complete In-House Voice Agent System
 
 ## 🎯 Mission Accomplished
 
@@ -166,7 +166,7 @@ Step 5: Deploy
   → Redirects to AgentDashboard
 ```
 
-**Everything stays in VoiceFlow CRM. Never sees ElevenLabs.**
+**Everything stays in VoiceNow CRM. Never sees ElevenLabs.**
 
 ---
 
@@ -221,7 +221,7 @@ Voice: Rachel (Professional Female)
 
 **Auto-Generated Prompt:**
 ```
-You are Sarah, an AI voice agent for VoiceFlow CRM.
+You are Sarah, an AI voice agent for VoiceNow CRM.
 
 PURPOSE:
 Answer calls when on job sites, qualify roofing leads
@@ -261,7 +261,7 @@ IMPORTANT GUIDELINES:
 - Be helpful and solution-oriented
 - End professionally
 
-You represent VoiceFlow CRM. Be excellent!
+You represent VoiceNow CRM. Be excellent!
 ```
 
 **Users never see this complexity. They just teach their agent like talking to a person.**
@@ -359,10 +359,10 @@ for (const workflowId of agent.workflows) {
 
 ---
 
-## 🎨 Branding: 100% VoiceFlow CRM
+## 🎨 Branding: 100% VoiceNow CRM
 
 ### What Users See:
-- ✅ "VoiceFlow CRM" everywhere
+- ✅ "VoiceNow CRM" everywhere
 - ✅ "Your Voice Agents"
 - ✅ "Create Agent" buttons
 - ✅ Performance analytics
@@ -382,7 +382,7 @@ for (const workflowId of agent.workflows) {
 - Uber doesn't show "Powered by Google Maps"
 - Shopify doesn't show "Powered by Stripe"
 
-**You're VoiceFlow CRM. ElevenLabs is your infrastructure.**
+**You're VoiceNow CRM. ElevenLabs is your infrastructure.**
 
 ---
 
@@ -586,7 +586,7 @@ Teach agents like teaching a person. Natural, intuitive.
 
 ## 🎯 The Vision
 
-**VoiceFlow CRM is the all-in-one platform where businesses:**
+**VoiceNow CRM is the all-in-one platform where businesses:**
 1. Create intelligent voice agents (collaboratively)
 2. Build automation workflows (visually)
 3. Manage their CRM (centrally)
@@ -632,4 +632,4 @@ Just infrastructure. Users never know. Never need to.
 
 ---
 
-**Welcome to VoiceFlow CRM - Where Voice Meets Workflow, Powered by YOUR Vision.**
+**Welcome to VoiceNow CRM - Where Voice Meets Workflow, Powered by YOUR Vision.**

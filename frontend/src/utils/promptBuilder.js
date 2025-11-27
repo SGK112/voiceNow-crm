@@ -47,7 +47,7 @@ export function buildAgentSystemPrompt(options, profileHelpers) {
   const location = getLocation();
 
   // Build prompt sections
-  let prompt = `You are ${agentName}, an AI voice agent for VoiceFlow CRM.
+  let prompt = `You are ${agentName}, an AI voice agent for VoiceNow CRM.
 
 PURPOSE: ${purpose}
 

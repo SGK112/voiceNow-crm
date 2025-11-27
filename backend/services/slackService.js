@@ -213,7 +213,7 @@ class SlackService {
           elements: [
             {
               type: 'mrkdwn',
-              text: `🤖 VoiceFlow CRM • ${new Date().toLocaleString()}`
+              text: `🤖 VoiceNow CRM • ${new Date().toLocaleString()}`
             }
           ]
         }

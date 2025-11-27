@@ -1,7 +1,7 @@
 # Twilio + ElevenLabs Phone Integration Setup
 
 ## Overview
-This document explains how to set up phone call integration for your VoiceFlow CRM AI agent using Twilio and ElevenLabs.
+This document explains how to set up phone call integration for your VoiceNow CRM AI agent using Twilio and ElevenLabs.
 
 ## Why This Solution?
 - ✅ Works on ALL devices (iPhone, Android, desktop)

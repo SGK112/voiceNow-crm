@@ -62,7 +62,7 @@ class AgentWebSocketService extends EventEmitter {
             dynamic_variables: {
               customer_name: 'Test User',
               lead_name: 'Test User',
-              company_name: 'VoiceFlow CRM',
+              company_name: 'VoiceNow CRM',
               ...dynamicVariables
             }
           };

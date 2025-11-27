@@ -1,6 +1,6 @@
 # ✅ SMS-to-Voice Integration COMPLETE!
 
-## 🎉 VoiceFlow CRM Now Has "Arms"
+## 🎉 VoiceNow CRM Now Has "Arms"
 
 Your SMS agent can now **trigger outbound voice calls** when customers request them!
 
@@ -58,7 +58,7 @@ Your SMS agent can now **trigger outbound voice calls** when customers request t
 node scripts/test-sms-to-voice.js
 
 # Or test manually by texting:
-# +16028337194: "What is VoiceFlow CRM?"
+# +16028337194: "What is VoiceNow CRM?"
 # (AI explains)
 # +16028337194: "Can you call me?"
 # (AI triggers instant call!)
@@ -104,7 +104,7 @@ Customer: [Receives MMS with images + signup link]
 
 ### **Competitive Advantage:**
 - **Other platforms**: SMS-only OR voice-only
-- **VoiceFlow CRM**: Seamlessly transitions between all channels
+- **VoiceNow CRM**: Seamlessly transitions between all channels
 - **Unique selling point**: "AI that texts, calls, and sends images"
 
 ### **Use Cases:**
@@ -188,10 +188,10 @@ Customer Receives:
 ## 💬 Sales Pitch
 
 **Old pitch:**
-> "VoiceFlow CRM is an AI voice agent platform."
+> "VoiceNow CRM is an AI voice agent platform."
 
 **New pitch:**
-> "VoiceFlow CRM is a complete AI communication system. Customers can text you,
+> "VoiceNow CRM is a complete AI communication system. Customers can text you,
 > and if they need more help, our AI **actually calls them back within seconds**.
 > During the call, it texts them professional images and signup links. It's like
 > having a full sales team working across text, voice, and images - all automated,
@@ -209,7 +209,7 @@ Customer Receives:
 
 ## 🎉 CONGRATULATIONS!
 
-VoiceFlow CRM just became **10x more powerful**.
+VoiceNow CRM just became **10x more powerful**.
 
 You now have an AI agent that:
 - ✅ Answers voice calls 24/7

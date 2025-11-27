@@ -1,4 +1,4 @@
-# VoiceFlow CRM vs Sintra.ai - Competitive Positioning
+# VoiceNow CRM vs Sintra.ai - Competitive Positioning
 
 ## Summary
 Updated marketing page to directly compete with Sintra.ai by emphasizing VoiceFlow's unique differentiator: **VOICE**. While Sintra handles emails and social media, VoiceFlow handles the channel that actually makes contractors money: **phone calls**.
@@ -14,7 +14,7 @@ Updated marketing page to directly compete with Sintra.ai by emphasizing VoiceFl
 - Meeting prep
 - General "AI employees"
 
-**VoiceFlow CRM Focus:**
+**VoiceNow CRM Focus:**
 - **Phone call answering** (24/7 AI receptionist)
 - **Voice booking** (appointments via phone)
 - **Revenue-focused** (phone calls = $5K-$50K jobs)
@@ -24,7 +24,7 @@ Updated marketing page to directly compete with Sintra.ai by emphasizing VoiceFl
 
 Created side-by-side comparison highlighting:
 
-| Feature | Sintra.ai | VoiceFlow CRM |
+| Feature | Sintra.ai | VoiceNow CRM |
 |---------|-----------|---------------|
 | Answers Phone Calls | ✗ | ✓ |
 | Books Appointments | Email only | ✓ Phone |
@@ -81,7 +81,7 @@ Created side-by-side comparison highlighting:
 - Agencies
 - General business automation
 
-### VoiceFlow CRM Targets:
+### VoiceNow CRM Targets:
 - Contractors (roofing, HVAC, plumbing)
 - Field service businesses
 - Phone-dependent businesses
@@ -94,7 +94,7 @@ Created side-by-side comparison highlighting:
 - Need multiple bots for different tasks
 - Total cost: $39-$156+ for full suite
 
-### VoiceFlow CRM:
+### VoiceNow CRM:
 - **$49/mo** for Starter (1 agent, 500 min)
 - **$149/mo** for Pro (3 agents, 2K min) ← Most Popular
 - **Custom** for Enterprise

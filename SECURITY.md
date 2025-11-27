@@ -11,7 +11,7 @@ We release patches for security vulnerabilities for the following versions:
 
 ## Reporting a Vulnerability
 
-We take the security of VoiceFlow CRM seriously. If you believe you have found a security vulnerability, please report it to us as described below.
+We take the security of VoiceNow CRM seriously. If you believe you have found a security vulnerability, please report it to us as described below.
 
 ### Please Do:
 
@@ -99,10 +99,10 @@ For security-related questions or concerns:
 
 ## Hall of Fame
 
-We appreciate the efforts of security researchers who help us keep VoiceFlow CRM secure. Contributors who report valid security issues will be listed here (with their permission):
+We appreciate the efforts of security researchers who help us keep VoiceNow CRM secure. Contributors who report valid security issues will be listed here (with their permission):
 
 <!-- This section will be updated as we receive security reports -->
 
 ---
 
-Thank you for helping keep VoiceFlow CRM and our users safe!
+Thank you for helping keep VoiceNow CRM and our users safe!

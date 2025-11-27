@@ -133,12 +133,12 @@ class UsageAlertService {
 
       // Send SMS if user has phone number
       if (user.phone) {
-        const smsMessage = `VoiceFlow CRM ${alertLevel}: ${alertMessage}`;
+        const smsMessage = `VoiceNow CRM ${alertLevel}: ${alertMessage}`;
         await this.sendSMS(user.phone, smsMessage);
       }
 
       // Send email
-      const emailSubject = `VoiceFlow CRM - ${alertLevel}: ${usagePercentage.toFixed(0)}% of Monthly Usage Limit`;
+      const emailSubject = `VoiceNow CRM - ${alertLevel}: ${usagePercentage.toFixed(0)}% of Monthly Usage Limit`;
       const emailHtml = this.generateUsageAlertEmail(user, alertLevel, alertMessage, usageData, planConfig, alertColor);
       await this.sendEmail(user.email, emailSubject, emailHtml);
 
@@ -234,7 +234,7 @@ class UsageAlertService {
             </div>
           </div>
           <div class="footer">
-            <p>This is an automated notification from VoiceFlow CRM.</p>
+            <p>This is an automated notification from VoiceNow CRM.</p>
             <p>You can manage notification preferences in your account settings.</p>
           </div>
         </div>
@@ -247,7 +247,7 @@ class UsageAlertService {
    * Test SMS functionality
    */
   async testSMS(phoneNumber) {
-    const testMessage = 'VoiceFlow CRM Test: SMS notifications are working! You will receive usage alerts when you reach 80% and 100% of your monthly limit.';
+    const testMessage = 'VoiceNow CRM Test: SMS notifications are working! You will receive usage alerts when you reach 80% and 100% of your monthly limit.';
     return await this.sendSMS(phoneNumber, testMessage);
   }
 
@@ -255,10 +255,10 @@ class UsageAlertService {
    * Test email functionality
    */
   async testEmail(email) {
-    const subject = 'VoiceFlow CRM - Test Email Notification';
+    const subject = 'VoiceNow CRM - Test Email Notification';
     const html = `
       <h2>Email Notifications Test</h2>
-      <p>This is a test email from VoiceFlow CRM.</p>
+      <p>This is a test email from VoiceNow CRM.</p>
       <p>Your email notifications are working correctly! You will receive alerts when:</p>
       <ul>
         <li>You reach 80% of your monthly usage limit</li>

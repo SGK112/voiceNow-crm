@@ -36,7 +36,7 @@ async function addSMSTool() {
               {
                 type: "client",
                 name: "send_signup_link",
-                description: "Send the VoiceFlow CRM signup link via SMS text message. Use this when customer asks 'can you text me the link' or 'send me that' or shows high interest.",
+                description: "Send the VoiceNow CRM signup link via SMS text message. Use this when customer asks 'can you text me the link' or 'send me that' or shows high interest.",
                 parameters: {
                   type: "object",
                   properties: {

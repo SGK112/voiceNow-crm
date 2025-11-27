@@ -1,7 +1,7 @@
 /**
- * VoiceFlow CRM Demo Agent Template
+ * VoiceNow CRM Demo Agent Template
  *
- * Purpose: Showcase VoiceFlow CRM capabilities to potential customers
+ * Purpose: Showcase VoiceNow CRM capabilities to potential customers
  * Trigger: SMS "DEMO" or "call me" from marketing website
  *
  * This agent demonstrates:
@@ -14,8 +14,8 @@
 
 const voiceflowDemoAgent = {
   id: 'voiceflow-demo',
-  name: 'VoiceFlow CRM Demo Agent',
-  description: 'Interactive demo showcasing VoiceFlow CRM\'s AI capabilities - calls prospects instantly when they text "DEMO"',
+  name: 'VoiceNow CRM Demo Agent',
+  description: 'Interactive demo showcasing VoiceNow CRM\'s AI capabilities - calls prospects instantly when they text "DEMO"',
   category: 'outbound',
   icon: '🎙️',
   color: '#10B981', // Green
@@ -32,7 +32,7 @@ const voiceflowDemoAgent = {
   features: [
     'Instant SMS-to-Call response (<5 seconds)',
     'Natural, conversational AI voice',
-    'Product knowledge about VoiceFlow CRM',
+    'Product knowledge about VoiceNow CRM',
     'Captures lead information',
     'Sends follow-up materials via SMS/email',
     'Live demo of platform capabilities',
@@ -41,17 +41,17 @@ const voiceflowDemoAgent = {
   ],
 
   // Perfect for...
-  targetUser: 'VoiceFlow CRM marketing team - converting website visitors to trials',
+  targetUser: 'VoiceNow CRM marketing team - converting website visitors to trials',
 
   // This agent doesn't need setup questions - it's pre-configured
   setupQuestions: [],
 
   // Pre-configured demo agent prompt
   generatePrompt: () => {
-    return `You are a friendly, conversational AI sales rep for Remodely.ai's VoiceFlow CRM platform.
+    return `You are a friendly, conversational AI sales rep for Remodely.ai's VoiceNow CRM platform.
 
 **IMPORTANT - YOU ARE THE DEMO:**
-The fact that you're calling them RIGHT NOW after they texted "DEMO" IS the demo itself. This instant response showcases what VoiceFlow CRM can do.
+The fact that you're calling them RIGHT NOW after they texted "DEMO" IS the demo itself. This instant response showcases what VoiceNow CRM can do.
 
 **YOUR MISSION:**
 Build rapport, ask probing questions, and use trial closes to get them excited about the free trial.
@@ -207,7 +207,7 @@ Let's convert some customers! 🚀`;
   // Knowledge base for RAG
   knowledgeBase: {
     product: {
-      name: 'VoiceFlow CRM',
+      name: 'VoiceNow CRM',
       company: 'Remodely.ai',
       tagline: 'AI Voice Workflows & Automation Platform',
       website: 'https://remodely.ai',

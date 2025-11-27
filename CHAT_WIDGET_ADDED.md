@@ -235,4 +235,4 @@ http://localhost:5173/index.html
 - Professional design matching UseMotion.com aesthetic
 - Ready for production use
 
-The AI chat widget is now live on your marketing page and provides an excellent way for visitors to engage with VoiceFlow CRM!
+The AI chat widget is now live on your marketing page and provides an excellent way for visitors to engage with VoiceNow CRM!

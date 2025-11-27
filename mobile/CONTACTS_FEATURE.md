@@ -1,7 +1,7 @@
 # WhatsApp-Style Contact Management System
 
 ## Overview
-A comprehensive contact management system for the VoiceFlow CRM mobile app with a clean, WhatsApp-inspired interface. This feature allows users to manage their contacts, import from their phone, track interactions, and perform quick actions.
+A comprehensive contact management system for the VoiceNow CRM mobile app with a clean, WhatsApp-inspired interface. This feature allows users to manage their contacts, import from their phone, track interactions, and perform quick actions.
 
 ## Features Implemented
 
@@ -437,10 +437,10 @@ backend/routes/
 ```
 
 ## License
-Part of VoiceFlow CRM - All rights reserved
+Part of VoiceNow CRM - All rights reserved
 
 ## Contributors
-Created for VoiceFlow CRM Mobile App
+Created for VoiceNow CRM Mobile App
 
 ---
 

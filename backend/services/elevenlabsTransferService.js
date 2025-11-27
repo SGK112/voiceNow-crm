@@ -4,7 +4,7 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1/convai/agents';
 
 /**
- * Sync call transfer settings from VoiceFlow CRM to ElevenLabs
+ * Sync call transfer settings from VoiceNow CRM to ElevenLabs
  *
  * @param {Object} agent - VoiceAgent document from MongoDB
  * @returns {Promise<Object>} Updated agent configuration

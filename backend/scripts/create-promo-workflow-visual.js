@@ -1,5 +1,5 @@
 /**
- * Create Surprise Granite Promo Workflow in VoiceFlow CRM Visual Builder
+ * Create Surprise Granite Promo Workflow in VoiceNow CRM Visual Builder
  *
  * This creates the workflow in MongoDB for the visual workflow builder
  */

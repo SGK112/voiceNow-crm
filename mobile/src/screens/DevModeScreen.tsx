@@ -48,7 +48,7 @@ export default function DevModeScreen() {
   };
 
   const quickCommands = [
-    'Change the title to VoiceFlow CRM',
+    'Change the title to VoiceNow CRM',
     'Make the orb button bigger',
     'Change background to dark blue',
     'Add a welcome message',

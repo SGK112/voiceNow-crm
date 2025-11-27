@@ -87,7 +87,7 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXX
 curl -X POST YOUR_WEBHOOK_URL \
   -H 'Content-Type: application/json' \
   -d '{
-    "text": "🎉 VoiceFlow CRM is connected to Slack!"
+    "text": "🎉 VoiceNow CRM is connected to Slack!"
   }'
 ```
 
@@ -98,7 +98,7 @@ curl -X POST https://slack.com/api/chat.postMessage \
   -H "Content-Type: application/json" \
   -d '{
     "channel": "YOUR_CHANNEL_ID",
-    "text": "🎉 VoiceFlow CRM is connected to Slack!"
+    "text": "🎉 VoiceNow CRM is connected to Slack!"
   }'
 ```
 

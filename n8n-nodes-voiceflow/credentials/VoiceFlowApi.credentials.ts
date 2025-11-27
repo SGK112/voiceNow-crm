@@ -7,7 +7,7 @@ import {
 
 export class VoiceFlowApi implements ICredentialType {
   name = 'voiceFlowApi';
-  displayName = 'VoiceFlow CRM API';
+  displayName = 'VoiceNow CRM API';
   documentationUrl = 'https://remodely.ai/docs/api';
   properties: INodeProperties[] = [
     {
@@ -15,7 +15,7 @@ export class VoiceFlowApi implements ICredentialType {
       name: 'apiUrl',
       type: 'string',
       default: 'https://remodely.ai',
-      description: 'The URL of your VoiceFlow CRM instance',
+      description: 'The URL of your VoiceNow CRM instance',
     },
     {
       displayName: 'API Key',
@@ -23,7 +23,7 @@ export class VoiceFlowApi implements ICredentialType {
       type: 'string',
       typeOptions: { password: true },
       default: '',
-      description: 'Your VoiceFlow CRM API key (found in Settings > API Keys)',
+      description: 'Your VoiceNow CRM API key (found in Settings > API Keys)',
     },
   ];
 

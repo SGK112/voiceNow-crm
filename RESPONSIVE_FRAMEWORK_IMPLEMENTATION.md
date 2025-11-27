@@ -1,7 +1,7 @@
 # Responsive Framework Implementation
 
 ## Overview
-Implemented a custom responsive framework inspired by [Flutter's ResponsiveFramework](https://github.com/Codelessly/ResponsiveFramework) for the VoiceFlow CRM React application.
+Implemented a custom responsive framework inspired by [Flutter's ResponsiveFramework](https://github.com/Codelessly/ResponsiveFramework) for the VoiceNow CRM React application.
 
 ## What Was Implemented
 

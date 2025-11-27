@@ -39,7 +39,7 @@ if (personalizedScript) {
       "prompt": {
         "prompt": "You are a friendly and professional sales assistant..."
       },
-      "first_message": "Hi! This is Sarah from VoiceFlow CRM...",
+      "first_message": "Hi! This is Sarah from VoiceNow CRM...",
       "language": "en"
     }
   }
@@ -109,7 +109,7 @@ if (personalizedScript) {
 
 ---
 
-## VoiceFlow CRM Implementation
+## VoiceNow CRM Implementation
 
 ### How Test Calls Work
 

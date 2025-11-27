@@ -1,8 +1,8 @@
-# VoiceFlow CRM - Complete Documentation Index
+# VoiceNow CRM - Complete Documentation Index
 
 ## Document Overview
 
-This repository contains comprehensive documentation about the VoiceFlow CRM system architecture, capabilities, and adaptation paths. Choose the document that matches your needs:
+This repository contains comprehensive documentation about the VoiceNow CRM system architecture, capabilities, and adaptation paths. Choose the document that matches your needs:
 
 ---
 
@@ -129,7 +129,7 @@ This repository contains comprehensive documentation about the VoiceFlow CRM sys
 
 ## Executive Summary
 
-### What VoiceFlow CRM Is
+### What VoiceNow CRM Is
 A **voice-first sales automation platform** that:
 - Integrates AI voice agents (ElevenLabs) for lead generation
 - Automatically creates leads from call data
@@ -361,7 +361,7 @@ Refer to **AUTOMATION_SUMMARY.md** or **BUILT_IN_AUTOMATIONS.md**
 
 ## Document Versions
 
-These documents represent the VoiceFlow CRM system as of the analysis date. The system is active and may be updated. These docs provide:
+These documents represent the VoiceNow CRM system as of the analysis date. The system is active and may be updated. These docs provide:
 - Complete architecture overview
 - All model schemas and relationships
 - Data flow explanations
@@ -386,7 +386,7 @@ These documents represent the VoiceFlow CRM system as of the analysis date. The 
 
 ## Final Notes
 
-VoiceFlow CRM is a **well-architected system** with:
+VoiceNow CRM is a **well-architected system** with:
 - Solid voice integration
 - Smart automations that require zero setup
 - Complete data tracking

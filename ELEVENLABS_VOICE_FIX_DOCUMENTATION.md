@@ -2,7 +2,7 @@
 
 ## Issue Summary
 
-**Problem**: Phone calls initiated through VoiceFlow CRM were connecting successfully, but the AI agent had no voice output. Users could hear silence while the agent could hear and transcribe the user's speech.
+**Problem**: Phone calls initiated through VoiceNow CRM were connecting successfully, but the AI agent had no voice output. Users could hear silence while the agent could hear and transcribe the user's speech.
 
 **Root Cause**: The `initiateCall` function in `elevenLabsService.js` was creating a `conversation_config_override` even when no personalized script was provided, which broke the agent's TTS (text-to-speech) configuration.
 

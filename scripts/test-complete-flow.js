@@ -21,7 +21,7 @@ async function testCompleteFlow() {
 
     const welcomeMessage = `Hi Josh! 👋
 
-This is your VoiceFlow CRM test!
+This is your VoiceNow CRM test!
 
 I'm an AI assistant that can:
 ✓ Text with you (SMS)
@@ -30,7 +30,7 @@ I'm an AI assistant that can:
 ✓ Send you professional images
 
 Try me out! Reply with:
-- "What is VoiceFlow CRM?" for info
+- "What is VoiceNow CRM?" for info
 - "Call me" to trigger a LIVE voice call
 - Send me an image to test AI vision
 
@@ -46,7 +46,7 @@ Let's go! 🚀`;
     // ========================================
     console.log('\n📱 TEST 2: Sending Product Info SMS');
 
-    const infoMessage = `VoiceFlow CRM is an AI platform that:
+    const infoMessage = `VoiceNow CRM is an AI platform that:
 
 💬 Handles SMS 24/7
 📞 Makes & receives voice calls
@@ -69,7 +69,7 @@ Or start free trial: https://remodely.ai/signup`;
     // ========================================
     console.log('\n📸 TEST 3: Sending MMS with Professional Image');
 
-    const mmsMessage = `Here's what VoiceFlow CRM looks like in action! 🎯
+    const mmsMessage = `Here's what VoiceNow CRM looks like in action! 🎯
 
 This is a professional business automation platform.
 
@@ -121,7 +121,7 @@ Questions? Just reply or ask me to call you!`;
 
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
-      <h1 style="margin: 0; color: #ffffff; font-size: 28px;">🎉 VoiceFlow CRM Test Complete!</h1>
+      <h1 style="margin: 0; color: #ffffff; font-size: 28px;">🎉 VoiceNow CRM Test Complete!</h1>
     </div>
 
     <!-- Content -->
@@ -129,7 +129,7 @@ Questions? Just reply or ask me to call you!`;
       <p style="font-size: 18px; color: #0f172a;">Hi Josh! 👋</p>
 
       <p style="font-size: 16px; color: #475569; line-height: 1.6;">
-        Your <strong>complete VoiceFlow CRM integration test</strong> just ran successfully! Here's what was tested:
+        Your <strong>complete VoiceNow CRM integration test</strong> just ran successfully! Here's what was tested:
       </p>
 
       <!-- Test Results -->
@@ -158,7 +158,7 @@ Questions? Just reply or ask me to call you!`;
       </div>
 
       <!-- Features Highlight -->
-      <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">🚀 What VoiceFlow CRM Can Do:</h3>
+      <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">🚀 What VoiceNow CRM Can Do:</h3>
 
       <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 10px 0;">
         <strong style="color: #1e40af;">📱 Smart SMS Agent</strong><br>
@@ -202,14 +202,14 @@ Questions? Just reply or ask me to call you!`;
           <li>Check your phone for the SMS/MMS messages</li>
           <li>Reply with "call me" to trigger a live voice call</li>
           <li>Send a photo via text to test AI vision</li>
-          <li>Ask questions about VoiceFlow CRM features</li>
+          <li>Ask questions about VoiceNow CRM features</li>
         </ul>
       </div>
 
       <!-- Signature -->
       <p style="font-size: 15px; color: #64748b; margin: 30px 0 0 0;">
         Best regards,<br>
-        <strong style="color: #0f172a;">The VoiceFlow CRM Team</strong><br>
+        <strong style="color: #0f172a;">The VoiceNow CRM Team</strong><br>
         <span style="font-size: 13px;">🤖 Powered by AI • 📞 Always Available • 🚀 Built for Growth</span>
       </p>
     </div>
@@ -217,7 +217,7 @@ Questions? Just reply or ask me to call you!`;
     <!-- Footer -->
     <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
       <p style="margin: 0; color: #64748b; font-size: 13px;">
-        <a href="https://remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceFlow CRM</a> |
+        <a href="https://remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
         <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
       </p>
       <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">
@@ -230,11 +230,11 @@ Questions? Just reply or ask me to call you!`;
 </body>
 </html>`;
 
-    const emailText = `VoiceFlow CRM Test Complete!
+    const emailText = `VoiceNow CRM Test Complete!
 
 Hi Josh,
 
-Your complete VoiceFlow CRM integration test just ran successfully!
+Your complete VoiceNow CRM integration test just ran successfully!
 
 ✅ Test Results:
 - SMS Messaging: Working
@@ -242,7 +242,7 @@ Your complete VoiceFlow CRM integration test just ran successfully!
 - Voice Call Triggering: Working
 - Email Notifications: Working (you're reading this!)
 
-What VoiceFlow CRM Can Do:
+What VoiceNow CRM Can Do:
 
 📱 Smart SMS Agent
    AI-powered text responses 24/7. Answers questions, qualifies leads.
@@ -260,12 +260,12 @@ What to Test Next:
 - Check your phone for SMS/MMS messages
 - Reply with "call me" to trigger a live voice call
 - Send a photo via text to test AI vision
-- Ask questions about VoiceFlow CRM
+- Ask questions about VoiceNow CRM
 
 Start your FREE trial: https://remodely.ai/signup
 
 Best regards,
-The VoiceFlow CRM Team
+The VoiceNow CRM Team
 🤖 Powered by AI • 📞 Always Available • 🚀 Built for Growth
 
 Test Phone: ${TEST_PHONE}
@@ -273,7 +273,7 @@ SMS Number: ${SMS_NUMBER}`;
 
     await emailService.sendEmail({
       to: TEST_EMAIL,
-      subject: '🎉 VoiceFlow CRM Complete Integration Test - All Systems GO!',
+      subject: '🎉 VoiceNow CRM Complete Integration Test - All Systems GO!',
       text: emailText,
       html: emailHtml
     });
@@ -299,7 +299,7 @@ SMS Number: ${SMS_NUMBER}`;
     console.log('   3. Reply "call me" via SMS to trigger voice call');
     console.log('   4. Send a photo via SMS to test AI vision');
 
-    console.log('\n🚀 VoiceFlow CRM is FULLY OPERATIONAL!\n');
+    console.log('\n🚀 VoiceNow CRM is FULLY OPERATIONAL!\n');
     console.log('   • SMS: ✅ Working');
     console.log('   • MMS: ✅ Working');
     console.log('   • Voice: ✅ Ready to trigger');

@@ -105,7 +105,7 @@ async function testConfiguration(config) {
       const messages = [
         {
           role: 'system',
-          content: `You are Aria, a friendly AI assistant in VoiceFlow CRM.
+          content: `You are Aria, a friendly AI assistant in VoiceNow CRM.
 
 Keep responses ULTRA SHORT:
 - 1 sentence max (15 words or less)

@@ -4,7 +4,7 @@ import ElevenLabsService from '../services/elevenLabsService.js';
 dotenv.config();
 
 /**
- * Update the demo agent with the proper VoiceFlow CRM script
+ * Update the demo agent with the proper VoiceNow CRM script
  * This is the agent used by both the marketing page and SMS-to-call
  */
 async function updateDemoAgent() {
@@ -15,7 +15,7 @@ async function updateDemoAgent() {
     console.log(`🔄 Updating demo agent: ${agentId}\n`);
 
     // This is the script from publicChatController.js line 687-794
-    const voiceflowScript = `You are a friendly, natural-sounding AI assistant for Remodelee AI. Your goal is to have a genuine conversation about how VoiceFlow CRM can help {{customer_name}}'s business.
+    const voiceflowScript = `You are a friendly, natural-sounding AI assistant for Remodelee AI. Your goal is to have a genuine conversation about how VoiceNow CRM can help {{customer_name}}'s business.
 
 **IMPORTANT: Sound like a real person, not a robot. Be conversational, warm, and authentic.**
 
@@ -37,7 +37,7 @@ After {{customer_name}} confirms who they are, say something natural like:
 - Be enthusiastic about being an AI: "Pretty cool, right? I can do this 24/7!"
 
 **ABOUT VOICEFLOW CRM:**
-VoiceFlow CRM is a complete, plug-and-play automation system that contractors use to:
+VoiceNow CRM is a complete, plug-and-play automation system that contractors use to:
 - Handle calls 24/7 with AI voice agents (like me!)
 - Qualify leads automatically
 - Book appointments and schedule jobs
@@ -129,12 +129,12 @@ Natural response: "So the Professional plan is $299 a month - that's 5 agents, 1
     // Update the agent
     console.log('📝 Updating agent configuration...');
     await elevenLabsService.updateAgent(agentId, {
-      name: 'VoiceFlow CRM Demo Agent',
+      name: 'VoiceNow CRM Demo Agent',
       script: voiceflowScript,
       firstMessage: firstMessage
     });
 
-    console.log('\n✅ SUCCESS! Agent updated with VoiceFlow CRM script!\n');
+    console.log('\n✅ SUCCESS! Agent updated with VoiceNow CRM script!\n');
     console.log('Agent ID:', agentId);
     console.log('\nThis agent will now be used by:');
     console.log('  - Marketing page "Call Me" button');

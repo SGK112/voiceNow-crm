@@ -1,8 +1,8 @@
-# VoiceFlow CRM - Complete Frontend Testing Guide
+# VoiceNow CRM - Complete Frontend Testing Guide
 
 ## Overview
 
-This guide will walk you through testing every feature of your VoiceFlow CRM from the frontend, step by step, as a user would experience it.
+This guide will walk you through testing every feature of your VoiceNow CRM from the frontend, step by step, as a user would experience it.
 
 ---
 

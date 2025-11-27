@@ -1,7 +1,7 @@
 /**
  * Credit Package Pricing
  *
- * Pay-as-you-go credit packages for VoiceFlow CRM
+ * Pay-as-you-go credit packages for VoiceNow CRM
  */
 
 export const CREDIT_PACKAGES = {

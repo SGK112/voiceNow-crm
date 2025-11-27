@@ -1,6 +1,6 @@
 # Development Guide
 
-This guide covers the technical details for developers working on VoiceFlow CRM.
+This guide covers the technical details for developers working on VoiceNow CRM.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ This guide covers the technical details for developers working on VoiceFlow CRM.
 
 ## Architecture Overview
 
-VoiceFlow CRM follows a standard MERN stack architecture with additional services:
+VoiceNow CRM follows a standard MERN stack architecture with additional services:
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐

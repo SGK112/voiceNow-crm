@@ -39,8 +39,8 @@ async function testAgentCreation() {
       type: 'custom',
       voiceId: sarahVoice.voice_id,
       voiceName: sarahVoice.name,
-      script: 'You are a friendly sales assistant for VoiceFlow CRM. Your goal is to help potential customers understand our product and schedule demos.',
-      firstMessage: 'Hi! This is Sarah calling from VoiceFlow CRM. How are you today?',
+      script: 'You are a friendly sales assistant for VoiceNow CRM. Your goal is to help potential customers understand our product and schedule demos.',
+      firstMessage: 'Hi! This is Sarah calling from VoiceNow CRM. How are you today?',
       configuration: {
         language: 'en',
         model_id: 'eleven_flash_v2'

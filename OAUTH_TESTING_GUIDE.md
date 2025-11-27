@@ -2,7 +2,7 @@
 
 ## 🎯 What We Built
 
-Your VoiceFlow CRM now has **seamless OAuth integration** with 1000+ apps through n8n. Users can connect their own Google, Facebook, QuickBooks, etc. accounts without you configuring any OAuth apps!
+Your VoiceNow CRM now has **seamless OAuth integration** with 1000+ apps through n8n. Users can connect their own Google, Facebook, QuickBooks, etc. accounts without you configuring any OAuth apps!
 
 ## ✅ What's Working
 
@@ -113,7 +113,7 @@ For each service (Google, Facebook, etc.), you need to:
 #### Google Sheets Example:
 
 1. **Go to Google Cloud Console**: https://console.cloud.google.com
-2. **Create Project**: "VoiceFlow CRM"
+2. **Create Project**: "VoiceNow CRM"
 3. **Enable APIs**:
    - Google Sheets API
    - Google Drive API

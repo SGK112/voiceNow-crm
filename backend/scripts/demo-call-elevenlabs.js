@@ -25,7 +25,7 @@ async function makeCallWithElevenLabs() {
   console.log('🎯 Using conversational AI approach\n');
 
   try {
-    const demoText = `Hello! This is a test call from your VoiceFlow CRM system.
+    const demoText = `Hello! This is a test call from your VoiceNow CRM system.
     I'm now using ElevenLabs voice - can you hear how natural I sound?
     This is just a simple text-to-speech demo.
     Your system can also create fully conversational AI agents using ElevenLabs Conversational AI.

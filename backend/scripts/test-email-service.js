@@ -17,7 +17,7 @@ async function testEmailService() {
   console.log(`   SMTP_PORT: ${process.env.SMTP_PORT || '587 (default)'}`);
   console.log(`   SMTP_USER: ${process.env.SMTP_USER || '❌ NOT SET'}`);
   console.log(`   SMTP_PASSWORD: ${process.env.SMTP_PASSWORD ? '✅ SET' : '❌ NOT SET'}`);
-  console.log(`   SMTP_FROM_NAME: ${process.env.SMTP_FROM_NAME || 'VoiceFlow CRM (default)'}`);
+  console.log(`   SMTP_FROM_NAME: ${process.env.SMTP_FROM_NAME || 'VoiceNow CRM (default)'}`);
   console.log('');
 
   if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
@@ -27,7 +27,7 @@ async function testEmailService() {
     console.log('SMTP_PASSWORD=your-gmail-app-password');
     console.log('\nTo get a Gmail App Password:');
     console.log('1. Go to https://myaccount.google.com/apppasswords');
-    console.log('2. Create a new app password for "VoiceFlow CRM"');
+    console.log('2. Create a new app password for "VoiceNow CRM"');
     console.log('3. Copy the 16-character password to your .env file\n');
     process.exit(1);
   }
@@ -56,10 +56,10 @@ async function testEmailService() {
   try {
     const result = await emailService.sendEmail({
       to: 'help.remodely@gmail.com',
-      subject: '🧪 VoiceFlow CRM Email Test',
+      subject: '🧪 VoiceNow CRM Email Test',
       html: `
         <h2>Email Service Test</h2>
-        <p>This is a test email from VoiceFlow CRM.</p>
+        <p>This is a test email from VoiceNow CRM.</p>
         <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3>✅ Email service is working!</h3>
           <p><strong>Sent at:</strong> ${new Date().toLocaleString()}</p>
@@ -76,7 +76,7 @@ async function testEmailService() {
       text: `
         Email Service Test
 
-        This is a test email from VoiceFlow CRM.
+        This is a test email from VoiceNow CRM.
 
         ✅ Email service is working!
 

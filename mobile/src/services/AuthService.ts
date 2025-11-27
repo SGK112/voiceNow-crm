@@ -258,16 +258,39 @@ class AuthService {
   // Get current user
   async getCurrentUser(): Promise<AuthResponse> {
     try {
-      const response = await api.get<AuthResponse>('/api/auth/me');
+      const response = await api.get('/api/auth/me');
 
-      if (response.data.success && response.data.user) {
-        this.user = response.data.user;
-        await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.data.user));
+      // Backend returns user directly, not wrapped in {success, user}
+      const userData = response.data;
+
+      // Check if it's a valid user object (has _id)
+      if (userData && userData._id) {
+        this.user = userData as User;
+        await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+        return {
+          success: true,
+          user: userData as User,
+        };
       }
 
-      return response.data;
+      // Handle wrapped response format (for backwards compatibility)
+      if (userData.success && userData.user) {
+        this.user = userData.user;
+        await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData.user));
+        return userData;
+      }
+
+      return {
+        success: false,
+        message: 'Invalid user data',
+      };
     } catch (error: any) {
       console.error('Get current user error:', error);
+      // If 401, clear the invalid token
+      if (error.response?.status === 401) {
+        console.log('Token invalid, clearing auth data');
+        await this.logout();
+      }
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to get user',

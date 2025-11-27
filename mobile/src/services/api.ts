@@ -38,9 +38,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token is invalid or expired
-      console.log('401 Unauthorized - Token may be expired');
-      // Don't auto-logout here, let the AuthContext handle it
+      // Token is invalid or expired - clear the invalid token
+      console.log('401 Unauthorized - Token invalid or expired, clearing stored token');
+      try {
+        await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+      } catch (e) {
+        console.error('Failed to clear invalid token:', e);
+      }
     }
     return Promise.reject(error);
   }

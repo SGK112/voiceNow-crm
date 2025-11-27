@@ -284,7 +284,7 @@ export const sendSignupLinkAction = async (req, res) => {
 
     // Send signup link via MMS with image to showcase capabilities
     const greeting = customer_name ? `Hi ${customer_name}!` : 'Hi!';
-    const message = `${greeting} Thanks for your interest in VoiceFlow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+    const message = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
     const imageUrl = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'; // Professional business/tech image
 
     await twilioService.sendMMSWithImage(phone_number, message, imageUrl);
@@ -348,7 +348,7 @@ export const handlePostCallFollowUp = async (req, res) => {
     // Send follow-up SMS if phone number available
     if (customerPhone) {
       try {
-        const smsBody = `Hi ${customerName}! Thanks for chatting with our AI agent! 🤖\n\nReady to start your FREE VoiceFlow CRM trial?\n👉 www.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+        const smsBody = `Hi ${customerName}! Thanks for chatting with our AI agent! 🤖\n\nReady to start your FREE VoiceNow CRM trial?\n👉 www.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
 
         await twilioService.sendSMS(customerPhone, smsBody);
         console.log(`✅ Post-call SMS sent to ${customerPhone}`);
@@ -363,8 +363,8 @@ export const handlePostCallFollowUp = async (req, res) => {
         // Send customer confirmation email
         await emailService.sendEmail({
           to: customerEmail,
-          subject: 'Thanks for Trying VoiceFlow CRM! 🤖',
-          text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceFlow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceFlow CRM (no credit card needed):\nwww.remodely.ai/signup\n\n💡 What You'll Get with VoiceFlow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe Remodelee AI Team`,
+          subject: 'Thanks for Trying VoiceNow CRM! 🤖',
+          text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceNow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceNow CRM (no credit card needed):\nwww.remodely.ai/signup\n\n💡 What You'll Get with VoiceNow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe Remodelee AI Team`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -375,30 +375,30 @@ export const handlePostCallFollowUp = async (req, res) => {
             <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
                 <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
-                  <h1 style="margin: 0; color: #ffffff; font-size: 28px;">Thanks for Trying VoiceFlow CRM! 🤖</h1>
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px;">Thanks for Trying VoiceNow CRM! 🤖</h1>
                 </div>
 
                 <div style="padding: 40px 30px;">
                   <p style="font-size: 18px; color: #0f172a;">Hi ${customerName}! 👋</p>
 
                   <p style="font-size: 16px; color: #475569; line-height: 1.6;">
-                    Thanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful <strong>VoiceFlow CRM</strong> can be.
+                    Thanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful <strong>VoiceNow CRM</strong> can be.
                   </p>
 
                   <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
                     <h3 style="margin: 0 0 10px 0; color: #1e40af;">🎯 What's Next?</h3>
                     <p style="margin: 0; font-size: 16px; color: #3b82f6;">
-                      Start your <strong>FREE 14-day trial of VoiceFlow CRM</strong> (no credit card needed)
+                      Start your <strong>FREE 14-day trial of VoiceNow CRM</strong> (no credit card needed)
                     </p>
                   </div>
 
                   <div style="text-align: center; margin: 30px 0;">
                     <a href="https://www.remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
-                      Start VoiceFlow CRM Trial →
+                      Start VoiceNow CRM Trial →
                     </a>
                   </div>
 
-                  <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">💡 What You'll Get with VoiceFlow CRM:</h3>
+                  <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">💡 What You'll Get with VoiceNow CRM:</h3>
                   <ul style="color: #475569; font-size: 15px; line-height: 1.8;">
                     <li>✓ 24/7 AI agents that never miss calls</li>
                     <li>✓ Automated lead qualification</li>
@@ -422,7 +422,7 @@ export const handlePostCallFollowUp = async (req, res) => {
 
                 <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
                   <p style="margin: 0; color: #64748b; font-size: 13px;">
-                    <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceFlow CRM</a> |
+                    <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
                     <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
                   </p>
                 </div>
@@ -639,7 +639,7 @@ export const handleConversationEvent = async (req, res) => {
           try {
             // Send MMS with image to showcase capabilities
             const greeting = customerName ? `Hi ${customerName}!` : 'Hi!';
-            const message = `${greeting} Thanks for your interest in VoiceFlow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+            const message = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
             const imageUrl = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'; // Professional business/tech image
 
             await twilioService.sendMMSWithImage(phoneNumber, message, imageUrl);

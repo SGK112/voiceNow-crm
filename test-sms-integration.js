@@ -15,7 +15,7 @@ async function testEndpoints() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: '+16028337194',  // Test number (sending to ourselves)
-        message: '🧪 Test SMS from ElevenLabs agent during call. This is a test message from the VoiceFlow CRM system.',
+        message: '🧪 Test SMS from ElevenLabs agent during call. This is a test message from the VoiceNow CRM system.',
         callSid: 'TEST_CALL_SID',
         agentId: 'agent_9701k9xptd0kfr383djx5zk7300x'
       })

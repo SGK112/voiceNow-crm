@@ -21,11 +21,11 @@ async function createAgentWithHangupTool() {
       conversationConfig: {
         agent: {
           prompt: {
-            prompt: `You are calling Josh for a quick VoiceFlow CRM system test.
+            prompt: `You are calling Josh for a quick VoiceNow CRM system test.
 
 CONVERSATION (KEEP UNDER 30 SECONDS):
 
-1. Greet: "Hi Josh! Quick test call from VoiceFlow CRM. Can you hear me?"
+1. Greet: "Hi Josh! Quick test call from VoiceNow CRM. Can you hear me?"
 
 2. Confirm: Wait for yes/no
    - If yes: "Perfect! System is working."

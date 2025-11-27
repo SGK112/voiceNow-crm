@@ -2,7 +2,7 @@
 
 ## ✅ FEATURE COMPLETED
 
-VoiceFlow CRM now has full **SMS-to-Voice** integration! When customers text requests for a call, the system automatically triggers an outbound ElevenLabs voice agent call.
+VoiceNow CRM now has full **SMS-to-Voice** integration! When customers text requests for a call, the system automatically triggers an outbound ElevenLabs voice agent call.
 
 ---
 
@@ -82,7 +82,7 @@ const callResponse = await fetch('https://api.elevenlabs.io/v1/convai/conversati
 The agent calls with a custom script that:
 - Acknowledges they texted asking for a call
 - Confirms it's a good time to talk
-- Explains VoiceFlow CRM benefits based on their needs
+- Explains VoiceNow CRM benefits based on their needs
 - Offers to send signup link via MMS with image
 - Keeps conversation natural and under 2 minutes
 
@@ -93,7 +93,7 @@ The agent calls with a custom script that:
 The AI assistant now **actively suggests voice calls** to customers:
 
 ### New Examples:
-- "What's this about?" → "VoiceFlow CRM helps contractors never miss a call! AI answers 24/7, books appointments. Want me to call you?"
+- "What's this about?" → "VoiceNow CRM helps contractors never miss a call! AI answers 24/7, books appointments. Want me to call you?"
 - "How much?" → "$299/mo after a FREE 14-day trial (no card needed). Want a quick call to see how it works?"
 - "Tell me more" → "AI voice agent handles your calls when you're busy. Books appointments, qualifies leads. I can call you right now to explain!"
 - "Sounds interesting" → "Awesome! Want to try it free at remodely.ai/signup OR I can call you right now to walk you through it?"
@@ -113,7 +113,7 @@ node scripts/test-sms-to-voice.js
 1. **Text the SMS number:** +16028337194
 2. **Send:** "Call me"
 3. **Expect:**
-   - SMS reply: "Perfect! My AI voice agent is calling you right now to discuss VoiceFlow CRM. Answer and chat! 📞"
+   - SMS reply: "Perfect! My AI voice agent is calling you right now to discuss VoiceNow CRM. Answer and chat! 📞"
    - Incoming call within 5-10 seconds from ElevenLabs agent
 4. **During call:** Ask agent to send signup link
 5. **Result:** Receive MMS with professional image + clickable signup link
@@ -124,15 +124,15 @@ node scripts/test-sms-to-voice.js
 
 ### **Scenario 1: Customer Wants More Info**
 ```
-Customer: "What is VoiceFlow CRM?"
-AI SMS:   "VoiceFlow CRM is an AI voice agent for contractors, answering calls 24/7.
+Customer: "What is VoiceNow CRM?"
+AI SMS:   "VoiceNow CRM is an AI voice agent for contractors, answering calls 24/7.
            Want me to call you to explain more?"
 Customer: "Yes call me"
 AI SMS:   "Perfect! My AI voice agent is calling you right now to discuss
-           VoiceFlow CRM. Answer and chat! 📞"
+           VoiceNow CRM. Answer and chat! 📞"
 [PHONE RINGS]
 AI Voice: "Hi! This is the AI assistant from Remodelee AI. You just texted
-           asking for a call - I'm here to tell you about VoiceFlow CRM!
+           asking for a call - I'm here to tell you about VoiceNow CRM!
            Is now a good time?"
 ```
 
@@ -216,7 +216,7 @@ Track these KPIs:
 ## 💡 Sales Strategy
 
 ### **Pitch to Contractors:**
-> "VoiceFlow CRM isn't just an AI voice agent - it's a complete communication system.
+> "VoiceNow CRM isn't just an AI voice agent - it's a complete communication system.
 > Customers can text you, and if they need more help, our AI **actually calls them back**
 > within seconds. During the call, it can text them images, quotes, appointment links.
 > It's like having a full sales team that works across text, voice, and images -
@@ -225,7 +225,7 @@ Track these KPIs:
 ### **Value Proposition:**
 - **SMS-only platforms**: Can only text
 - **Voice-only platforms**: Can only call
-- **VoiceFlow CRM**: Seamlessly transitions between SMS, voice calls, and MMS with images
+- **VoiceNow CRM**: Seamlessly transitions between SMS, voice calls, and MMS with images
 - **Result**: 3x higher conversion rates because you meet customers where they are
 
 ---

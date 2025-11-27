@@ -2,7 +2,7 @@
 
 ## What We Built
 
-Your VoiceFlow CRM now has **6 intelligent automations** that run automatically after every voice call - no setup, no configuration, just instant value.
+Your VoiceNow CRM now has **6 intelligent automations** that run automatically after every voice call - no setup, no configuration, just instant value.
 
 ## The 6 Automations
 

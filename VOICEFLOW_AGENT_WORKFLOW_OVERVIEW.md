@@ -1,8 +1,8 @@
-# VoiceFlow CRM - Agent & Workflow Implementation Overview
+# VoiceNow CRM - Agent & Workflow Implementation Overview
 
 ## Executive Summary
 
-VoiceFlow CRM is a sophisticated voice-first CRM system built on Node.js/Express backend with React frontend. It implements two distinct but complementary agent systems:
+VoiceNow CRM is a sophisticated voice-first CRM system built on Node.js/Express backend with React frontend. It implements two distinct but complementary agent systems:
 
 1. **Voice Agents** - ElevenLabs-based conversational AI for phone calls
 2. **AI Agents** - Multi-provider LLM-based chat/content agents (OpenAI, Anthropic, Google)
@@ -1056,7 +1056,7 @@ voiceFlow-crm-1/
 
 ## Conclusion
 
-VoiceFlow CRM provides a comprehensive foundation for voice-powered automation with:
+VoiceNow CRM provides a comprehensive foundation for voice-powered automation with:
 - Sophisticated agent management (voice + AI)
 - Dynamic variable personalization
 - Workflow automation with conditional logic

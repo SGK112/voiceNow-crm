@@ -5,16 +5,16 @@ dotenv.config();
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
-// VoiceFlow CRM specific agents from the API list
+// VoiceNow CRM specific agents from the API list
 const voiceflowAgents = [
-  { name: 'VoiceFlow CRM - Lead Generation Agent', id: 'agent_1001k9h9ms30fe7ay0w462av0y9v' },
-  { name: 'VoiceFlow CRM - Booking Agent', id: 'agent_8801k9h9mv3zempsy3aa5njzwst3' },
-  { name: 'VoiceFlow CRM - Collections Agent', id: 'agent_2101k9h9mwedez1rf2e182pdvnsq' },
-  { name: 'VoiceFlow CRM - Promotions Agent', id: 'agent_1801k9h9mxmveytv8a0psq4z756y' },
-  { name: 'VoiceFlow CRM - Support Agent', id: 'agent_6001k9h9myv9f3w8322g06wf8b1e' },
+  { name: 'VoiceNow CRM - Lead Generation Agent', id: 'agent_1001k9h9ms30fe7ay0w462av0y9v' },
+  { name: 'VoiceNow CRM - Booking Agent', id: 'agent_8801k9h9mv3zempsy3aa5njzwst3' },
+  { name: 'VoiceNow CRM - Collections Agent', id: 'agent_2101k9h9mwedez1rf2e182pdvnsq' },
+  { name: 'VoiceNow CRM - Promotions Agent', id: 'agent_1801k9h9mxmveytv8a0psq4z756y' },
+  { name: 'VoiceNow CRM - Support Agent', id: 'agent_6001k9h9myv9f3w8322g06wf8b1e' },
   { name: 'Remodely.ai Marketing Assistant', id: 'agent_9701k9xptd0kfr383djx5zk7300x' },
   { name: 'VoiceFlow Demo - Natural Voice', id: 'agent_8101ka4wyweke1s9np3je7npewrr' },
-  { name: 'VoiceFlow CRM Demo Agent', id: 'agent_0901ka4va58zfqd8b59xpnh57fb5' }
+  { name: 'VoiceNow CRM Demo Agent', id: 'agent_0901ka4va58zfqd8b59xpnh57fb5' }
 ];
 
 async function testAgent(agentName, agentId) {
@@ -81,7 +81,7 @@ async function testAgent(agentName, agentId) {
 }
 
 async function testAllAgents() {
-  console.log('\n🚀 VoiceFlow CRM - Demo Agent Test Report');
+  console.log('\n🚀 VoiceNow CRM - Demo Agent Test Report');
   console.log('='.repeat(80));
   console.log(`Testing ${voiceflowAgents.length} agents...\n`);
 

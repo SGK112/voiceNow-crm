@@ -1,4 +1,4 @@
-# VoiceFlow CRM - MMS Capabilities Test Results
+# VoiceNow CRM - MMS Capabilities Test Results
 
 ## ✅ Test Summary
 **Date:** 2025-11-15
@@ -14,7 +14,7 @@
 - **Status:** accepted
 - **Recipient:** +14802555887
 - **Image URL:** https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400
-- **Message:** "Check out this beautiful contractor project! VoiceFlow CRM helps you manage leads like this. Try free: remodely.ai/signup"
+- **Message:** "Check out this beautiful contractor project! VoiceNow CRM helps you manage leads like this. Try free: remodely.ai/signup"
 
 **Verification:**
 - Twilio API accepted the MMS

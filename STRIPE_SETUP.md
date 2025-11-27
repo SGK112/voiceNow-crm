@@ -14,20 +14,20 @@
 2. Go to Products → Add Product
 3. Create three products:
 
-#### Product 1: VoiceFlow CRM - Starter
-- Name: `VoiceFlow CRM - Starter`
+#### Product 1: VoiceNow CRM - Starter
+- Name: `VoiceNow CRM - Starter`
 - Description: `Perfect for small businesses getting started with AI-powered voice calling`
 - Pricing: Recurring, $149/month
 - Copy the price ID (will look like `price_xxxxx`)
 
-#### Product 2: VoiceFlow CRM - Professional
-- Name: `VoiceFlow CRM - Professional`
+#### Product 2: VoiceNow CRM - Professional
+- Name: `VoiceNow CRM - Professional`
 - Description: `For growing teams that need more power and advanced features`
 - Pricing: Recurring, $299/month
 - Copy the price ID
 
-#### Product 3: VoiceFlow CRM - Enterprise
-- Name: `VoiceFlow CRM - Enterprise`
+#### Product 3: VoiceNow CRM - Enterprise
+- Name: `VoiceNow CRM - Enterprise`
 - Description: `For large organizations with custom needs and unlimited scale`
 - Pricing: Recurring, $799/month
 - Copy the price ID

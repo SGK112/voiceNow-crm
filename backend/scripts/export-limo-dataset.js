@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Export VoiceFlow CRM data to LIMO training format
+ * Export VoiceNow CRM data to LIMO training format
  *
  * Usage:
  *   node scripts/export-limo-dataset.js
@@ -21,7 +21,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 async function main() {
   console.log('╔═══════════════════════════════════════════════════╗');
   console.log('║   LIMO Training Dataset Export for Aria          ║');
-  console.log('║   VoiceFlow CRM → High-Quality Training Data     ║');
+  console.log('║   VoiceNow CRM → High-Quality Training Data     ║');
   console.log('╚═══════════════════════════════════════════════════╝\n');
 
   try {

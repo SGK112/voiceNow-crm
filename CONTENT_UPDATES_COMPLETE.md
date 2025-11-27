@@ -1,7 +1,7 @@
-# VoiceFlow CRM Marketing Page - All Content Updated
+# VoiceNow CRM Marketing Page - All Content Updated
 
 ## Summary
-All placeholder "Lorem Ipsum" demo text has been replaced with compelling, conversion-focused copy for VoiceFlow CRM.
+All placeholder "Lorem Ipsum" demo text has been replaced with compelling, conversion-focused copy for VoiceNow CRM.
 
 ## What Was Updated
 
@@ -51,7 +51,7 @@ All placeholder "Lorem Ipsum" demo text has been replaced with compelling, conve
 - Replaced app store buttons with:
   - "Start Free Trial" button (blue gradient)
   - "View Pricing" button (white transparent)
-- Added social proof: "Join 500+ contractors already using VoiceFlow CRM"
+- Added social proof: "Join 500+ contractors already using VoiceNow CRM"
 
 ## Content Strategy
 
@@ -121,7 +121,7 @@ All placeholder "Lorem Ipsum" demo text has been replaced with compelling, conve
 
 Open `http://localhost:5173/marketing.html` and verify:
 
-1. ✅ Hero section has VoiceFlow CRM copy
+1. ✅ Hero section has VoiceNow CRM copy
 2. ✅ About section: "Never Miss Another Call. Ever."
 3. ✅ Features: AI Voice Agents, Visual Workflows, Built-in CRM
 4. ✅ How It Works: 3-step process
@@ -144,7 +144,7 @@ If you see old content:
 🎉 **All Demo Text Removed!**
 
 Every section now has:
-- ✅ VoiceFlow CRM-specific copy
+- ✅ VoiceNow CRM-specific copy
 - ✅ Contractor-focused messaging
 - ✅ Real testimonials with numbers
 - ✅ Clear CTAs throughout

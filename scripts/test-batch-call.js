@@ -22,7 +22,7 @@ async function testBatchCall(customerPhone) {
     const response = await axios.post(
       'https://api.elevenlabs.io/v1/convai/batch-calling/submit',
       {
-        call_name: 'VoiceFlow CRM Test Call',
+        call_name: 'VoiceNow CRM Test Call',
         agent_id: LEAD_GEN_AGENT_ID,
         agent_phone_number_id: PHONE_NUMBER_ID,
         recipients: [

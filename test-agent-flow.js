@@ -53,14 +53,14 @@ async function testAgentFlow() {
 Your goal is to qualify leads and gather information.
 
 Be professional, friendly, and concise.`,
-      firstMessage: 'Hi! This is a test call from VoiceFlow CRM. Can you hear me?',
+      firstMessage: 'Hi! This is a test call from VoiceNow CRM. Can you hear me?',
       enabled: true,
       configuration: {
         temperature: 0.8,
         maxDuration: 300,
         language: 'en',
         purpose: 'Test lead qualification',
-        main_message: 'Testing VoiceFlow CRM calling functionality'
+        main_message: 'Testing VoiceNow CRM calling functionality'
       },
       availability: {
         enabled: true,

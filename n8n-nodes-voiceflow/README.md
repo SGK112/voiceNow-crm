@@ -1,6 +1,6 @@
 # n8n-nodes-voiceflow
 
-This is an n8n community node that provides VoiceFlow CRM integration with n8n.
+This is an n8n community node that provides VoiceNow CRM integration with n8n.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
@@ -9,7 +9,7 @@ This is an n8n community node that provides VoiceFlow CRM integration with n8n.
 - **Inbound Call Trigger**: Trigger workflows when calls are received on your Twilio numbers
 - **Phone Number Dropdown**: Select from your existing Twilio phone numbers with a simple dropdown
 - **Automatic Data Extraction**: Extract customer information, transcripts, and call details
-- **No Manual Configuration**: Pre-configured to work with your VoiceFlow CRM instance
+- **No Manual Configuration**: Pre-configured to work with your VoiceNow CRM instance
 
 ## Installation
 
@@ -41,8 +41,8 @@ Then restart n8n.
 ## Configuration
 
 1. In n8n, go to **Credentials > New Credential**
-2. Search for "VoiceFlow CRM API"
-3. Enter your VoiceFlow CRM details:
+2. Search for "VoiceNow CRM API"
+3. Enter your VoiceNow CRM details:
    - **API URL**: Your VoiceFlow instance URL (e.g., `https://remodely.ai`)
    - **API Key**: Your API key from VoiceFlow Settings > API Keys
 
@@ -81,4 +81,4 @@ Inbound Call → IF (budget >= $20k) → Send SMS to Sales Manager
 ## Resources
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-- [VoiceFlow CRM Documentation](https://remodely.ai/docs)
+- [VoiceNow CRM Documentation](https://remodely.ai/docs)

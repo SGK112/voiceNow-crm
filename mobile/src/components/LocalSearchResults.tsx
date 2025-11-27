@@ -59,7 +59,7 @@ interface Directions {
   googleMapsUrl: string;
 }
 
-interface LocalSearchResultsProps {
+interface UIAction {
   type: 'local_search_results' | 'place_details' | 'directions';
   data: {
     query?: string;
@@ -67,16 +67,22 @@ interface LocalSearchResultsProps {
     details?: PlaceDetails;
     directions?: Directions;
   };
+}
+
+interface LocalSearchResultsProps {
+  uiAction: UIAction;
   onClose?: () => void;
   onSelectPlace?: (placeId: string) => void;
 }
 
 const LocalSearchResults: React.FC<LocalSearchResultsProps> = ({
-  type,
-  data,
+  uiAction,
   onClose,
   onSelectPlace,
 }) => {
+  // Extract type and data from uiAction
+  const type = uiAction?.type;
+  const data = uiAction?.data || {};
   // Open in Google Maps app or browser
   const openInMaps = (address: string, lat?: number, lng?: number) => {
     let url = '';

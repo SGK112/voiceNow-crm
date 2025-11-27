@@ -34,7 +34,7 @@ Watch console for:
 3. Shows "AI Assistant" header
 
 #### Test 2: Chat Mode (Text)
-1. Type: "What is VoiceFlow CRM?"
+1. Type: "What is VoiceNow CRM?"
 2. AI responds with information
 3. Response includes suggestion chips
 
@@ -75,11 +75,11 @@ Watch console for:
 ## Demo Script
 
 ### Opening (30 seconds)
-"This is Remodely.ai's VoiceFlow CRM - a complete platform for AI voice automation. Let me show you our intelligent assistant that combines chat and voice AI."
+"This is Remodely.ai's VoiceNow CRM - a complete platform for AI voice automation. Let me show you our intelligent assistant that combines chat and voice AI."
 
 ### Chat Demo (30 seconds)
 1. Click chat button
-2. Type: "How does VoiceFlow CRM work?"
+2. Type: "How does VoiceNow CRM work?"
 3. Show AI response with suggestions
 4. "The chat mode uses advanced AI to answer questions about our platform, pricing, and features."
 
@@ -87,7 +87,7 @@ Watch console for:
 1. Click Voice tab
 2. "Now let me show you the voice AI - this uses ElevenLabs technology for natural conversations."
 3. Click microphone
-4. Ask: **"What makes VoiceFlow CRM different from other solutions?"**
+4. Ask: **"What makes VoiceNow CRM different from other solutions?"**
 5. Let AI respond (should mention: done-for-you service, visual workflows, pre-built agents)
 6. Ask follow-up: **"What's included in your pricing?"**
 7. Let AI explain pricing tiers
@@ -125,7 +125,7 @@ Watch console for:
 ## Agent Behavior Notes
 
 The AI agent is trained to discuss:
-- ✓ VoiceFlow CRM features
+- ✓ VoiceNow CRM features
 - ✓ Pricing plans ($149, $299, $799)
 - ✓ Done-for-you agent services
 - ✓ Visual workflow builder
@@ -173,7 +173,7 @@ If all checks pass, the demo is ready to go!
 
 **Duration**: ~2 minutes for full demo
 **Best Questions to Ask**:
-1. "What is VoiceFlow CRM?"
+1. "What is VoiceNow CRM?"
 2. "What pricing plans do you offer?"
 3. "How does the done-for-you service work?"
 4. "Can you integrate with my existing tools?"

@@ -182,7 +182,7 @@ const CollaborativeAgentBuilder = () => {
 
   const buildSystemPrompt = () => {
     // Collaborative prompt building from all user inputs
-    return `You are ${config.name}, an AI voice agent for VoiceFlow CRM.
+    return `You are ${config.name}, an AI voice agent for VoiceNow CRM.
 
 PURPOSE:
 ${config.purpose}
@@ -220,7 +220,7 @@ IMPORTANT GUIDELINES:
 - Collect information needed for follow-up
 - End calls professionally
 
-Remember: You represent VoiceFlow CRM and our customer's business. Be excellent!`;
+Remember: You represent VoiceNow CRM and our customer's business. Be excellent!`;
   };
 
   const testAgent = async () => {

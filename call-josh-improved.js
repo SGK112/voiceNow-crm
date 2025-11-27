@@ -19,14 +19,14 @@ async function createImprovedAgent() {
       conversationConfig: {
         agent: {
           prompt: {
-            prompt: `You are calling Josh to test the VoiceFlow CRM system.
+            prompt: `You are calling Josh to test the VoiceNow CRM system.
 
 YOUR ROLE: Quick system test call.
 
 CONVERSATION FLOW (KEEP IT BRIEF - 30 seconds max):
 
 1. GREETING (5 seconds)
-"Hi Josh! This is a test call from your VoiceFlow CRM system. Can you hear me clearly?"
+"Hi Josh! This is a test call from your VoiceNow CRM system. Can you hear me clearly?"
 
 2. WAIT FOR RESPONSE
 - If yes: "Perfect! The calling system is working."
@@ -49,7 +49,7 @@ CRITICAL RULES:
 - This is a quick system test only
 
 CONVERSATION SHOULD BE:
-Agent: "Hi Josh! This is a test call from your VoiceFlow CRM system. Can you hear me clearly?"
+Agent: "Hi Josh! This is a test call from your VoiceNow CRM system. Can you hear me clearly?"
 Josh: "Yes"
 Agent: "Perfect! The calling system is working. Thanks for testing, Josh. Goodbye!"
 [HANG UP]
@@ -64,7 +64,7 @@ YOU MUST END THE CALL after saying goodbye.`,
             llm: 'gemini-2.5-flash',
             temperature: 0.5
           },
-          firstMessage: "Hi Josh! This is a test call from VoiceFlow CRM. Can you hear me?",
+          firstMessage: "Hi Josh! This is a test call from VoiceNow CRM. Can you hear me?",
           language: 'en'
         },
         tts: {

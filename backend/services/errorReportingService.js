@@ -12,7 +12,7 @@ class ErrorReportingService {
     // Lazy-load webhook URL to ensure env vars are loaded
     this._webhookUrl = null;
     this.environment = process.env.NODE_ENV || 'development';
-    this.serviceName = 'VoiceFlow CRM';
+    this.serviceName = 'VoiceNow CRM';
     this.errorBuffer = [];
     this.bufferTimeout = null;
     this.maxBufferSize = 10;

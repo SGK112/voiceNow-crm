@@ -194,7 +194,7 @@ Send intelligent email to sales team
 - Message adapts to lead score:
   - **Hot (15-20)**: "Great talking about [features]! Start your free trial..."
   - **Warm (10-14)**: "Thanks for chatting about [features]. Here's your trial link..."
-  - **Cool/Cold (0-9)**: "Thanks for your interest in VoiceFlow CRM..."
+  - **Cool/Cold (0-9)**: "Thanks for your interest in VoiceNow CRM..."
 - Signed by "Sarah from Remodely AI"
 
 **Example SMS (Hot Lead)**:
@@ -453,7 +453,7 @@ After a test call, verify:
    - Verify recommended next steps are relevant
 
 4. **CRM Lead**:
-   - Login to VoiceFlow CRM
+   - Login to VoiceNow CRM
    - Navigate to Leads page
    - Find newly created lead
    - Verify:

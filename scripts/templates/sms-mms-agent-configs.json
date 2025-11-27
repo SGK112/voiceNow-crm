@@ -232,13 +232,13 @@
             "implementation": {
               "service": "twilio",
               "method": "sendMMSWithImage",
-              "message_template": "Hi {{customer_name}}! Thanks for your interest in VoiceFlow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team",
+              "message_template": "Hi {{customer_name}}! Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team",
               "image_url": "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80",
               "success_message": "MMS with signup link sent successfully"
             }
           }
         ],
-        "prompt_template": "You are a CLOSER for {{company_name}}, showcasing VoiceFlow CRM.\n\n**YOU CAN SEND MMS IN REAL-TIME:**\nWhen the customer shows interest, you can ACTUALLY SEND THEM A TEXT MESSAGE WITH AN IMAGE using the send_signup_link tool.\n\n**OPENING:**\n\"Hi, is this {{customer_name}}? Perfect! I'm from {{company_name}}. You wanted to try VoiceFlow CRM, right? Let me tell you about it and send you the signup link with a visual - sound good?\"\n\n**WHEN THEY SHOW INTEREST:**\n\"Awesome! What's the best number to text you the signup link?\"\n[They give number]\n\"Perfect! Let me send that to you right now with a visual...\"\n[Use send_signup_link tool]\n\"Done! Just sent you an MMS with the VoiceFlow CRM signup link AND an image. Check your phone - you should see it now!\"\n\n**CLOSE:**\nAlways be closing. Get them to sign up.",
+        "prompt_template": "You are a CLOSER for {{company_name}}, showcasing VoiceNow CRM.\n\n**YOU CAN SEND MMS IN REAL-TIME:**\nWhen the customer shows interest, you can ACTUALLY SEND THEM A TEXT MESSAGE WITH AN IMAGE using the send_signup_link tool.\n\n**OPENING:**\n\"Hi, is this {{customer_name}}? Perfect! I'm from {{company_name}}. You wanted to try VoiceNow CRM, right? Let me tell you about it and send you the signup link with a visual - sound good?\"\n\n**WHEN THEY SHOW INTEREST:**\n\"Awesome! What's the best number to text you the signup link?\"\n[They give number]\n\"Perfect! Let me send that to you right now with a visual...\"\n[Use send_signup_link tool]\n\"Done! Just sent you an MMS with the VoiceNow CRM signup link AND an image. Check your phone - you should see it now!\"\n\n**CLOSE:**\nAlways be closing. Get them to sign up.",
         "voice_model": "eleven_flash_v2",
         "max_duration": 300
       }

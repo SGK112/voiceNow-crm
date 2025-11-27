@@ -207,6 +207,39 @@ export const capabilities = {
     }
   },
 
+  // Outbound Call capability - ARIA initiates an AI call to a contact
+  initiate_outbound_call: {
+    name: 'initiate_outbound_call',
+    description: 'Make an outbound AI phone call to a contact. ARIA will call the person and have a conversation on your behalf. Use this when the user asks you to call someone, make a call, or wants you to talk to someone on the phone.',
+    parameters: {
+      type: 'object',
+      properties: {
+        contactIdentifier: {
+          type: 'string',
+          description: 'Contact name, phone number, or lead name to call'
+        },
+        phoneNumber: {
+          type: 'string',
+          description: 'Direct phone number to call (E.164 format, e.g., +1234567890). Use this if no contact name is provided.'
+        },
+        purpose: {
+          type: 'string',
+          description: 'The purpose/goal of the call (e.g., "book an appointment", "ask about project status", "confirm delivery time", "follow up on quote")'
+        },
+        instructions: {
+          type: 'string',
+          description: 'Specific instructions for what ARIA should say or ask during the call'
+        },
+        notifyOnComplete: {
+          type: 'boolean',
+          description: 'Send a push notification with call results when complete',
+          default: true
+        }
+      },
+      required: ['purpose']
+    }
+  },
+
   // Conference Call capability
   initiate_conference_call: {
     name: 'initiate_conference_call',
@@ -2544,6 +2577,176 @@ export class AriaCapabilities {
     }
   }
 
+  // Initiate Outbound AI Call - ARIA calls someone on user's behalf
+  async initiateOutboundCall(contactIdentifier, phoneNumber, purpose, instructions = null, notifyOnComplete = true) {
+    try {
+      console.log(`📞 [OUTBOUND CALL] Initiating AI call`);
+      console.log(`   Contact: ${contactIdentifier || 'Direct number'}`);
+      console.log(`   Phone: ${phoneNumber || 'To be looked up'}`);
+      console.log(`   Purpose: ${purpose}`);
+
+      // Import required modules
+      const Contact = (await import('../models/Contact.js')).default;
+      const Lead = (await import('../models/Lead.js')).default;
+      const VoiceAgent = (await import('../models/VoiceAgent.js')).default;
+      const CallLog = (await import('../models/CallLog.js')).default;
+      const TwilioService = (await import('../services/twilioService.js')).default;
+
+      let targetPhone = phoneNumber;
+      let contactName = null;
+      let contactRecord = null;
+
+      // If contact identifier provided, look up the phone number
+      if (contactIdentifier && !phoneNumber) {
+        // Check if it's already a phone number
+        if (contactIdentifier.match(/^\+?\d{10,}$/)) {
+          targetPhone = contactIdentifier;
+        } else {
+          // Search contacts by name
+          const searchRegex = new RegExp(contactIdentifier, 'i');
+
+          // Try contacts first
+          contactRecord = await Contact.findOne({
+            user: this.userId,
+            isDeleted: false,
+            name: searchRegex
+          });
+
+          if (!contactRecord) {
+            // Try leads
+            contactRecord = await Lead.findOne({
+              userId: this.userId,
+              name: searchRegex
+            });
+          }
+
+          if (contactRecord) {
+            targetPhone = contactRecord.phone;
+            contactName = contactRecord.name;
+            console.log(`   ✅ Found contact: ${contactName} - ${targetPhone}`);
+          } else {
+            return {
+              success: false,
+              error: `Could not find a contact named "${contactIdentifier}". Please provide a phone number or check the contact name.`
+            };
+          }
+        }
+      }
+
+      // Validate phone number
+      if (!targetPhone) {
+        return {
+          success: false,
+          error: 'No phone number provided and could not find contact. Please provide a phone number or contact name.'
+        };
+      }
+
+      // Format phone number
+      let formattedNumber = targetPhone.trim();
+      if (!formattedNumber.startsWith('+')) {
+        formattedNumber = '+1' + formattedNumber.replace(/\D/g, '');
+      }
+
+      // Find the user's default voice agent (ARIA)
+      let agent = await VoiceAgent.findOne({
+        userId: this.userId,
+        name: /aria/i
+      });
+
+      // If no ARIA agent, find any agent with ElevenLabs configured
+      if (!agent) {
+        agent = await VoiceAgent.findOne({
+          userId: this.userId,
+          elevenLabsAgentId: { $exists: true, $ne: null }
+        });
+      }
+
+      if (!agent || !agent.elevenLabsAgentId) {
+        return {
+          success: false,
+          error: 'No AI voice agent configured. Please set up a voice agent with ElevenLabs to make outbound calls.'
+        };
+      }
+
+      // Get Twilio configuration
+      const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
+      if (!twilioFromNumber) {
+        return {
+          success: false,
+          error: 'Twilio phone number not configured for outbound calls.'
+        };
+      }
+
+      // Initialize Twilio service and make the call
+      const twilioService = new TwilioService();
+
+      console.log(`   🤖 Using agent: ${agent.name} (${agent.elevenLabsAgentId})`);
+      console.log(`   📱 Calling: ${formattedNumber}`);
+
+      const call = await twilioService.makeCallWithElevenLabs(
+        twilioFromNumber,
+        formattedNumber,
+        agent.elevenLabsAgentId,
+        contactName,
+        contactRecord?.email
+      );
+
+      const callSid = call.sid;
+      console.log(`   ✅ Call initiated: ${callSid}`);
+
+      // Create call log entry
+      const callLog = await CallLog.create({
+        userId: this.userId,
+        agentId: agent._id,
+        leadId: contactRecord?._id,
+        elevenLabsCallId: callSid,
+        phoneNumber: formattedNumber,
+        status: 'initiated',
+        direction: 'outbound',
+        metadata: {
+          purpose: purpose,
+          instructions: instructions,
+          contactName: contactName,
+          twilioCallSid: callSid,
+          fromNumber: twilioFromNumber,
+          method: 'aria_chat_command',
+          notifyOnComplete: notifyOnComplete
+        }
+      });
+
+      // Send notification that call is starting
+      if (notifyOnComplete) {
+        try {
+          await pushNotificationService.sendAriaNotification(
+            this.userId,
+            'Call Started',
+            `Calling ${contactName || formattedNumber} - ${purpose}`,
+            { callId: callSid, type: 'call_started' }
+          );
+        } catch (e) {
+          console.log('Push notification failed:', e.message);
+        }
+      }
+
+      return {
+        success: true,
+        callSid: callSid,
+        callLogId: callLog._id,
+        contactName: contactName,
+        phoneNumber: formattedNumber,
+        purpose: purpose,
+        message: `I'm now calling ${contactName || formattedNumber}. Purpose: ${purpose}. I'll notify you when the call is complete with the results.`
+      };
+
+    } catch (error) {
+      console.error('❌ [OUTBOUND CALL] Error:', error.message);
+      return {
+        success: false,
+        error: `Failed to initiate call: ${error.message}`
+      };
+    }
+  }
+
   // Initiate Conference Call
   async initiateConferenceCall(participants, moderatorPhone = null, title = 'Conference Call', options = {}) {
     try {
@@ -2882,7 +3085,7 @@ END:VALARM`;
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//VoiceFlow CRM//Aria AI//EN
+PRODID:-//VoiceNow CRM//Aria AI//EN
 CALSCALE:GREGORIAN
 METHOD:REQUEST
 BEGIN:VEVENT
@@ -4281,6 +4484,9 @@ END:VCALENDAR`;
 
       case 'send_voice_message':
         return await this.sendVoiceMessage(args.to, args.message, args.voiceId);
+
+      case 'initiate_outbound_call':
+        return await this.initiateOutboundCall(args.contactIdentifier, args.phoneNumber, args.purpose, args.instructions, args.notifyOnComplete);
 
       case 'initiate_conference_call':
         return await this.initiateConferenceCall(args.participants, args.moderatorPhone, args.conferenceOptions);

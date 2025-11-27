@@ -31,14 +31,14 @@ async function testElevenLabsAgent() {
       conversation_config: {
         agent: {
           prompt: {
-            prompt: `You are Sarah, a friendly AI assistant for VoiceFlow CRM.
+            prompt: `You are Sarah, a friendly AI assistant for VoiceNow CRM.
 
 Your goal is to demonstrate the power of ElevenLabs conversational AI.
 
 Key talking points:
 - You're an AI voice agent powered by ElevenLabs
 - You can have natural conversations over the phone
-- You're testing the VoiceFlow CRM integration
+- You're testing the VoiceNow CRM integration
 - Ask the caller if they can hear you clearly
 
 Keep responses short and conversational. Be friendly and engaging.`,
@@ -46,7 +46,7 @@ Keep responses short and conversational. Be friendly and engaging.`,
             temperature: 0.7,
             max_tokens: 200
           },
-          first_message: "Hi! This is Sarah from VoiceFlow CRM. I'm an actual ElevenLabs conversational AI agent. Can you hear me?",
+          first_message: "Hi! This is Sarah from VoiceNow CRM. I'm an actual ElevenLabs conversational AI agent. Can you hear me?",
           language: "en"
         },
         tts: {
@@ -90,8 +90,8 @@ Keep responses short and conversational. Be friendly and engaging.`,
       const simpleAgent = {
         name: "VoiceFlow Test Agent",
         voice_id: "EXAVITQu4vr4xnSDxMaL",
-        prompt: "You are Sarah, a friendly AI assistant demonstrating ElevenLabs conversational AI for VoiceFlow CRM.",
-        first_message: "Hi! This is Sarah from VoiceFlow CRM. I'm testing the ElevenLabs integration. Can you hear me clearly?"
+        prompt: "You are Sarah, a friendly AI assistant demonstrating ElevenLabs conversational AI for VoiceNow CRM.",
+        first_message: "Hi! This is Sarah from VoiceNow CRM. I'm testing the ElevenLabs integration. Can you hear me clearly?"
       };
 
       const altResponse = await fetch('https://api.elevenlabs.io/v1/convai/conversation', {

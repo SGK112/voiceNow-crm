@@ -1,4 +1,4 @@
-// VoiceFlow CRM - Service Worker for PWA
+// VoiceNow CRM - Service Worker for PWA
 const CACHE_NAME = 'voiceflow-crm-v1';
 const urlsToCache = [
   '/',
@@ -70,6 +70,6 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('VoiceFlow CRM', options)
+    self.registration.showNotification('VoiceNow CRM', options)
   );
 });

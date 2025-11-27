@@ -13,10 +13,10 @@ async function sendTestSMS() {
     console.log('📱 Sending test SMS...\n');
     console.log(`   From: ${TWILIO_PHONE_NUMBER}`);
     console.log(`   To: ${TEST_PHONE}`);
-    console.log(`   Message: "What is VoiceFlow CRM?"\n`);
+    console.log(`   Message: "What is VoiceNow CRM?"\n`);
 
     const message = await client.messages.create({
-      body: 'What is VoiceFlow CRM?',
+      body: 'What is VoiceNow CRM?',
       from: TWILIO_PHONE_NUMBER,
       to: TEST_PHONE
     });

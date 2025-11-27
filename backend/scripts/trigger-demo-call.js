@@ -80,6 +80,6 @@ async function triggerDemoCall() {
 }
 
 // Run the test
-console.log('\n🎙️ VoiceFlow CRM Demo Call Test\n');
+console.log('\n🎙️ VoiceNow CRM Demo Call Test\n');
 console.log('=' .repeat(50));
 triggerDemoCall();

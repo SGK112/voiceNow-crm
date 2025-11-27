@@ -64,7 +64,7 @@ async function makeTestCall() {
   try {
     // ElevenLabs provides direct streaming URLs for TTS
     // This is simpler than generating and hosting the file
-    const demoText = "Hello! This is a test call from your VoiceFlow CRM system. I'm now using ElevenLabs voice instead of Twilio's built-in voice. Can you hear the difference? This is just a text-to-speech demo, but your system can also create fully conversational AI agents using ElevenLabs Conversational AI. Those agents can have real back-and-forth conversations, understand context, and trigger workflows based on what people say. This is just a simple demo to show you the concept. Have a great day!";
+    const demoText = "Hello! This is a test call from your VoiceNow CRM system. I'm now using ElevenLabs voice instead of Twilio's built-in voice. Can you hear the difference? This is just a text-to-speech demo, but your system can also create fully conversational AI agents using ElevenLabs Conversational AI. Those agents can have real back-and-forth conversations, understand context, and trigger workflows based on what people say. This is just a simple demo to show you the concept. Have a great day!";
 
     // URL encode the text for ElevenLabs streaming API
     const encodedText = encodeURIComponent(demoText);
@@ -78,7 +78,7 @@ async function makeTestCall() {
       twiml: `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="Polly.Joanna">
-        Hello! This is a test call from your VoiceFlow CRM system.
+        Hello! This is a test call from your VoiceNow CRM system.
         I'm testing the ElevenLabs integration.
         To use ElevenLabs voice properly, we need to either pre-generate
         the audio file and host it, or use the conversational AI agent

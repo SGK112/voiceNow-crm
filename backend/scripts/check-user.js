@@ -14,7 +14,7 @@ if (user) {
   console.log('   Email:', user.email);
   console.log('   Name:', user.name);
   console.log('');
-  console.log('🔑 Login to VoiceFlow CRM with this email!');
+  console.log('🔑 Login to VoiceNow CRM with this email!');
   console.log('   http://localhost:5173/login');
 } else {
   console.log('User not found');

@@ -2,20 +2,20 @@
 
 ## System Overview
 
-The demo agent uses **ElevenLabs Conversational AI** for voice interactions, NOT an internal VoiceFlow CRM system. Here's how it works:
+The demo agent uses **ElevenLabs Conversational AI** for voice interactions, NOT an internal VoiceNow CRM system. Here's how it works:
 
 ### Architecture Flow:
 
 ```
 Customer texts "DEMO" or "call me"
          ↓
-Twilio SMS webhook → VoiceFlow CRM backend
+Twilio SMS webhook → VoiceNow CRM backend
          ↓
 Backend initiates call via ElevenLabs API
          ↓
 ElevenLabs Conversational AI calls customer
          ↓
-Call ends → Webhook → VoiceFlow CRM backend
+Call ends → Webhook → VoiceNow CRM backend
          ↓
 Email notification sent to help.remodely@gmail.com
 ```
@@ -33,7 +33,7 @@ Email notification sent to help.remodely@gmail.com
   - Interrupt handling
   - Realistic pauses and intonation
 
-### 2. **VoiceFlow CRM Backend** (Orchestration Layer)
+### 2. **VoiceNow CRM Backend** (Orchestration Layer)
 - **Handles**:
   - SMS reception via Twilio
   - Call initiation via ElevenLabs API
@@ -55,20 +55,20 @@ Email notification sent to help.remodely@gmail.com
 ## What Customers Experience:
 
 1. **Text "DEMO" or "call me"** to your Twilio number
-2. **Receive confirmation SMS** from VoiceFlow CRM
+2. **Receive confirmation SMS** from VoiceNow CRM
 3. **Get called by ElevenLabs agent** within 2 seconds
 4. **Have natural conversation** with ultra-realistic AI voice
 5. **Receive follow-up email** at help.remodely@gmail.com with call summary
 
-## What VoiceFlow CRM Does:
+## What VoiceNow CRM Does:
 
 ### During the call:
 - **NOTHING!** ElevenLabs handles everything (voice, conversation, AI logic)
-- VoiceFlow CRM just initiated the call
+- VoiceNow CRM just initiated the call
 
 ### After the call:
-- ElevenLabs sends webhook to VoiceFlow CRM
-- VoiceFlow CRM processes the webhook
+- ElevenLabs sends webhook to VoiceNow CRM
+- VoiceNow CRM processes the webhook
 - Sends email notification with:
   - Customer info
   - Call transcript
@@ -77,12 +77,12 @@ Email notification sent to help.remodely@gmail.com
 
 ## Key Difference:
 
-**VoiceFlow CRM is NOT the voice engine!**
-- VoiceFlow CRM = Orchestration platform (initiates calls, tracks data, sends notifications)
+**VoiceNow CRM is NOT the voice engine!**
+- VoiceNow CRM = Orchestration platform (initiates calls, tracks data, sends notifications)
 - ElevenLabs = Voice engine (handles actual conversations, AI logic, speech)
 
 This is similar to:
-- VoiceFlow CRM = The "control tower"
+- VoiceNow CRM = The "control tower"
 - ElevenLabs = The "pilot" flying the plane
 
 ## Pronunciation:
@@ -94,7 +94,7 @@ The agent is configured to say:
 
 ## Visual Agent Builder
 
-The Visual Agent Builder in VoiceFlow CRM is for:
+The Visual Agent Builder in VoiceNow CRM is for:
 - **Building workflows** (not voice agents)
 - **Creating automation** (SMS, email, CRM workflows)
 - **Testing nodes** before deployment
@@ -104,10 +104,10 @@ It does NOT build the actual voice agents - those are built using ElevenLabs con
 
 ## Future Architecture (What You Could Build):
 
-If you wanted to use VoiceFlow CRM's own voice engine:
+If you wanted to use VoiceNow CRM's own voice engine:
 1. Build a custom conversational AI service
 2. Integrate with Twilio Voice API
 3. Use the Visual Agent Builder to define conversation flows
 4. Use ElevenLabs just for voice synthesis (TTS), not full conversational AI
 
-But currently, **ElevenLabs handles the entire conversation**, not VoiceFlow CRM.
+But currently, **ElevenLabs handles the entire conversation**, not VoiceNow CRM.

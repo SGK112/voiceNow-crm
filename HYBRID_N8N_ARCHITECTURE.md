@@ -1,7 +1,7 @@
 # Hybrid n8n Integration Architecture
 
 ## 🎯 Goal
-Build workflows in VoiceFlow CRM's beautiful UI, but leverage n8n for OAuth connections and execution.
+Build workflows in VoiceNow CRM's beautiful UI, but leverage n8n for OAuth connections and execution.
 
 ## 🏗️ Architecture
 
@@ -188,7 +188,7 @@ const activateWorkflow = async (workflowId) => {
 curl -X POST http://5.183.8.119:5678/api/v1/users/api-keys \
   -u "admin:Remodely2025!" \
   -H "Content-Type: application/json" \
-  -d '{"name": "VoiceFlow CRM"}'
+  -d '{"name": "VoiceNow CRM"}'
 ```
 
 ## 📊 How Many Workflows Can You Host Locally?

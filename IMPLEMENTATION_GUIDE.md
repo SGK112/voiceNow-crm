@@ -1,8 +1,8 @@
-# VoiceFlow CRM Implementation Guide
+# VoiceNow CRM Implementation Guide
 
 ## Overview
 
-This guide provides a structured approach to understanding and extending the VoiceFlow CRM voice agent and workflow implementation.
+This guide provides a structured approach to understanding and extending the VoiceNow CRM voice agent and workflow implementation.
 
 ## Getting Started (5 minutes)
 

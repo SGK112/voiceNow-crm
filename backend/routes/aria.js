@@ -2607,7 +2607,7 @@ function buildSystemPrompt(context, location, detectedLanguage = null) {
   // Get user's preferred language from preferences or detected language
   const preferredLanguage = preferences?.language || context?.language || 'auto';
 
-  let prompt = `You are Aria, an intelligent multilingual AI assistant for construction contractors. You're integrated into VoiceFlow CRM - a professional work app designed for the construction industry. You help manage leads, projects, subcontractors, suppliers, and job site operations.
+  let prompt = `You are Aria, an intelligent multilingual AI assistant for construction contractors. You're integrated into VoiceNow CRM - a professional work app designed for the construction industry. You help manage leads, projects, subcontractors, suppliers, and job site operations.
 
 **LOCATION-FIRST APPROACH:**
 - ALWAYS prioritize local results when searching for suppliers, subs, materials, services

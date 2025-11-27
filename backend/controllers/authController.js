@@ -77,7 +77,7 @@ export const forgotPassword = async (req, res) => {
 
       try {
         await twilioClient.messages.create({
-          body: `Your VoiceFlow CRM password reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nIf you didn't request this, please ignore this message.`,
+          body: `Your VoiceNow CRM password reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nIf you didn't request this, please ignore this message.`,
           from: process.env.TWILIO_PHONE_NUMBER,
           to: phoneNumber
         });

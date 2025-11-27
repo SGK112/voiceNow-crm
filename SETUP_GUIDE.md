@@ -1,4 +1,4 @@
-# VoiceFlow CRM - Complete Setup Guide
+# VoiceNow CRM - Complete Setup Guide
 
 ## Overview
 
@@ -76,7 +76,7 @@ redis-cli -u redis://default:j0WCrR0*************Ws@redis-12889.c240.us-east-1-3
 1. Go to https://platform.openai.com/api-keys
 2. Sign up or log in
 3. Click "Create new secret key"
-4. Name it "VoiceFlow CRM"
+4. Name it "VoiceNow CRM"
 5. Copy the key (starts with `sk-...`)
 
 **Add to `.env`**:

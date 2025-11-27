@@ -211,7 +211,7 @@ export default function ContactImportScreen({ navigation }: any) {
       <Ionicons name="people" size={80} color={colors.primary} />
       <Text style={[styles.permissionTitle, { color: colors.text }]}>Access Your Contacts</Text>
       <Text style={[styles.permissionText, { color: colors.text }]}>
-        VoiceFlow CRM needs permission to access your contacts to import them into the app.
+        VoiceNow CRM needs permission to access your contacts to import them into the app.
       </Text>
       <Text style={[styles.permissionSubtext, { color: colors.textSecondary }]}>
         Your privacy is important. We only read contact information and never share it with

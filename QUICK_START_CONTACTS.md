@@ -28,7 +28,7 @@ node test-contacts-api.js
 ## Using the Contact Management System
 
 ### Accessing Contacts
-1. Open the VoiceFlow CRM mobile app
+1. Open the VoiceNow CRM mobile app
 2. Tap the **Contacts** tab (chatbox icon)
 3. You'll see the main contact list
 

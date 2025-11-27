@@ -46,7 +46,7 @@ async function makeTestCall() {
     console.log(`Call ID: ${result.call_id || result.id}`);
     console.log('━'.repeat(50));
     console.log('\n📱 You should receive a call shortly!');
-    console.log('The VoiceFlow CRM Assistant will introduce itself and help qualify your needs.\n');
+    console.log('The VoiceNow CRM Assistant will introduce itself and help qualify your needs.\n');
 
   } catch (error) {
     console.error('\n❌ Error initiating call:');

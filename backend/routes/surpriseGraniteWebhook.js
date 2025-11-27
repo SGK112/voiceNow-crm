@@ -97,7 +97,7 @@ router.post('/post-call', async (req, res) => {
               ` : ''}
 
               <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                This is an automated notification from VoiceFlow CRM
+                This is an automated notification from VoiceNow CRM
               </p>
             </div>
           `
@@ -179,7 +179,7 @@ router.post('/post-call', async (req, res) => {
               ` : ''}
 
               <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                This is an automated notification from VoiceFlow CRM
+                This is an automated notification from VoiceNow CRM
               </p>
             </div>
           `

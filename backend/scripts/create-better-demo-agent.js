@@ -5,7 +5,7 @@ dotenv.config();
 
 async function createBetterDemoAgent() {
   try {
-    console.log('🎙️ Creating improved VoiceFlow CRM Demo Agent...\n');
+    console.log('🎙️ Creating improved VoiceNow CRM Demo Agent...\n');
 
     const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
@@ -33,7 +33,7 @@ async function createBetterDemoAgent() {
     console.log(`✅ Selected voice: ${selectedVoice.name} (${selectedVoice.voice_id})\n`);
 
     // Natural, intuitive script based on marketing page
-    const naturalScript = `You are a friendly AI assistant for Remodelee AI (pronounced "re-MOD-uh-lee"). Have a natural, helpful conversation about VoiceFlow CRM.
+    const naturalScript = `You are a friendly AI assistant for Remodelee AI (pronounced "re-MOD-uh-lee"). Have a natural, helpful conversation about VoiceNow CRM.
 
 **PRONUNCIATION GUIDE:**
 - Remodelee AI = "re-MOD-uh-lee A I"

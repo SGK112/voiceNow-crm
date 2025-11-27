@@ -1,6 +1,6 @@
-# Stripe Setup Guide for VoiceFlow CRM
+# Stripe Setup Guide for VoiceNow CRM
 
-This guide will walk you through setting up Stripe for your VoiceFlow CRM subscription billing.
+This guide will walk you through setting up Stripe for your VoiceNow CRM subscription billing.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ This guide will walk you through setting up Stripe for your VoiceFlow CRM subscr
 
 ### 1.2 Create Starter Plan
 
-1. **Product name**: `VoiceFlow CRM - Starter`
+1. **Product name**: `VoiceNow CRM - Starter`
 2. **Description**: `Perfect for small businesses getting started with AI-powered voice calling`
 3. **Pricing model**: Select **Standard pricing**
 4. **Price**: `$149.00`
@@ -36,7 +36,7 @@ Example: `price_1AbCdEfGhIjKlMnOpQrStUvW`
 Repeat the process:
 
 1. Click **+ Add product**
-2. **Product name**: `VoiceFlow CRM - Professional`
+2. **Product name**: `VoiceNow CRM - Professional`
 3. **Description**: `For growing teams that need more power and advanced features`
 4. **Pricing model**: **Standard pricing**
 5. **Price**: `$299.00`
@@ -50,7 +50,7 @@ Repeat the process:
 Repeat the process:
 
 1. Click **+ Add product**
-2. **Product name**: `VoiceFlow CRM - Enterprise`
+2. **Product name**: `VoiceNow CRM - Enterprise`
 3. **Description**: `For large organizations with custom needs and unlimited scale`
 4. **Pricing model**: **Standard pricing**
 5. **Price**: `$799.00`
@@ -98,7 +98,7 @@ Webhooks allow Stripe to notify your app about subscription changes, payment suc
 3. **Endpoint URL**: Enter your backend URL followed by `/api/subscription/webhook`
    - For local development: `http://localhost:5001/api/subscription/webhook`
    - For production (Render): `https://your-app-name.onrender.com/api/subscription/webhook`
-4. **Description**: `VoiceFlow CRM Subscription Events`
+4. **Description**: `VoiceNow CRM Subscription Events`
 5. Click **Select events**
 6. Select these events:
    - `customer.subscription.created`
@@ -274,7 +274,7 @@ Before going live:
 
 - Stripe Documentation: https://stripe.com/docs
 - Stripe Support: https://support.stripe.com
-- VoiceFlow CRM Issues: Check backend logs and frontend console
+- VoiceNow CRM Issues: Check backend logs and frontend console
 
 ## API Endpoints Reference
 

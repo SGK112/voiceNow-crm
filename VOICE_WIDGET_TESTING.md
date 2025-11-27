@@ -24,7 +24,7 @@
 
 #### What Was Changed:
 - ✅ Changed logo text from "Remodely AI" to "Remodely"
-- Kept "VoiceFlow CRM" subtitle unchanged
+- Kept "VoiceNow CRM" subtitle unchanged
 
 ## Testing Instructions
 
@@ -116,7 +116,7 @@ ElevenLabs error: [error details]
 ### What the Agent Knows
 The marketing agent has comprehensive knowledge about:
 - Remodely.ai platform features
-- VoiceFlow CRM capabilities
+- VoiceNow CRM capabilities
 - Pricing plans (Starter $149/mo, Professional $299/mo, Enterprise $799/mo)
 - Free trial information (14 days, no credit card)
 - CRM features, workflow automation, integrations

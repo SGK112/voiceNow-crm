@@ -227,7 +227,7 @@ class CallMonitorService {
   async sendCustomerEmail(customerEmail, customerName) {
     await emailService.sendEmail({
       to: customerEmail,
-      subject: 'Thanks for Trying VoiceFlow CRM! 🤖',
+      subject: 'Thanks for Trying VoiceNow CRM! 🤖',
       html: `
         <!DOCTYPE html>
         <html>
@@ -238,20 +238,20 @@ class CallMonitorService {
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
             <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px;">Thanks for Trying VoiceFlow CRM! 🤖</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px;">Thanks for Trying VoiceNow CRM! 🤖</h1>
             </div>
 
             <div style="padding: 40px 30px;">
               <p style="font-size: 18px; color: #0f172a;">Hi ${customerName}! 👋</p>
 
               <p style="font-size: 16px; color: #475569; line-height: 1.6;">
-                Thanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful <strong>VoiceFlow CRM</strong> can be.
+                Thanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful <strong>VoiceNow CRM</strong> can be.
               </p>
 
               <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
                 <h3 style="margin: 0 0 10px 0; color: #1e40af;">🎯 What's Next?</h3>
                 <p style="margin: 0; font-size: 16px; color: #3b82f6;">
-                  Start your <strong>FREE 14-day trial of VoiceFlow CRM</strong> (no credit card needed)
+                  Start your <strong>FREE 14-day trial of VoiceNow CRM</strong> (no credit card needed)
                 </p>
               </div>
 
@@ -285,7 +285,7 @@ class CallMonitorService {
 
             <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
               <p style="margin: 0; color: #64748b; font-size: 13px;">
-                <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceFlow CRM</a> |
+                <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
                 <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
               </p>
             </div>

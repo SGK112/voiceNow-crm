@@ -11,7 +11,7 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 const AGENT_ID = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
 const API_KEY = process.env.ELEVENLABS_API_KEY;
 
-const cleanPrompt = `You are a friendly AI assistant for Remodely.ai. Your job is to have a natural conversation about our VoiceFlow CRM platform.
+const cleanPrompt = `You are a friendly AI assistant for Remodely.ai. Your job is to have a natural conversation about our VoiceNow CRM platform.
 
 **CONVERSATION STYLE:**
 - Keep it conversational - talk like a real person

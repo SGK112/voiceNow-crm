@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive user profile and onboarding system that enables "set it and forget it" AI personalization throughout VoiceFlow CRM. User profile data is automatically incorporated into AI agent prompts, making every interaction contextually aware of the user's business, brand voice, and preferences.
+A comprehensive user profile and onboarding system that enables "set it and forget it" AI personalization throughout VoiceNow CRM. User profile data is automatically incorporated into AI agent prompts, making every interaction contextually aware of the user's business, brand voice, and preferences.
 
 ---
 
@@ -278,14 +278,14 @@ Now automatically enriches agent prompts with:
 
 **Before**:
 ```
-You are Sales Agent, an AI voice agent for VoiceFlow CRM.
+You are Sales Agent, an AI voice agent for VoiceNow CRM.
 PURPOSE: Qualify roofing leads
 TONE: Professional
 ```
 
 **After** (with profile):
 ```
-You are Sales Agent, an AI voice agent for VoiceFlow CRM.
+You are Sales Agent, an AI voice agent for VoiceNow CRM.
 
 PURPOSE: Qualify roofing leads
 

@@ -31,7 +31,7 @@ async function createVoiceAgent() {
 
     // Agent configuration
     const agentConfig = {
-      name: 'VoiceFlow CRM Assistant',
+      name: 'VoiceNow CRM Assistant',
       conversation_config: {
         tts: {
           voice_id: 'cjVigY5qzO86Huf0OWal', // Eric - Professional voice
@@ -39,7 +39,7 @@ async function createVoiceAgent() {
         },
         agent: {
           prompt: {
-            prompt: `You are a professional AI assistant for VoiceFlow CRM, a voice automation platform for businesses.
+            prompt: `You are a professional AI assistant for VoiceNow CRM, a voice automation platform for businesses.
 
 **Your Role:**
 - Help customers understand our voice automation solutions
@@ -74,7 +74,7 @@ Current time is ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minu
 
 Remember: You represent a cutting-edge AI company. Be professional, knowledgeable, and helpful.`
           },
-          first_message: 'Hello! Thanks for calling VoiceFlow CRM. I\'m your AI assistant. How can I help you automate your business communications today?',
+          first_message: 'Hello! Thanks for calling VoiceNow CRM. I\'m your AI assistant. How can I help you automate your business communications today?',
           language: 'en'
         }
       }
@@ -141,7 +141,7 @@ Remember: You represent a cutting-edge AI company. Be professional, knowledgeabl
 // Run the script
 console.log('');
 console.log('╔════════════════════════════════════════════════╗');
-console.log('║   VoiceFlow CRM - ElevenLabs Agent Creator    ║');
+console.log('║   VoiceNow CRM - ElevenLabs Agent Creator    ║');
 console.log('╚════════════════════════════════════════════════╝');
 console.log('');
 

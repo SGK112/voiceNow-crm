@@ -33,7 +33,7 @@ router.post('/send-signup-link', async (req, res) => {
         subject: 'Welcome to Remodely.ai - Your Signup Link',
         html: `
           <h2>Hi ${customer_name || 'there'}!</h2>
-          <p>Thanks for your interest in Remodely.ai VoiceFlow CRM!</p>
+          <p>Thanks for your interest in Remodely.ai VoiceNow CRM!</p>
           <p>As we discussed on the call, here's your signup link to get started with your FREE 14-day trial:</p>
           <p style="margin: 30px 0;">
             <a href="${signupUrl}" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
@@ -325,7 +325,7 @@ router.post('/post-call-notification', async (req, res) => {
 
         <p><strong>Action Required:</strong> ${interested ? 'Follow up with this hot lead!' : 'Lead may need nurturing.'}</p>
 
-        <p>View full details in the VoiceFlow CRM dashboard.</p>
+        <p>View full details in the VoiceNow CRM dashboard.</p>
       `
     });
 

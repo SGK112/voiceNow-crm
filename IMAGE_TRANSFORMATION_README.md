@@ -2,7 +2,7 @@
 
 ## Overview
 
-Transform your VoiceFlow CRM into a powerful visualization tool for contractors, realtors, and designers. Users can upload actual project photos and transform them using 10 AI-powered transformations.
+Transform your VoiceNow CRM into a powerful visualization tool for contractors, realtors, and designers. Users can upload actual project photos and transform them using 10 AI-powered transformations.
 
 ---
 

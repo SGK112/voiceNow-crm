@@ -2,7 +2,7 @@
 
 ## ✅ What's Ready to Use
 
-Your VoiceFlow CRM now has a **complete AI-powered image transformation system** that's ready to use!
+Your VoiceNow CRM now has a **complete AI-powered image transformation system** that's ready to use!
 
 ---
 

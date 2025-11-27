@@ -82,7 +82,7 @@ class TwilioService {
       // Create new TwiML App
       const webhookUrl = process.env.WEBHOOK_URL || process.env.API_URL;
       const app = await this.client.applications.create({
-        friendlyName: 'VoiceFlow CRM Mobile App',
+        friendlyName: 'VoiceNow CRM Mobile App',
         voiceUrl: `${webhookUrl}/api/twilio/voice/outgoing`,
         voiceMethod: 'POST',
         statusCallback: `${webhookUrl}/api/twilio/voice/status`,
@@ -103,7 +103,7 @@ class TwilioService {
   async createApiKey() {
     try {
       const key = await this.client.newKeys.create({
-        friendlyName: 'VoiceFlow CRM Mobile Voice Key'
+        friendlyName: 'VoiceNow CRM Mobile Voice Key'
       });
 
       console.log('✅ Created Twilio API Key');
@@ -393,7 +393,7 @@ class TwilioService {
       }
 
       const greeting = customerName ? `Hi ${customerName}!` : 'Hi!';
-      const body = `${greeting} Thanks for your interest in VoiceFlow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nwww.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+      const body = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nwww.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
 
       return await this.sendSMS(to, body);
     } catch (error) {

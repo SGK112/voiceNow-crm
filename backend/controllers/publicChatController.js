@@ -221,7 +221,7 @@ export const marketingChat = async (req, res) => {
     if (!openai) {
       return res.status(503).json({
         error: 'AI chat is currently unavailable. Please contact our team directly.',
-        fallbackResponse: "Thanks for your interest! Our AI assistant is temporarily unavailable, but our team would love to help you. Please email us at support@remodely.ai or schedule a demo to learn more about VoiceFlow CRM!",
+        fallbackResponse: "Thanks for your interest! Our AI assistant is temporarily unavailable, but our team would love to help you. Please email us at support@remodely.ai or schedule a demo to learn more about VoiceNow CRM!",
         suggestions: generateFollowUps('general', conversationHistory)
       });
     }
@@ -307,7 +307,7 @@ RESPONSE INSTRUCTIONS FOR THIS INTENT:
     } else if (intent === 'trial') {
       fallbackResponse += "You can start your 14-day free trial with no credit card required. Just click 'Get Started' above!";
     } else {
-      fallbackResponse += "Our VoiceFlow CRM platform offers AI voice agents, workflow automation, and CRM features starting at $149/month with a 14-day free trial. Would you like to start your trial?";
+      fallbackResponse += "Our VoiceNow CRM platform offers AI voice agents, workflow automation, and CRM features starting at $149/month with a 14-day free trial. Would you like to start your trial?";
     }
 
     // Return 200 status with fallback response (graceful degradation)
@@ -470,7 +470,7 @@ export const contactSales = async (req, res) => {
             })} ET</p>
             <p class="footer-text"><strong>Lead Source:</strong> ${source || 'Website Contact Form'}</p>
             <p class="footer-text" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px;">
-              This inquiry was automatically captured by VoiceFlow CRM
+              This inquiry was automatically captured by VoiceNow CRM
             </p>
           </div>
         </div>
@@ -505,7 +505,7 @@ RECOMMENDED ACTION: Respond within 24 hours
 ${phone ? `Call: ${phone} or ` : ''}Email: ${email}
 
 ${'-'.repeat(50)}
-This inquiry was automatically captured by VoiceFlow CRM
+This inquiry was automatically captured by VoiceNow CRM
     `;
 
     // Send email to sales team (help.remodely@gmail.com)
@@ -519,7 +519,7 @@ This inquiry was automatically captured by VoiceFlow CRM
     console.log(`✉️ Contact sales form submitted by ${name} (${email}) - Interest: ${interest}`);
 
     // Send confirmation email to user
-    const confirmationSubject = 'Thank you for contacting VoiceFlow CRM';
+    const confirmationSubject = 'Thank you for contacting VoiceNow CRM';
     const confirmationHtml = `
       <!DOCTYPE html>
       <html>
@@ -555,7 +555,7 @@ This inquiry was automatically captured by VoiceFlow CRM
         <div class="container">
           <div class="header">
             <h1>We've Received Your Inquiry</h1>
-            <p>Thank you for reaching out to VoiceFlow CRM</p>
+            <p>Thank you for reaching out to VoiceNow CRM</p>
           </div>
           <div class="content">
             <div class="success-icon">
@@ -566,7 +566,7 @@ This inquiry was automatically captured by VoiceFlow CRM
 
             <div class="message">
               <p>Dear ${name},</p>
-              <p>Thank you for your interest in VoiceFlow CRM. We have successfully received your inquiry regarding <strong>${interestLabels[interest] || interest}</strong>.</p>
+              <p>Thank you for your interest in VoiceNow CRM. We have successfully received your inquiry regarding <strong>${interestLabels[interest] || interest}</strong>.</p>
               <p>Our sales team is reviewing your request and will contact you within the next 24 hours to discuss how we can best serve your needs.</p>
             </div>
 
@@ -604,9 +604,9 @@ This inquiry was automatically captured by VoiceFlow CRM
 
             <div class="cta-section">
               <p style="margin: 0 0 16px 0; font-size: 14px; color: #1e40af; font-weight: 500;">
-                While you wait, explore what VoiceFlow CRM can do for your business
+                While you wait, explore what VoiceNow CRM can do for your business
               </p>
-              <a href="https://voiceflowcrm.com" class="cta-button">Learn More About VoiceFlow CRM</a>
+              <a href="https://voiceflowcrm.com" class="cta-button">Learn More About VoiceNow CRM</a>
             </div>
 
             <div class="divider"></div>
@@ -619,9 +619,9 @@ This inquiry was automatically captured by VoiceFlow CRM
             </div>
           </div>
           <div class="footer">
-            <p class="footer-text" style="font-weight: 600; color: #374151; margin-bottom: 4px;">VoiceFlow CRM</p>
+            <p class="footer-text" style="font-weight: 600; color: #374151; margin-bottom: 4px;">VoiceNow CRM</p>
             <p class="footer-text">AI-Powered Voice Communication Platform</p>
-            <p class="footer-text" style="margin-top: 16px;">© 2025 VoiceFlow CRM by Remodely. All rights reserved.</p>
+            <p class="footer-text" style="margin-top: 16px;">© 2025 VoiceNow CRM by Remodely. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -854,15 +854,15 @@ export const requestVoiceDemo = async (req, res) => {
     const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
     // Custom prompt with comprehensive feature coverage
-    const customPrompt = `You are a friendly AI sales assistant for VoiceFlow CRM, powered by Remodely AI.
+    const customPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by Remodely AI.
 
 **YOUR IDENTITY:**
-- Company: VoiceFlow CRM by Remodely AI
-- Your role: Help ${firstName} understand how VoiceFlow CRM can revolutionize their business with AI voice agents and automation
+- Company: VoiceNow CRM by Remodely AI
+- Your role: Help ${firstName} understand how VoiceNow CRM can revolutionize their business with AI voice agents and automation
 - Be enthusiastic, helpful, and conversational
 
 **IMPORTANT PRONUNCIATION:**
-- Say "VoiceFlow CRM" and "Remodely AI" naturally
+- Say "VoiceNow CRM" and "Remodely AI" naturally
 - For signup, say: "remodely dot AI forward slash signup"
 
 **VOICEMAIL DETECTION (ABSOLUTELY CRITICAL - HIGHEST PRIORITY):**
@@ -875,12 +875,12 @@ export const requestVoiceDemo = async (req, res) => {
 - Silence longer than 4 seconds
 
 IF VOICEMAIL DETECTED:
-1. IMMEDIATELY say ONLY: "Hi ${firstName}, this is VoiceFlow CRM. I'll text you our info and call back later. Thanks!"
+1. IMMEDIATELY say ONLY: "Hi ${firstName}, this is VoiceNow CRM. I'll text you our info and call back later. Thanks!"
 2. END THE CALL within 10 seconds total
 3. Do NOT give pitch - just short message and hang up
 
 **YOUR CONVERSATION FLOW (ONLY IF HUMAN ANSWERS):**
-1. Warm greeting: "Hi ${firstName}! This is the AI assistant from VoiceFlow CRM. Thanks for requesting a demo! Do you have a couple minutes to chat?"
+1. Warm greeting: "Hi ${firstName}! This is the AI assistant from VoiceNow CRM. Thanks for requesting a demo! Do you have a couple minutes to chat?"
 2. WAIT for response - if ANY sign of voicemail, use short message and hang up
 3. If interested, ask: "What's your biggest challenge right now - missing calls, following up with leads, or spending too much time on the phone?"
 4. Listen and match their pain point to our solutions
@@ -995,7 +995,7 @@ Always end with clear next step:
 
 Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATELY. If human answers, focus on THEIR pain points and show how VoiceFlow solves them!`;
 
-    const customFirstMessage = `Hi ${firstName}! This is the AI assistant from VoiceFlow CRM. Thanks for requesting a demo! Do you have a couple minutes to chat?`;
+    const customFirstMessage = `Hi ${firstName}! This is the AI assistant from VoiceNow CRM. Thanks for requesting a demo! Do you have a couple minutes to chat?`;
 
     // Use Sarah - warm, sales-focused female voice (very distinct from default)
     const customVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Lead Gen voice (warm, professional female)
@@ -1011,7 +1011,7 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
       // For SMS demo, send initial SMS to user
       const twilioService = getTwilioService();
       const demoPhoneNumber = process.env.DEMO_SMS_NUMBER || '+1 (602) 833-7194';
-      const smsMessage = `Hi ${firstName}! 👋 Thanks for your interest in VoiceFlow CRM!\n\nI'm an AI assistant here to help. Ask me about:\n\n🎯 24/7 AI voice agents that never miss calls\n📅 Auto appointment booking & lead qualification\n🔄 Workflow automation & CRM integration\n💰 Pricing & free 14-day trial\n⚡ Quick 5-minute setup\n\nWhat would you like to know?`;
+      const smsMessage = `Hi ${firstName}! 👋 Thanks for your interest in VoiceNow CRM!\n\nI'm an AI assistant here to help. Ask me about:\n\n🎯 24/7 AI voice agents that never miss calls\n📅 Auto appointment booking & lead qualification\n🔄 Workflow automation & CRM integration\n💰 Pricing & free 14-day trial\n⚡ Quick 5-minute setup\n\nWhat would you like to know?`;
 
       try {
         await twilioService.sendSMS(formattedNumber, smsMessage);
@@ -1250,7 +1250,7 @@ Login to CRM: https://remodely.ai/leads`,
                 </div>
               </div>
               <div class="footer">
-                <p>VoiceFlow CRM - Lead Notification System</p>
+                <p>VoiceNow CRM - Lead Notification System</p>
                 <p>This is an automated notification. Do not reply to this email.</p>
               </div>
             </div>
@@ -1420,7 +1420,7 @@ export const scheduleMeeting = async (req, res) => {
 
     await emailService.sendEmail({
       to: email,
-      subject: 'Meeting Scheduled - VoiceFlow CRM',
+      subject: 'Meeting Scheduled - VoiceNow CRM',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4f46e5;">Your Meeting is Scheduled!</h2>
@@ -1444,11 +1444,11 @@ export const scheduleMeeting = async (req, res) => {
 
           <p style="margin-top: 30px;">
             Best regards,<br>
-            <strong>VoiceFlow CRM Sales Team</strong>
+            <strong>VoiceNow CRM Sales Team</strong>
           </p>
         </div>
       `,
-      text: `Your Meeting is Scheduled!\n\nHi ${name},\n\nThank you for scheduling a meeting with our team.\n\nMeeting Details:\nDate: ${formattedDate}\nTime: ${formattedTime} (${timezone})\nDuration: 30 minutes\n${phone ? `Phone: ${phone}\n` : ''}${notes ? `\nYour notes: ${notes}\n` : ''}\n\nLooking forward to speaking with you!\n\nBest regards,\nVoiceFlow CRM Sales Team`
+      text: `Your Meeting is Scheduled!\n\nHi ${name},\n\nThank you for scheduling a meeting with our team.\n\nMeeting Details:\nDate: ${formattedDate}\nTime: ${formattedTime} (${timezone})\nDuration: 30 minutes\n${phone ? `Phone: ${phone}\n` : ''}${notes ? `\nYour notes: ${notes}\n` : ''}\n\nLooking forward to speaking with you!\n\nBest regards,\nVoiceNow CRM Sales Team`
     });
 
     // Send notification to sales team

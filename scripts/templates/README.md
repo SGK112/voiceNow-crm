@@ -5,7 +5,7 @@ This directory contains saved agent configurations that can be restored for test
 ## Available Templates
 
 ### `demo-agent-template.json` ✅ WORKING
-**VoiceFlow CRM Demo Agent - Real-Time SMS**
+**VoiceNow CRM Demo Agent - Real-Time SMS**
 
 **Purpose:** Sales demo agent that demonstrates real-time SMS capability during phone calls.
 

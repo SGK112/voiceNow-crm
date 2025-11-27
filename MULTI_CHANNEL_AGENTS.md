@@ -2,7 +2,7 @@
 
 ## Overview
 
-VoiceFlow CRM now supports **multi-channel AI agents** that can:
+VoiceNow CRM now supports **multi-channel AI agents** that can:
 - 📞 Make and receive phone calls
 - 📱 Send SMS messages **during** phone conversations
 - 📧 Send emails **during** phone conversations
@@ -445,7 +445,7 @@ metadata: {
 
 - ElevenLabs Docs: https://elevenlabs.io/docs
 - Twilio SMS Docs: https://www.twilio.com/docs/sms
-- VoiceFlow CRM: Internal documentation
+- VoiceNow CRM: Internal documentation
 
 ---
 

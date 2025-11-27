@@ -2,7 +2,7 @@
 
 ## ✅ System Status: FULLY CONFIGURED
 
-The VoiceFlow CRM system now automatically sends **two emails** after every demo call:
+The VoiceNow CRM system now automatically sends **two emails** after every demo call:
 
 1. **Customer Confirmation Email** - Sent to the caller
 2. **Sales Team Lead Notification** - Sent to help.remodely@gmail.com with AI-powered call analysis
@@ -19,7 +19,7 @@ The customer's email address (if provided during demo request)
 
 ### Email Details
 
-**Subject:** "Thanks for Trying VoiceFlow CRM! 🤖"
+**Subject:** "Thanks for Trying VoiceNow CRM! 🤖"
 
 **Content:**
 - Personalized greeting with customer's name
@@ -42,15 +42,15 @@ The customer's email address (if provided during demo request)
 
 ### Sample Customer Email
 ```
-Subject: Thanks for Trying VoiceFlow CRM! 🤖
+Subject: Thanks for Trying VoiceNow CRM! 🤖
 
 Hi Claude Code Test! 👋
 
 Thanks for taking the time to chat with our AI voice agent!
-We hope you saw how realistic and helpful VoiceFlow CRM can be.
+We hope you saw how realistic and helpful VoiceNow CRM can be.
 
 🎯 What's Next?
-Start your FREE 14-day trial of VoiceFlow CRM (no credit card needed)
+Start your FREE 14-day trial of VoiceNow CRM (no credit card needed)
 
 [Start Trial Button]
 

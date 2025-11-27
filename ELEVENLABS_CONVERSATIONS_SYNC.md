@@ -2,7 +2,7 @@
 
 ## Overview
 
-Added functionality to sync conversations from ElevenLabs API directly into the VoiceFlow CRM UI. Users can now fetch all their ElevenLabs conversations with a single click and view them in the Calls page.
+Added functionality to sync conversations from ElevenLabs API directly into the VoiceNow CRM UI. Users can now fetch all their ElevenLabs conversations with a single click and view them in the Calls page.
 
 ## What Was Added
 
@@ -369,7 +369,7 @@ Expected response:
 
 ## Summary
 
-The ElevenLabs Conversations Sync feature provides a seamless way to import call data from ElevenLabs into VoiceFlow CRM. Users can sync with a single click, and the system intelligently handles duplicates, updates, and errors.
+The ElevenLabs Conversations Sync feature provides a seamless way to import call data from ElevenLabs into VoiceNow CRM. Users can sync with a single click, and the system intelligently handles duplicates, updates, and errors.
 
 **Key Benefits**:
 - ✅ No manual data entry required

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Your VoiceFlow CRM has an **AI Voice Agent Wizard** that allows you to build custom voice agents with any of your **39 available ElevenLabs voices**.
+Your VoiceNow CRM has an **AI Voice Agent Wizard** that allows you to build custom voice agents with any of your **39 available ElevenLabs voices**.
 
 ## Available Voices
 
@@ -102,7 +102,7 @@ curl -X POST http://localhost:5000/api/agents \
     "voiceId": "EXAVITQu4vr4xnSDxMaL",
     "voiceName": "Sarah",
     "script": "You are a friendly sales assistant...",
-    "firstMessage": "Hi! This is Sarah calling from VoiceFlow CRM...",
+    "firstMessage": "Hi! This is Sarah calling from VoiceNow CRM...",
     "configuration": {
       "language": "en",
       "temperature": 0.8

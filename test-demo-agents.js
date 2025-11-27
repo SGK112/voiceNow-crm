@@ -93,7 +93,7 @@ async function testAgent(agentName, agentId) {
 }
 
 async function testAllDemoAgents() {
-  console.log('\n🚀 VoiceFlow CRM - Demo Agent Testing Suite');
+  console.log('\n🚀 VoiceNow CRM - Demo Agent Testing Suite');
   console.log('='.repeat(80));
   console.log(`Testing ${demoAgents.length} demo agents...`);
 

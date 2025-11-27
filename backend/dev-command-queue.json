@@ -106,8 +106,8 @@
     },
     {
       "id": "1763976900747",
-      "command": "Change the title to VoiceFlow CRM",
-      "transcription": "Manual input: Change the title to VoiceFlow CRM",
+      "command": "Change the title to VoiceNow CRM",
+      "transcription": "Manual input: Change the title to VoiceNow CRM",
       "timestamp": "2025-11-24T09:35:00.747Z",
       "status": "executed",
       "executed": true,
@@ -116,7 +116,7 @@
         "success": true,
         "appliedChanges": 1,
         "totalChanges": 1,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>Voice Flow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n```"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>Voice Flow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>VoiceNow CRM</Text>\n```"
       }
     },
     {
@@ -131,7 +131,7 @@
         "success": true,
         "appliedChanges": 2,
         "totalChanges": 2,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assistant</Text>\n      </View>\n```\nNEW:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.welcomeMessage}>Welcome back!</Text>\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assi"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.title}>VoiceNow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assistant</Text>\n      </View>\n```\nNEW:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.welcomeMessage}>Welcome back!</Text>\n        <Text style={styles.title}>VoiceNow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assi"
       }
     },
     {
@@ -146,7 +146,7 @@
         "success": true,
         "appliedChanges": 1,
         "totalChanges": 1,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>My VoiceFlow</Text>\n```"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>VoiceNow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>My VoiceFlow</Text>\n```"
       }
     }
   ],
@@ -236,7 +236,7 @@
         "success": true,
         "appliedChanges": 1,
         "totalChanges": 1,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>Voice Flow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n```"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>Voice Flow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>VoiceNow CRM</Text>\n```"
       },
       "timestamp": "2025-11-24T09:35:04.531Z"
     },
@@ -246,7 +246,7 @@
         "success": true,
         "appliedChanges": 2,
         "totalChanges": 2,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assistant</Text>\n      </View>\n```\nNEW:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.welcomeMessage}>Welcome back!</Text>\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assi"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.title}>VoiceNow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assistant</Text>\n      </View>\n```\nNEW:\n```\n      {/* Header */}\n      <View style={styles.header}>\n        <Text style={styles.welcomeMessage}>Welcome back!</Text>\n        <Text style={styles.title}>VoiceNow CRM</Text>\n        <Text style={styles.subtitle}>AI Voicemail & SMS Assi"
       },
       "timestamp": "2025-11-24T09:35:32.782Z"
     },
@@ -256,7 +256,7 @@
         "success": true,
         "appliedChanges": 1,
         "totalChanges": 1,
-        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>VoiceFlow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>My VoiceFlow</Text>\n```"
+        "aiResponse": "FILE: mobile/src/screens/HomeScreen.tsx\nOLD:\n```\n        <Text style={styles.title}>VoiceNow CRM</Text>\n```\nNEW:\n```\n        <Text style={styles.title}>My VoiceFlow</Text>\n```"
       },
       "timestamp": "2025-11-24T09:38:30.047Z"
     }

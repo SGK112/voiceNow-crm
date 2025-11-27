@@ -9,7 +9,7 @@ async function testSMSToVoice() {
 
     // Simulate incoming SMS with "call me" request
     const testMessages = [
-      { body: 'What is VoiceFlow CRM?', shouldTriggerCall: false },
+      { body: 'What is VoiceNow CRM?', shouldTriggerCall: false },
       { body: 'Can you call me?', shouldTriggerCall: true },
       { body: 'Call me back please', shouldTriggerCall: true },
       { body: 'I want to talk to someone', shouldTriggerCall: true },

@@ -33,7 +33,7 @@ Agent: "Nice! How's business been? Are you missing many calls right now?"
 The agent now digs deeper to understand pain points:
 - "Are you missing many calls right now?"
 - "How's business been?"
-- "What made you curious about VoiceFlow CRM?"
+- "What made you curious about VoiceNow CRM?"
 
 ### 4. Added Trial Closes (3+ Throughout Call)
 The agent now uses subtle trial closes to gauge interest and move toward signup:
@@ -94,13 +94,13 @@ Added automatic email notifications to `help.remodely@gmail.com` after every cal
 
 ### Demo Agent Uses:
 - **ElevenLabs Voice** - For ultra-realistic AI voice
-- **VoiceFlow CRM Processing** - For call handling and workflow logic
+- **VoiceNow CRM Processing** - For call handling and workflow logic
 - **Post-Call Webhooks** - For email notifications
 
 ### Notification Flow:
 ```
 Call Ends → ElevenLabs triggers webhook →
-VoiceFlow CRM backend receives it →
+VoiceNow CRM backend receives it →
 Email sent to help.remodely@gmail.com with call summary
 ```
 

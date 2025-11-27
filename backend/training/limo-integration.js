@@ -1,5 +1,5 @@
 /**
- * LIMO Training Integration for VoiceFlow CRM
+ * LIMO Training Integration for VoiceNow CRM
  *
  * This module integrates the LIMO (Less Is More) training framework
  * with VoiceFlow's conversation data to create high-quality training datasets.

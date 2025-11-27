@@ -2,7 +2,7 @@
 
 ## What's Been Implemented
 
-Your VoiceFlow CRM marketing page now has a **professional phone call integration** for voice AI capabilities! 🎙️
+Your VoiceNow CRM marketing page now has a **professional phone call integration** for voice AI capabilities! 🎙️
 
 ### New Features Added:
 
@@ -227,7 +227,7 @@ You now have a **complete voice AI solution** that:
 
 ---
 
-**Built for**: VoiceFlow CRM by Remodely.ai
+**Built for**: VoiceNow CRM by Remodely.ai
 **Status**: ✅ Ready to Configure
 **Time to Go Live**: ~30 minutes
 **Works on iPhone**: ✅ YES!

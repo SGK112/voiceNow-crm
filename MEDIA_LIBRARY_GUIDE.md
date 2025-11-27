@@ -2,7 +2,7 @@
 
 ## What Users Can Do
 
-Your VoiceFlow CRM now has a **professional-grade AI Media Library** where users can:
+Your VoiceNow CRM now has a **professional-grade AI Media Library** where users can:
 
 ### ✅ **1. Generate AI Media**
 - **Images**: FLUX Schnell/Dev/Pro, SDXL (1-5 credits)

@@ -154,7 +154,7 @@ export default function AccountTab() {
                       <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
-                      <p className="text-sm">API keys allow you to integrate VoiceFlow CRM with your own applications, automation tools, and workflows securely.</p>
+                      <p className="text-sm">API keys allow you to integrate VoiceNow CRM with your own applications, automation tools, and workflows securely.</p>
                     </TooltipContent>
                   </Tooltip>
                 </CardTitle>

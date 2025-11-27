@@ -198,7 +198,7 @@ Ready to create this agent? It will be available immediately for making calls!`)
         conversationType: selectedTopic.title.replace(/[📣🏢📅👤🎯✨]/g, '').trim()
       }, profileHelpers);
 
-      // Create agent in VoiceFlow CRM database (not just ElevenLabs)
+      // Create agent in VoiceNow CRM database (not just ElevenLabs)
       const response = await api.post('/agents', {
         name: agentConfig.name,
         type: selectedTopic.id,

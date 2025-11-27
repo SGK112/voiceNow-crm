@@ -57,7 +57,7 @@ npm install @elevenlabs/elevenlabs-js
   customer_name: 'Test User',
   lead_name: 'Test User',
   lead_phone: phoneNumber,
-  company_name: 'VoiceFlow CRM',
+  company_name: 'VoiceNow CRM',
   demo_type: 'agent_test_call'
 }
 ```

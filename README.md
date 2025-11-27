@@ -1,4 +1,4 @@
-# VoiceFlow CRM by Remodely.ai
+# VoiceNow CRM by Remodely.ai
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -6,7 +6,7 @@
 
 > AI-powered voice agents with visual workflow automation. Transform your business communication.
 
-VoiceFlow CRM is an open-source platform that combines ElevenLabs' advanced AI voice technology with n8n-style visual workflow automation and a powerful CRM system. Build intelligent voice agents that can qualify leads, book appointments, and provide customer support 24/7 - all without writing code.
+VoiceNow CRM is an open-source platform that combines ElevenLabs' advanced AI voice technology with n8n-style visual workflow automation and a powerful CRM system. Build intelligent voice agents that can qualify leads, book appointments, and provide customer support 24/7 - all without writing code.
 
 ## 🌟 Features
 

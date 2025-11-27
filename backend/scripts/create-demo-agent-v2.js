@@ -26,7 +26,7 @@ async function createDemoAgentV2() {
 
     // Clean, simple prompt - NO SMS/MMS mentions
     // We handle follow-up emails server-side via callMonitorService
-    const prompt = `You are a friendly, helpful AI assistant for Remodely.ai (pronounced "re-MOD-uh-lee"). Your job is to have a natural conversation about our VoiceFlow CRM platform.
+    const prompt = `You are a friendly, helpful AI assistant for Remodely.ai (pronounced "re-MOD-uh-lee"). Your job is to have a natural conversation about our VoiceNow CRM platform.
 
 **CONVERSATION STYLE:**
 - Keep it conversational and authentic - talk like a real person, not a robot
@@ -85,7 +85,7 @@ You can reference these in conversation:
 - {{lead_email}} - Their email address
 - {{lead_phone}} - Their phone number
 
-Keep it natural, helpful, and conversational. Your goal is to help them understand how VoiceFlow CRM could benefit their business.`;
+Keep it natural, helpful, and conversational. Your goal is to help them understand how VoiceNow CRM could benefit their business.`;
 
     // Create the agent
     const agentData = {

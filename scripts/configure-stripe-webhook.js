@@ -2,7 +2,7 @@
  * Stripe Webhook Configuration Script
  *
  * This script automatically configures the Stripe webhook endpoint
- * for your VoiceFlow CRM production environment.
+ * for your VoiceNow CRM production environment.
  */
 
 import Stripe from 'stripe';
@@ -66,7 +66,7 @@ async function configureWebhook() {
     const webhook = await stripe.webhookEndpoints.create({
       url: WEBHOOK_URL,
       enabled_events: WEBHOOK_EVENTS,
-      description: 'VoiceFlow CRM Production Webhook',
+      description: 'VoiceNow CRM Production Webhook',
       metadata: {
         environment: 'production',
         created_by: 'configure-stripe-webhook.js',
