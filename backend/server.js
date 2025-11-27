@@ -183,6 +183,15 @@ app.use(express.static('public', {
   }
 }));
 
+// Direct health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    service: 'voiceflow-crm-api'
+  });
+});
+
 // Monitoring and health check routes
 app.use('/api/monitoring', monitoringRoutes);
 
