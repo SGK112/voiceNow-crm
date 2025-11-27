@@ -1649,7 +1649,7 @@ router.delete('/contacts/:id', auth, async (req, res) => {
 // @access  Private
 router.post('/contacts/import', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { contacts } = req.body;
 
     console.log(`📥 Contact import request: ${contacts?.length || 0} contacts from user ${userId}`);
@@ -1673,26 +1673,43 @@ router.post('/contacts/import', auth, async (req, res) => {
     // Process each contact
     for (const contactData of contacts) {
       try {
-        // Skip if missing required fields
-        if (!contactData.name || !contactData.phone) {
+        // Skip if missing required fields (need at least name and either phone or email)
+        if (!contactData.name || (!contactData.phone && !contactData.email)) {
           results.invalid++;
           results.skipped++;
           continue;
         }
 
         // Normalize phone number for comparison (strip non-digits)
-        const normalizedPhone = contactData.phone.replace(/\D/g, '');
+        const normalizedPhone = contactData.phone ? contactData.phone.replace(/\D/g, '') : '';
 
-        // Check if contact already exists (check both original and normalized phone)
-        const existing = await Contact.findOne({
+        // Build query for duplicate checking
+        const duplicateQuery = {
           user: userId,
-          $or: [
+          isDeleted: false,
+          $or: []
+        };
+
+        // Check by phone if available
+        if (contactData.phone) {
+          duplicateQuery.$or.push(
             { phone: contactData.phone },
-            { phone: normalizedPhone },
-            { phone: { $regex: normalizedPhone.slice(-10) + '$' } }
-          ],
-          isDeleted: false
-        });
+            { phone: normalizedPhone }
+          );
+          if (normalizedPhone.length >= 10) {
+            duplicateQuery.$or.push({ phone: { $regex: normalizedPhone.slice(-10) + '$' } });
+          }
+        }
+
+        // Check by email if available
+        if (contactData.email) {
+          duplicateQuery.$or.push({ email: contactData.email.toLowerCase() });
+        }
+
+        // Only check for duplicates if we have something to check
+        const existing = duplicateQuery.$or.length > 0
+          ? await Contact.findOne(duplicateQuery)
+          : null;
 
         if (existing) {
           results.duplicates++;

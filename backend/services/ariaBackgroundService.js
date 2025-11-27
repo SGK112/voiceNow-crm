@@ -497,7 +497,16 @@ Business context: ${profile?.businessDescription || 'A professional service busi
       const message = `Hi ${lead.name.split(' ')[0]}! This is Aria from VoiceFlow. Just following up on our previous conversation. Is there anything I can help you with? Would you like to schedule a call?`;
 
       if (lead.phone) {
-        await agentSMSService.sendSMS(lead.phone, message);
+        await agentSMSService.sendSMS({
+          to: lead.phone,
+          message,
+          leadId: lead._id,
+          userId: lead.userId,
+          agentId: 'aria',
+          metadata: { type: 'aria_followup' }
+        });
+      } else {
+        console.log(`⚠️ Lead ${lead.name} has no phone number, skipping SMS follow-up`);
       }
 
       // Update lead
