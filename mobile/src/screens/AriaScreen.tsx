@@ -24,9 +24,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import AriaResponseModal from '../components/AriaResponseModal';
+import RealtimeOrbButton from '../components/RealtimeOrbButton';
 import api from '../utils/api';
-import { API_URL } from '../utils/constants';
-import { Audio } from 'expo-av';
 
 // Location types (services are optional - may not work in Expo Go)
 interface UserLocation {
@@ -107,11 +106,12 @@ export default function AriaScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [upgradeModalVisible, setUpgradeModalVisible] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationEnabled, setLocationEnabled] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
+
+  const realtimeOrbRef = useRef<any>(null);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
@@ -241,188 +241,28 @@ export default function AriaScreen() {
     setTimeout(() => navigation.navigate(screenId), 200);
   };
 
-  // Voice recording functions
-  const startRecording = async () => {
-    try {
-      console.log('[Aria] Requesting audio permissions...');
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant microphone access to use voice mode.');
-        return;
-      }
-
-      console.log('[Aria] Setting audio mode...');
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      console.log('[Aria] Starting recording...');
-      // Use WAV format which is universally supported by OpenAI Whisper
-      const recordingOptions = {
-        isMeteringEnabled: true,
-        android: {
-          extension: '.wav',
-          outputFormat: 1, // DEFAULT - will create WAV
-          audioEncoder: 1, // DEFAULT
-          sampleRate: 16000,
-          numberOfChannels: 1,
-          bitRate: 256000,
-        },
-        ios: {
-          extension: '.wav',
-          outputFormat: 'lpcm', // Linear PCM for WAV
-          audioQuality: 96, // High quality
-          sampleRate: 16000,
-          numberOfChannels: 1,
-          bitRate: 256000,
-          linearPCMBitDepth: 16,
-          linearPCMIsBigEndian: false,
-          linearPCMIsFloat: false,
-        },
-        web: {
-          mimeType: 'audio/webm',
-          bitsPerSecond: 128000,
-        },
-      };
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        recordingOptions
-      );
-
-      setRecording(newRecording);
-      setIsRecording(true);
-      setConversationState('listening');
-      console.log('[Aria] Recording started successfully');
-    } catch (error) {
-      console.error('[Aria] Failed to start recording:', error);
-      Alert.alert('Voice Recording', 'Could not start recording. Please try again.');
-    }
-  };
-
-  const stopRecording = async () => {
-    if (!recording) {
-      console.log('[Aria] No recording to stop');
-      return;
-    }
-
-    try {
-      console.log('[Aria] Stopping recording...');
-      setIsRecording(false);
-      setConversationState('thinking');
-      setIsLoading(true);
-
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setRecording(null);
-      console.log('[Aria] Recording stopped, URI:', uri);
-
-      if (uri) {
-        // Send audio to backend for transcription
-        console.log('[Aria] API_URL:', API_URL);
-        console.log('[Aria] Sending audio for transcription to:', `${API_URL}/api/aria/transcribe`);
-        const formData = new FormData();
-        formData.append('audio', {
-          uri,
-          type: 'audio/wav',
-          name: 'recording.wav',
-        } as any);
-
-        try {
-          console.log('[Aria] Making POST request...');
-          const response = await api.post('/api/aria/transcribe', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-            timeout: 30000, // 30 second timeout for transcription
-          });
-
-          console.log('[Aria] Transcription response status:', response.status);
-          console.log('[Aria] Transcription response:', response.data);
-
-          if (response.data.success && response.data.text) {
-            // Auto-send the transcribed message to Aria
-            const transcribedText = response.data.text;
-            setConversationState('idle');
-
-            // Send directly to Aria
-            const userMessage: ChatMessage = {
-              id: Date.now().toString(),
-              role: 'user',
-              content: transcribedText,
-            };
-
-            // Create new conversation if needed
-            const isNewConversation = chatMessages.length === 0 && !currentConversationId;
-            let convId = currentConversationId;
-
-            if (isNewConversation) {
-              convId = Date.now().toString();
-              const newConversation: Conversation = {
-                id: convId,
-                title: generateTitle(userMessage.content),
-                messages: [userMessage],
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              setConversations(prev => [newConversation, ...prev]);
-              setCurrentConversationId(convId);
-            }
-
-            setChatMessages(prev => [...prev, userMessage]);
-            setIsLoading(true);
-
-            // Send to Aria API
-            const ariaResponse = await api.post('/api/aria/chat', {
-              message: transcribedText,
-              conversationHistory: chatMessages.map(m => ({ role: m.role, content: m.content })),
-            });
-
-            if (ariaResponse.data.success) {
-              const assistantMessage: ChatMessage = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: ariaResponse.data.response,
-              };
-
-              setChatMessages(prev => {
-                const newMessages = [...prev, assistantMessage];
-                if (convId) {
-                  setConversations(convs => convs.map(conv =>
-                    conv.id === convId
-                      ? { ...conv, messages: newMessages, updatedAt: new Date() }
-                      : conv
-                  ));
-                }
-                return newMessages;
-              });
-
-              setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-            }
-            setIsLoading(false);
-          } else {
-            setConversationState('idle');
-            Alert.alert('Could not transcribe', 'Please try again or type your message.');
-          }
-        } catch (error: any) {
-          console.error('[Aria] Transcription error:', error);
-          console.error('[Aria] Error response:', error.response?.data);
-          console.error('[Aria] Error status:', error.response?.status);
-          console.error('[Aria] Error message:', error.message);
-          setConversationState('idle');
-          setIsLoading(false);
-          Alert.alert('Error', `Failed to transcribe audio: ${error.message}`);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to stop recording:', error);
-      setConversationState('idle');
-    }
-  };
-
+  // Real-time voice handlers
   const handleVoicePress = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+    // Toggle the realtime orb
+    if (realtimeOrbRef.current) {
+      realtimeOrbRef.current.handlePress();
     }
+  };
+
+  const handleVoiceStateChange = (state: 'idle' | 'listening' | 'thinking' | 'speaking') => {
+    setConversationState(state);
+    setIsVoiceActive(state !== 'idle');
+  };
+
+  const handleVoiceTranscript = (text: string, role: 'user' | 'assistant') => {
+    // Add transcript to chat messages
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role,
+      content: text,
+    };
+    setChatMessages(prev => [...prev, newMessage]);
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
   // Image/file picker function
@@ -769,18 +609,18 @@ export default function AriaScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.quickAction, isRecording && styles.quickActionRecording]}
+                style={[styles.quickAction, isVoiceActive && styles.quickActionRecording]}
                 onPress={handleVoicePress}
               >
-                <View style={[styles.quickActionIcon, isRecording && styles.quickActionIconRecording]}>
+                <View style={[styles.quickActionIcon, isVoiceActive && styles.quickActionIconRecording]}>
                   <Ionicons
-                    name={isRecording ? "stop" : "mic-outline"}
+                    name={isVoiceActive ? "stop" : "mic-outline"}
                     size={16}
-                    color={isRecording ? "#ef4444" : "#6b7280"}
+                    color={isVoiceActive ? "#ef4444" : "#6b7280"}
                   />
                 </View>
-                <Text style={[styles.quickActionText, isRecording && styles.quickActionTextRecording]}>
-                  {isRecording ? "Stop" : "Voice Mode"}
+                <Text style={[styles.quickActionText, isVoiceActive && styles.quickActionTextRecording]}>
+                  {isVoiceActive ? "Stop" : "Voice Mode"}
                 </Text>
               </TouchableOpacity>
 
@@ -838,7 +678,7 @@ export default function AriaScreen() {
                 <TouchableOpacity
                   style={[
                     styles.speakBtn,
-                    isRecording && styles.speakBtnRecording,
+                    isVoiceActive && styles.speakBtnRecording,
                   ]}
                   onPress={textInput.trim() ? sendTextMessage : handleVoicePress}
                 >
@@ -862,6 +702,17 @@ export default function AriaScreen() {
             onClose={() => setModalVisible(false)}
             onAction={() => setModalVisible(false)}
           />
+
+          {/* Hidden Realtime Orb for voice - controls are in the input area */}
+          <View style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}>
+            <RealtimeOrbButton
+              ref={realtimeOrbRef}
+              onPress={() => {}}
+              onStateChange={handleVoiceStateChange}
+              onTranscript={handleVoiceTranscript}
+              agentId="aria"
+            />
+          </View>
 
           {/* Slide-out Menu */}
           <Modal

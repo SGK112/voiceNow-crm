@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 // API URL configuration
 // Set to 'local' for development, 'production' for live
-const USE_LOCAL_API = true; // Testing locally before deploying
+const USE_LOCAL_API = false; // Use production for the Realtime API
 
 // Get local machine IP for development
 const LOCAL_API_URL = 'http://192.168.0.153:5001'; // Your local machine IP
