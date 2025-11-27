@@ -1538,9 +1538,15 @@ function detectImageIntent(message, conversationHistory = []) {
     'edit image', 'modify image', 'change the', 'add to image',
     'show me what', 'visualize', 'mockup', 'concept image',
     'generate a', 'create a', 'make a', 'design a',
-    'nano banana', 'flux', 'ai image', 'ai art',
+    'flux', 'ai image', 'ai art',
     'kitchen render', 'bathroom render', 'room visualization',
     'job site photo', 'project photo', 'proposal image',
+    // More permissive patterns
+    'generate me', 'make me', 'create me', 'draw me', 'show me',
+    'can you generate', 'can you create', 'can you make', 'can you draw',
+    'i need an image', 'i want an image', 'i need a picture', 'i want a picture',
+    'generate an', 'create an', 'make an',
+    'image for', 'picture for', 'photo for',
   ];
 
   // Confirmation keywords that suggest following up on image generation

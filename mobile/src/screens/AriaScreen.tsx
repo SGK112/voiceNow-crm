@@ -76,6 +76,8 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   uiAction?: UIAction | null;
+  imageUrl?: string | null;
+  imageActions?: any[] | null;
 }
 
 interface Conversation {
@@ -123,17 +125,6 @@ export default function AriaScreen() {
   useEffect(() => {
     loadConversationsFromStorage();
     initializeLocation();
-
-    // Auto-start voice session when AriaScreen opens
-    const startVoiceSession = async () => {
-      // Small delay to ensure component is mounted
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (realtimeOrbRef.current && !realtimeOrbRef.current.isActive()) {
-        console.log('[Aria] Auto-starting voice session...');
-        realtimeOrbRef.current.handlePress();
-      }
-    };
-    startVoiceSession();
 
     // Cleanup: stop session when leaving screen
     return () => {
@@ -261,17 +252,58 @@ export default function AriaScreen() {
     setTimeout(() => navigation.navigate(screenId), 200);
   };
 
-  // Real-time voice handlers
+  // Real-time voice handlers - Simple toggle
   const handleVoicePress = () => {
-    // Toggle the realtime orb
+    if (!realtimeOrbRef.current) return;
+    // Toggle session on/off
+    realtimeOrbRef.current.handlePress();
+  };
+
+  // Stop session completely
+  const handleStopSession = () => {
     if (realtimeOrbRef.current) {
-      realtimeOrbRef.current.handlePress();
+      realtimeOrbRef.current.stopSession();
     }
   };
 
   const handleVoiceStateChange = (state: 'idle' | 'listening' | 'thinking' | 'speaking') => {
     setConversationState(state);
     setIsVoiceActive(state !== 'idle');
+  };
+
+  // Handle UI actions from voice (image generation, reference image requests, etc.)
+  const handleVoiceUIAction = (action: any) => {
+    console.log('[Aria] Voice UI Action:', action.type, action.data);
+
+    if (action.type === 'image_generated' && action.data?.imageUrl) {
+      // Add generated image to chat as assistant message
+      const imageMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `I've generated your image! Here's the result based on: "${action.data.prompt?.substring(0, 50)}..."`,
+        imageUrl: action.data.imageUrl,
+      };
+      setChatMessages(prev => [...prev, imageMessage]);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    } else if (action.type === 'request_image_upload') {
+      // Aria is asking user to provide a reference image
+      Alert.alert(
+        'Reference Image',
+        action.data.message || 'Would you like to attach a reference image?',
+        [
+          { text: 'Skip', style: 'cancel' },
+          { text: 'Attach Image', onPress: () => pickImage() },
+        ]
+      );
+    } else if (action.type === 'agent_switch') {
+      // Agent switch notification
+      const agentMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `Switching to ${action.data.agentName}...`,
+      };
+      setChatMessages(prev => [...prev, agentMessage]);
+    }
   };
 
   const handleVoiceTranscript = (text: string, role: 'user' | 'assistant') => {
@@ -366,11 +398,24 @@ export default function AriaScreen() {
       });
 
       if (response.data.success) {
+        // Extract image URL from imageActions if present
+        let generatedImageUrl = null;
+        if (response.data.imageActions && response.data.imageActions.length > 0) {
+          const imageAction = response.data.imageActions.find(
+            (a: any) => a.result?.success && a.result?.imageUrl
+          );
+          if (imageAction) {
+            generatedImageUrl = imageAction.result.imageUrl;
+          }
+        }
+
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: response.data.response,
           uiAction: response.data.uiAction || null,
+          imageUrl: generatedImageUrl,
+          imageActions: response.data.imageActions || null,
         };
 
         setChatMessages(prev => {
@@ -485,9 +530,38 @@ export default function AriaScreen() {
                             {msg.content}
                           </Text>
                         </View>
+                        {/* Render generated image if present */}
+                        {msg.imageUrl && typeof msg.imageUrl === 'string' && (
+                          <TouchableOpacity
+                            style={styles.generatedImageContainer}
+                            onPress={() => {
+                              // Open image in full screen or share
+                              const imageUrlStr = typeof msg.imageUrl === 'string' ? msg.imageUrl : '';
+                              if (imageUrlStr) {
+                                Alert.alert(
+                                  'Image Options',
+                                  'What would you like to do?',
+                                  [
+                                    { text: 'Open', onPress: () => Linking.openURL(imageUrlStr) },
+                                    { text: 'Cancel', style: 'cancel' },
+                                  ]
+                                );
+                              }
+                            }}
+                          >
+                            <Image
+                              source={{ uri: typeof msg.imageUrl === 'string' ? msg.imageUrl : '' }}
+                              style={styles.generatedImage}
+                              resizeMode="cover"
+                            />
+                            <View style={styles.imageOverlay}>
+                              <Ionicons name="expand-outline" size={20} color="#fff" />
+                            </View>
+                          </TouchableOpacity>
+                        )}
                         {/* Render LocalSearchResults for location-based UI actions */}
                         {msg.uiAction && ['local_search_results', 'place_details', 'directions'].includes(msg.uiAction.type) && (
-                          <LocalSearchResults uiAction={msg.uiAction} />
+                          <LocalSearchResults uiAction={msg.uiAction as any} />
                         )}
                       </View>
                     ))}
@@ -634,20 +708,45 @@ export default function AriaScreen() {
                 <Text style={styles.quickActionTextPrimary}>Get SuperAria</Text>
               </TouchableOpacity>
 
+              {/* Voice button - Toggle on/off */}
               <TouchableOpacity
-                style={[styles.quickAction, isVoiceActive && styles.quickActionRecording]}
+                style={[
+                  styles.quickAction,
+                  isVoiceActive && styles.quickActionActive
+                ]}
                 onPress={handleVoicePress}
+                onLongPress={isVoiceActive ? handleStopSession : undefined}
               >
-                <View style={[styles.quickActionIcon, isVoiceActive && styles.quickActionIconRecording]}>
+                <View style={[
+                  styles.quickActionIcon,
+                  isVoiceActive && styles.quickActionIconActive
+                ]}>
                   <Ionicons
-                    name={isVoiceActive ? "stop" : "mic-outline"}
+                    name={isVoiceActive ? "mic" : "mic-outline"}
                     size={16}
-                    color={isVoiceActive ? "#ef4444" : "#6b7280"}
+                    color={isVoiceActive ? "#10b981" : "#6b7280"}
                   />
                 </View>
-                <Text style={[styles.quickActionText, isVoiceActive && styles.quickActionTextRecording]}>
-                  {isVoiceActive ? "Stop" : "Voice Mode"}
+                <Text style={[
+                  styles.quickActionText,
+                  isVoiceActive && styles.quickActionTextActive
+                ]}>
+                  {isVoiceActive ? (conversationState === 'speaking' ? 'Speaking...' : 'Listening') : "Voice"}
                 </Text>
+              </TouchableOpacity>
+
+              {/* Generate Image quick action */}
+              <TouchableOpacity
+                style={styles.quickAction}
+                onPress={() => {
+                  setTextInput('Help me create an image for ');
+                  inputRef.current?.focus();
+                }}
+              >
+                <View style={styles.quickActionIcon}>
+                  <Ionicons name="sparkles-outline" size={16} color="#8b5cf6" />
+                </View>
+                <Text style={styles.quickActionText}>Generate</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.quickActionImage} onPress={pickImage}>
@@ -702,17 +801,14 @@ export default function AriaScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[
-                    styles.speakBtn,
-                    isVoiceActive && styles.speakBtnRecording,
-                  ]}
+                  style={styles.speakBtn}
                   onPress={textInput.trim() ? sendTextMessage : handleVoicePress}
                 >
                   {textInput.trim() ? (
                     <Ionicons name="arrow-up" size={16} color="#fff" />
                   ) : (
                     <Image
-                      source={require('../../assets/voiceflow-logo.png')}
+                      source={require('../../assets/voiceflow-logo.jpg')}
                       style={styles.speakBtnLogo}
                     />
                   )}
@@ -736,6 +832,7 @@ export default function AriaScreen() {
               onPress={() => {}}
               onStateChange={handleVoiceStateChange}
               onTranscript={handleVoiceTranscript}
+              onUIAction={handleVoiceUIAction}
               agentId="aria"
             />
           </View>
@@ -1017,6 +1114,33 @@ const styles = StyleSheet.create({
   },
   userBubbleText: {
     color: '#ffffff',
+  },
+
+  // Generated Image Styles
+  generatedImageContainer: {
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+    marginTop: -4,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#f3f4f6',
+    maxWidth: '85%',
+  },
+  generatedImage: {
+    width: SCREEN_WIDTH * 0.75,
+    height: SCREEN_WIDTH * 0.5,
+    borderRadius: 16,
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Bottom Section
@@ -1462,6 +1586,16 @@ const styles = StyleSheet.create({
   },
   quickActionTextRecording: {
     color: '#ef4444',
+    fontWeight: '600',
+  },
+  quickActionActive: {
+    backgroundColor: '#ecfdf5',
+  },
+  quickActionIconActive: {
+    backgroundColor: '#d1fae5',
+  },
+  quickActionTextActive: {
+    color: '#10b981',
     fontWeight: '600',
   },
 
