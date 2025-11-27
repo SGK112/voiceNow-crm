@@ -47,6 +47,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
   // Configuration from backend
   const configRef = useRef<{ instructions: string; tools: any[]; voice: string } | null>(null);
+  const sessionConfigSentRef = useRef(false);
 
   // Initialize audio permissions on mount
   useEffect(() => {
@@ -212,10 +213,15 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
         console.log(`[REALTIME] Got config for agent '${agentId}' with`, configResponse.data.tools.length, 'tools');
       }
 
-      // Enable audio
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      // Enable audio - use speaker for clear audio
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        allowsRecordingIOS: true,
+        staysActiveInBackground: false,
+      });
       InCallManager.start({ media: 'audio' });
       InCallManager.setForceSpeakerphoneOn(true);
+      InCallManager.setSpeakerphoneOn(true);
 
       // Create peer connection
       const pc = new RTCPeerConnection({
@@ -255,36 +261,8 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
         console.log('[REALTIME] Data channel open');
         setIsSessionActive(true);
         setIsConnecting(false);
-
-        // Configure session with our tools and instructions
-        if (configRef.current) {
-          // Use the voice from the agent config, default to shimmer (Aria's voice)
-          const agentVoice = configRef.current.voice || 'shimmer';
-          console.log(`[REALTIME] Using voice: ${agentVoice}`);
-
-          const sessionConfig = {
-            type: 'session.update',
-            session: {
-              modalities: ['text', 'audio'],
-              instructions: configRef.current.instructions,
-              voice: agentVoice,
-              input_audio_format: 'pcm16',
-              output_audio_format: 'pcm16',
-              input_audio_transcription: {
-                model: 'whisper-1',
-              },
-              turn_detection: {
-                type: 'server_vad',
-                threshold: 0.8,           // Higher = less sensitive (0.0-1.0, default 0.5)
-                prefix_padding_ms: 500,   // More padding before speech starts
-                silence_duration_ms: 1200, // Wait 1.2 seconds of silence before responding
-              },
-              tools: configRef.current.tools,
-            },
-          };
-          dc.send(JSON.stringify(sessionConfig));
-          console.log('[REALTIME] Sent session config');
-        }
+        // Reset the session config flag - we'll send config after session.created
+        sessionConfigSentRef.current = false;
       });
 
       dc.addEventListener('message', async (event: any) => {
@@ -358,6 +336,36 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
     switch (event.type) {
       case 'session.created':
         console.log('[REALTIME] Session created');
+        // Send session config AFTER session is created (avoids voice update conflicts)
+        if (!sessionConfigSentRef.current && configRef.current && dataChannelRef.current?.readyState === 'open') {
+          sessionConfigSentRef.current = true;
+          const agentVoice = configRef.current.voice || 'shimmer';
+          console.log(`[REALTIME] Configuring session with voice: ${agentVoice}`);
+
+          const sessionConfig = {
+            type: 'session.update',
+            session: {
+              modalities: ['text', 'audio'],
+              instructions: configRef.current.instructions,
+              voice: agentVoice,
+              input_audio_format: 'pcm16',
+              output_audio_format: 'pcm16',
+              input_audio_transcription: {
+                model: 'whisper-1',
+              },
+              turn_detection: {
+                type: 'server_vad',
+                threshold: 0.6,           // Balanced sensitivity
+                prefix_padding_ms: 300,
+                silence_duration_ms: 700, // Respond after 0.7s silence
+                create_response: true,
+              },
+              tools: configRef.current.tools,
+            },
+          };
+          dataChannelRef.current.send(JSON.stringify(sessionConfig));
+          console.log('[REALTIME] Sent session config');
+        }
         onStateChange?.('listening');
         break;
 
@@ -417,6 +425,11 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
       case 'error':
         console.error('[REALTIME] Error event:', event.error);
+        // Handle specific error codes gracefully
+        if (event.error?.code === 'cannot_update_voice') {
+          // Voice changes not allowed when audio is present - this is expected during conversation
+          console.log('[REALTIME] Voice update skipped (audio present) - continuing with current voice');
+        }
         break;
 
       default:
@@ -461,19 +474,20 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
       // Handle special actions
       if (result.data.action === 'switch_agent' && result.data.success) {
-        // Update the session with new agent's voice and instructions
+        // Update the session with new agent's instructions only
+        // Note: Voice cannot be changed mid-conversation when audio is present (OpenAI limitation)
         console.log(`[REALTIME] Switching to agent: ${result.data.newAgent.name}`);
 
         if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
           const sessionUpdate = {
             type: 'session.update',
             session: {
-              voice: result.data.newAgent.voice || 'shimmer',
+              // Don't include voice here - OpenAI doesn't allow voice changes when audio is present
               instructions: result.data.newAgent.instructions,
             },
           };
           dataChannelRef.current.send(JSON.stringify(sessionUpdate));
-          console.log(`[REALTIME] Session updated to ${result.data.newAgent.name} voice: ${result.data.newAgent.voice}`);
+          console.log(`[REALTIME] Session updated to ${result.data.newAgent.name} (instructions only, voice changes not allowed mid-session)`);
         }
 
         // Notify UI about agent switch
@@ -553,6 +567,26 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
     onStateChange?.('idle');
   };
 
+  // Commit audio buffer and trigger Aria's response (push-to-talk)
+  const commitAndRespond = () => {
+    if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
+      console.log('[REALTIME] Committing audio buffer and requesting response...');
+      // Commit the audio buffer (tells OpenAI we're done speaking)
+      dataChannelRef.current.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+      // Request a response
+      dataChannelRef.current.send(JSON.stringify({ type: 'response.create' }));
+      onStateChange?.('thinking');
+    }
+  };
+
+  // Clear audio buffer (cancel what was recorded)
+  const clearBuffer = () => {
+    if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
+      console.log('[REALTIME] Clearing audio buffer...');
+      dataChannelRef.current.send(JSON.stringify({ type: 'input_audio_buffer.clear' }));
+    }
+  };
+
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     handlePress: async () => {
@@ -560,6 +594,8 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
     },
     stopSession,
     isActive: () => isSessionActive,
+    commitAndRespond, // Send recorded audio to Aria
+    clearBuffer,      // Clear recorded audio without sending
   }));
 
   const handlePress = async () => {
@@ -567,6 +603,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (e) {}
 
+    // Toggle: If active, stop. If stopped, start.
     if (isSessionActive || isConnecting) {
       stopSession();
     } else {
