@@ -9,6 +9,7 @@ import { ariaIntegrationService } from '../services/ariaIntegrationService.js';
 import shopifySyncService from '../services/shopifySyncService.js';
 import replicateMediaService from '../services/replicateMediaService.js';
 import FleetAsset from '../models/FleetAsset.js';
+import errorReportingService from '../services/errorReportingService.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -3953,9 +3954,10 @@ END:VCALENDAR`;
   }
 
   // Execute a capability function call
-  async execute(functionName, args) {
+  async execute(functionName, args, userId = 'default') {
     console.log(`⚡ [CAPABILITY] Executing: ${functionName}`, args);
 
+    try {
     switch (functionName) {
       case 'web_search':
         return await this.webSearch(args.query);
@@ -4230,6 +4232,21 @@ END:VCALENDAR`;
           success: false,
           error: `Unknown capability: ${functionName}`
         };
+    }
+    } catch (error) {
+      // Report error to webhook for Claude Code monitoring
+      console.error(`❌ [CAPABILITY] Error executing ${functionName}:`, error.message);
+      await errorReportingService.reportAriaError(error, {
+        action: `capability_execute_${functionName}`,
+        userId: userId,
+        toolName: functionName,
+        toolArgs: args
+      });
+      return {
+        success: false,
+        error: error.message,
+        summary: `Error executing ${functionName}: ${error.message}`
+      };
     }
   }
 
@@ -4611,29 +4628,69 @@ END:VCALENDAR`;
           sketch: 'pencil sketch style, hand-drawn,',
           '3d_render': '3D render, CGI, detailed,',
           watercolor: 'watercolor painting style,',
-          oil_painting: 'oil painting style, classic art,'
+          oil_painting: 'oil painting style, classic art,',
+          modern: 'modern contemporary style, clean lines,',
+          professional: 'professional photography style, high quality,',
+          vibrant: 'vibrant colors, high contrast, eye-catching,',
+          elegant: 'elegant, sophisticated, refined,',
+          realistic: 'photorealistic, high detail, 4k quality,'
         };
         if (styleEnhancements[style]) {
           enhancedPrompt = `${styleEnhancements[style]} ${prompt}`;
         }
       }
 
-      const result = await this.replicateService.generateImage('default', {
-        prompt: enhancedPrompt,
-        model,
-        aspectRatio,
-        numOutputs: Math.min(numOutputs, 4),
-        style
+      // Use direct Replicate API call to avoid MongoDB user lookup for voice sessions
+      const Replicate = (await import('replicate')).default;
+      const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+
+      // Map model names
+      const modelMap = {
+        'flux_schnell': 'black-forest-labs/flux-schnell',
+        'flux_dev': 'black-forest-labs/flux-dev',
+        'dall-e-3': 'black-forest-labs/flux-schnell',
+        'sdxl': 'stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b'
+      };
+
+      const replicateModel = modelMap[model] || 'black-forest-labs/flux-schnell';
+
+      const output = await replicate.run(replicateModel, {
+        input: {
+          prompt: enhancedPrompt,
+          aspect_ratio: aspectRatio,
+          num_outputs: Math.min(numOutputs, 4),
+          output_format: 'png',
+          output_quality: 90
+        }
       });
 
-      if (result.success) {
-        console.log(`✅ [IMAGE GEN] Generated ${result.images.length} image(s)`);
+      // Handle output format (could be array or single URL, or FileOutput objects)
+      const rawImages = Array.isArray(output) ? output : [output];
+
+      // Extract URL strings from FileOutput objects if needed
+      const images = rawImages.map(img => {
+        if (typeof img === 'string') return img;
+        if (img && typeof img === 'object') {
+          // Replicate FileOutput objects have toString() that returns the URL
+          if (typeof img.toString === 'function' && img.toString() !== '[object Object]') {
+            return img.toString();
+          }
+          // Or they might have a url property
+          if (img.url) return typeof img.url === 'function' ? img.url() : img.url;
+          // Or an href property
+          if (img.href) return img.href;
+        }
+        return String(img);
+      });
+
+      if (images.length > 0 && images[0]) {
+        console.log(`✅ [IMAGE GEN] Generated ${images.length} image(s): ${images[0]}`);
         return {
           success: true,
-          images: result.images,
-          model: result.model,
-          creditsUsed: result.creditsUsed,
-          summary: `Generated ${result.images.length} image(s) with ${model}. View: ${result.images[0]}`
+          images: images,
+          imageUrl: images[0],
+          model: model,
+          summary: `Generated ${images.length} image(s). View: ${images[0]}`
         };
       }
 
