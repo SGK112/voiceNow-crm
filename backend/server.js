@@ -13,8 +13,10 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: join(__dirname, '../.env') });
 }
 
-// Debug: Log webhook URL at startup
-console.log(`🔍 DEBUG: WEBHOOK_URL loaded as: ${process.env.WEBHOOK_URL}`);
+// Debug webhook URL only in development
+if (process.env.NODE_ENV !== 'production' && process.env.WEBHOOK_URL) {
+  console.log('Webhook URL configured');
+}
 
 // Validate environment variables
 import { validateEnvironment, getEnvSummary } from './utils/validateEnv.js';

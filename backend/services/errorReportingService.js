@@ -22,11 +22,10 @@ class ErrorReportingService {
     this.lastReportTime = {};
     this.rateLimitMs = 30000; // Rate limit same errors to once per 30 seconds
 
-    console.log('🚨 Error Reporting Service initialized');
-    // Defer webhook check until first use
-    setTimeout(() => {
-      console.log(`   Webhook: ${this.webhookUrl ? 'Configured (' + this.webhookUrl.substring(0, 30) + '...)' : 'Not configured'}`);
-    }, 1000);
+    // Silent initialization in production
+    if (this.environment !== 'production') {
+      console.log('Error Reporting Service initialized');
+    }
   }
 
   // Lazy getter for webhook URL to ensure env vars are loaded
