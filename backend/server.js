@@ -34,6 +34,7 @@ import { connectRedis } from './config/redis.js';
 import errorHandler from './middleware/errorHandler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { apiMonitoring, errorTracking } from './middleware/monitoring.js';
+import errorReportingService from './services/errorReportingService.js';
 
 import authRoutes from './routes/auth.js';
 import subscriptionRoutes from './routes/subscription.js';
@@ -268,6 +269,36 @@ app.use('/api/network', networkDeviceRoutes); // Network device discovery and co
 app.use('/api/translation', translationRoutes); // Translation service for Aria multilingual support
 app.use('/api/fleet', fleetRoutes); // Fleet management for people, places, and things
 
+// Error webhook receiver endpoint for Claude Code error monitoring
+app.post('/', (req, res) => {
+  if (req.headers['x-error-report'] === 'true') {
+    const { errorCount, errors, summary } = req.body;
+    console.log('\n' + '═'.repeat(60));
+    console.log('🚨 ERROR REPORT RECEIVED FROM WEBHOOK');
+    console.log('═'.repeat(60));
+    console.log(`📊 Total Errors: ${errorCount}`);
+    if (summary) {
+      console.log(`   Most Common: ${summary.mostCommon}`);
+      console.log(`   By Component:`, summary.byComponent);
+    }
+    if (errors && errors.length > 0) {
+      errors.forEach((err, i) => {
+        console.log(`\n📍 Error ${i + 1}:`);
+        console.log(`   Name: ${err.error?.name}`);
+        console.log(`   Message: ${err.error?.message}`);
+        console.log(`   Component: ${err.context?.component}`);
+        console.log(`   Action: ${err.context?.action}`);
+        if (err.debugHints?.length > 0) {
+          console.log(`   Debug Hints:`, err.debugHints.map(h => h.suggestion).join('; '));
+        }
+      });
+    }
+    console.log('═'.repeat(60) + '\n');
+    return res.json({ received: true, timestamp: new Date().toISOString() });
+  }
+  res.status(404).json({ error: 'Not found' });
+});
+
 app.use('/api', apiLimiter);
 
 // Serve static frontend files in production
@@ -353,6 +384,8 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error tracking middleware (must come before error handler)
 app.use(errorTracking);
+// Error reporting to webhook for Claude Code monitoring
+app.use(errorReportingService.expressErrorHandler());
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;

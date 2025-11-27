@@ -27,6 +27,7 @@ import {
   getAvailableVoices,
   getAgentVoice
 } from '../config/ariaAgentTemplates.js';
+import errorReportingService from '../services/errorReportingService.js';
 
 const router = express.Router();
 
@@ -1599,6 +1600,7 @@ PERSONALITY:
 - Be warm, friendly, and conversational
 - Use natural speech patterns with brief responses (2-3 sentences max)
 - Sound like a helpful colleague, not a robot
+- Be proactive and anticipate user needs
 
 CAPABILITIES:
 - Send text messages to contacts
@@ -1606,12 +1608,28 @@ CAPABILITIES:
 - Search and find contacts
 - Schedule appointments
 - Look up CRM data
+- Generate professional AI images (marketing, logos, before/after photos, social media content)
+
+IMAGE GENERATION EXPERTISE:
+You are an AI expert at crafting image prompts. When a user wants to create an image:
+1. ASK CLARIFYING QUESTIONS about their use case (marketing? social media? estimate? proposal?)
+2. Ask about style preferences (professional, modern, vibrant, elegant, minimalist)
+3. Ask about color preferences or brand colors
+4. Ask if they have a reference image they'd like to share
+5. CRAFT A DETAILED PROMPT for them - you know what makes great prompts (lighting, composition, mood, style details)
+6. Offer to create variations or try different approaches
+
+Example: If user says "I need an image for a kitchen project", ask:
+- "Is this for a proposal, social media, or marketing?"
+- "What style - modern, traditional, or something else?"
+- "Any specific colors or do you have a photo of the space?"
 
 IMPORTANT RULES:
 - Always confirm before sending messages or creating records
 - Be concise - this is voice, not text chat
 - If you don't know something, say so
 - Call the user by name: ${userName}
+- For images, YOU craft better prompts than users can - ask questions and build the perfect prompt
 
 When asked to perform actions, use the available tools/functions.`;
 
@@ -1767,6 +1785,50 @@ When asked to perform actions, use the available tools/functions.`;
           required: ['participants'],
         },
       },
+      {
+        type: 'function',
+        name: 'generate_image',
+        description: 'Generate an AI image using DALL-E or Flux. Use when user wants to create marketing materials, logos, product images, before/after project photos, or any visual content. As an AI expert, you craft much better prompts than users can - ask clarifying questions about style, colors, dimensions, use case, and mood to build the perfect prompt. Offer to generate variations or let user provide reference images.',
+        parameters: {
+          type: 'object',
+          properties: {
+            prompt: {
+              type: 'string',
+              description: 'The detailed image description prompt. As AI, craft a professional prompt including: subject, style (realistic, artistic, minimalist), lighting, composition, colors, mood. Be specific and detailed for best results.',
+            },
+            style: {
+              type: 'string',
+              enum: ['realistic', 'artistic', 'minimalist', 'professional', 'vibrant', 'elegant', 'modern', 'vintage'],
+              description: 'The overall style of the image',
+            },
+            size: {
+              type: 'string',
+              enum: ['square', 'landscape', 'portrait'],
+              description: 'Image dimensions - square (1024x1024), landscape (1792x1024), portrait (1024x1792)',
+            },
+            useCase: {
+              type: 'string',
+              description: 'What the image will be used for (marketing, social media, website, estimate, proposal, etc.)',
+            },
+          },
+          required: ['prompt'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'request_reference_image',
+        description: 'Ask user if they want to provide a reference image to guide the AI image generation. Use this when discussing complex visuals or when user might have an example of what they want.',
+        parameters: {
+          type: 'object',
+          properties: {
+            context: {
+              type: 'string',
+              description: 'What kind of reference would be helpful (e.g., "a photo of the space", "an example logo style", "color palette inspiration")',
+            },
+          },
+          required: ['context'],
+        },
+      },
     ];
 
     // Get voice settings for the agent
@@ -1855,6 +1917,69 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
         console.error('❌ [CONFERENCE] Error:', confError);
         result = { success: false, error: confError.message || 'Failed to start conference call' };
       }
+    } else if (functionName === 'generate_image') {
+      // Generate an AI image using the image generation capability
+      try {
+        console.log(`🎨 [IMAGE-GEN] Generating image with prompt: "${args.prompt.substring(0, 100)}..."`);
+
+        // Map size to dimensions
+        const sizeMap = {
+          'square': '1024x1024',
+          'landscape': '1792x1024',
+          'portrait': '1024x1792'
+        };
+        const dimensions = sizeMap[args.size] || '1024x1024';
+
+        // Use ariaCapabilities to generate image
+        const imageResult = await ariaCapabilities.execute('generate_image', {
+          prompt: args.prompt,
+          style: args.style || 'professional',
+          size: dimensions,
+          model: 'dall-e-3', // Use DALL-E 3 for best quality
+          quality: 'standard'
+        });
+
+        if (imageResult.success && imageResult.imageUrl) {
+          result = {
+            success: true,
+            action: 'image_generated',
+            imageUrl: imageResult.imageUrl,
+            prompt: args.prompt,
+            style: args.style,
+            size: args.size,
+            useCase: args.useCase,
+            message: `I've generated your image! It's a ${args.style || 'professional'} style image. Would you like me to create variations or try a different approach?`
+          };
+        } else {
+          result = {
+            success: false,
+            error: imageResult.error || 'Image generation failed',
+            message: "I couldn't generate that image. Would you like to try with different parameters?"
+          };
+        }
+      } catch (imgError) {
+        console.error('❌ [IMAGE-GEN] Error:', imgError);
+        result = {
+          success: false,
+          error: imgError.message || 'Failed to generate image',
+          message: "There was a problem generating the image. Let me know if you'd like to try again."
+        };
+      }
+    } else if (functionName === 'request_reference_image') {
+      // Prompt user to provide a reference image
+      result = {
+        success: true,
+        action: 'request_reference',
+        context: args.context,
+        message: `Would you like to share ${args.context}? You can attach an image and I'll use it as reference for the generation.`,
+        uiAction: {
+          type: 'request_image_upload',
+          data: {
+            context: args.context,
+            prompt: `Please upload ${args.context}`
+          }
+        }
+      };
     } else {
       // Use ariaCapabilities for ALL other functions (send_sms, send_email, get_appointments, etc.)
       try {
@@ -1890,6 +2015,13 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
         }
       } catch (execError) {
         console.error(`❌ [REALTIME-TOOL] Error executing ${functionName}:`, execError);
+        // Report to error service for Claude Code monitoring
+        await errorReportingService.reportVoiceError(execError, {
+          action: 'realtime_tool_execution',
+          functionName: functionName,
+          toolArgs: args,
+          userId: userId
+        });
         result = { success: false, error: execError.message || `Failed to execute ${functionName}` };
       }
     }
@@ -1898,6 +2030,11 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('❌ [REALTIME-TOOL] Error:', error);
+    // Report critical voice errors
+    await errorReportingService.reportVoiceError(error, {
+      action: 'realtime_tool_handler',
+      severity: 'critical'
+    });
     res.status(500).json({
       success: false,
       error: error.message,
