@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-28-v100-force-cache-clear';
+        const CURRENT_VERSION = '2025-11-28-v101-voicenow-branding';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -1278,7 +1278,7 @@
 
                     <!-- Text Logo -->
                     <div class="flex items-baseline gap-1.5">
-                        <span class="text-xl font-bold text-white">VoiceFlow</span>
+                        <span class="text-xl font-bold text-white">VoiceNow</span>
                         <span class="text-xl font-bold text-blue-400">CRM</span>
                     </div>
                 </a>
@@ -1325,7 +1325,7 @@
         <div class="relative z-10 pt-20 sm:pt-24 px-6 sm:px-8">
             <div class="flex items-center gap-3">
                 <i class="fas fa-broadcast-tower text-white text-2xl"></i>
-                <span class="text-xl font-bold text-white tracking-tight">VoiceFlow</span>
+                <span class="text-xl font-bold text-white tracking-tight">VoiceNow</span>
             </div>
         </div>
 
@@ -1478,7 +1478,7 @@
                         </div>
                     </div>
                     <p class="text-white/70 text-sm leading-relaxed">
-                        "Before VoiceFlow, I was losing 30% of my calls to voicemail. Now my AI answers every call, qualifies the lead, and books the estimate. Game changer."
+                        "Before VoiceNow CRM, I was losing 30% of my calls to voicemail. Now my AI answers every call, qualifies the lead, and books the estimate. Game changer."
                     </p>
                 </div>
 
@@ -1966,7 +1966,7 @@
                 <div class="flex flex-col leading-tight">
                     <div class="flex items-baseline gap-2">
                         <span class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
-                            VoiceFlow
+                            VoiceNow
                         </span>
                         <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">CRM</span>
                     </div>
@@ -2755,7 +2755,7 @@
                 addMessage('ai', 'Ready to try? Start free: remodely.ai/signup', 4000);
                 addMessage('ai', 'Want a live demo call instead? Visit our website and select "Voice Call" option. 📞', 6000);
             } else {
-                addMessage('ai', '📞 Incoming call from VoiceFlow AI...', 500);
+                addMessage('ai', '📞 Incoming call from VoiceNow AI...', 500);
                 addMessage('ai', '✅ Call connected! Listen for the AI voice agent.', 2500);
             }
         }
@@ -3124,7 +3124,7 @@
                         <i class="fas fa-sparkles text-white"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-white">VoiceFlow AI Wizard</h3>
+                        <h3 class="font-bold text-white">VoiceNow AI Wizard</h3>
                         <p class="text-xs text-gray-400">Your AI Assistant</p>
                     </div>
                 </div>
@@ -3137,7 +3137,7 @@
             <div id="copilot-messages" class="voice-copilot-messages">
                 <div class="text-center text-gray-400 py-8">
                     <i class="fas fa-sparkles text-4xl mb-3 text-purple-500"></i>
-                    <p class="text-sm mb-2">👋 Hi! I'm your VoiceFlow AI Wizard</p>
+                    <p class="text-sm mb-2">👋 Hi! I'm your VoiceNow AI Wizard</p>
                     <p class="text-xs">I can help you create AI agents, workflows, and more!</p>
                 </div>
             </div>
@@ -3497,7 +3497,7 @@
             const copilotQuickBtns = document.querySelectorAll('.copilot-quick-btn');
 
             // Welcome message
-            const welcomeMessage = "👋 Hi! I'm your VoiceFlow AI Co-Pilot with full system access.\n\nI can help you with:\n\n🎨 Image Generation (OpenAI DALL-E)\n✍️ Content Writing (Claude/GPT)\n📞 Call Me (Twilio)\n📧 Send Email/SMS\n📅 Google Calendar Management\n🔄 n8n Workflow Automation\n💻 Code Execution\n📊 Analytics & Reports\n\nJust ask me anything!";
+            const welcomeMessage = "👋 Hi! I'm your VoiceNow AI Co-Pilot with full system access.\n\nI can help you with:\n\n🎨 Image Generation (OpenAI DALL-E)\n✍️ Content Writing (Claude/GPT)\n📞 Call Me (Twilio)\n📧 Send Email/SMS\n📅 Google Calendar Management\n🔄 n8n Workflow Automation\n💻 Code Execution\n📊 Analytics & Reports\n\nJust ask me anything!";
 
             function addMessage(role, text, isHTML = false) {
                 const messageDiv = document.createElement('div');
