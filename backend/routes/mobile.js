@@ -1432,7 +1432,7 @@ router.get('/contacts', auth, async (req, res) => {
 
     const contacts = await Contact.find({
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     })
     .sort({ name: 1 })
     .limit(500);
@@ -1461,7 +1461,7 @@ router.get('/contacts/:id', auth, async (req, res) => {
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (!contact) {
@@ -1502,7 +1502,7 @@ router.post('/contacts', auth, async (req, res) => {
     const existingContact = await Contact.findOne({
       user: userId,
       phone,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (existingContact) {
@@ -1558,7 +1558,7 @@ router.put('/contacts/:id', auth, async (req, res) => {
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (!contact) {
@@ -1573,7 +1573,7 @@ router.put('/contacts/:id', auth, async (req, res) => {
       const existingContact = await Contact.findOne({
         user: userId,
         phone,
-        isDeleted: false,
+        isDeleted: { $ne: true },
         _id: { $ne: req.params.id }
       });
 
@@ -1619,7 +1619,7 @@ router.delete('/contacts/:id', auth, async (req, res) => {
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (!contact) {
@@ -1689,7 +1689,7 @@ router.post('/contacts/import', auth, async (req, res) => {
         // Build query for duplicate checking
         const duplicateQuery = {
           user: userId,
-          isDeleted: false,
+          isDeleted: { $ne: true },
           $or: []
         };
 
@@ -1809,7 +1809,7 @@ router.post('/contacts/:id/conversation', auth, async (req, res) => {
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (!contact) {
@@ -1850,7 +1850,7 @@ router.get('/aria/contacts', auth, async (req, res) => {
 
     const contacts = await Contact.find({
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     })
     .select('name phone email company tags lastInteraction lastInteractionType')
     .sort({ lastInteraction: -1, name: 1 })
@@ -1899,7 +1899,7 @@ router.get('/aria/contacts/search', auth, async (req, res) => {
 
     const contacts = await Contact.find({
       user: userId,
-      isDeleted: false,
+      isDeleted: { $ne: true },
       $or: [
         { name: { $regex: query, $options: 'i' } },
         { phone: { $regex: query, $options: 'i' } },
@@ -1953,7 +1953,7 @@ router.get('/aria/contacts/by-phone/:phone', auth, async (req, res) => {
 
     const contact = await Contact.findOne({
       user: userId,
-      isDeleted: false,
+      isDeleted: { $ne: true },
       $or: [
         { phone: phone },
         { phone: { $regex: normalizedPhone } }
@@ -2014,7 +2014,7 @@ router.post('/aria/contacts', auth, async (req, res) => {
     const existing = await Contact.findOne({
       user: userId,
       phone: phone,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (existing) {
@@ -2071,7 +2071,7 @@ router.post('/aria/contacts/:id/note', auth, async (req, res) => {
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
-      isDeleted: false
+      isDeleted: { $ne: true }
     });
 
     if (!contact) {
