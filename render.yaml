@@ -117,6 +117,10 @@ services:
       - key: GOOGLE_AI_API_KEY
         sync: false
 
+      # Replicate - SET IN RENDER DASHBOARD (for AI image generation)
+      - key: REPLICATE_API_TOKEN
+        sync: false
+
       # Twilio - SET IN RENDER DASHBOARD
       - key: TWILIO_ACCOUNT_SID
         sync: false
