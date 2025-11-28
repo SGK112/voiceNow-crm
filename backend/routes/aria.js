@@ -12,6 +12,11 @@ import translationService from '../services/translationService.js';
 import AIAgent from '../models/AIAgent.js';
 import replicateMediaService from '../services/replicateMediaService.js';
 import User from '../models/User.js';
+import Contact from '../models/Contact.js';
+import TwilioService from '../services/twilioService.js';
+import emailService from '../services/emailService.js';
+
+const twilioService = new TwilioService();
 
 const router = express.Router();
 
@@ -1196,6 +1201,55 @@ function detectAgentIntent(message) {
   return agentKeywords.some(kw => lower.includes(kw));
 }
 
+// Communication tools for SMS and Email
+const COMM_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'send_sms',
+      description: 'Send an SMS text message to a contact. Use this when the user asks to text, message, or send an SMS to someone.',
+      parameters: {
+        type: 'object',
+        properties: {
+          to: { type: 'string', description: 'Phone number to send SMS to (can be contact name to look up)' },
+          message: { type: 'string', description: 'The message content to send' },
+        },
+        required: ['to', 'message'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'send_email',
+      description: 'Send an email to a contact. Use this when the user asks to email someone.',
+      parameters: {
+        type: 'object',
+        properties: {
+          to: { type: 'string', description: 'Email address or contact name to send email to' },
+          subject: { type: 'string', description: 'Email subject line' },
+          body: { type: 'string', description: 'Email body content' },
+        },
+        required: ['to', 'subject', 'body'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'find_contact',
+      description: 'Look up a contact by name to get their phone number or email',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Name of the contact to find' },
+        },
+        required: ['name'],
+      },
+    },
+  },
+];
+
 // Image generation tools using Replicate (Flux models)
 const IMAGE_TOOLS = [
   {
@@ -1547,6 +1601,142 @@ async function executeImageTool(toolName, args, userId) {
     console.error(`[Aria] Image tool error (${toolName}):`, error);
     return { success: false, error: error.message };
   }
+}
+
+// Execute communication tool calls (SMS, Email)
+async function executeCommTool(toolName, args, userId) {
+  console.log(`[Aria] Executing comm tool: ${toolName}`, args);
+
+  if (!userId) {
+    return {
+      success: false,
+      error: 'LOGIN_REQUIRED',
+      message: 'Communication features require you to be logged in.'
+    };
+  }
+
+  try {
+    switch (toolName) {
+      case 'find_contact': {
+        const contact = await Contact.findOne({
+          user: userId,
+          $or: [
+            { name: { $regex: args.name, $options: 'i' } },
+            { company: { $regex: args.name, $options: 'i' } }
+          ],
+          isDeleted: { $ne: true }
+        });
+
+        if (!contact) {
+          return {
+            success: false,
+            message: `No contact found matching "${args.name}". Would you like me to search by phone number or add a new contact?`
+          };
+        }
+
+        return {
+          success: true,
+          contact: {
+            name: contact.name,
+            phone: contact.phone,
+            email: contact.email,
+            company: contact.company
+          },
+          message: `Found ${contact.name}: Phone: ${contact.phone || 'not set'}, Email: ${contact.email || 'not set'}`
+        };
+      }
+
+      case 'send_sms': {
+        let toPhone = args.to;
+
+        // If "to" looks like a name, try to find the contact
+        if (!/^\+?\d{10,}$/.test(toPhone.replace(/[\s\-\(\)]/g, ''))) {
+          const contact = await Contact.findOne({
+            user: userId,
+            $or: [
+              { name: { $regex: toPhone, $options: 'i' } },
+              { company: { $regex: toPhone, $options: 'i' } }
+            ],
+            isDeleted: { $ne: true }
+          });
+
+          if (!contact || !contact.phone) {
+            return {
+              success: false,
+              message: `Could not find a phone number for "${toPhone}". Please provide a phone number or the contact's name.`
+            };
+          }
+          toPhone = contact.phone;
+        }
+
+        // Send SMS via Twilio
+        const result = await twilioService.sendSMS(toPhone, args.message, userId);
+
+        return {
+          success: true,
+          message: `SMS sent to ${toPhone}: "${args.message}"`,
+          to: toPhone,
+          messageId: result?.sid
+        };
+      }
+
+      case 'send_email': {
+        let toEmail = args.to;
+
+        // If "to" looks like a name, try to find the contact
+        if (!toEmail.includes('@')) {
+          const contact = await Contact.findOne({
+            user: userId,
+            $or: [
+              { name: { $regex: toEmail, $options: 'i' } },
+              { company: { $regex: toEmail, $options: 'i' } }
+            ],
+            isDeleted: { $ne: true }
+          });
+
+          if (!contact || !contact.email) {
+            return {
+              success: false,
+              message: `Could not find an email address for "${toEmail}". Please provide an email address or make sure the contact has an email on file.`
+            };
+          }
+          toEmail = contact.email;
+        }
+
+        // Send email
+        const result = await emailService.sendEmail({
+          to: toEmail,
+          subject: args.subject,
+          html: args.body,
+          text: args.body
+        });
+
+        return {
+          success: true,
+          message: `Email sent to ${toEmail} with subject: "${args.subject}"`,
+          to: toEmail
+        };
+      }
+
+      default:
+        return { success: false, error: `Unknown comm tool: ${toolName}` };
+    }
+  } catch (error) {
+    console.error(`[Aria] Comm tool error (${toolName}):`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Detect if message is about communication (SMS, Email)
+function detectCommIntent(message) {
+  const commKeywords = [
+    'send sms', 'send text', 'text message', 'send a text', 'message', 'text him', 'text her', 'text them',
+    'send email', 'email to', 'send an email', 'email him', 'email her', 'email them',
+    'reply to', 'respond to', 'get back to', 'contact',
+  ];
+
+  const lower = message.toLowerCase();
+  return commKeywords.some(kw => lower.includes(kw));
 }
 
 // Detect if message is about image generation
@@ -2358,8 +2548,8 @@ router.post('/chat', async (req, res) => {
     };
 
     // Combine tools based on detected intents
-    // ALWAYS include IMAGE_TOOLS so GPT can generate images when asked
-    const tools = [...IMAGE_TOOLS];
+    // ALWAYS include IMAGE_TOOLS and COMM_TOOLS so GPT can generate images and send messages when asked
+    const tools = [...IMAGE_TOOLS, ...COMM_TOOLS];
     if (needsNetwork) tools.push(...NETWORK_TOOLS);
     if (needsLocation) tools.push(...LOCATION_TOOLS);
     if (needsTranslation) tools.push(...TRANSLATION_TOOLS);
@@ -2410,6 +2600,8 @@ router.post('/chat', async (req, res) => {
         } else if (IMAGE_TOOLS.some(t => t.function.name === toolName)) {
           result = await executeImageTool(toolName, toolArgs, userId);
           imageActions.push({ tool: toolName, args: toolArgs, result });
+        } else if (COMM_TOOLS.some(t => t.function.name === toolName)) {
+          result = await executeCommTool(toolName, toolArgs, userId);
         } else {
           result = { success: false, error: `Unknown tool: ${toolName}` };
         }
