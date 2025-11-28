@@ -184,6 +184,7 @@ const MENU_ITEMS = [
 // Header tabs
 const NAV_TABS = [
   { id: 'Ask', label: 'Ask' },
+  { id: 'Daily', label: 'Daily' },
   { id: 'History', label: 'History' },
   { id: 'Settings', label: 'Settings' },
 ];
@@ -783,6 +784,86 @@ export default function AriaScreen() {
                   </ScrollView>
                 )}
               </View>
+            )}
+
+            {activeTab === 'Daily' && (
+              <ScrollView style={styles.dailyContainer} showsVerticalScrollIndicator={false}>
+                {/* Daily Summary Header */}
+                <View style={styles.dailyHeader}>
+                  <View style={styles.dailyDateBadge}>
+                    <Ionicons name="sunny-outline" size={20} color="#f59e0b" />
+                    <Text style={styles.dailyDateText}>
+                      {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                    </Text>
+                  </View>
+                  <Text style={styles.dailyGreeting}>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0] || 'there'}!</Text>
+                </View>
+
+                {/* Today's Stats */}
+                <View style={styles.dailyStatsRow}>
+                  <View style={styles.dailyStat}>
+                    <View style={[styles.dailyStatIcon, { backgroundColor: '#eff6ff' }]}>
+                      <Ionicons name="call-outline" size={18} color="#3b82f6" />
+                    </View>
+                    <Text style={styles.dailyStatNumber}>0</Text>
+                    <Text style={styles.dailyStatLabel}>Calls</Text>
+                  </View>
+                  <View style={styles.dailyStat}>
+                    <View style={[styles.dailyStatIcon, { backgroundColor: '#f0fdf4' }]}>
+                      <Ionicons name="chatbubble-outline" size={18} color="#10b981" />
+                    </View>
+                    <Text style={styles.dailyStatNumber}>0</Text>
+                    <Text style={styles.dailyStatLabel}>Messages</Text>
+                  </View>
+                  <View style={styles.dailyStat}>
+                    <View style={[styles.dailyStatIcon, { backgroundColor: '#fef3c7' }]}>
+                      <Ionicons name="people-outline" size={18} color="#f59e0b" />
+                    </View>
+                    <Text style={styles.dailyStatNumber}>0</Text>
+                    <Text style={styles.dailyStatLabel}>New Leads</Text>
+                  </View>
+                </View>
+
+                {/* Today's Schedule */}
+                <View style={styles.dailySection}>
+                  <View style={styles.dailySectionHeader}>
+                    <Ionicons name="calendar-outline" size={20} color="#374151" />
+                    <Text style={styles.dailySectionTitle}>Today's Schedule</Text>
+                  </View>
+                  <View style={styles.dailyEmptyState}>
+                    <Ionicons name="calendar" size={32} color="#d1d5db" />
+                    <Text style={styles.dailyEmptyText}>No appointments today</Text>
+                    <TouchableOpacity style={styles.dailyAddButton}>
+                      <Text style={styles.dailyAddButtonText}>+ Add Appointment</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Pending Tasks */}
+                <View style={styles.dailySection}>
+                  <View style={styles.dailySectionHeader}>
+                    <Ionicons name="checkbox-outline" size={20} color="#374151" />
+                    <Text style={styles.dailySectionTitle}>Pending Tasks</Text>
+                  </View>
+                  <View style={styles.dailyEmptyState}>
+                    <Ionicons name="checkmark-done" size={32} color="#d1d5db" />
+                    <Text style={styles.dailyEmptyText}>You're all caught up!</Text>
+                  </View>
+                </View>
+
+                {/* Recent Activity */}
+                <View style={styles.dailySection}>
+                  <View style={styles.dailySectionHeader}>
+                    <Ionicons name="time-outline" size={20} color="#374151" />
+                    <Text style={styles.dailySectionTitle}>Recent Activity</Text>
+                  </View>
+                  <View style={styles.dailyEmptyState}>
+                    <Ionicons name="pulse" size={32} color="#d1d5db" />
+                    <Text style={styles.dailyEmptyText}>No recent activity</Text>
+                    <Text style={styles.dailyEmptySubtext}>Start a conversation with Aria</Text>
+                  </View>
+                </View>
+              </ScrollView>
             )}
 
             {activeTab === 'Settings' && (
@@ -1696,6 +1777,118 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Daily Tab
+  dailyContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  dailyHeader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  dailyDateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef3c7',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    gap: 8,
+    marginBottom: 12,
+  },
+  dailyDateText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#92400e',
+  },
+  dailyGreeting: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    letterSpacing: -0.5,
+  },
+  dailyStatsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  dailyStat: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  dailyStatIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dailyStatNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  dailyStatLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  dailySection: {
+    marginBottom: 20,
+  },
+  dailySectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  dailySectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  dailyEmptyState: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  dailyEmptyText: {
+    fontSize: 15,
+    color: '#6b7280',
+    marginTop: 12,
+  },
+  dailyEmptySubtext: {
+    fontSize: 13,
+    color: '#9ca3af',
+    marginTop: 4,
+  },
+  dailyAddButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#eff6ff',
+    borderRadius: 20,
+  },
+  dailyAddButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3b82f6',
   },
 
   // Settings Tab
