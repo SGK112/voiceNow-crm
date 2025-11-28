@@ -1788,6 +1788,33 @@ When asked to perform actions, use the available tools/functions.`;
       },
       {
         type: 'function',
+        name: 'initiate_outbound_call',
+        description: 'Make an AI phone call to a contact or phone number. ARIA will call the person and have a conversation on your behalf. Use when user says "call John", "phone Sarah", "dial this number", "talk to Mike about X".',
+        parameters: {
+          type: 'object',
+          properties: {
+            contactName: {
+              type: 'string',
+              description: 'Name of the contact to call (will look up their phone number)',
+            },
+            phoneNumber: {
+              type: 'string',
+              description: 'Direct phone number to call if no contact name (E.164 format like +1234567890)',
+            },
+            purpose: {
+              type: 'string',
+              description: 'What the call is about - e.g., "check on countertop delivery", "confirm appointment", "follow up on quote"',
+            },
+            message: {
+              type: 'string',
+              description: 'Specific message or information to convey during the call',
+            },
+          },
+          required: ['purpose'],
+        },
+      },
+      {
+        type: 'function',
         name: 'generate_image',
         description: 'Generate an AI image using DALL-E or Flux. Use when user wants to create marketing materials, logos, product images, before/after project photos, or any visual content. As an AI expert, you craft much better prompts than users can - ask clarifying questions about style, colors, dimensions, use case, and mood to build the perfect prompt. Offer to generate variations or let user provide reference images.',
         parameters: {
@@ -2167,6 +2194,30 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
       } catch (confError) {
         console.error('❌ [CONFERENCE] Error:', confError);
         result = { success: false, error: confError.message || 'Failed to start conference call' };
+      }
+    } else if (functionName === 'initiate_outbound_call') {
+      // Make an outbound AI call to a contact
+      try {
+        console.log(`📞 [OUTBOUND-CALL] Initiating call to: ${args.contactName || args.phoneNumber}`);
+        const callResult = await ariaCapabilities.execute('initiate_outbound_call', {
+          contactIdentifier: args.contactName,
+          phoneNumber: args.phoneNumber,
+          purpose: args.purpose,
+          instructions: args.message,
+          notifyOnComplete: true
+        });
+        result = {
+          success: callResult.success,
+          action: 'outbound_call',
+          callId: callResult.callSid,
+          phoneNumber: callResult.phoneNumber,
+          contactName: args.contactName,
+          purpose: args.purpose,
+          message: callResult.message || `Calling ${args.contactName || args.phoneNumber} to ${args.purpose}`
+        };
+      } catch (callError) {
+        console.error('❌ [OUTBOUND-CALL] Error:', callError);
+        result = { success: false, error: callError.message || 'Failed to initiate call' };
       }
     } else if (functionName === 'generate_image') {
       // Generate an AI image using Replicate (Flux models)

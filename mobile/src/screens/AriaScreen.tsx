@@ -39,6 +39,72 @@ interface UserLocation {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+// GeneratedImageView component with loading and error states
+interface GeneratedImageViewProps {
+  imageUrl: string;
+  onPress: () => void;
+}
+
+const GeneratedImageView: React.FC<GeneratedImageViewProps> = ({ imageUrl, onPress }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  return (
+    <TouchableOpacity
+      style={styles.generatedImageContainer}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      {loading && !error && (
+        <View style={styles.imageLoadingContainer}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text style={styles.imageLoadingText}>Loading image...</Text>
+        </View>
+      )}
+      {error ? (
+        <View style={styles.imageErrorContainer}>
+          <Ionicons name="image-outline" size={40} color="#9ca3af" />
+          <Text style={styles.imageErrorText}>Image could not be loaded</Text>
+          <TouchableOpacity
+            style={styles.imageRetryButton}
+            onPress={() => {
+              setError(false);
+              setLoading(true);
+            }}
+          >
+            <Text style={styles.imageRetryText}>Tap to retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <Image
+          source={{ uri: imageUrl }}
+          style={[styles.generatedImage, loading && { opacity: 0 }]}
+          resizeMode="cover"
+          onLoadStart={() => {
+            console.log('[Aria] Image loading started:', imageUrl);
+            setLoading(true);
+          }}
+          onLoad={() => {
+            console.log('[Aria] Image loaded successfully:', imageUrl);
+            setLoading(false);
+            setError(false);
+          }}
+          onError={(e) => {
+            console.log('[Aria] Image load error:', e.nativeEvent.error, 'URL:', imageUrl);
+            setLoading(false);
+            setError(true);
+          }}
+        />
+      )}
+      {!loading && !error && (
+        <View style={styles.imageOverlay}>
+          <Ionicons name="expand-outline" size={20} color="#fff" />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
 // Helper function to format time ago
 const formatTimeAgo = (date: Date): string => {
   const now = new Date();
@@ -392,21 +458,28 @@ export default function AriaScreen() {
         country: userLocation.country,
       } : null;
 
+      // Use longer timeout for image generation requests (2 minutes)
       const response = await api.post('/api/aria/chat', {
         message: userMessage.content,
         conversationHistory: chatMessages.map(m => ({ role: m.role, content: m.content })),
         location: locationData,
+      }, {
+        timeout: 120000, // 2 minutes for image generation
       });
+
+      console.log('[Aria] Chat response:', JSON.stringify(response.data, null, 2));
 
       if (response.data.success) {
         // Extract image URL from imageActions if present
-        let generatedImageUrl = null;
+        let generatedImageUrl: string | null = null;
         if (response.data.imageActions && response.data.imageActions.length > 0) {
+          console.log('[Aria] Image actions found:', response.data.imageActions);
           const imageAction = response.data.imageActions.find(
             (a: any) => a.result?.success && a.result?.imageUrl
           );
           if (imageAction) {
             generatedImageUrl = imageAction.result.imageUrl;
+            console.log('[Aria] Generated image URL:', generatedImageUrl);
           }
         }
 
@@ -418,6 +491,8 @@ export default function AriaScreen() {
           imageUrl: generatedImageUrl,
           imageActions: response.data.imageActions || null,
         };
+
+        console.log('[Aria] Assistant message with imageUrl:', assistantMessage.imageUrl);
 
         setChatMessages(prev => {
           const newMessages = [...prev, assistantMessage];
@@ -433,11 +508,25 @@ export default function AriaScreen() {
         });
         setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('[Aria] Chat error:', error);
+      let errorContent = 'Sorry, something went wrong. Please try again.';
+
+      // Provide more specific error messages
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        errorContent = 'The request timed out. Image generation can take a while - please try again with a simpler prompt.';
+      } else if (error.response?.status === 401) {
+        errorContent = 'Your session has expired. Please log out and log back in.';
+      } else if (error.response?.data?.error) {
+        errorContent = `Error: ${error.response.data.error}`;
+      } else if (error.message) {
+        errorContent = `Error: ${error.message}`;
+      }
+
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, something went wrong.',
+        content: errorContent,
       };
       setChatMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -517,48 +606,42 @@ export default function AriaScreen() {
                     keyboardShouldPersistTaps="handled"
                   >
                     {chatMessages.map((msg) => (
-                      <View key={msg.id}>
-                        <View
-                          style={[
-                            styles.chatBubble,
-                            msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
-                          ]}
-                        >
-                          <Text style={[
-                            styles.chatBubbleText,
-                            msg.role === 'user' && styles.userBubbleText,
-                          ]}>
-                            {msg.content}
-                          </Text>
-                        </View>
-                        {/* Render generated image if present */}
-                        {msg.imageUrl && typeof msg.imageUrl === 'string' && (
-                          <TouchableOpacity
-                            style={styles.generatedImageContainer}
-                            onPress={() => {
-                              // Open image in full screen or share
-                              const imageUrlStr = typeof msg.imageUrl === 'string' ? msg.imageUrl : '';
-                              if (imageUrlStr) {
-                                Alert.alert(
-                                  'Image Options',
-                                  'What would you like to do?',
-                                  [
-                                    { text: 'Open', onPress: () => Linking.openURL(imageUrlStr) },
-                                    { text: 'Cancel', style: 'cancel' },
-                                  ]
-                                );
-                              }
-                            }}
-                          >
-                            <Image
-                              source={{ uri: typeof msg.imageUrl === 'string' ? msg.imageUrl : '' }}
-                              style={styles.generatedImage}
-                              resizeMode="cover"
-                            />
-                            <View style={styles.imageOverlay}>
-                              <Ionicons name="expand-outline" size={20} color="#fff" />
+                      <View key={msg.id} style={styles.messageRow}>
+                        {/* User messages: show on right */}
+                        {msg.role === 'user' ? (
+                          <View style={styles.userMessageContainer}>
+                            <View style={[styles.chatBubble, styles.userBubble]}>
+                              <Text style={[styles.chatBubbleText, styles.userBubbleText]}>
+                                {msg.content}
+                              </Text>
                             </View>
-                          </TouchableOpacity>
+                          </View>
+                        ) : (
+                          /* Assistant messages: show on left */
+                          <View style={styles.assistantMessageContainer}>
+                            <View style={[styles.chatBubble, styles.assistantBubble]}>
+                              <Text style={styles.chatBubbleText}>
+                                {msg.content}
+                              </Text>
+                            </View>
+                            {/* Render generated image if present */}
+                            {msg.imageUrl && typeof msg.imageUrl === 'string' && (
+                              <GeneratedImageView
+                                imageUrl={msg.imageUrl}
+                                onPress={() => {
+                                  const imageUrlStr = msg.imageUrl as string;
+                                  Alert.alert(
+                                    'Image Options',
+                                    'What would you like to do?',
+                                    [
+                                      { text: 'Open in Browser', onPress: () => Linking.openURL(imageUrlStr) },
+                                      { text: 'Cancel', style: 'cancel' },
+                                    ]
+                                  );
+                                }}
+                              />
+                            )}
+                          </View>
                         )}
                         {/* Render LocalSearchResults for location-based UI actions */}
                         {msg.uiAction && ['local_search_results', 'place_details', 'directions'].includes(msg.uiAction.type) && (
@@ -567,8 +650,12 @@ export default function AriaScreen() {
                       </View>
                     ))}
                     {isLoading && (
-                      <View style={[styles.chatBubble, styles.assistantBubble]}>
-                        <ActivityIndicator size="small" color="#3b82f6" />
+                      <View style={styles.messageRow}>
+                        <View style={styles.assistantMessageContainer}>
+                          <View style={[styles.chatBubble, styles.assistantBubble, { paddingVertical: 16 }]}>
+                            <ActivityIndicator size="small" color="#3b82f6" />
+                          </View>
+                        </View>
                       </View>
                     )}
                   </ScrollView>
@@ -1091,22 +1178,34 @@ const styles = StyleSheet.create({
   chatMessagesContent: {
     paddingVertical: 20,
   },
+  messageRow: {
+    width: '100%',
+    marginBottom: 10,
+  },
+  userMessageContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  assistantMessageContainer: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
   chatBubble: {
     maxWidth: '82%',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
-    marginBottom: 10,
   },
   userBubble: {
-    alignSelf: 'flex-end',
     backgroundColor: '#1a1a1a',
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
-    alignSelf: 'flex-start',
     backgroundColor: '#f3f4f6',
     borderBottomLeftRadius: 6,
+    marginBottom: 8,
   },
   chatBubbleText: {
     fontSize: 15,
@@ -1142,6 +1241,47 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  imageLoadingContainer: {
+    width: SCREEN_WIDTH * 0.75,
+    height: SCREEN_WIDTH * 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 16,
+  },
+  imageLoadingText: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  imageErrorContainer: {
+    width: SCREEN_WIDTH * 0.75,
+    height: SCREEN_WIDTH * 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f9fafb',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+  },
+  imageErrorText: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  imageRetryButton: {
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#eff6ff',
+    borderRadius: 8,
+  },
+  imageRetryText: {
+    fontSize: 12,
+    color: '#3b82f6',
+    fontWeight: '500',
   },
 
   // Bottom Section
