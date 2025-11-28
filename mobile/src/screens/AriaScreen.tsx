@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
@@ -37,7 +37,56 @@ interface UserLocation {
   country?: string;
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Dot Grid Background Component (React Flow style) - Optimized with memoization
+const DotGridBackground: React.FC<{ isDark?: boolean }> = React.memo(({ isDark = false }) => {
+  const dotSpacing = 24;
+  const dotSize = 2;
+  const rows = Math.ceil(SCREEN_HEIGHT / dotSpacing) + 1;
+  const cols = Math.ceil(SCREEN_WIDTH / dotSpacing) + 1;
+  const dotColor = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
+
+  // Memoize the grid to avoid recalculation on every render
+  const grid = useMemo(() => {
+    const rowElements = [];
+    for (let row = 0; row < rows; row++) {
+      const dotsInRow = [];
+      for (let col = 0; col < cols; col++) {
+        dotsInRow.push(
+          <View
+            key={col}
+            style={{
+              width: dotSize,
+              height: dotSize,
+              borderRadius: dotSize / 2,
+              backgroundColor: dotColor,
+              marginRight: dotSpacing - dotSize,
+            }}
+          />
+        );
+      }
+      rowElements.push(
+        <View
+          key={row}
+          style={{
+            flexDirection: 'row',
+            marginBottom: dotSpacing - dotSize,
+          }}
+        >
+          {dotsInRow}
+        </View>
+      );
+    }
+    return rowElements;
+  }, [isDark, rows, cols, dotColor]);
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="none">
+      {grid}
+    </View>
+  );
+});
 
 // GeneratedImageView component with loading and error states
 interface GeneratedImageViewProps {
@@ -543,6 +592,9 @@ export default function AriaScreen() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
+          {/* Dot Grid Background */}
+          <DotGridBackground />
+
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity style={styles.menuButton} onPress={openMenu}>
