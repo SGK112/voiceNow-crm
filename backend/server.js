@@ -324,14 +324,14 @@ if (process.env.NODE_ENV === 'production') {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.sendFile(join(frontendPublicPath, 'index.html'));
+    res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
   app.get('/marketing', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.sendFile(join(frontendPublicPath, 'index.html'));
+    res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
   app.get('/demo', (req, res) => {
