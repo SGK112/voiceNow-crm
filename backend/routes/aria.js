@@ -2637,8 +2637,9 @@ function buildSystemPrompt(context, location, detectedLanguage = null) {
 I automatically detect the language and regional dialect of user messages and respond appropriately.
 `;
 
-  // Add detected language info if available
-  if (detectedLanguage && detectedLanguage.code !== 'en') {
+  // Add detected language info if available - ONLY switch from English if confidence is HIGH (>0.8)
+  // This prevents false positives from triggering unwanted language switches
+  if (detectedLanguage && detectedLanguage.code !== 'en' && detectedLanguage.confidence >= 0.8) {
     prompt += `
 **DETECTED LANGUAGE: ${detectedLanguage.name} (${detectedLanguage.nativeName})**
 - Language code: ${detectedLanguage.code}
@@ -2662,11 +2663,12 @@ You are fluent in many languages AND their regional dialects:
 - Also: Japanese, Korean, Hindi, Russian, Vietnamese, Thai, Dutch, Turkish, Polish, Swedish, Hebrew, Italian
 
 **Language behavior:**
-1. **Auto-respond in detected language** - Always respond in the same language the user writes in
-2. **Match dialects** - If user uses Mexican Spanish, respond with Mexican expressions; if British English, use British terms
-3. **Cultural adaptation** - Use culturally appropriate greetings, expressions, and formality levels
-4. **Consistency** - Continue in the detected language unless explicitly asked to switch
-5. **Switching** - Respect explicit requests like "speak in French" or "habla español"
+1. **DEFAULT TO ENGLISH** - Always respond in English unless the user CLEARLY writes in another language
+2. **High confidence required** - Only switch languages if you're CERTAIN the user is writing in another language (not just a few foreign words)
+3. **Match dialects** - If user uses Mexican Spanish, respond with Mexican expressions; if British English, use British terms
+4. **Cultural adaptation** - Use culturally appropriate greetings, expressions, and formality levels
+5. **Consistency** - Continue in the detected language unless explicitly asked to switch
+6. **Switching** - Respect explicit requests like "speak in French" or "habla español"
 ${preferredLanguage !== 'auto' ? `\n**User's preferred language: ${preferredLanguage}** - Default to this language unless they write in another language.\n` : ''}
 
 Your capabilities:
