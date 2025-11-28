@@ -30,8 +30,8 @@ const VoiceIcon = ({ size = 'default' }) => {
 const navigation = [
   { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard, tourId: 'dashboard', description: 'Analytics & Overview' },
   { name: 'My Agents', href: '/app/agents', icon: Bot, tourId: 'agents', description: 'Manage Your AI Agents' },
-  { name: 'VoiceFlow Builder', href: '/app/voiceflow-builder', icon: Workflow, tourId: 'voiceflow-builder', description: 'Visual Agent & Workflow Builder' },
-  { name: 'Studio', href: '/studio.html', icon: Image, tourId: 'studio', description: 'Social Media Staging & AI Images', external: true },
+  { name: 'Workflow Builder', href: '/app/voiceflow-builder', icon: Workflow, tourId: 'voiceflow-builder', description: 'Visual Agent & Workflow Builder' },
+  { name: 'Studio', href: '/app/studio', icon: Image, tourId: 'studio', description: 'Social Media Staging & AI Images' },
   { name: 'Voice Library', href: '/app/voice-library', icon: Music, tourId: 'voice-library', description: 'Browse & Add AI Voices' },
   { name: 'My Voices', href: '/app/my-voices', icon: Heart, tourId: 'my-voices', description: 'Your Saved Voices' },
   { name: 'Contacts', href: '/app/contacts', icon: Contact, tourId: 'contacts', description: 'Synced from Mobile App' },

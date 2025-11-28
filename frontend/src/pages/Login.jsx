@@ -32,43 +32,53 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
-      {/* Dot grid background */}
+      {/* Dark radial gradient background - matches marketing */}
+      <div
+        className="fixed inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%)',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+
+      {/* Dot grid overlay - matches marketing */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundColor: '#0a0a0b',
-          backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
+          backgroundColor: 'transparent',
+          backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px)',
           backgroundSize: '24px 24px'
         }}
       />
 
-      {/* Gradient orbs for visual interest */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[120px] pointer-events-none" />
-
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative z-10 flex-col justify-between p-12">
         <div>
-          {/* Logo */}
+          {/* Logo - matches marketing exactly */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
+            <span className="flex items-center gap-0.5 h-10 px-2.5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
+              <span className="w-0.5 h-2 bg-white/80 rounded-full"></span>
+              <span className="w-0.5 h-4 bg-white rounded-full"></span>
+              <span className="w-0.5 h-3 bg-white/80 rounded-full"></span>
+              <span className="w-0.5 h-5 bg-white rounded-full"></span>
+              <span className="w-0.5 h-2 bg-white/80 rounded-full"></span>
+            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl font-bold text-white">VoiceNow</span>
+              <span className="text-xl font-bold text-blue-400">CRM</span>
             </div>
-            <span className="text-xl font-bold text-white">VoiceNow CRM</span>
           </Link>
         </div>
 
         {/* Hero content */}
-        <div className="space-y-6">
-          <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight">
-            AI Voice Agents
-            <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        <div className="space-y-8">
+          <h1 className="text-4xl xl:text-5xl font-bold leading-tight">
+            <span className="text-white">AI Voice Agents</span>
+            <span className="block mt-2 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
               That Work 24/7
             </span>
           </h1>
-          <p className="text-lg text-gray-400 max-w-md">
+          <p className="text-lg text-gray-400 max-w-md leading-relaxed">
             Stop losing deals to slow follow-ups. Let AI handle calls, qualify leads, and book meetings while you focus on closing.
           </p>
 
@@ -78,12 +88,12 @@ export default function Login() {
               <div className="text-3xl font-bold text-white">300%</div>
               <div className="text-sm text-gray-500">More qualified leads</div>
             </div>
-            <div className="w-px bg-gray-800" />
+            <div className="w-px bg-gray-700" />
             <div>
               <div className="text-3xl font-bold text-green-400">24/7</div>
               <div className="text-sm text-gray-500">Always available</div>
             </div>
-            <div className="w-px bg-gray-800" />
+            <div className="w-px bg-gray-700" />
             <div>
               <div className="text-3xl font-bold text-blue-400">5min</div>
               <div className="text-sm text-gray-500">Setup time</div>
@@ -92,22 +102,26 @@ export default function Login() {
         </div>
 
         {/* Testimonial */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-          <div className="flex items-start gap-4">
+        <div className="rounded-xl p-5 bg-[#1a1a1c] border border-gray-800">
+          <p className="text-white text-base leading-relaxed mb-4">
+            "VoiceNow CRM transformed our business. We went from missing 40% of calls to capturing every single lead. The ROI was immediate."
+          </p>
+          <div className="flex items-center gap-3">
             <img
               src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=face"
               alt="Customer"
-              className="w-12 h-12 rounded-full object-cover border-2 border-blue-500/50"
+              className="w-10 h-10 rounded-full object-cover"
             />
             <div>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                "VoiceFlow AI transformed our business. We went from missing 40% of calls to capturing every single lead. The ROI was immediate."
-              </p>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="text-white font-medium text-sm">Mike Rodriguez</span>
-                <span className="text-gray-600">•</span>
-                <span className="text-gray-500 text-sm">Construction CEO</span>
-              </div>
+              <div className="text-white text-sm font-medium">Mike Rodriguez</div>
+              <div className="text-gray-400 text-xs">Construction CEO</div>
+            </div>
+            <div className="flex gap-0.5 ml-auto">
+              {[1,2,3,4,5].map(i => (
+                <svg key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
             </div>
           </div>
         </div>
@@ -119,17 +133,36 @@ export default function Login() {
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 text-center">
             <Link to="/" className="inline-flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
+              <span className="flex items-center gap-0.5 h-10 px-2.5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
+                <span className="w-0.5 h-2 bg-white/80 rounded-full"></span>
+                <span className="w-0.5 h-4 bg-white rounded-full"></span>
+                <span className="w-0.5 h-3 bg-white/80 rounded-full"></span>
+                <span className="w-0.5 h-5 bg-white rounded-full"></span>
+                <span className="w-0.5 h-2 bg-white/80 rounded-full"></span>
+              </span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold text-white">VoiceNow</span>
+                <span className="text-xl font-bold text-blue-400">CRM</span>
               </div>
-              <span className="text-xl font-bold text-white">VoiceNow CRM</span>
             </Link>
           </div>
 
-          {/* Form card */}
-          <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 shadow-2xl">
+          {/* Form card - dark card style matching marketing */}
+          <div
+            className="rounded-2xl p-8 border border-blue-500/20 overflow-hidden relative"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%)',
+              backdropFilter: 'blur(20px)'
+            }}
+          >
+            {/* Top accent bar */}
+            <div
+              className="absolute top-0 left-0 right-0 h-[3px]"
+              style={{
+                background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)'
+              }}
+            />
+
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-2">Welcome back</h2>
               <p className="text-gray-400">Sign in to your account to continue</p>
@@ -137,7 +170,7 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+                <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
                   <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
@@ -154,7 +187,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                  className="h-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -172,13 +205,13 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                  className="h-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all"
                 disabled={loading}
               >
                 {loading ? (
@@ -201,7 +234,7 @@ export default function Login() {
                     <span className="w-full border-t border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-gray-900/50 px-3 text-gray-500">
+                    <span className="px-3 text-gray-500" style={{ background: 'rgba(15, 15, 16, 0.95)' }}>
                       Or continue with
                     </span>
                   </div>

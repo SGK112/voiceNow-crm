@@ -3,31 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Remodely Studio - Social Media Staging</title>
+    <title>Studio - VoiceNow CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --card: 240 10% 3.9%;
-            --border: 240 3.7% 15.9%;
-        }
-
         * {
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        body {
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
 
-        .glass {
+        /* Dot grid overlay - matches marketing */
+        .dot-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Dark card style - matches marketing */
+        .dark-card {
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+        }
+
+        .dark-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        /* Glass card */
+        .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* Social cards */
         .social-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
@@ -36,12 +68,10 @@
         .social-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
         }
 
-        .social-card:active {
-            transform: scale(0.98);
-        }
-
+        /* Platform badges */
         .platform-badge {
             position: absolute;
             top: 8px;
@@ -54,63 +84,78 @@
             letter-spacing: 0.5px;
         }
 
-        .instagram { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); color: white; }
+        .instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
         .facebook { background: #1877f2; color: white; }
         .linkedin { background: #0077b5; color: white; }
         .twitter { background: #1da1f2; color: white; }
         .general { background: #6366f1; color: white; }
 
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* FAB button */
         .fab-create {
             position: fixed;
-            bottom: 80px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             width: 60px;
             height: 60px;
             border-radius: 50%;
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.6);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 90;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .fab-create:active {
-            transform: scale(0.9);
+        .fab-create:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.6);
         }
 
-        @media (min-width: 768px) {
-            .fab-create {
-                bottom: 24px;
-                right: 24px;
-                width: 64px;
-                height: 64px;
-            }
-        }
-
+        /* Action sheets */
         .action-sheet {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: #1a1a1b;
+            background: linear-gradient(135deg, rgba(15, 15, 16, 0.98) 0%, rgba(26, 26, 27, 0.98) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-bottom: none;
             border-radius: 24px 24px 0 0;
-            padding: 20px;
+            padding: 24px;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 200;
-            max-height: 92vh;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
         .action-sheet::before {
             content: '';
             position: absolute;
-            top: 8px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .action-sheet::after {
+            content: '';
+            position: absolute;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 36px;
+            width: 40px;
             height: 4px;
             background: rgba(255, 255, 255, 0.3);
             border-radius: 2px;
@@ -126,18 +171,21 @@
                 left: 50%;
                 transform: translate(-50%, 100%);
                 border-radius: 24px;
+                border: 1px solid rgba(59, 130, 246, 0.2);
             }
 
             .action-sheet.show {
                 transform: translate(-50%, 0);
-                bottom: 20px;
+                bottom: 24px;
             }
         }
 
+        /* Overlay */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
@@ -149,8 +197,8 @@
             pointer-events: all;
         }
 
+        /* Filter tabs */
         .filter-tab {
-            white-space: nowrap;
             transition: all 0.2s;
         }
 
@@ -159,21 +207,7 @@
             color: white;
         }
 
-        .filter-desktop.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-        }
-
-        /* Hide scrollbar on filter tabs */
-        .filter-tabs-container {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .filter-tabs-container::-webkit-scrollbar {
-            display: none;
-        }
-
+        /* Share buttons */
         .share-btn {
             padding: 12px 16px;
             border-radius: 12px;
@@ -183,147 +217,33 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            font-size: 14px;
         }
 
-        .share-btn:active {
-            transform: scale(0.95);
+        .share-btn:hover {
+            transform: translateY(-2px);
         }
 
+        /* Create options */
         .create-option {
             transition: all 0.2s;
         }
 
-        .create-option:active {
-            transform: scale(0.95);
+        .create-option:hover {
+            transform: translateY(-4px);
         }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 10, 11, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 80;
-        }
-
-        @media (min-width: 768px) {
-            .bottom-nav {
-                display: none;
-            }
-        }
-
-        /* Desktop Sidebar */
-        .desktop-sidebar {
+        /* Sidebar */
+        .sidebar {
             position: sticky;
-            top: 72px;
-            height: calc(100vh - 96px);
+            top: 80px;
+            height: calc(100vh - 100px);
             overflow-y: auto;
-        }
-
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Responsive grid improvements */
-        @media (min-width: 640px) and (max-width: 767px) {
-            #content-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            #content-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-            }
-        }
-
-        @media (min-width: 1024px) and (max-width: 1279px) {
-            #content-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1.25rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            #content-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 1.5rem;
-            }
-        }
-
-        @media (min-width: 1536px) {
-            #content-grid {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 1.5rem;
-            }
-        }
-
-        @media (min-width: 1920px) {
-            #content-grid {
-                grid-template-columns: repeat(6, 1fr);
-                gap: 1.5rem;
-            }
-        }
-
-        /* Touch target optimization */
-        @media (max-width: 767px) {
-            button, .social-card {
-                min-height: 44px;
-            }
-
-            .social-card {
-                -webkit-touch-callout: none;
-            }
-
-            /* Prevent bounce scrolling interference */
-            body {
-                overscroll-behavior-y: contain;
-            }
-
-            /* Better touch feedback */
-            button:active, .social-card:active {
-                opacity: 0.7;
-            }
-
-            /* Optimize input fields for mobile */
-            input, textarea, select {
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-        }
-
-        /* Enhanced hover states for desktop */
-        @media (min-width: 768px) {
-            .filter-desktop:hover {
-                background: rgba(255, 255, 255, 0.1);
-            }
-
-            .create-option:hover {
-                transform: translateY(-2px);
-            }
-        }
-
-        /* Loading skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
         }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -331,442 +251,150 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.5);
-            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.7);
+            background: rgba(59, 130, 246, 0.6);
         }
 
-        /* Collapsible Side Menu - Matches WorkflowStudio */
-        .side-menu {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 224px; /* w-56 in Tailwind */
-            background: hsl(var(--card));
-            border-right: 1px solid hsl(var(--border));
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        /* Grid responsive */
+        @media (min-width: 640px) {
+            #content-grid { grid-template-columns: repeat(2, 1fr); }
         }
-
-        .side-menu.open {
-            transform: translateX(0);
+        @media (min-width: 1024px) {
+            #content-grid { grid-template-columns: repeat(3, 1fr); }
         }
-
-        .menu-toggle {
-            position: fixed;
-            left: 20px;
-            top: 80px;
-            z-index: 101;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .menu-toggle:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            transform: scale(1.05);
-        }
-
-        .menu-toggle.menu-open {
-            left: 244px; /* 224px + 20px margin */
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .menu-toggle.menu-open:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
-
-        @media (max-width: 768px) {
-            .side-menu {
-                width: 280px;
-            }
-
-            .menu-toggle.menu-open {
-                left: 300px;
-            }
-        }
-
-        .menu-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 99;
-        }
-
-        .menu-overlay.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        /* Canvas Editor */
-        .canvas-container {
-            position: relative;
-            touch-action: none;
-        }
-
-        .sticker {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-            font-size: 48px;
-        }
-
-        .text-overlay {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Inspiration Grid */
-        .inspiration-item {
-            position: relative;
-            aspect-ratio: 1;
-            overflow: hidden;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .inspiration-item:hover {
-            transform: scale(1.05);
-        }
-
-        .inspiration-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        @media (min-width: 1280px) {
+            #content-grid { grid-template-columns: repeat(4, 1fr); }
         }
     </style>
 </head>
-<body class="bg-[#0a0a0b] text-white">
+<body class="text-white min-h-screen">
+    <!-- Dot grid background -->
+    <div class="dot-grid"></div>
 
-    <!-- Menu Toggle Button -->
-    <button id="menu-toggle" class="menu-toggle">
-        <i class="fas fa-bars text-lg"></i>
-    </button>
-
-    <!-- Menu Overlay -->
-    <div id="menu-overlay" class="menu-overlay"></div>
-
-    <!-- Collapsible Side Menu -->
-    <div id="side-menu" class="side-menu">
-        <!-- Menu Header -->
-        <div class="p-3 border-b border-white/10">
-            <div class="flex items-center justify-between mb-2">
-                <h2 class="text-sm font-bold">Studio Tools</h2>
-                <button id="close-menu" class="p-1 hover:bg-white/10 rounded">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
-            </div>
-
-            <button onclick="Studio.showCreate()" class="w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs">
-                <i class="fas fa-plus w-3 h-3"></i>
-                New Content
-            </button>
-        </div>
-
-        <!-- Menu Tabs -->
-        <div class="flex border-b border-white/10">
-            <button class="menu-tab active flex-1 px-3 py-2 text-xs font-medium border-b-2 border-blue-500" data-tab="inspiration">
-                <i class="fas fa-lightbulb"></i>
-                <span class="hidden sm:inline ml-1">Inspiration</span>
-            </button>
-            <button class="menu-tab flex-1 px-3 py-2 text-xs font-medium border-b-2 border-transparent text-gray-400" data-tab="wizard">
-                <i class="fas fa-magic"></i>
-                <span class="hidden sm:inline ml-1">AI Wizard</span>
-            </button>
-            <button class="menu-tab flex-1 px-3 py-2 text-xs font-medium border-b-2 border-transparent text-gray-400" data-tab="editor">
-                <i class="fas fa-edit"></i>
-                <span class="hidden sm:inline ml-1">Editor</span>
-            </button>
-        </div>
-
-        <!-- Menu Content -->
-        <div class="flex-1 overflow-y-auto">
-            <!-- Inspiration Board Tab -->
-            <div id="tab-inspiration" class="tab-content p-6">
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold mb-3">Inspiration Board</h3>
-                    <p class="text-sm text-gray-400 mb-4">Upload images, docs, and URLs for inspiration</p>
-
-                    <!-- Upload Buttons -->
-                    <div class="grid grid-cols-2 gap-3 mb-6">
-                        <button onclick="Studio.uploadInspiration('image')" class="px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors">
-                            <i class="fas fa-image mr-2"></i>Image
-                        </button>
-                        <button onclick="Studio.uploadInspiration('doc')" class="px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors">
-                            <i class="fas fa-file mr-2"></i>Doc
-                        </button>
-                        <button onclick="Studio.addInspiration('url')" class="px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors">
-                            <i class="fas fa-link mr-2"></i>URL
-                        </button>
-                        <button onclick="Studio.addInspiration('note')" class="px-4 py-3 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm font-semibold transition-colors">
-                            <i class="fas fa-sticky-note mr-2"></i>Note
-                        </button>
-                    </div>
-
-                    <!-- Inspiration Grid -->
-                    <div id="inspiration-grid" class="grid grid-cols-2 gap-3">
-                        <!-- Items will be added here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Wizard Tab -->
-            <div id="tab-wizard" class="tab-content p-6 hidden">
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold mb-3">AI Writing Assistant</h3>
-                    <p class="text-sm text-gray-400 mb-4">Generate captions, headlines, and copy</p>
-
-                    <!-- AI Writing Tools -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Content Type</label>
-                            <select id="ai-content-type" class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm">
-                                <option value="caption">Instagram Caption</option>
-                                <option value="headline">Headline</option>
-                                <option value="description">Description</option>
-                                <option value="hashtags">Hashtags</option>
-                                <option value="cta">Call to Action</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Describe Your Content</label>
-                            <textarea id="ai-prompt-input" rows="4" class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Kitchen remodel with black granite counters..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Tone</label>
-                            <select id="ai-tone" class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm">
-                                <option value="professional">Professional</option>
-                                <option value="casual">Casual</option>
-                                <option value="friendly">Friendly</option>
-                                <option value="excited">Excited</option>
-                                <option value="inspiring">Inspiring</option>
-                            </select>
-                        </div>
-
-                        <button onclick="Studio.generateAIContent()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold">
-                            <i class="fas fa-sparkles mr-2"></i>Generate with AI
-                        </button>
-
-                        <!-- AI Output -->
-                        <div id="ai-output" class="hidden">
-                            <label class="block text-sm font-medium mb-2">Generated Content</label>
-                            <div class="bg-black/40 border border-white/10 rounded-lg p-4">
-                                <p id="ai-result" class="text-sm whitespace-pre-wrap"></p>
-                                <button onclick="Studio.copyAIResult()" class="mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-semibold">
-                                    <i class="fas fa-copy mr-1"></i>Copy
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Image Editor Tab -->
-            <div id="tab-editor" class="tab-content p-6 hidden">
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold mb-3">Image Editor</h3>
-                    <p class="text-sm text-gray-400 mb-4">Add stickers and text to images</p>
-
-                    <!-- Editor Tools -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-3">Add Stickers</label>
-                            <div class="grid grid-cols-6 gap-2 mb-4">
-                                <button onclick="Studio.addSticker('⭐')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">⭐</button>
-                                <button onclick="Studio.addSticker('✨')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">✨</button>
-                                <button onclick="Studio.addSticker('🔥')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">🔥</button>
-                                <button onclick="Studio.addSticker('💎')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">💎</button>
-                                <button onclick="Studio.addSticker('✅')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">✅</button>
-                                <button onclick="Studio.addSticker('❤️')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">❤️</button>
-                                <button onclick="Studio.addSticker('👍')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">👍</button>
-                                <button onclick="Studio.addSticker('🎯')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">🎯</button>
-                                <button onclick="Studio.addSticker('💪')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">💪</button>
-                                <button onclick="Studio.addSticker('🏆')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">🏆</button>
-                                <button onclick="Studio.addSticker('🎉')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">🎉</button>
-                                <button onclick="Studio.addSticker('💯')" class="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-2xl">💯</button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Add Text</label>
-                            <input type="text" id="text-input" placeholder="Enter your text..." class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm mb-2">
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <select id="text-color" class="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm">
-                                    <option value="#ffffff">White</option>
-                                    <option value="#000000">Black</option>
-                                    <option value="#3b82f6">Blue</option>
-                                    <option value="#ef4444">Red</option>
-                                    <option value="#22c55e">Green</option>
-                                    <option value="#f59e0b">Orange</option>
-                                </select>
-                                <select id="text-size" class="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm">
-                                    <option value="16">Small</option>
-                                    <option value="24" selected>Medium</option>
-                                    <option value="32">Large</option>
-                                    <option value="48">Extra Large</option>
-                                </select>
-                            </div>
-                            <button onclick="Studio.addText()" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold">
-                                <i class="fas fa-plus mr-2"></i>Add Text
-                            </button>
-                        </div>
-
-                        <div class="border-t border-white/10 pt-4">
-                            <p class="text-xs text-gray-500 mb-3">Select an image from your content to edit</p>
-                            <button onclick="Studio.saveEditedImage()" class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">
-                                <i class="fas fa-save mr-2"></i>Save Edited Image
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <header class="border-b border-white/10 bg-black/50 backdrop-blur-lg sticky top-0 z-50">
+    <!-- Header - matches app navigation -->
+    <header class="sticky top-0 z-50 border-b border-blue-500/20" style="background: linear-gradient(135deg, rgba(15, 15, 16, 0.95) 0%, rgba(26, 26, 27, 0.95) 100%); backdrop-filter: blur(20px);">
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-photo-video text-xl text-blue-500"></i>
-                    <h1 class="text-base md:text-lg font-bold">
-                        Remodely <span class="gradient-text">Studio</span>
-                    </h1>
-                </div>
-                <div class="flex items-center gap-2">
-                    <a href="/marketing.html" class="hidden md:inline-flex px-3 py-1.5 text-gray-400 hover:text-white rounded-lg text-xs font-semibold transition-colors">
-                        <i class="fas fa-home mr-1"></i>Home
+                <!-- Logo - matches marketing exactly -->
+                <a href="/app/dashboard" class="flex items-center gap-3">
+                    <span class="flex items-center gap-0.5 h-9 px-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
+                        <span class="w-0.5 h-2 bg-white/80 rounded-full"></span>
+                        <span class="w-0.5 h-3.5 bg-white rounded-full"></span>
+                        <span class="w-0.5 h-2.5 bg-white/80 rounded-full"></span>
+                        <span class="w-0.5 h-4 bg-white rounded-full"></span>
+                        <span class="w-0.5 h-2 bg-white/80 rounded-full"></span>
+                    </span>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-lg font-bold text-white">VoiceNow</span>
+                        <span class="text-lg font-bold text-blue-400">Studio</span>
+                    </div>
+                </a>
+
+                <!-- Navigation -->
+                <nav class="flex items-center gap-2">
+                    <a href="/app/dashboard" class="hidden sm:flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
                     </a>
-                    <a href="/app/dashboard" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-semibold transition-colors">
-                        <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                    <a href="/app/agents" class="hidden sm:flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-robot"></i>
+                        <span>Agents</span>
                     </a>
-                </div>
+                    <a href="/app/crm" class="hidden sm:flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-users"></i>
+                        <span>CRM</span>
+                    </a>
+                    <a href="/app/settings" class="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-cog"></i>
+                        <span class="hidden sm:inline">Settings</span>
+                    </a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <!-- Main Content - Desktop Grid -->
-    <div class="max-w-[1920px] mx-auto px-4 py-4 md:py-6">
-        <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <!-- Main Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-            <!-- Desktop Left Sidebar -->
-            <aside class="hidden lg:block desktop-sidebar">
-                <div class="glass rounded-2xl p-6 mb-6">
-                    <h2 class="text-lg font-bold mb-4">Quick Actions</h2>
-                    <div class="space-y-3">
-                        <button onclick="Studio.showCreate()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
-                            <i class="fas fa-plus mr-2"></i>Create Content
-                        </button>
-                        <button class="w-full px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-medium transition-all text-left">
-                            <i class="fas fa-sitemap mr-2 text-purple-400"></i>Workflows
-                        </button>
-                        <button class="w-full px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-medium transition-all text-left">
-                            <i class="fas fa-chart-line mr-2 text-green-400"></i>Analytics
-                        </button>
-                    </div>
-                </div>
-
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wide">Filters</h3>
-                    <div class="space-y-2">
-                        <button class="filter-desktop active w-full px-3 py-2 rounded-lg text-sm font-medium text-left transition-all" data-filter="all">
-                            All Content <span class="float-right opacity-70" id="desktop-count-all">(0)</span>
-                        </button>
-                        <button class="filter-desktop w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-white/5 hover:bg-white/10 transition-all" data-filter="ready">
-                            Ready to Share <span class="float-right opacity-70" id="desktop-count-ready">(0)</span>
-                        </button>
-                        <button class="filter-desktop w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-white/5 hover:bg-white/10 transition-all" data-filter="progress">
-                            In Progress <span class="float-right opacity-70" id="desktop-count-progress">(0)</span>
-                        </button>
-                        <button class="filter-desktop w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-white/5 hover:bg-white/10 transition-all" data-filter="shared">
-                            Shared <span class="float-right opacity-70" id="desktop-count-shared">(0)</span>
-                        </button>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-white/10">
-                        <h3 class="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wide">Platforms</h3>
+            <!-- Sidebar -->
+            <aside class="hidden lg:block">
+                <div class="sidebar space-y-4">
+                    <!-- Quick Actions -->
+                    <div class="dark-card rounded-2xl p-5">
+                        <h2 class="text-base font-bold mb-4 text-white">Quick Actions</h2>
                         <div class="space-y-2">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="platform-filter" data-platform="instagram" checked>
-                                <span class="text-sm">Instagram</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="platform-filter" data-platform="facebook" checked>
-                                <span class="text-sm">Facebook</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="platform-filter" data-platform="linkedin" checked>
-                                <span class="text-sm">LinkedIn</span>
-                            </label>
+                            <button onclick="Studio.showCreate()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl font-semibold text-sm shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all">
+                                <i class="fas fa-plus mr-2"></i>Create Content
+                            </button>
+                            <button class="w-full px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-medium text-sm text-left transition-all">
+                                <i class="fas fa-magic mr-2 text-purple-400"></i>AI Generate
+                            </button>
+                            <button class="w-full px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-medium text-sm text-left transition-all">
+                                <i class="fas fa-upload mr-2 text-green-400"></i>Upload Media
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="dark-card rounded-2xl p-5">
+                        <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide">Status</h3>
+                        <div class="space-y-1">
+                            <button class="filter-btn active w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-blue-600/20 text-blue-400 transition-all" data-filter="all">
+                                All Content <span class="float-right opacity-70" id="count-all">(0)</span>
+                            </button>
+                            <button class="filter-btn w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-white/5 hover:bg-white/10 text-gray-300 transition-all" data-filter="ready">
+                                Ready <span class="float-right opacity-70" id="count-ready">(0)</span>
+                            </button>
+                            <button class="filter-btn w-full px-3 py-2 rounded-lg text-sm font-medium text-left bg-white/5 hover:bg-white/10 text-gray-300 transition-all" data-filter="shared">
+                                Shared <span class="float-right opacity-70" id="count-shared">(0)</span>
+                            </button>
+                        </div>
+
+                        <div class="mt-5 pt-5 border-t border-white/10">
+                            <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide">Platforms</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                                    <input type="checkbox" class="platform-filter accent-blue-500" data-platform="instagram" checked>
+                                    <i class="fab fa-instagram text-pink-400"></i> Instagram
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                                    <input type="checkbox" class="platform-filter accent-blue-500" data-platform="facebook" checked>
+                                    <i class="fab fa-facebook text-blue-400"></i> Facebook
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                                    <input type="checkbox" class="platform-filter accent-blue-500" data-platform="linkedin" checked>
+                                    <i class="fab fa-linkedin text-blue-500"></i> LinkedIn
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </aside>
 
             <!-- Main Content Area -->
-            <main class="lg:col-span-3 xl:col-span-4 pb-20 lg:pb-0">
-
-                <!-- Mobile Hero -->
-                <div class="text-center mb-6 lg:hidden">
-                    <h2 class="text-2xl font-bold mb-1">
-                        Social <span class="gradient-text">Studio</span>
-                    </h2>
-                    <p class="text-sm text-gray-400">
-                        Create, stage, and share
-                    </p>
-                </div>
-
-                <!-- Desktop Hero -->
-                <div class="hidden lg:block mb-8">
-                    <h2 class="text-3xl font-bold mb-2">
-                        Social Media <span class="gradient-text">Staging Area</span>
-                    </h2>
-                    <p class="text-gray-400">
-                        Create AI images, generate captions, and share across all platforms with workflow automation.
+            <main class="lg:col-span-3">
+                <!-- Hero -->
+                <div class="mb-6">
+                    <h1 class="text-2xl lg:text-3xl font-bold mb-2">
+                        Social Media <span class="gradient-text">Studio</span>
+                    </h1>
+                    <p class="text-gray-400 text-sm lg:text-base">
+                        Create AI images, generate captions, and share across all platforms.
                     </p>
                 </div>
 
                 <!-- Mobile Filter Tabs -->
-                <div class="filter-tabs-container flex items-center gap-2 mb-4 overflow-x-auto pb-2 lg:hidden">
+                <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-2 lg:hidden">
                     <button class="filter-tab active flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium" data-filter="all">
                         All <span class="ml-1 opacity-70" id="mobile-count-all">(0)</span>
                     </button>
                     <button class="filter-tab flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium bg-white/5" data-filter="ready">
                         Ready <span class="ml-1 opacity-70" id="mobile-count-ready">(0)</span>
-                    </button>
-                    <button class="filter-tab flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium bg-white/5" data-filter="progress">
-                        Progress <span class="ml-1 opacity-70" id="mobile-count-progress">(0)</span>
                     </button>
                     <button class="filter-tab flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium bg-white/5" data-filter="shared">
                         Shared <span class="ml-1 opacity-70" id="mobile-count-shared">(0)</span>
@@ -774,124 +402,115 @@
                 </div>
 
                 <!-- Content Grid -->
-                <div id="content-grid" class="grid gap-3">
+                <div id="content-grid" class="grid gap-4">
                     <!-- Content cards will be inserted here -->
                 </div>
 
                 <!-- Empty State -->
-                <div id="empty-state" class="text-center py-16 hidden">
-                    <i class="fas fa-images text-6xl text-gray-700 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-500 mb-2">No content yet</h3>
-                    <p class="text-gray-600 mb-6 text-sm px-4">Create your first AI image or upload photos to get started</p>
-                    <button onclick="Studio.showCreate()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold shadow-lg">
+                <div id="empty-state" class="dark-card rounded-2xl p-12 text-center hidden">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <i class="fas fa-images text-3xl text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">No content yet</h3>
+                    <p class="text-gray-400 mb-6 text-sm max-w-md mx-auto">
+                        Create your first AI image or upload photos to get started with your social media content.
+                    </p>
+                    <button onclick="Studio.showCreate()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl font-semibold shadow-lg shadow-blue-600/20">
                         <i class="fas fa-plus mr-2"></i>Create Content
                     </button>
                 </div>
             </main>
-
         </div>
     </div>
 
-    <!-- Mobile FAB -->
-    <button id="fab-create" class="fab-create">
-        <i class="fas fa-plus text-white text-2xl"></i>
+    <!-- FAB -->
+    <button id="fab-create" class="fab-create lg:hidden">
+        <i class="fas fa-plus text-white text-xl"></i>
     </button>
-
-    <!-- Mobile Bottom Navigation -->
-    <div class="bottom-nav">
-        <div class="grid grid-cols-3 gap-1 p-2">
-            <button onclick="Studio.showCreate()" class="flex flex-col items-center gap-1 py-2 px-3 rounded-lg hover:bg-white/5">
-                <i class="fas fa-plus text-blue-400 text-lg"></i>
-                <span class="text-xs text-gray-400">Create</span>
-            </button>
-            <button class="flex flex-col items-center gap-1 py-2 px-3 rounded-lg hover:bg-white/5">
-                <i class="fas fa-th-large text-gray-400 text-lg"></i>
-                <span class="text-xs text-gray-400">Library</span>
-            </button>
-            <a href="/dashboard" class="flex flex-col items-center gap-1 py-2 px-3 rounded-lg hover:bg-white/5">
-                <i class="fas fa-chart-line text-gray-400 text-lg"></i>
-                <span class="text-xs text-gray-400">Dashboard</span>
-            </a>
-        </div>
-    </div>
 
     <!-- Overlay -->
     <div id="overlay" class="overlay"></div>
 
     <!-- Create Content Sheet -->
     <div id="create-sheet" class="action-sheet">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Create Content</h3>
-            <button id="close-create" class="text-gray-400 text-2xl">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div id="create-options" class="grid grid-cols-2 gap-4 mb-6">
-            <button id="option-generate" class="create-option flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-2 border-blue-500/30 hover:border-blue-500/60 transition-all">
-                <i class="fas fa-sparkles text-4xl text-blue-400"></i>
-                <div class="text-center">
-                    <p class="font-bold text-sm">AI Generate</p>
-                    <p class="text-xs text-gray-400">Create with AI</p>
-                </div>
-            </button>
-
-            <button id="option-upload" class="create-option flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-600/20 to-emerald-600/20 border-2 border-green-500/30 hover:border-green-500/60 transition-all">
-                <i class="fas fa-camera text-4xl text-green-400"></i>
-                <div class="text-center">
-                    <p class="font-bold text-sm">Upload Photo</p>
-                    <p class="text-xs text-gray-400">From device</p>
-                </div>
-            </button>
-        </div>
-
-        <div id="generate-form" class="hidden space-y-4">
-            <button id="back-to-options" class="text-sm text-gray-400 hover:text-white mb-2">
-                <i class="fas fa-arrow-left mr-2"></i>Back
-            </button>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Describe your image</label>
-                <textarea
-                    id="ai-prompt"
-                    rows="4"
-                    class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none text-sm"
-                    placeholder="Modern kitchen remodel with black granite countertops, white cabinets..."></textarea>
+        <div class="pt-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">Create Content</h3>
+                <button id="close-create" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-2">Platform</label>
-                    <select id="platform-select" class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
-                        <option value="instagram">Instagram</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="general">General</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-2">Style</label>
-                    <select id="style-select" class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
-                        <option value="photorealistic">Photo</option>
-                        <option value="artistic">Artistic</option>
-                        <option value="cinematic">Cinematic</option>
-                    </select>
-                </div>
-            </div>
-
-            <button id="generate-submit" class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-bold shadow-lg text-sm">
-                <i class="fas fa-magic mr-2"></i>Generate Image
-            </button>
-
-            <div id="generate-progress" class="hidden bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="animate-spin">
-                        <i class="fas fa-circle-notch text-blue-400 text-xl"></i>
+            <div id="create-options" class="grid grid-cols-2 gap-4 mb-4">
+                <button id="option-generate" class="create-option dark-card flex flex-col items-center gap-3 p-6 rounded-2xl hover:border-blue-500/40 transition-all">
+                    <div class="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <i class="fas fa-sparkles text-2xl text-blue-400"></i>
                     </div>
-                    <span class="text-sm text-blue-300">Creating your image...</span>
+                    <div class="text-center">
+                        <p class="font-bold text-sm text-white">AI Generate</p>
+                        <p class="text-xs text-gray-400">Create with AI</p>
+                    </div>
+                </button>
+
+                <button id="option-upload" class="create-option dark-card flex flex-col items-center gap-3 p-6 rounded-2xl hover:border-green-500/40 transition-all">
+                    <div class="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <i class="fas fa-camera text-2xl text-green-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-bold text-sm text-white">Upload Photo</p>
+                        <p class="text-xs text-gray-400">From device</p>
+                    </div>
+                </button>
+            </div>
+
+            <div id="generate-form" class="hidden space-y-4">
+                <button id="back-to-options" class="text-sm text-gray-400 hover:text-white mb-2">
+                    <i class="fas fa-arrow-left mr-2"></i>Back
+                </button>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Describe your image</label>
+                    <textarea
+                        id="ai-prompt"
+                        rows="4"
+                        class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none text-sm"
+                        placeholder="Modern kitchen remodel with black granite countertops, white cabinets..."></textarea>
                 </div>
-                <div class="w-full bg-gray-700 rounded-full h-2">
-                    <div id="generate-bar" class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width: 0%"></div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-2">Platform</label>
+                        <select id="platform-select" class="w-full bg-black/30 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white">
+                            <option value="instagram">Instagram</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-2">Style</label>
+                        <select id="style-select" class="w-full bg-black/30 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white">
+                            <option value="photorealistic">Photo</option>
+                            <option value="artistic">Artistic</option>
+                            <option value="cinematic">Cinematic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="generate-submit" class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl font-bold shadow-lg text-sm">
+                    <i class="fas fa-magic mr-2"></i>Generate Image
+                </button>
+
+                <div id="generate-progress" class="hidden bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="animate-spin">
+                            <i class="fas fa-circle-notch text-blue-400 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-blue-300">Creating your image...</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div id="generate-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -899,72 +518,64 @@
 
     <!-- Content Detail Sheet -->
     <div id="detail-sheet" class="action-sheet">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Content Details</h3>
-            <button id="close-detail" class="text-gray-400 text-2xl">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div id="detail-content" class="space-y-4">
-            <!-- Dynamic content -->
+        <div class="pt-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">Content Details</h3>
+                <button id="close-detail" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="detail-content" class="space-y-4">
+                <!-- Dynamic content -->
+            </div>
         </div>
     </div>
 
     <!-- Hidden file inputs -->
     <input type="file" id="image-upload" accept="image/*" capture="environment" class="hidden">
-    <input type="file" id="inspiration-image" accept="image/*" class="hidden">
-    <input type="file" id="inspiration-doc" accept=".pdf,.doc,.docx,.txt" class="hidden">
 
     <script>
-        // Studio App - Optimized for Mobile & Desktop
+        // Studio App
         const Studio = {
             content: [],
             currentContent: null,
             currentFilter: 'all',
             platformFilters: ['instagram', 'facebook', 'linkedin'],
-            inspiration: [],
-            editingCanvas: null,
-            editorElements: [],
 
             init() {
-                console.log('🎬 Initializing Remodely Studio...');
+                console.log('🎬 Initializing VoiceNow Studio...');
                 this.loadFromLocalStorage();
                 this.setupEventListeners();
-                this.setupMenuListeners();
                 this.render();
-                this.renderInspiration();
                 console.log('✅ Studio ready!');
             },
 
             loadFromLocalStorage() {
-                const saved = localStorage.getItem('remodely_studio');
+                const saved = localStorage.getItem('voicenow_studio');
                 if (saved) {
                     const data = JSON.parse(saved);
                     this.content = data.content || [];
-                    this.inspiration = data.inspiration || [];
                 }
             },
 
             saveToLocalStorage() {
-                localStorage.setItem('remodely_studio', JSON.stringify({
-                    content: this.content,
-                    inspiration: this.inspiration
+                localStorage.setItem('voicenow_studio', JSON.stringify({
+                    content: this.content
                 }));
             },
 
             setupEventListeners() {
                 // Create buttons
-                document.getElementById('fab-create').addEventListener('click', () => this.showCreate());
-                document.getElementById('close-create').addEventListener('click', () => this.hideSheet('create-sheet'));
+                document.getElementById('fab-create')?.addEventListener('click', () => this.showCreate());
+                document.getElementById('close-create')?.addEventListener('click', () => this.hideSheet('create-sheet'));
 
                 // Create options
-                document.getElementById('option-generate').addEventListener('click', () => {
+                document.getElementById('option-generate')?.addEventListener('click', () => {
                     document.getElementById('create-options').classList.add('hidden');
                     document.getElementById('generate-form').classList.remove('hidden');
                 });
 
-                document.getElementById('option-upload').addEventListener('click', () => {
+                document.getElementById('option-upload')?.addEventListener('click', () => {
                     document.getElementById('image-upload').click();
                 });
 
@@ -974,51 +585,47 @@
                 });
 
                 // Image upload
-                document.getElementById('image-upload').addEventListener('change', (e) => this.handleImageUpload(e));
+                document.getElementById('image-upload')?.addEventListener('change', (e) => this.handleImageUpload(e));
 
                 // Generate submit
-                document.getElementById('generate-submit').addEventListener('click', () => this.generateContent());
+                document.getElementById('generate-submit')?.addEventListener('click', () => this.generateContent());
 
                 // Detail sheet
-                document.getElementById('close-detail').addEventListener('click', () => this.hideSheet('detail-sheet'));
+                document.getElementById('close-detail')?.addEventListener('click', () => this.hideSheet('detail-sheet'));
 
                 // Overlay
-                document.getElementById('overlay').addEventListener('click', () => {
+                document.getElementById('overlay')?.addEventListener('click', () => {
                     this.hideSheet('create-sheet');
                     this.hideSheet('detail-sheet');
                 });
 
-                // Filter tabs (mobile)
-                document.querySelectorAll('.filter-tab').forEach(btn => {
+                // Filter tabs
+                document.querySelectorAll('.filter-tab, .filter-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const filter = e.currentTarget.dataset.filter;
                         this.setFilter(filter);
 
+                        // Update active state
                         document.querySelectorAll('.filter-tab').forEach(b => {
                             b.classList.remove('active');
                             b.classList.add('bg-white/5');
                         });
-                        e.currentTarget.classList.add('active');
-                        e.currentTarget.classList.remove('bg-white/5');
-                    });
-                });
-
-                // Filter tabs (desktop)
-                document.querySelectorAll('.filter-desktop').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const filter = e.currentTarget.dataset.filter;
-                        this.setFilter(filter);
-
-                        document.querySelectorAll('.filter-desktop').forEach(b => {
-                            b.classList.remove('active');
-                            b.classList.add('bg-white/5');
+                        document.querySelectorAll('.filter-btn').forEach(b => {
+                            b.classList.remove('active', 'bg-blue-600/20', 'text-blue-400');
+                            b.classList.add('bg-white/5', 'text-gray-300');
                         });
-                        e.currentTarget.classList.add('active');
-                        e.currentTarget.classList.remove('bg-white/5');
+
+                        if (e.currentTarget.classList.contains('filter-tab')) {
+                            e.currentTarget.classList.add('active');
+                            e.currentTarget.classList.remove('bg-white/5');
+                        } else {
+                            e.currentTarget.classList.add('active', 'bg-blue-600/20', 'text-blue-400');
+                            e.currentTarget.classList.remove('bg-white/5', 'text-gray-300');
+                        }
                     });
                 });
 
-                // Platform filters (desktop)
+                // Platform filters
                 document.querySelectorAll('.platform-filter').forEach(checkbox => {
                     checkbox.addEventListener('change', () => {
                         this.updatePlatformFilters();
@@ -1042,20 +649,20 @@
             },
 
             showSheet(sheetId) {
-                document.getElementById(sheetId).classList.add('show');
-                document.getElementById('overlay').classList.add('show');
+                document.getElementById(sheetId)?.classList.add('show');
+                document.getElementById('overlay')?.classList.add('show');
                 document.body.style.overflow = 'hidden';
             },
 
             hideSheet(sheetId) {
-                document.getElementById(sheetId).classList.remove('show');
-                document.getElementById('overlay').classList.remove('show');
+                document.getElementById(sheetId)?.classList.remove('show');
+                document.getElementById('overlay')?.classList.remove('show');
                 document.body.style.overflow = '';
 
                 if (sheetId === 'create-sheet') {
                     setTimeout(() => {
-                        document.getElementById('create-options').classList.remove('hidden');
-                        document.getElementById('generate-form').classList.add('hidden');
+                        document.getElementById('create-options')?.classList.remove('hidden');
+                        document.getElementById('generate-form')?.classList.add('hidden');
                     }, 300);
                 }
             },
@@ -1096,9 +703,13 @@
                 this.showProgress();
 
                 try {
+                    const token = localStorage.getItem('token');
                     const response = await fetch('/api/studio/generate', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
                         body: JSON.stringify({ prompt, platform, style })
                     });
 
@@ -1141,64 +752,55 @@
                 if (!this.currentContent) return;
 
                 const detailHTML = `
-                    <!-- Image Preview -->
                     <div class="relative rounded-xl overflow-hidden mb-4">
-                        <img src="${this.currentContent.imageUrl}" class="w-full" alt="Content">
+                        <img src="${this.currentContent.imageUrl}" class="w-full rounded-xl" alt="Content">
                         <div class="platform-badge ${this.currentContent.platform}">
                             ${this.currentContent.platform}
                         </div>
                     </div>
 
-                    <!-- Caption Editor -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-300 mb-2">Caption</label>
                         <textarea
                             id="edit-caption"
                             rows="4"
-                            class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none focus:border-blue-500 focus:outline-none"
+                            class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white resize-none focus:border-blue-500 focus:outline-none"
                             placeholder="Write your caption...">${this.currentContent.caption || ''}</textarea>
                     </div>
 
-                    <!-- Hashtags -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-300 mb-2">Hashtags</label>
                         <input
                             id="edit-hashtags"
                             type="text"
-                            class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                            class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
                             placeholder="#remodel #homeimprovement"
                             value="${(this.currentContent.hashtags || []).join(' ')}">
                     </div>
 
-                    <!-- Share Options -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-300 mb-3">Share to:</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="Studio.share('instagram')" class="share-btn instagram text-white">
-                                <i class="fab fa-instagram"></i>
-                                <span>Instagram</span>
+                            <button onclick="Studio.share('instagram')" class="share-btn instagram text-white text-sm">
+                                <i class="fab fa-instagram"></i> Instagram
                             </button>
-                            <button onclick="Studio.share('facebook')" class="share-btn facebook text-white">
-                                <i class="fab fa-facebook"></i>
-                                <span>Facebook</span>
+                            <button onclick="Studio.share('facebook')" class="share-btn facebook text-white text-sm">
+                                <i class="fab fa-facebook"></i> Facebook
                             </button>
-                            <button onclick="Studio.share('sms')" class="share-btn sms bg-green-600 text-white">
-                                <i class="fas fa-sms"></i>
-                                <span>SMS</span>
+                            <button onclick="Studio.share('sms')" class="share-btn bg-green-600 text-white text-sm">
+                                <i class="fas fa-sms"></i> SMS
                             </button>
-                            <button onclick="Studio.share('email')" class="share-btn email bg-red-600 text-white">
-                                <i class="fas fa-envelope"></i>
-                                <span>Email</span>
+                            <button onclick="Studio.share('email')" class="share-btn bg-red-600 text-white text-sm">
+                                <i class="fas fa-envelope"></i> Email
                             </button>
                         </div>
                     </div>
 
-                    <!-- Actions -->
                     <div class="flex gap-3">
-                        <button onclick="Studio.downloadContent()" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm">
+                        <button onclick="Studio.downloadContent()" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-semibold text-sm transition-colors">
                             <i class="fas fa-download mr-2"></i>Download
                         </button>
-                        <button onclick="Studio.deleteContent(${this.currentContent.id})" class="px-4 py-3 bg-red-600/20 border border-red-600/40 text-red-400 rounded-lg">
+                        <button onclick="Studio.deleteContent(${this.currentContent.id})" class="px-4 py-3 bg-red-600/20 border border-red-600/40 text-red-400 hover:bg-red-600/30 rounded-xl transition-colors">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -1209,8 +811,8 @@
             },
 
             share(platform) {
-                const caption = document.getElementById('edit-caption').value;
-                const hashtags = document.getElementById('edit-hashtags').value;
+                const caption = document.getElementById('edit-caption')?.value || '';
+                const hashtags = document.getElementById('edit-hashtags')?.value || '';
 
                 this.currentContent.caption = caption;
                 this.currentContent.hashtags = hashtags.split(' ').filter(h => h.startsWith('#'));
@@ -1224,7 +826,7 @@
 
             downloadContent() {
                 const link = document.createElement('a');
-                link.download = `remodely-content-${Date.now()}.png`;
+                link.download = `voicenow-content-${Date.now()}.png`;
                 link.href = this.currentContent.imageUrl;
                 link.click();
             },
@@ -1239,37 +841,39 @@
             },
 
             showProgress() {
-                document.getElementById('generate-progress').classList.remove('hidden');
-                document.getElementById('generate-submit').disabled = true;
+                document.getElementById('generate-progress')?.classList.remove('hidden');
+                const submitBtn = document.getElementById('generate-submit');
+                if (submitBtn) submitBtn.disabled = true;
 
                 let width = 0;
                 const interval = setInterval(() => {
                     width += 5;
                     if (width > 90) width = 90;
-                    document.getElementById('generate-bar').style.width = width + '%';
+                    const bar = document.getElementById('generate-bar');
+                    if (bar) bar.style.width = width + '%';
                 }, 200);
                 this.progressInterval = interval;
             },
 
             hideProgress() {
                 clearInterval(this.progressInterval);
-                document.getElementById('generate-bar').style.width = '100%';
+                const bar = document.getElementById('generate-bar');
+                if (bar) bar.style.width = '100%';
                 setTimeout(() => {
-                    document.getElementById('generate-progress').classList.add('hidden');
-                    document.getElementById('generate-bar').style.width = '0%';
-                    document.getElementById('generate-submit').disabled = false;
+                    document.getElementById('generate-progress')?.classList.add('hidden');
+                    if (bar) bar.style.width = '0%';
+                    const submitBtn = document.getElementById('generate-submit');
+                    if (submitBtn) submitBtn.disabled = false;
                 }, 500);
             },
 
             getFilteredContent() {
                 let filtered = this.content;
 
-                // Filter by status
                 if (this.currentFilter !== 'all') {
                     filtered = filtered.filter(c => c.status === this.currentFilter);
                 }
 
-                // Filter by platform (if any platforms are selected)
                 if (this.platformFilters.length > 0) {
                     filtered = filtered.filter(c => this.platformFilters.includes(c.platform));
                 }
@@ -1283,356 +887,58 @@
                 const filtered = this.getFilteredContent();
 
                 if (filtered.length === 0) {
-                    grid.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
+                    grid?.classList.add('hidden');
+                    emptyState?.classList.remove('hidden');
                 } else {
-                    grid.classList.remove('hidden');
-                    emptyState.classList.add('hidden');
+                    grid?.classList.remove('hidden');
+                    emptyState?.classList.add('hidden');
 
-                    grid.innerHTML = filtered.map(item => `
-                        <div class="social-card glass rounded-xl md:rounded-2xl overflow-hidden" onclick="Studio.showDetail(${item.id})">
-                            <div class="relative aspect-square bg-gray-900">
-                                <img src="${item.imageUrl}"
-                                     class="w-full h-full object-cover"
-                                     alt="Content"
-                                     loading="lazy"
-                                     decoding="async">
-                                <div class="platform-badge ${item.platform}">${item.platform}</div>
-                                ${item.status === 'shared' ? '<div class="absolute top-2 left-2"><span class="px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-bold">✓ Shared</span></div>' : ''}
-                            </div>
-                            <div class="p-3 md:p-4">
-                                <p class="text-xs md:text-sm text-gray-300 mb-2 line-clamp-2">${item.caption || item.prompt || 'No caption'}</p>
-                                <div class="flex items-center justify-between text-xs text-gray-500">
-                                    <span class="truncate">${new Date(item.timestamp).toLocaleDateString()}</span>
-                                    <span class="flex-shrink-0">${item.hashtags?.length || 0} #</span>
+                    if (grid) {
+                        grid.innerHTML = filtered.map(item => `
+                            <div class="social-card dark-card rounded-2xl overflow-hidden cursor-pointer" onclick="Studio.showDetail(${item.id})">
+                                <div class="relative aspect-square bg-gray-900">
+                                    <img src="${item.imageUrl}"
+                                         class="w-full h-full object-cover"
+                                         alt="Content"
+                                         loading="lazy">
+                                    <div class="platform-badge ${item.platform}">${item.platform}</div>
+                                    ${item.status === 'shared' ? '<div class="absolute top-2 left-2"><span class="px-2 py-1 bg-green-500 text-white text-xs rounded-full font-bold">✓ Shared</span></div>' : ''}
+                                </div>
+                                <div class="p-4">
+                                    <p class="text-sm text-gray-300 mb-2 line-clamp-2">${item.caption || item.prompt || 'No caption'}</p>
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <span>${new Date(item.timestamp).toLocaleDateString()}</span>
+                                        <span>${item.hashtags?.length || 0} tags</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `).join('');
+                    }
                 }
 
-                // Update counts
                 this.updateCounts();
             },
 
             updateCounts() {
                 const all = this.content.length;
                 const ready = this.content.filter(c => c.status === 'ready').length;
-                const progress = this.content.filter(c => c.status === 'progress').length;
                 const shared = this.content.filter(c => c.status === 'shared').length;
 
-                // Mobile counts
-                document.getElementById('mobile-count-all').textContent = `(${all})`;
-                document.getElementById('mobile-count-ready').textContent = `(${ready})`;
-                document.getElementById('mobile-count-progress').textContent = `(${progress})`;
-                document.getElementById('mobile-count-shared').textContent = `(${shared})`;
-
                 // Desktop counts
-                document.getElementById('desktop-count-all').textContent = `(${all})`;
-                document.getElementById('desktop-count-ready').textContent = `(${ready})`;
-                document.getElementById('desktop-count-progress').textContent = `(${progress})`;
-                document.getElementById('desktop-count-shared').textContent = `(${shared})`;
-            },
+                const countAll = document.getElementById('count-all');
+                const countReady = document.getElementById('count-ready');
+                const countShared = document.getElementById('count-shared');
+                if (countAll) countAll.textContent = `(${all})`;
+                if (countReady) countReady.textContent = `(${ready})`;
+                if (countShared) countShared.textContent = `(${shared})`;
 
-            // Menu System
-            setupMenuListeners() {
-                const menuToggle = document.getElementById('menu-toggle');
-                const closeMenu = document.getElementById('close-menu');
-                const sideMenu = document.getElementById('side-menu');
-                const menuOverlay = document.getElementById('menu-overlay');
-
-                const openMenu = () => {
-                    sideMenu.classList.add('open');
-                    menuOverlay.classList.add('show');
-                    menuToggle.classList.add('menu-open');
-                };
-
-                const closeMenuFn = () => {
-                    sideMenu.classList.remove('open');
-                    menuOverlay.classList.remove('show');
-                    menuToggle.classList.remove('menu-open');
-                };
-
-                menuToggle.addEventListener('click', () => {
-                    if (sideMenu.classList.contains('open')) {
-                        closeMenuFn();
-                    } else {
-                        openMenu();
-                    }
-                });
-
-                closeMenu.addEventListener('click', closeMenuFn);
-                menuOverlay.addEventListener('click', closeMenuFn);
-
-                // Menu tabs
-                document.querySelectorAll('.menu-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        const tabName = e.currentTarget.dataset.tab;
-                        document.querySelectorAll('.menu-tab').forEach(t => {
-                            t.classList.remove('active', 'border-blue-500');
-                            t.classList.add('border-transparent', 'text-gray-400');
-                        });
-                        e.currentTarget.classList.add('active', 'border-blue-500');
-                        e.currentTarget.classList.remove('border-transparent', 'text-gray-400');
-
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.classList.add('hidden');
-                        });
-                        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-                    });
-                });
-
-                // File inputs
-                document.getElementById('inspiration-image').addEventListener('change', (e) => this.handleInspirationUpload(e, 'image'));
-                document.getElementById('inspiration-doc').addEventListener('change', (e) => this.handleInspirationUpload(e, 'doc'));
-            },
-
-            // Inspiration Board
-            uploadInspiration(type) {
-                if (type === 'image') {
-                    document.getElementById('inspiration-image').click();
-                } else if (type === 'doc') {
-                    document.getElementById('inspiration-doc').click();
-                }
-            },
-
-            addInspiration(type) {
-                if (type === 'url') {
-                    const url = prompt('Enter URL:');
-                    if (url) {
-                        this.inspiration.push({
-                            id: Date.now(),
-                            type: 'url',
-                            url: url,
-                            title: new URL(url).hostname,
-                            timestamp: Date.now()
-                        });
-                        this.saveToLocalStorage();
-                        this.renderInspiration();
-                    }
-                } else if (type === 'note') {
-                    const note = prompt('Enter your note:');
-                    if (note) {
-                        this.inspiration.push({
-                            id: Date.now(),
-                            type: 'note',
-                            content: note,
-                            timestamp: Date.now()
-                        });
-                        this.saveToLocalStorage();
-                        this.renderInspiration();
-                    }
-                }
-            },
-
-            handleInspirationUpload(e, type) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.inspiration.push({
-                        id: Date.now(),
-                        type: type,
-                        dataUrl: e.target.result,
-                        name: file.name,
-                        timestamp: Date.now()
-                    });
-                    this.saveToLocalStorage();
-                    this.renderInspiration();
-                };
-                reader.readAsDataURL(file);
-            },
-
-            renderInspiration() {
-                const grid = document.getElementById('inspiration-grid');
-                if (!grid) return;
-
-                grid.innerHTML = this.inspiration.map(item => {
-                    if (item.type === 'image') {
-                        return `
-                            <div class="inspiration-item" onclick="Studio.viewInspiration(${item.id})">
-                                <img src="${item.dataUrl}" alt="${item.name}">
-                            </div>
-                        `;
-                    } else if (item.type === 'doc') {
-                        return `
-                            <div class="inspiration-item bg-white/5 flex items-center justify-center" onclick="Studio.viewInspiration(${item.id})">
-                                <i class="fas fa-file text-4xl text-purple-400"></i>
-                            </div>
-                        `;
-                    } else if (item.type === 'url') {
-                        return `
-                            <div class="inspiration-item bg-white/5 flex items-center justify-center p-3" onclick="window.open('${item.url}', '_blank')">
-                                <i class="fas fa-link text-2xl text-green-400"></i>
-                            </div>
-                        `;
-                    } else if (item.type === 'note') {
-                        return `
-                            <div class="inspiration-item bg-white/5 flex items-center justify-center p-3" onclick="alert('${item.content}')">
-                                <i class="fas fa-sticky-note text-2xl text-orange-400"></i>
-                            </div>
-                        `;
-                    }
-                }).join('');
-            },
-
-            viewInspiration(id) {
-                const item = this.inspiration.find(i => i.id === id);
-                if (!item) return;
-                // Could open in modal or use for generation
-                alert(`Viewing: ${item.name || item.content}`);
-            },
-
-            // AI Writing Assistant
-            async generateAIContent() {
-                const contentType = document.getElementById('ai-content-type').value;
-                const prompt = document.getElementById('ai-prompt-input').value;
-                const tone = document.getElementById('ai-tone').value;
-
-                if (!prompt) {
-                    alert('Please describe your content');
-                    return;
-                }
-
-                try {
-                    const response = await fetch('/api/ai/generate-text', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt, contentType, tone })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        document.getElementById('ai-result').textContent = data.text;
-                        document.getElementById('ai-output').classList.remove('hidden');
-                    } else {
-                        // Fallback with demo content
-                        const demoContent = this.generateDemoAIContent(contentType, prompt, tone);
-                        document.getElementById('ai-result').textContent = demoContent;
-                        document.getElementById('ai-output').classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error('AI generation error:', error);
-                    const demoContent = this.generateDemoAIContent(contentType, prompt, tone);
-                    document.getElementById('ai-result').textContent = demoContent;
-                    document.getElementById('ai-output').classList.remove('hidden');
-                }
-            },
-
-            generateDemoAIContent(type, prompt, tone) {
-                if (type === 'caption') {
-                    return `Check out this amazing ${prompt}! 🏠✨\n\nWe're so proud of how this turned out. What do you think?\n\n#remodel #homeimprovement #renovation`;
-                } else if (type === 'headline') {
-                    return `Transform Your Space: ${prompt}`;
-                } else if (type === 'hashtags') {
-                    return '#remodel #homeimprovement #renovation #interiordesign #homedecor #construction #beforeandafter';
-                } else if (type === 'cta') {
-                    return 'DM us for a free consultation! Limited slots available.';
-                } else {
-                    return `Professional ${prompt} that showcases quality craftsmanship and attention to detail.`;
-                }
-            },
-
-            copyAIResult() {
-                const text = document.getElementById('ai-result').textContent;
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Copied to clipboard!');
-                });
-            },
-
-            // Image Editor
-            addSticker(emoji) {
-                if (!this.currentContent) {
-                    alert('Please select an image from your content first');
-                    return;
-                }
-
-                const element = {
-                    type: 'sticker',
-                    content: emoji,
-                    x: 50,
-                    y: 50,
-                    id: Date.now()
-                };
-
-                this.editorElements.push(element);
-                alert(`Sticker ${emoji} added! Click "Save Edited Image" when done.`);
-            },
-
-            addText() {
-                const text = document.getElementById('text-input').value;
-                const color = document.getElementById('text-color').value;
-                const size = document.getElementById('text-size').value;
-
-                if (!text) {
-                    alert('Please enter text');
-                    return;
-                }
-
-                if (!this.currentContent) {
-                    alert('Please select an image from your content first');
-                    return;
-                }
-
-                const element = {
-                    type: 'text',
-                    content: text,
-                    color: color,
-                    size: size,
-                    x: 50,
-                    y: 100,
-                    id: Date.now()
-                };
-
-                this.editorElements.push(element);
-                document.getElementById('text-input').value = '';
-                alert(`Text "${text}" added! Click "Save Edited Image" when done.`);
-            },
-
-            async saveEditedImage() {
-                if (!this.currentContent) {
-                    alert('Please select an image first');
-                    return;
-                }
-
-                if (this.editorElements.length === 0) {
-                    alert('No edits to save. Add stickers or text first!');
-                    return;
-                }
-
-                // Create canvas and apply edits
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const img = new Image();
-
-                img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    // Draw stickers and text
-                    this.editorElements.forEach(el => {
-                        if (el.type === 'sticker') {
-                            ctx.font = '48px Arial';
-                            ctx.fillText(el.content, el.x, el.y);
-                        } else if (el.type === 'text') {
-                            ctx.font = `${el.size}px Arial`;
-                            ctx.fillStyle = el.color;
-                            ctx.fillText(el.content, el.x, el.y);
-                        }
-                    });
-
-                    // Save as new content
-                    this.currentContent.imageUrl = canvas.toDataURL();
-                    this.editorElements = [];
-                    this.saveToLocalStorage();
-                    this.render();
-                    alert('Image saved with edits!');
-                };
-
-                img.src = this.currentContent.imageUrl;
+                // Mobile counts
+                const mobileCountAll = document.getElementById('mobile-count-all');
+                const mobileCountReady = document.getElementById('mobile-count-ready');
+                const mobileCountShared = document.getElementById('mobile-count-shared');
+                if (mobileCountAll) mobileCountAll.textContent = `(${all})`;
+                if (mobileCountReady) mobileCountReady.textContent = `(${ready})`;
+                if (mobileCountShared) mobileCountShared.textContent = `(${shared})`;
             }
         };
 
