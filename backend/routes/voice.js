@@ -1,4 +1,4 @@
-// Voice routes for ARIA AI assistant - v2.1.0 (schema fix)
+// Voice routes for ARIA AI assistant - v2.2.0 (force redeploy Nov 28)
 import express from 'express';
 import OpenAI from 'openai';
 import axios from 'axios';
