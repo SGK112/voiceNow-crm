@@ -294,7 +294,7 @@ export default function AppNavigator() {
         },
       }}
     >
-      {isAuthenticated ? (needsOnboarding ? <OnboardingNavigator /> : <MainNavigator />) : <AuthNavigator />}
+      {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

@@ -1936,10 +1936,12 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             materials: {
               type: 'array',
-              description: 'Array of material names or product objects to compare',
+              items: { type: 'string' },
+              description: 'Array of material names or product IDs to compare',
             },
             compareFactors: {
               type: 'array',
+              items: { type: 'string' },
               description: 'What to compare: price, durability, maintenance, appearance, availability',
             },
           },
@@ -1955,7 +1957,8 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             materials: {
               type: 'array',
-              description: 'Array of selected material objects',
+              items: { type: 'string' },
+              description: 'Array of selected material names or IDs',
             },
             name: {
               type: 'string',
@@ -1987,11 +1990,18 @@ When asked to perform actions, use the available tools/functions.`;
             },
             dimensions: {
               type: 'object',
-              description: 'Room/area dimensions: length, width, countertopLength, backsplashSqft, etc.',
+              properties: {
+                length: { type: 'number', description: 'Length in feet' },
+                width: { type: 'number', description: 'Width in feet' },
+                countertopLength: { type: 'number', description: 'Countertop length in linear feet' },
+                backsplashSqft: { type: 'number', description: 'Backsplash area in square feet' },
+              },
+              description: 'Room/area dimensions',
             },
             materials: {
               type: 'array',
-              description: 'Selected materials to estimate for',
+              items: { type: 'string' },
+              description: 'Selected material names to estimate for',
             },
           },
           required: ['projectType'],
@@ -2046,6 +2056,15 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             materials: {
               type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  imageUrl: { type: 'string' },
+                  supplier: { type: 'string' },
+                  price: { type: 'string' },
+                },
+              },
               description: 'Array of material objects with imageUrl, name, supplier, price',
             },
             displayMode: {
@@ -2150,28 +2169,40 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
         result = { success: false, error: confError.message || 'Failed to start conference call' };
       }
     } else if (functionName === 'generate_image') {
-      // Generate an AI image using the image generation capability
+      // Generate an AI image using Replicate (Flux models)
       try {
         console.log(`🎨 [IMAGE-GEN] Generating image with prompt: "${args.prompt.substring(0, 100)}..."`);
 
-        // Map size to dimensions
-        const sizeMap = {
-          'square': '1024x1024',
-          'landscape': '1792x1024',
-          'portrait': '1024x1792'
+        // Map size to aspect ratio for Replicate
+        const aspectRatioMap = {
+          'square': '1:1',
+          'landscape': '16:9',
+          'portrait': '9:16'
         };
-        const dimensions = sizeMap[args.size] || '1024x1024';
+        const aspectRatio = aspectRatioMap[args.size] || '16:9';
 
-        // Use ariaCapabilities to generate image
+        // Use ariaCapabilities to generate image via Replicate
         const imageResult = await ariaCapabilities.execute('generate_image', {
           prompt: args.prompt,
+          model: 'flux_schnell', // Fast, good quality
+          aspectRatio: aspectRatio,
           style: args.style || 'professional',
-          size: dimensions,
-          model: 'dall-e-3', // Use DALL-E 3 for best quality
-          quality: 'standard'
+          numOutputs: 1
         });
 
-        if (imageResult.success && imageResult.imageUrl) {
+        if (imageResult.success && imageResult.images && imageResult.images.length > 0) {
+          result = {
+            success: true,
+            action: 'image_generated',
+            imageUrl: imageResult.images[0],
+            prompt: args.prompt,
+            style: args.style,
+            size: args.size,
+            useCase: args.useCase,
+            message: `I've generated your image! It's a ${args.style || 'professional'} style image. Would you like me to create variations or try a different approach?`
+          };
+        } else if (imageResult.success && imageResult.imageUrl) {
+          // Fallback for single imageUrl response
           result = {
             success: true,
             action: 'image_generated',

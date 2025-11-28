@@ -113,9 +113,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
-      // Check onboarding status for this login
-      const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
-      setNeedsOnboarding(!onboardingCompleted);
+      // Auto-complete onboarding - users go directly to ARIA
+      await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      setNeedsOnboarding(false);
     }
     return response;
   }, []);
@@ -125,8 +125,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
-      // New signups always need onboarding
-      setNeedsOnboarding(true);
+      // Auto-complete onboarding - users go directly to ARIA
+      await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      setNeedsOnboarding(false);
     }
     return response;
   }, []);
@@ -136,9 +137,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (response.success && response.user && response.token) {
       setUser(response.user);
       setToken(response.token);
-      // Check onboarding status for this login
-      const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
-      setNeedsOnboarding(!onboardingCompleted);
+      // Auto-complete onboarding - users go directly to ARIA
+      await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      setNeedsOnboarding(false);
     }
     return response;
   }, []);
