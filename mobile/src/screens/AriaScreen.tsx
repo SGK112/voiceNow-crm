@@ -125,6 +125,7 @@ const formatTimeAgo = (date: Date): string => {
 const MENU_ITEMS = [
   { id: 'Dashboard', icon: 'stats-chart-outline', label: 'Dashboard' },
   { id: 'Contacts', icon: 'people-outline', label: 'Contacts' },
+  { id: 'ContactImport', icon: 'cloud-upload-outline', label: 'Sync Contacts' },
   { id: 'Design', icon: 'color-palette-outline', label: 'Design' },
   { id: 'Calendar', icon: 'calendar-outline', label: 'Calendar' },
   { id: 'Collaboration', icon: 'chatbubbles-outline', label: 'Team' },
