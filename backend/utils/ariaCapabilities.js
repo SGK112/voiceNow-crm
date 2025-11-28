@@ -2347,6 +2347,33 @@ export class AriaCapabilities {
     }
   }
 
+  // Helper: Normalize phone number to E.164 format
+  normalizePhoneNumber(phone) {
+    if (!phone) return null;
+
+    // Remove all non-digit characters
+    let cleaned = phone.replace(/\D/g, '');
+
+    // If it's 10 digits, assume US and add +1
+    if (cleaned.length === 10) {
+      cleaned = '1' + cleaned;
+    }
+
+    // If it doesn't start with +, add it
+    if (!cleaned.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    } else if (phone.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    }
+
+    // Ensure proper format
+    if (!cleaned.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    }
+
+    return cleaned;
+  }
+
   // SMS/MMS capabilities
   async sendSms(to, message) {
     try {
@@ -2354,11 +2381,17 @@ export class AriaCapabilities {
         throw new Error('SMS service not configured');
       }
 
-      console.log(`📱 [SMS] Sending to: ${to}`);
+      // Normalize phone number to E.164 format
+      const normalizedTo = this.normalizePhoneNumber(to);
+      if (!normalizedTo) {
+        throw new Error('Invalid phone number');
+      }
+
+      console.log(`📱 [SMS] Sending to: ${normalizedTo} (original: ${to})`);
 
       await this.twilioService.sendSMS({
         agentId: null, // Aria doesn't have an agentId
-        to: to,
+        to: normalizedTo,
         message: message,
         leadId: null, // Could be enhanced to lookup lead by phone
         userId: null, // Could be enhanced to get from context
@@ -2372,7 +2405,7 @@ export class AriaCapabilities {
 
       return {
         success: true,
-        message: `SMS sent to ${to}`
+        message: `SMS sent to ${normalizedTo}`
       };
     } catch (error) {
       console.error('❌ [SMS] Error:', error.message);
@@ -2389,15 +2422,21 @@ export class AriaCapabilities {
         throw new Error('MMS service not configured');
       }
 
-      console.log(`📱 [MMS] Sending to: ${to} with media: ${mediaUrl}`);
+      // Normalize phone number to E.164 format
+      const normalizedTo = this.normalizePhoneNumber(to);
+      if (!normalizedTo) {
+        throw new Error('Invalid phone number');
+      }
 
-      await this.twilioService.sendMMS(to, message, [mediaUrl]);
+      console.log(`📱 [MMS] Sending to: ${normalizedTo} (original: ${to}) with media: ${mediaUrl}`);
+
+      await this.twilioService.sendMMS(normalizedTo, message, [mediaUrl]);
 
       console.log('✅ [MMS] Sent successfully');
 
       return {
         success: true,
-        message: `MMS sent to ${to}`
+        message: `MMS sent to ${normalizedTo}`
       };
     } catch (error) {
       console.error('❌ [MMS] Error:', error.message);
