@@ -1,4 +1,4 @@
-# Render Blueprint for VoiceFlow CRM
+# Render Blueprint for VoiceNow CRM by Remodely AI
 # One-click deployment to Render
 # Documentation: https://render.com/docs/blueprint-spec
 # Force rebuild with clean cache
@@ -18,7 +18,7 @@ services:
     region: oregon
     plan: starter
     branch: main
-    buildCommand: rm -rf frontend/dist && cd frontend && npm ci && npm run build && cd .. && npm ci
+    buildCommand: rm -rf frontend/dist && cd frontend && npm ci && npm run build && cd .. && npm install --legacy-peer-deps
     startCommand: npm start
     healthCheckPath: /api/monitoring/health
 

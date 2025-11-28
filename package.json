@@ -1,7 +1,7 @@
 {
-  "name": "voiceflow-crm",
+  "name": "voicenow-crm",
   "version": "1.0.0",
-  "description": "AI Voice Agent CRM powered by ElevenLabs",
+  "description": "VoiceNow CRM by Remodely AI - AI Voice Agent CRM powered by ElevenLabs",
   "main": "backend/server.js",
   "type": "module",
   "engines": {
@@ -70,7 +70,7 @@
     "validator": "^13.11.0",
     "ws": "^8.18.3",
     "xlsx": "^0.18.5",
-    "zod": "^4.1.12"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
