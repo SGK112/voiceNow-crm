@@ -2544,7 +2544,7 @@ router.post('/chat', async (req, res) => {
       model: 'gpt-4o-mini',
       messages,
       temperature: 0.7,
-      max_tokens: 500,
+      max_tokens: 1000, // Increased to prevent cutoff
     };
 
     // Combine tools based on detected intents
@@ -2619,7 +2619,7 @@ router.post('/chat', async (req, res) => {
         model: 'gpt-4o-mini',
         messages,
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 1000, // Increased to prevent cutoff
         tools: tools.length > 0 ? tools : undefined,
         tool_choice: tools.length > 0 ? 'auto' : undefined,
       });
@@ -2754,7 +2754,7 @@ router.post('/voice', async (req, res) => {
       model: 'gpt-4o-mini', // 10x faster than GPT-4
       messages,
       temperature: 0.7,
-      max_tokens: 200, // Keep voice responses concise for speed
+      max_tokens: 800, // Allow full responses without cutoff
     });
 
     const aiResponse = completion.choices[0].message.content;
