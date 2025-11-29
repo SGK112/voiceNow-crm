@@ -1605,12 +1605,15 @@ PERSONALITY:
 - Be proactive and anticipate user needs
 
 CAPABILITIES:
-- Send text messages to contacts
+- Send text messages (SMS) to contacts
+- Send emails to contacts
+- Make AI phone calls to contacts on your behalf (ARIA can call people and have conversations)
 - Create new leads in the CRM
 - Search and find contacts
 - Schedule appointments
 - Look up CRM data
 - Generate professional AI images (marketing, logos, before/after photos, social media content)
+- Search the web for information
 
 IMAGE GENERATION EXPERTISE:
 You are an AI expert at crafting image prompts. When a user wants to create an image:
@@ -1658,6 +1661,33 @@ When asked to perform actions, use the available tools/functions.`;
             },
           },
           required: ['phone', 'message'],
+        },
+      },
+      {
+        type: 'function',
+        name: 'send_email',
+        description: 'Send an email to a contact. Always confirm the email content with the user before sending.',
+        parameters: {
+          type: 'object',
+          properties: {
+            to: {
+              type: 'string',
+              description: 'The email address to send to',
+            },
+            subject: {
+              type: 'string',
+              description: 'The email subject line',
+            },
+            body: {
+              type: 'string',
+              description: 'The email body content',
+            },
+            contactName: {
+              type: 'string',
+              description: 'Optional name of the recipient for confirmation',
+            },
+          },
+          required: ['to', 'subject', 'body'],
         },
       },
       {
