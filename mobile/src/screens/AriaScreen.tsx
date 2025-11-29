@@ -232,6 +232,19 @@ export default function AriaScreen() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string>('shimmer');
+  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
+  const [dailyNotifications, setDailyNotifications] = useState(true);
+
+  // Available voices for OpenAI Realtime API
+  const AVAILABLE_VOICES = [
+    { id: 'shimmer', name: 'Shimmer', description: 'Warm and expressive female voice' },
+    { id: 'alloy', name: 'Alloy', description: 'Neutral and balanced voice' },
+    { id: 'echo', name: 'Echo', description: 'Natural conversational voice' },
+    { id: 'fable', name: 'Fable', description: 'British-accented storytelling voice' },
+    { id: 'onyx', name: 'Onyx', description: 'Deep and authoritative male voice' },
+    { id: 'nova', name: 'Nova', description: 'Friendly and upbeat voice' },
+  ];
 
   const realtimeOrbRef = useRef<any>(null);
 
@@ -870,27 +883,36 @@ export default function AriaScreen() {
               <ScrollView style={styles.settingsContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Voice</Text>
-                  <TouchableOpacity style={styles.settingsItem}>
-                    <Ionicons name="mic-outline" size={22} color="#374151" />
-                    <Text style={styles.settingsItemText}>Voice Settings</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.settingsItem}>
+                  <TouchableOpacity
+                    style={styles.settingsItem}
+                    onPress={() => setVoiceModalVisible(true)}
+                  >
                     <Ionicons name="volume-high-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Response Voice</Text>
-                    <Text style={styles.settingsItemValue}>Nova</Text>
+                    <Text style={styles.settingsItemValue}>
+                      {AVAILABLE_VOICES.find(v => v.id === selectedVoice)?.name || 'Shimmer'}
+                    </Text>
                     <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Notifications</Text>
-                  <TouchableOpacity style={styles.settingsItem}>
+                  <TouchableOpacity
+                    style={styles.settingsItem}
+                    onPress={() => setDailyNotifications(!dailyNotifications)}
+                  >
                     <Ionicons name="notifications-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Daily Summary</Text>
                     <View style={styles.settingsToggle}>
-                      <View style={[styles.settingsToggleTrack, styles.settingsToggleTrackOn]}>
-                        <View style={[styles.settingsToggleThumb, styles.settingsToggleThumbOn]} />
+                      <View style={[
+                        styles.settingsToggleTrack,
+                        dailyNotifications ? styles.settingsToggleTrackOn : styles.settingsToggleTrackOff
+                      ]}>
+                        <View style={[
+                          styles.settingsToggleThumb,
+                          dailyNotifications ? styles.settingsToggleThumbOn : styles.settingsToggleThumbOff
+                        ]} />
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -898,7 +920,10 @@ export default function AriaScreen() {
 
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Data</Text>
-                  <TouchableOpacity style={styles.settingsItem}>
+                  <TouchableOpacity
+                    style={styles.settingsItem}
+                    onPress={() => Alert.alert('Export', 'Export functionality coming soon!')}
+                  >
                     <Ionicons name="cloud-download-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Export Conversations</Text>
                     <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
@@ -907,6 +932,19 @@ export default function AriaScreen() {
                     <Ionicons name="trash-outline" size={22} color="#ef4444" />
                     <Text style={[styles.settingsItemText, { color: '#ef4444' }]}>Clear All History</Text>
                   </TouchableOpacity>
+                </View>
+
+                <View style={styles.settingsSection}>
+                  <Text style={styles.settingsSectionTitle}>Account</Text>
+                  <View style={styles.settingsItem}>
+                    <Ionicons name="person-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>{user?.email || 'Not logged in'}</Text>
+                  </View>
+                  <View style={styles.settingsItem}>
+                    <Ionicons name="diamond-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Plan</Text>
+                    <Text style={styles.settingsItemValue}>{user?.plan || 'Free'}</Text>
+                  </View>
                 </View>
               </ScrollView>
             )}
@@ -1199,6 +1237,53 @@ export default function AriaScreen() {
               </View>
             </View>
           </Modal>
+
+          {/* Voice Selection Modal */}
+          <Modal
+            visible={voiceModalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setVoiceModalVisible(false)}
+          >
+            <View style={styles.voiceModalOverlay}>
+              <View style={styles.voiceModalContent}>
+                <View style={styles.voiceModalHeader}>
+                  <Text style={styles.voiceModalTitle}>Select Voice</Text>
+                  <TouchableOpacity onPress={() => setVoiceModalVisible(false)}>
+                    <Ionicons name="close" size={24} color="#6b7280" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.voiceList}>
+                  {AVAILABLE_VOICES.map((voice) => (
+                    <TouchableOpacity
+                      key={voice.id}
+                      style={[
+                        styles.voiceOption,
+                        selectedVoice === voice.id && styles.voiceOptionSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedVoice(voice.id);
+                        setVoiceModalVisible(false);
+                      }}
+                    >
+                      <View style={styles.voiceOptionInfo}>
+                        <Text style={[
+                          styles.voiceOptionName,
+                          selectedVoice === voice.id && styles.voiceOptionNameSelected,
+                        ]}>
+                          {voice.name}
+                        </Text>
+                        <Text style={styles.voiceOptionDesc}>{voice.description}</Text>
+                      </View>
+                      {selectedVoice === voice.id && (
+                        <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -1310,7 +1395,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   chatMessagesContent: {
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 120, // Extra padding at bottom so user can scroll up to see all messages including images
+    flexGrow: 1,
   },
   messageRow: {
     width: '100%',
@@ -1963,6 +2050,12 @@ const styles = StyleSheet.create({
   settingsToggleThumbOn: {
     alignSelf: 'flex-end',
   },
+  settingsToggleTrackOff: {
+    backgroundColor: '#e5e7eb',
+  },
+  settingsToggleThumbOff: {
+    alignSelf: 'flex-start',
+  },
 
   // Voice Recording Styles
   quickActionRecording: {
@@ -2101,5 +2194,64 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#9ca3af',
     fontWeight: '500',
+  },
+
+  // Voice Modal Styles
+  voiceModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  voiceModalContent: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    maxHeight: '70%',
+  },
+  voiceModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  voiceModalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  voiceList: {
+    paddingTop: 8,
+  },
+  voiceOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginVertical: 4,
+  },
+  voiceOptionSelected: {
+    backgroundColor: '#eff6ff',
+  },
+  voiceOptionInfo: {
+    flex: 1,
+  },
+  voiceOptionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 4,
+  },
+  voiceOptionNameSelected: {
+    color: '#3b82f6',
+  },
+  voiceOptionDesc: {
+    fontSize: 13,
+    color: '#9ca3af',
   },
 });

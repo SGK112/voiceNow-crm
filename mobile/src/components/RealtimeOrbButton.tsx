@@ -367,9 +367,9 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
               },
               turn_detection: {
                 type: 'server_vad',
-                threshold: 0.85, // High threshold to filter out TV/background noise
-                prefix_padding_ms: 400, // Capture more context before speech
-                silence_duration_ms: 800, // Wait 800ms of silence before responding
+                threshold: 0.95, // Very high threshold to prevent ARIA from hearing herself
+                prefix_padding_ms: 300, // Less prefix to avoid catching tail of ARIA's speech
+                silence_duration_ms: 1500, // Wait 1.5s of silence before responding - prevents echo
               },
               tools: configRef.current.tools,
             },
@@ -414,25 +414,25 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
         // AI finished audio output - delay unmuting to avoid echo from residual audio
         console.log('[REALTIME] AI finished speaking, waiting before unmuting mic');
         isSpeakingRef.current = false;
-        // Add 500ms delay to let speaker audio fully stop before unmuting mic
+        // Add 1500ms delay to let speaker audio fully stop before unmuting mic
         setTimeout(() => {
           if (!isSpeakingRef.current) {
             setMicrophoneMuted(false);
             console.log('[REALTIME] Mic unmuted after delay');
           }
-        }, 500);
+        }, 1500);
         break;
 
       case 'response.done':
         // AI finished responding completely - ensure mic is unmuted and back to listening
         if (isSpeakingRef.current) {
           isSpeakingRef.current = false;
-          // Add delay to prevent echo pickup
+          // Add longer delay to prevent echo pickup
           setTimeout(() => {
             if (!isSpeakingRef.current) {
               setMicrophoneMuted(false);
             }
-          }, 500);
+          }, 1500);
         }
         onStateChange?.('listening');
         break;

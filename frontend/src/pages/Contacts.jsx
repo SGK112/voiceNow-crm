@@ -270,6 +270,16 @@ export default function Contacts() {
               </div>
 
               <button
+                onClick={() => { fetchContacts(); fetchStats(); }}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors disabled:opacity-50"
+                title="Refresh contacts from database (including mobile app imports)"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+
+              <button
                 onClick={handleSyncFromLeads}
                 disabled={syncing}
                 className="flex items-center gap-2 px-4 py-2 border border-violet-600 text-violet-600 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors disabled:opacity-50"

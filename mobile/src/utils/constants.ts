@@ -5,8 +5,8 @@ import { Platform } from 'react-native';
 // Set to 'local' for development, 'production' for live
 const USE_LOCAL_API = false; // Production mode for App Store release
 
-// Get local machine IP for development
-const LOCAL_API_URL = 'https://468db4822986.ngrok-free.app'; // ngrok tunnel to local backend
+// Get local machine IP for development - using ngrok tunnel
+const LOCAL_API_URL = 'https://cf482444ef13.ngrok-free.app'; // ngrok tunnel to local backend
 const PRODUCTION_API_URL = 'https://voiceflow-crm.onrender.com';
 
 // Use local API in dev mode for testing new features, production otherwise

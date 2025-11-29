@@ -3,7 +3,20 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'marketing-redirect',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === '/' || req.url === '/index.html') {
+            req.url = '/marketing.html';
+          }
+          next();
+        });
+      }
+    }
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -26,24 +39,49 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    // Disable caching for development
-    headers: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-      'ETag': 'false'
-    },
+    // Use native file watching (faster than polling)
     watch: {
-      usePolling: true
+      usePolling: false,
+      interval: 1000
+    },
+    // Reduce HMR overhead
+    hmr: {
+      overlay: true
     }
   },
-  // Disable build cache in development
-  cacheDir: '.vite-cache',
+  // Optimize dev performance
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@tanstack/react-query',
+      'axios',
+      'lucide-react',
+      'reactflow',
+      'recharts',
+      'zustand'
+    ],
+    exclude: ['@elevenlabs/client']
+  },
   build: {
+    // Code splitting for production
     rollupOptions: {
       output: {
-        manualChunks: undefined
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          charts: ['recharts', 'reactflow']
+        }
       }
-    }
+    },
+    // Reduce build size
+    target: 'esnext',
+    minify: 'esbuild',
+    sourcemap: false
+  },
+  // Enable esbuild for faster transforms
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 });
