@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-28-v102-hero-overlay-fix';
+        const CURRENT_VERSION = '2025-11-28-v103-section-contrast';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -160,6 +160,11 @@
         section {
             position: relative;
             z-index: 1;
+        }
+
+        /* Add subtle border separator between sections */
+        section:not(#hero) {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Sections without gradient backgrounds get transparent bg */
@@ -1433,7 +1438,7 @@
     </section>
 
     <!-- Social Proof Section - Clean minimal style -->
-    <section class="py-20 sm:py-24 px-6 sm:px-8 bg-black">
+    <section class="py-20 sm:py-24 px-6 sm:px-8 bg-gradient-to-b from-black via-gray-900/50 to-black">
         <div class="max-w-5xl mx-auto">
             <p class="text-center text-white/50 text-sm font-medium mb-12">Trusted by contractors, remodelers, and service businesses</p>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -1458,7 +1463,7 @@
     </section>
 
     <!-- Customer Testimonials Section - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-[#0d0d12]">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">
@@ -1524,7 +1529,7 @@
     </section>
 
     <!-- AI vs Traditional Voicemail - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-gradient-to-br from-[#0a0a10] via-[#12121a] to-[#0a0a10]">
         <div class="max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 <!-- Left Content -->
@@ -1609,7 +1614,7 @@
     </section>
 
     <!-- Features Section - Clean minimal style -->
-    <section id="features" class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+    <section id="features" class="py-20 sm:py-28 px-6 sm:px-8 bg-[#08080c]">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Powerful Features</h2>
@@ -1657,7 +1662,7 @@
     </section>
 
     <!-- How It Works Section - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-gradient-to-b from-[#0d0d14] via-[#101018] to-[#0d0d14]">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">How It Works</h2>
@@ -1684,7 +1689,7 @@
     </section>
 
     <!-- Mobile App Download Section - Clean minimal style -->
-    <section id="download-app" class="py-20 sm:py-28 px-6 sm:px-8 bg-black relative overflow-hidden">
+    <section id="download-app" class="py-20 sm:py-28 px-6 sm:px-8 bg-[#060608] relative overflow-hidden">
         <div class="max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 <!-- Left: Content -->
@@ -1850,7 +1855,7 @@
     </section>
 
     <!-- Workflows Section - Clean minimal style -->
-    <section id="workflows" class="py-20 sm:py-28 px-6 sm:px-8 bg-black">
+    <section id="workflows" class="py-20 sm:py-28 px-6 sm:px-8 bg-gradient-to-br from-[#0a0a12] via-[#0f0f18] to-[#0a0a12]">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">
