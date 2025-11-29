@@ -5,7 +5,7 @@
   "main": "backend/server.js",
   "type": "module",
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
