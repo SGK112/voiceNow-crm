@@ -1,30 +1,28 @@
 # VoiceNow CRM Dockerfile
 #
 # BUILD NOTES (Nov 2024):
-# - IMPORTANT: The .npmrc file MUST be copied before npm ci to avoid peer dependency conflicts
-# - Error 127 "command not found" usually means vite isn't installed due to npm ci failing
-# - The frontend uses Docker for deployment on Render (not the render.yaml buildCommand)
-# - frontend/.npmrc contains legacy-peer-deps=true to resolve dependency conflicts
+# - Error 127 = command not found (vite not installed)
+# - Error 1 = npm ci or build failed
+# - Use --legacy-peer-deps to resolve peer dependency conflicts
+# - Render uses Docker deployment (NOT render.yaml buildCommand)
 #
 # Build stage for frontend
 FROM node:20-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
-# Copy frontend package files
-COPY frontend/package*.json ./
+# Copy only package files first for better caching
+COPY frontend/package.json frontend/package-lock.json ./
 
-# Copy npmrc for legacy-peer-deps setting
-COPY frontend/.npmrc ./
+# Install ALL dependencies (need devDeps like vite for build)
+# Using --legacy-peer-deps to avoid peer dependency conflicts
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
-# Install frontend dependencies (including devDependencies for build)
-RUN npm ci --legacy-peer-deps
-
-# Copy frontend source
+# Copy frontend source files
 COPY frontend/ ./
 
-# Build frontend
-RUN npm run build
+# Build frontend with npx to ensure vite is found
+RUN npx vite build
 
 # Production stage
 FROM node:20-alpine
