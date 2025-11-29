@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "VoiceNow AI",
-    "slug": "voiceflow-ai",
+    "name": "VoiceNow CRM",
+    "slug": "voicenow-crm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": ["voiceflow-ai", "com.googleusercontent.apps.710258787879-732ell2g9g0llo41uispncfkpqr4qlf2"],
+    "scheme": ["voicenow-crm", "com.googleusercontent.apps.710258787879-732ell2g9g0llo41uispncfkpqr4qlf2"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.voiceflow.ai",
+      "bundleIdentifier": "com.voicenow.crm",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "We need microphone access to make AI-powered voice calls on your behalf",
         "NSContactsUsageDescription": "We need access to your contacts to identify callers and personalize AI responses",
@@ -41,7 +41,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0a0b"
       },
-      "package": "com.voiceflow.ai",
+      "package": "com.voicenow.crm",
       "permissions": [
         "READ_PHONE_STATE",
         "READ_CALL_LOG",
