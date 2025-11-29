@@ -3,10 +3,10 @@ FROM node:20-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
-# Copy frontend package files
-COPY frontend/package*.json ./
+# Copy frontend package files and npmrc
+COPY frontend/package*.json frontend/.npmrc ./
 
-# Install frontend dependencies
+# Install frontend dependencies (including devDependencies for build)
 RUN npm ci --legacy-peer-deps
 
 # Copy frontend source
