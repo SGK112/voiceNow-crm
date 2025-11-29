@@ -1,4 +1,4 @@
-import XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import AIService from './aiService.js';
 
 const ai = new AIService();
@@ -19,19 +19,51 @@ class AIExcelParser {
   /**
    * Parse Excel file buffer
    */
-  parseExcelFile(fileBuffer) {
+  async parseExcelFile(fileBuffer) {
     try {
-      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(fileBuffer);
 
-      // Convert to JSON with header detection
-      const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) {
+        return {
+          success: false,
+          error: 'No worksheet found in Excel file'
+        };
+      }
+
+      // Get headers from first row
+      const headers = [];
+      const firstRow = worksheet.getRow(1);
+      firstRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+        headers[colNumber - 1] = cell.value ? String(cell.value) : `Column${colNumber}`;
+      });
+
+      // Convert rows to JSON objects
+      const rawData = [];
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header row
+
+        const rowData = {};
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          const header = headers[colNumber - 1] || `Column${colNumber}`;
+          // Handle different cell value types
+          let value = cell.value;
+          if (value && typeof value === 'object') {
+            if (value.text) value = value.text; // Rich text
+            else if (value.result !== undefined) value = value.result; // Formula
+            else if (value instanceof Date) value = value.toISOString();
+            else value = String(value);
+          }
+          rowData[header] = value !== null && value !== undefined ? value : '';
+        });
+        rawData.push(rowData);
+      });
 
       return {
         success: true,
         data: rawData,
-        headers: Object.keys(rawData[0] || {}),
+        headers: headers.filter(Boolean),
         rowCount: rawData.length
       };
     } catch (error) {
@@ -300,7 +332,7 @@ Return ONLY a valid JSON object with this structure:
    */
   async processExcelWithAI(fileBuffer) {
     // Step 1: Parse Excel file
-    const parseResult = this.parseExcelFile(fileBuffer);
+    const parseResult = await this.parseExcelFile(fileBuffer);
     if (!parseResult.success) {
       return {
         success: false,
