@@ -1154,7 +1154,7 @@ router.get('/stats', async (req, res) => {
 // @access  Private
 router.get('/daily-summary', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const user = await User.findById(userId);
 
     // Get yesterday's date range
@@ -1249,7 +1249,7 @@ router.get('/daily-summary', auth, async (req, res) => {
 // @access  Private
 router.get('/time-saved', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { period = 'today' } = req.query;
 
     let startDate = new Date();
@@ -1428,7 +1428,7 @@ function parseMessages(notes) {
 // @access  Private
 router.get('/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
 
     const contacts = await Contact.find({
       user: userId,
@@ -1457,7 +1457,7 @@ router.get('/contacts', auth, async (req, res) => {
 // @access  Private
 router.get('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const contact = await Contact.findOne({
       _id: req.params.id,
       user: userId,
@@ -1487,7 +1487,7 @@ router.get('/contacts/:id', auth, async (req, res) => {
 // @access  Private
 router.post('/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { name, phone, email, company, notes } = req.body;
 
     // Validation
@@ -1543,7 +1543,7 @@ router.post('/contacts', auth, async (req, res) => {
 // @access  Private
 router.put('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { name, phone, email, company, notes } = req.body;
 
     // Validation
@@ -1614,7 +1614,7 @@ router.put('/contacts/:id', auth, async (req, res) => {
 // @access  Private
 router.delete('/contacts/:id', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
 
     const contact = await Contact.findOne({
       _id: req.params.id,
@@ -1771,7 +1771,7 @@ router.post('/contacts/import', auth, async (req, res) => {
 // @access  Private
 router.get('/contacts/search/:query', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { query } = req.params;
 
     const contacts = await Contact.searchContacts(userId, query);
@@ -1796,7 +1796,7 @@ router.get('/contacts/search/:query', auth, async (req, res) => {
 // @access  Private
 router.post('/contacts/:id/conversation', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { type, direction, content, metadata } = req.body;
 
     if (!type || !direction || !content) {
@@ -1845,7 +1845,7 @@ router.post('/contacts/:id/conversation', auth, async (req, res) => {
 // @access  Private
 router.get('/aria/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const limit = parseInt(req.query.limit) || 100;
 
     const contacts = await Contact.find({
@@ -1887,7 +1887,7 @@ router.get('/aria/contacts', auth, async (req, res) => {
 // @access  Private
 router.get('/aria/contacts/search', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const query = req.query.q || '';
 
     if (!query) {
@@ -1945,7 +1945,7 @@ router.get('/aria/contacts/search', auth, async (req, res) => {
 // @access  Private
 router.get('/aria/contacts/by-phone/:phone', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const phone = req.params.phone;
 
     // Normalize phone number
@@ -2000,7 +2000,7 @@ router.get('/aria/contacts/by-phone/:phone', auth, async (req, res) => {
 // @access  Private
 router.post('/aria/contacts', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { name, phone, email, company, notes, source } = req.body;
 
     if (!name || !phone) {
@@ -2058,7 +2058,7 @@ router.post('/aria/contacts', auth, async (req, res) => {
 // @access  Private
 router.post('/aria/contacts/:id/note', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { note } = req.body;
 
     if (!note) {
@@ -2221,7 +2221,7 @@ router.post('/calendar/import', auth, async (req, res) => {
 // @access  Private
 router.get('/calendar-events', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id;
     const { limit = 50, upcoming = true } = req.query;
 
     const query = { userId };
