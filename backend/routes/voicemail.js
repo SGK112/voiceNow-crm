@@ -8,9 +8,9 @@ import { ariaMemoryService } from '../services/ariaMemoryService.js';
 const router = express.Router();
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 /**
  * POST /api/voicemail/interactive/:userId
@@ -21,7 +21,7 @@ router.post('/interactive/:userId', async (req, res) => {
     const { userId } = req.params;
     const { SpeechResult, Digits } = req.body;
 
-    console.log(`<™  [VOICEMAIL] Interactive call for user ${userId}`);
+    console.log(`<ï¿½  [VOICEMAIL] Interactive call for user ${userId}`);
 
     const profile = await UserProfile.findOne({ userId });
     const response = new VoiceResponse();
@@ -63,7 +63,7 @@ router.post('/interactive/:userId', async (req, res) => {
 
     // Handle speech input
     if (SpeechResult) {
-      console.log(`=¬ [VOICEMAIL] Speech: "${SpeechResult}"`);
+      console.log(`=ï¿½ [VOICEMAIL] Speech: "${SpeechResult}"`);
 
       // Add message to conversation
       await ariaMemoryService.addMessage(sessionId, 'user', SpeechResult);
@@ -159,7 +159,7 @@ router.post('/transcribe/:userId', async (req, res) => {
     const { userId } = req.params;
     const { TranscriptionText, RecordingUrl, CallSid } = req.body;
 
-    console.log(`=Ý [VOICEMAIL] Transcription for user ${userId}: "${TranscriptionText}"`);
+    console.log(`=ï¿½ [VOICEMAIL] Transcription for user ${userId}: "${TranscriptionText}"`);
 
     // Store voicemail as memory
     await ariaMemoryService.storeMemory(
@@ -193,7 +193,7 @@ router.post('/status/:userId', async (req, res) => {
     const { userId } = req.params;
     const { CallStatus, CallSid, To } = req.body;
 
-    console.log(`=Þ [VOICEMAIL] Call ${CallSid} status: ${CallStatus}`);
+    console.log(`=ï¿½ [VOICEMAIL] Call ${CallSid} status: ${CallStatus}`);
 
     // You can emit events or update database here based on call status
 

@@ -11,9 +11,9 @@ import replicateMediaService from '../services/replicateMediaService.js';
 import FleetAsset from '../models/FleetAsset.js';
 import errorReportingService from '../services/errorReportingService.js';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // Aria's available capabilities with function definitions for OpenAI function calling
 export const capabilities = {

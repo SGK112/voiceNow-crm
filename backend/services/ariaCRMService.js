@@ -17,9 +17,9 @@ import AriaMemory from '../models/AriaMemory.js';
 import AriaConversation from '../models/AriaConversation.js';
 import emailService from './emailService.js';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 class AriaCRMService {
   constructor() {

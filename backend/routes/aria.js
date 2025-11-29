@@ -33,7 +33,9 @@ const audioUpload = multer({
     }
   }
 });
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // Network device action tools for function calling
 const NETWORK_TOOLS = [

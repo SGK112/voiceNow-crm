@@ -6,7 +6,9 @@
 
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // In-memory translation history (will be moved to DB)
 const translationHistory = new Map(); // userId -> translations[]

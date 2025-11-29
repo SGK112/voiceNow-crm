@@ -12,9 +12,9 @@ import AgentSMS from '../models/AgentSMS.js';
 import Lead from '../models/Lead.js';
 import twilio from 'twilio';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 class AriaSMSService {
   constructor() {

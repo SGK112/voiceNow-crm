@@ -13,9 +13,9 @@ import User from '../models/User.js';
 const router = express.Router();
 
 // OpenAI for Aria voice AI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // Active voice conversations store
 const voiceConversations = new Map();
