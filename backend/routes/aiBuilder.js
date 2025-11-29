@@ -7,10 +7,19 @@ import OpenAI from 'openai';
 const router = express.Router();
 router.use(protect);
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Lazy-initialize OpenAI to avoid crash when API key is not set
+let openai = null;
+function getOpenAI() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.');
+  }
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+  return openai;
+}
 
 // POST /api/ai-builder/chat - Chat with AI to customize agent
 router.post('/chat', async (req, res) => {
@@ -54,7 +63,7 @@ When the user is ready to deploy, provide a structured response with:
 Be conversational, helpful, and guide them through the process step by step.
 Current user's business: ${req.user.email}`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: systemPrompt },
@@ -97,7 +106,7 @@ Provide:
 
 Format your response as JSON with keys: keyInfo, tone, commonQuestions, promptSuggestions`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are an AI that analyzes business content and suggests voice agent customizations.' },
@@ -173,7 +182,7 @@ Generate:
 
 Format as JSON with keys: name, systemPrompt, firstMessage, capabilities (array)`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are an expert at creating voice AI agent configurations for businesses.' },
