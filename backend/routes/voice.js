@@ -1776,7 +1776,10 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             participants: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string'
+              },
+              minItems: 1,
               description: 'Array of phone numbers to add to the conference',
             },
             conferenceSubject: {
@@ -1964,12 +1967,17 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             materials: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string'
+              },
+              minItems: 1,
               description: 'Array of material names or product IDs to compare',
             },
             compareFactors: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string'
+              },
               description: 'What to compare: price, durability, maintenance, appearance, availability',
             },
           },
@@ -1985,7 +1993,10 @@ When asked to perform actions, use the available tools/functions.`;
           properties: {
             materials: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string'
+              },
+              minItems: 1,
               description: 'Array of selected material names or IDs',
             },
             name: {
@@ -2028,7 +2039,9 @@ When asked to perform actions, use the available tools/functions.`;
             },
             materials: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string'
+              },
               description: 'Selected material names to estimate for',
             },
           },

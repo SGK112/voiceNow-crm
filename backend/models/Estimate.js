@@ -83,7 +83,7 @@ const estimateSchema = new mongoose.Schema({
 
 estimateSchema.index({ userId: 1, createdAt: -1 });
 estimateSchema.index({ leadId: 1, status: 1 });
-estimateSchema.index({ estimateNumber: 1 });
+// Note: estimateNumber already has a unique index from schema definition
 
 const Estimate = mongoose.model('Estimate', estimateSchema);
 

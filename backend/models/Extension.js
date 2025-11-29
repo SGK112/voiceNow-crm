@@ -10,8 +10,7 @@ const extensionSchema = new mongoose.Schema({
   slug: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   displayName: {
     type: String,
@@ -178,7 +177,7 @@ const extensionSchema = new mongoose.Schema({
 });
 
 // Indexes
-extensionSchema.index({ slug: 1 });
+// Note: slug already has a unique index from schema definition
 extensionSchema.index({ category: 1, status: 1 });
 extensionSchema.index({ isPublished: 1, isFeatured: 1 });
 extensionSchema.index({ 'stats.rating': -1 });
@@ -277,8 +276,8 @@ const userExtensionSchema = new mongoose.Schema({
     canceledAt: Date
   },
 
-  // Error tracking
-  errors: [{
+  // Error tracking (renamed from 'errors' to avoid Mongoose reserved keyword warning)
+  errorLogs: [{
     message: String,
     code: String,
     timestamp: Date,

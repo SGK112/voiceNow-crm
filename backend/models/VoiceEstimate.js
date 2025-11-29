@@ -49,8 +49,7 @@ const voiceEstimateSchema = new mongoose.Schema({
 
   // Voice conversation data
   conversationId: {
-    type: String,
-    index: true
+    type: String
   },
   elevenLabsAgentId: String,
   voiceTranscript: String,

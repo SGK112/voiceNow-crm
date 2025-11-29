@@ -4,8 +4,7 @@ const pushTokenSchema = new mongoose.Schema({
   userId: {
     type: String,
     required: true,
-    default: 'default',
-    index: true
+    default: 'default'
   },
   pushToken: {
     type: String,
@@ -36,7 +35,7 @@ const pushTokenSchema = new mongoose.Schema({
 
 // Index for efficient queries
 pushTokenSchema.index({ userId: 1, isActive: 1 });
-pushTokenSchema.index({ pushToken: 1 });
+// Note: pushToken already has a unique index from schema definition
 
 // Update lastUsed when token is used
 pushTokenSchema.methods.markAsUsed = function() {

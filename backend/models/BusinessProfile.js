@@ -13,8 +13,7 @@ const businessProfileSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true, // One profile per user
-    index: true
+    unique: true // One profile per user (unique also creates index)
   },
 
   // Company Information
@@ -277,7 +276,7 @@ const businessProfileSchema = new mongoose.Schema({
 });
 
 // Indexes
-businessProfileSchema.index({ userId: 1 });
+// Note: userId already has a unique index from schema definition
 businessProfileSchema.index({ 'address.zip': 1 });
 
 // Virtual: Is billing address different?

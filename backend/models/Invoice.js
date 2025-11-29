@@ -37,8 +37,7 @@ const invoiceSchema = new mongoose.Schema({
   invoiceNumber: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   type: {
     type: String,
@@ -182,7 +181,7 @@ const invoiceSchema = new mongoose.Schema({
 invoiceSchema.index({ user: 1, createdAt: -1 });
 invoiceSchema.index({ user: 1, status: 1 });
 invoiceSchema.index({ user: 1, type: 1 });
-invoiceSchema.index({ invoiceNumber: 1 });
+// Note: invoiceNumber already has a unique index from schema definition
 invoiceSchema.index({ 'client.email': 1 });
 
 // Virtual for balance due

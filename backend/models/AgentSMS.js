@@ -41,8 +41,7 @@ const agentSMSSchema = new mongoose.Schema({
     index: true
   },
   twilioSid: {
-    type: String,
-    index: true
+    type: String
   },
   metadata: {
     type: mongoose.Schema.Types.Mixed,

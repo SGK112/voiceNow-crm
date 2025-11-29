@@ -67,8 +67,7 @@ const phoneNumberSchema = new mongoose.Schema({
 });
 
 phoneNumberSchema.index({ userId: 1, status: 1 });
-phoneNumberSchema.index({ phoneNumber: 1 });
-phoneNumberSchema.index({ twilioSid: 1 });
+// Note: phoneNumber and twilioSid already have unique indexes from schema definition
 
 const PhoneNumber = mongoose.model('PhoneNumber', phoneNumberSchema);
 

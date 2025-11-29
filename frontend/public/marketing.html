@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-28-v105-light-to-dark';
+        const CURRENT_VERSION = '2025-11-28-v109-more-contrast';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -141,7 +141,7 @@
             50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
         }
 
-        /* React Flow style dot grid background */
+        /* Dots grid is purely decorative - sits behind everything */
         .dots-container {
             position: fixed;
             top: 0;
@@ -149,27 +149,29 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: -1;
             overflow: hidden;
             background-color: #0a0a0b;
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
             background-size: 24px 24px;
         }
 
-        /* Make sections show dot grid through */
+        /* Sections have SOLID opaque backgrounds - light to dark gradient */
         section {
             position: relative;
             z-index: 1;
         }
+
+        /* Sections use inline styles for backgrounds - no CSS overrides needed */
 
         /* Add subtle border separator between sections */
         section:not(#hero) {
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Hero section needs special treatment for video */
-        #hero::before {
-            background: transparent;
+        /* Hero section - transparent to show video */
+        #hero {
+            background: transparent !important;
         }
 
         /* Footer styling */
@@ -1420,7 +1422,7 @@
     </section>
 
     <!-- Social Proof Section - Clean minimal style -->
-    <section class="py-20 sm:py-24 px-6 sm:px-8 bg-[#1a1a2e]">
+    <section class="py-20 sm:py-24 px-6 sm:px-8" style="background-color: #1e1e3f;">
         <div class="max-w-5xl mx-auto">
             <p class="text-center text-white/50 text-sm font-medium mb-12">Trusted by contractors, remodelers, and service businesses</p>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -1445,7 +1447,7 @@
     </section>
 
     <!-- Customer Testimonials Section - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-[#161624]">
+    <section class="py-20 sm:py-28 px-6 sm:px-8" style="background-color: #181830;">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">
@@ -1511,7 +1513,7 @@
     </section>
 
     <!-- AI vs Traditional Voicemail - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-[#12121c]">
+    <section class="py-20 sm:py-28 px-6 sm:px-8" style="background-color: #141425;">
         <div class="max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 <!-- Left Content -->
@@ -1596,7 +1598,7 @@
     </section>
 
     <!-- Features Section - Clean minimal style -->
-    <section id="features" class="py-20 sm:py-28 px-6 sm:px-8 bg-[#0e0e16]">
+    <section id="features" class="py-20 sm:py-28 px-6 sm:px-8" style="background-color: #10101c;">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Powerful Features</h2>
@@ -1644,7 +1646,7 @@
     </section>
 
     <!-- How It Works Section - Clean minimal style -->
-    <section class="py-20 sm:py-28 px-6 sm:px-8 bg-[#0a0a10]">
+    <section class="py-20 sm:py-28 px-6 sm:px-8" style="background-color: #0c0c14;">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">How It Works</h2>
@@ -1671,7 +1673,7 @@
     </section>
 
     <!-- Mobile App Download Section - Clean minimal style -->
-    <section id="download-app" class="py-20 sm:py-28 px-6 sm:px-8 bg-[#08080c] relative overflow-hidden">
+    <section id="download-app" class="py-20 sm:py-28 px-6 sm:px-8 relative overflow-hidden" style="background-color: #08080e;">
         <div class="max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 <!-- Left: Content -->
@@ -1837,7 +1839,7 @@
     </section>
 
     <!-- Workflows Section - Clean minimal style -->
-    <section id="workflows" class="py-20 sm:py-28 px-6 sm:px-8 bg-[#050508]">
+    <section id="workflows" class="py-20 sm:py-28 px-6 sm:px-8" style="background-color: #040408;">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">

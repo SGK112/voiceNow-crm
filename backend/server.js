@@ -320,17 +320,24 @@ if (process.env.NODE_ENV === 'production') {
   const frontendPublicPath = join(__dirname, '../frontend/public');
 
   // Serve landing page from frontend/public (before React app)
+  // AGGRESSIVE no-cache to prevent CDN/browser caching
   app.get('/', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('CDN-Cache-Control', 'no-store');
+    res.setHeader('Vary', '*');
     res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
   app.get('/marketing', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('CDN-Cache-Control', 'no-store');
+    res.setHeader('Vary', '*');
     res.sendFile(join(frontendPublicPath, 'marketing.html'));
   });
 
