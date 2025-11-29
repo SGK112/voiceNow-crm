@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-28-v103-section-contrast';
+        const CURRENT_VERSION = '2025-11-28-v104-fix-section-bg';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -165,24 +165,6 @@
         /* Add subtle border separator between sections */
         section:not(#hero) {
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Sections without gradient backgrounds get transparent bg */
-        section:not([class*="bg-gradient"]):not([class*="bg-["]) {
-            background-color: transparent !important;
-        }
-
-        /* Add subtle overlay to non-gradient sections for readability */
-        section:not([class*="bg-gradient"]):not([class*="bg-["])::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(10, 10, 11, 0.5);
-            pointer-events: none;
-            z-index: -1;
         }
 
         /* Hero section needs special treatment for video */
