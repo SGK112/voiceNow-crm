@@ -118,7 +118,32 @@ class ReplicateMediaService {
       }
 
       const duration = Date.now() - startTime;
-      const images = Array.isArray(output) ? output : [output];
+
+      // Handle Replicate output - can be URLs, FileOutput objects, or ReadableStreams
+      let rawImages = Array.isArray(output) ? output : [output];
+      console.log('[ReplicateMedia] Raw output type:', typeof rawImages[0], rawImages[0]?.constructor?.name);
+
+      // Convert FileOutput objects or other formats to URL strings
+      const images = rawImages.map(img => {
+        if (typeof img === 'string') {
+          return img; // Already a URL string
+        } else if (img && typeof img.url === 'function') {
+          // FileOutput.url() returns a URL object, convert to string
+          const urlObj = img.url();
+          return urlObj.href || urlObj.toString();
+        } else if (img && img.href) {
+          return img.href; // Already a URL object
+        } else if (img && typeof img.toString === 'function') {
+          const str = img.toString();
+          if (str.startsWith('http')) {
+            return str;
+          }
+        }
+        console.log('[ReplicateMedia] Unknown image format:', img);
+        return null;
+      }).filter(Boolean);
+
+      console.log('[ReplicateMedia] Processed images:', images);
       const creditsUsed = this.pricing.image[model] * numOutputs;
 
       // Save to media library
