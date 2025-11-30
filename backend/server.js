@@ -381,14 +381,18 @@ if (process.env.NODE_ENV === 'production') {
     }
   }));
 
-  // Serve React app for app routes (everything except root and marketing)
-  app.get(/^\/(?!api|marketing).*/, (req, res) => {
+  // Serve React app for app routes (everything except root, marketing, and static assets)
+  // Note: /assets/* is handled by express.static for frontendDistPath above
+  app.get(/^\/(?!api|marketing|assets).*/, (req, res) => {
     const requestPath = req.path;
-    // If it's a React app route (starts with /login, /dashboard, etc.)
+    // If it's a React app route (starts with /login, /dashboard, /auth, /app, etc.)
     if (requestPath.startsWith('/login') || requestPath.startsWith('/dashboard') ||
         requestPath.startsWith('/leads') || requestPath.startsWith('/calls') ||
         requestPath.startsWith('/agents') || requestPath.startsWith('/workflows') ||
-        requestPath.startsWith('/settings')) {
+        requestPath.startsWith('/settings') || requestPath.startsWith('/auth') ||
+        requestPath.startsWith('/app') || requestPath.startsWith('/onboarding') ||
+        requestPath.startsWith('/signup') || requestPath.startsWith('/reset-password') ||
+        requestPath.startsWith('/forgot-password')) {
       res.sendFile(join(frontendDistPath, 'index.html'));
     } else {
       // For other routes, try to serve from public first, then fall back to React

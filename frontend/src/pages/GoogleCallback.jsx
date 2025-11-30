@@ -67,10 +67,31 @@ export default function GoogleCallback() {
   }, [searchParams, navigate, googleLogin]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Signing you in with Google...</h2>
-        <p className="text-muted-foreground">Please wait</p>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Dark radial gradient background - matches login */}
+      <div
+        className="fixed inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%)',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+
+      {/* Dot grid overlay - matches login */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundColor: 'transparent',
+          backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px)',
+          backgroundSize: '24px 24px'
+        }}
+      />
+
+      <div className="text-center relative z-10">
+        {/* Spinner */}
+        <div className="mx-auto mb-6 w-12 h-12 rounded-full border-4 border-blue-600/20 border-t-blue-500 animate-spin" />
+        <h2 className="text-2xl font-bold mb-4 text-white">Signing you in with Google...</h2>
+        <p className="text-gray-400">Please wait</p>
       </div>
     </div>
   );
