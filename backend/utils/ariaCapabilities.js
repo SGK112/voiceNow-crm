@@ -2742,12 +2742,16 @@ export class AriaCapabilities {
         }).sort({ updatedAt: -1 }); // Get most recently updated agent
       }
 
-      // Final fallback: use default agent from environment variable
-      // Priority: ARIA agent > Demo agent > Lead Gen agent
-      let elevenLabsAgentId = agent?.elevenLabsAgentId;
+      // ARIA always uses her own agent for outbound calls
+      // This ensures ARIA's personality and voice are used, not demo agents
+      let elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID;
+
       if (!elevenLabsAgentId) {
-        elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
-        console.log(`   ⚠️ No DB agent found, using fallback: ${elevenLabsAgentId}`);
+        // Fallback to DB agent or demo agent if ARIA agent not configured
+        elevenLabsAgentId = agent?.elevenLabsAgentId || process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
+        console.log(`   ⚠️ ARIA agent not configured, using fallback: ${elevenLabsAgentId}`);
+      } else {
+        console.log(`   ✅ Using ARIA's dedicated agent: ${elevenLabsAgentId}`);
       }
 
       if (!elevenLabsAgentId) {
@@ -2769,7 +2773,8 @@ export class AriaCapabilities {
       // Initialize ElevenLabs service and make the call directly
       const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
-      console.log(`   🤖 Using agent: ${agent?.name || 'Fallback'} (${elevenLabsAgentId})`);
+      const agentName = elevenLabsAgentId === process.env.ELEVENLABS_ARIA_AGENT_ID ? 'ARIA' : (agent?.name || 'Fallback');
+      console.log(`   🤖 Using agent: ${agentName} (${elevenLabsAgentId})`);
       console.log(`   📱 Calling: ${formattedNumber} via ElevenLabs direct API`);
 
       // Build dynamic variables for personalization
