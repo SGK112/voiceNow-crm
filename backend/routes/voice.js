@@ -724,6 +724,29 @@ router.post('/process', optionalAuth, async (req, res) => {
           revision = await CopilotRevision.createPending(userId, command, userMessage);
           revisionNumber = revision.revisionNumber;
           console.log(`📝 [COPILOT] Revision #${revisionNumber} saved to MongoDB: "${command}"`);
+
+          // Trigger n8n webhook for autonomous code execution
+          const n8nWebhookUrl = process.env.N8N_COPILOT_WEBHOOK_URL;
+          if (n8nWebhookUrl && revision) {
+            try {
+              axios.post(n8nWebhookUrl, {
+                revisionId: revision._id.toString(),
+                command: command,
+                userId: userId.toString(),
+                revisionNumber: revisionNumber,
+                timestamp: new Date().toISOString()
+              }, {
+                timeout: 5000,
+                headers: { 'Content-Type': 'application/json' }
+              }).then(() => {
+                console.log(`🚀 [COPILOT] n8n webhook triggered for revision #${revisionNumber}`);
+              }).catch(webhookErr => {
+                console.error(`⚠️ [COPILOT] n8n webhook failed (non-blocking):`, webhookErr.message);
+              });
+            } catch (webhookErr) {
+              console.error(`⚠️ [COPILOT] n8n webhook error:`, webhookErr.message);
+            }
+          }
         } catch (dbError) {
           console.error('Failed to save copilot revision to MongoDB:', dbError.message);
         }
