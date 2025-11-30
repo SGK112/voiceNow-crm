@@ -11,7 +11,7 @@
 
     <!-- Force cache clear on version change -->
     <script>
-        const CURRENT_VERSION = '2025-11-28-v109-more-contrast';
+        const CURRENT_VERSION = '2025-11-29-v110-mobile-first';
         const storedVersion = sessionStorage.getItem('pageVersion');
 
         // Check if we need to force reload
@@ -469,6 +469,184 @@
             h2 {
                 font-size: 1.25rem !important;
             }
+        }
+
+        /* ===== MOBILE-FIRST PERFORMANCE OPTIMIZATIONS ===== */
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* GPU acceleration for smoother scrolling on mobile */
+        @media (max-width: 768px) {
+            section, .hero-slide, nav {
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0);
+                will-change: auto;
+            }
+
+            /* Optimize image rendering */
+            img {
+                image-rendering: -webkit-optimize-contrast;
+            }
+
+            /* Prevent content shift during scroll */
+            html {
+                scroll-padding-top: 64px; /* Account for fixed nav height */
+            }
+
+            /* Better touch scrolling */
+            body {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+            }
+
+            /* Optimize hero slideshow for mobile */
+            .hero-slide {
+                will-change: opacity;
+            }
+
+            /* Lazy load images below fold */
+            img[loading="lazy"] {
+                opacity: 0;
+                transition: opacity 0.3s ease-in;
+            }
+
+            img[loading="lazy"].loaded {
+                opacity: 1;
+            }
+        }
+
+        /* Mobile-specific typography improvements */
+        @media (max-width: 640px) {
+            /* Improve readability on small screens */
+            body {
+                font-size: 16px; /* Prevent iOS zoom on input focus */
+                line-height: 1.6;
+            }
+
+            /* Better text wrapping */
+            h1, h2, h3, p {
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+                hyphens: auto;
+            }
+
+            /* Larger hit areas for mobile */
+            a, button {
+                min-height: 48px;
+                padding: 12px 16px;
+            }
+
+            /* Stack flex items vertically on very small screens */
+            .flex.gap-8 {
+                flex-direction: column;
+                gap: 1.5rem !important;
+            }
+
+            /* Ensure forms are usable on mobile */
+            input, select, textarea {
+                font-size: 16px !important; /* Prevents iOS zoom */
+                padding: 14px 16px;
+            }
+
+            /* Better modal positioning on mobile */
+            #demo-form-container, #demo-popup-modal {
+                padding: 1rem;
+            }
+
+            #demo-form-container > div,
+            #demo-popup-modal .max-w-md {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* Mobile hero section improvements */
+        @media (max-width: 768px) {
+            #hero {
+                min-height: 100svh; /* Use svh for mobile Safari address bar */
+            }
+
+            /* Improve hero text contrast on mobile */
+            #hero-title {
+                text-shadow: 0 4px 30px rgba(0,0,0,0.9);
+            }
+
+            #hero-subtitle {
+                text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+            }
+
+            /* Improve CTA buttons on mobile */
+            #try-it-now-btn,
+            #hero a[href="#download-app"] {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Better spacing for mobile hero */
+            #hero .pb-10 {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Safe area insets for notched phones */
+        @supports (padding: max(0px)) {
+            @media (max-width: 768px) {
+                nav {
+                    padding-left: max(1rem, env(safe-area-inset-left));
+                    padding-right: max(1rem, env(safe-area-inset-right));
+                }
+
+                footer {
+                    padding-bottom: max(3rem, calc(3rem + env(safe-area-inset-bottom)));
+                }
+
+                #hero {
+                    padding-bottom: max(2.5rem, calc(2.5rem + env(safe-area-inset-bottom)));
+                }
+            }
+        }
+
+        /* Tablet optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .grid-cols-3 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            section {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        /* Touch device optimizations */
+        .touch-device .feature-card:hover,
+        .touch-device .workflow-card:hover,
+        .touch-device .dark-card:hover {
+            transform: none;
+        }
+
+        .touch-device a,
+        .touch-device button {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* Optimize during scroll on mobile */
+        body.is-scrolling .animate-float,
+        body.is-scrolling .animate-pulse,
+        body.is-scrolling [class*="shimmer"] {
+            animation-play-state: paused !important;
+        }
+
+        body.is-scrolling .hero-slide {
+            transition: none !important;
         }
 
         /* Prevent nav from being hidden on mobile scroll */
@@ -2349,6 +2527,61 @@
         });
 
         console.log('Scroll enhancements loaded: Smooth scroll, Animations');
+
+        // ===== MOBILE-FIRST IMAGE LAZY LOADING =====
+        // Add loaded class when lazy images are visible
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('loaded');
+                        imageObserver.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '50px 0px' });
+
+            lazyImages.forEach(img => {
+                imageObserver.observe(img);
+            });
+        } else {
+            // Fallback for older browsers
+            lazyImages.forEach(img => img.classList.add('loaded'));
+        }
+
+        // ===== MOBILE TOUCH OPTIMIZATIONS =====
+        // Detect mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // Add touch-friendly class to body
+            document.body.classList.add('touch-device');
+
+            // Prevent double-tap zoom on buttons
+            document.querySelectorAll('button, a').forEach(el => {
+                el.addEventListener('touchend', (e) => {
+                    e.target.click();
+                }, { passive: true });
+            });
+
+            // Improve scroll performance by hiding heavy elements during scroll
+            let scrollTimeout;
+            let isScrolling = false;
+
+            window.addEventListener('scroll', () => {
+                if (!isScrolling) {
+                    document.body.classList.add('is-scrolling');
+                    isScrolling = true;
+                }
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    document.body.classList.remove('is-scrolling');
+                    isScrolling = false;
+                }, 150);
+            }, { passive: true });
+        }
+
+        console.log('Mobile optimizations loaded:', isMobile ? 'Mobile device' : 'Desktop device');
 
         // ===== DEMO FORM FUNCTIONALITY =====
 
