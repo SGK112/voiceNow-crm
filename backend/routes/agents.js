@@ -25,7 +25,8 @@ import {
   disconnectWorkflow,
   updateTransferSettings,
   getTransferSettingsStatus,
-  syncTransferSettings
+  syncTransferSettings,
+  getVoicePersonalities
 } from '../controllers/agentController.js';
 import { protect, checkSubscription } from '../middleware/auth.js';
 import { requirePlan } from '../middleware/subscriptionGate.js';
@@ -57,6 +58,7 @@ router.get('/:id/performance', protect, getAgentPerformance);
 // Agent creation helpers
 router.get('/helpers/voices', protect, getVoices);
 router.get('/helpers/templates', protect, getAgentTemplates);
+router.get('/helpers/voice-personalities', protect, getVoicePersonalities);
 
 // Voice Library - Browse & Add from ElevenLabs shared voices
 router.get('/helpers/voice-library', protect, getVoiceLibrary);

@@ -5,6 +5,12 @@ import ElevenLabsService from '../services/elevenLabsService.js';
 import VoiceAgentWorkflowService from '../services/voiceAgentWorkflowService.js';
 import { expandedAgentTemplates } from '../config/expandedAgentTemplates.js';
 import { syncTransferSettingsToElevenLabs, getTransferStatus } from '../services/elevenlabsTransferService.js';
+import {
+  getAllPersonalitySummaries,
+  getVoicePersonality,
+  getRecommendedVoices,
+  getVoicesByGender
+} from '../config/voicePersonalities.js';
 
 // Factory function to get ElevenLabs service with platform credentials
 const getElevenLabsService = () => {
@@ -2149,6 +2155,80 @@ export const syncTransferSettings = async (req, res) => {
 
   } catch (error) {
     console.error('Sync transfer settings error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get all available voice personalities
+ * Returns a list of pre-configured AI agent personalities with different voices
+ */
+export const getVoicePersonalities = async (req, res) => {
+  try {
+    const { gender, agentType, id } = req.query;
+
+    // If specific ID requested, return that personality
+    if (id) {
+      const personality = getVoicePersonality(id);
+      if (!personality) {
+        return res.status(404).json({ message: 'Voice personality not found' });
+      }
+      return res.json({
+        success: true,
+        data: personality
+      });
+    }
+
+    // If filtering by gender
+    if (gender) {
+      const filtered = getVoicesByGender(gender);
+      return res.json({
+        success: true,
+        data: filtered.map(v => ({
+          id: v.id,
+          name: v.name,
+          voiceId: v.voiceId,
+          gender: v.gender,
+          accent: v.accent,
+          description: v.personality.description,
+          avatar: v.avatar,
+          sampleGreeting: v.sampleGreeting,
+          useCases: v.useCases
+        }))
+      });
+    }
+
+    // If filtering by recommended for agent type
+    if (agentType) {
+      const recommended = getRecommendedVoices(agentType);
+      return res.json({
+        success: true,
+        recommended: recommended.map(v => ({
+          id: v.id,
+          name: v.name,
+          voiceId: v.voiceId,
+          gender: v.gender,
+          accent: v.accent,
+          description: v.personality.description,
+          avatar: v.avatar,
+          sampleGreeting: v.sampleGreeting,
+          useCases: v.useCases
+        })),
+        all: getAllPersonalitySummaries()
+      });
+    }
+
+    // Return all personalities
+    const personalities = getAllPersonalitySummaries();
+
+    res.json({
+      success: true,
+      count: personalities.length,
+      data: personalities
+    });
+
+  } catch (error) {
+    console.error('Get voice personalities error:', error);
     res.status(500).json({ message: error.message });
   }
 };
