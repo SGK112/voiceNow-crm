@@ -369,15 +369,16 @@ class TwilioService {
         throw new Error('Twilio client not initialized');
       }
 
-      const fromNumber = from || process.env.TWILIO_PHONE_NUMBER;
+      // Use messaging service for A2P compliance (same as MMS)
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
 
       const message = await this.client.messages.create({
         body: body,
-        from: fromNumber,
+        messagingServiceSid: messagingServiceSid,
         to: to
       });
 
-      console.log(`📱 SMS sent to ${to}: ${message.sid}`);
+      console.log(`📱 SMS sent to ${to}: ${message.sid} (via A2P messaging service)`);
       return message;
     } catch (error) {
       console.error('Error sending SMS:', error);

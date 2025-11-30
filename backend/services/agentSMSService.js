@@ -37,10 +37,13 @@ class AgentSMSService {
 
       console.log(`📱 Sending SMS from agent ${agentId} to ${to}`);
 
+      // Use messaging service for A2P compliance
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
+
       // Send via Twilio
       const twilioMessage = await this.client.messages.create({
         body: message,
-        from: this.phoneNumber,
+        messagingServiceSid: messagingServiceSid,
         to: to
       });
 

@@ -161,9 +161,12 @@ Respond appropriately, using your capabilities when needed. Keep it brief!`
         throw new Error('Twilio client not initialized');
       }
 
+      // Use messaging service for A2P compliance
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
+
       const twilioMessage = await this.twilioClient.messages.create({
         body: ariaResponse,
-        from: this.phoneNumber,
+        messagingServiceSid: messagingServiceSid,
         to: from
       });
 
@@ -199,9 +202,11 @@ Respond appropriately, using your capabilities when needed. Keep it brief!`
       if (this.twilioClient) {
         try {
           const fallbackMessage = 'Thanks for your message! A team member will get back to you shortly.';
+          // Use messaging service for A2P compliance
+          const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
           const twilioMessage = await this.twilioClient.messages.create({
             body: fallbackMessage,
-            from: this.phoneNumber,
+            messagingServiceSid: messagingServiceSid,
             to: from
           });
 
