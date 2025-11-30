@@ -367,9 +367,9 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
               },
               turn_detection: {
                 type: 'server_vad',
-                threshold: 0.95, // Very high threshold to prevent ARIA from hearing herself
-                prefix_padding_ms: 300, // Less prefix to avoid catching tail of ARIA's speech
-                silence_duration_ms: 1500, // Wait 1.5s of silence before responding - prevents echo
+                threshold: 0.9, // High threshold - only trigger on clear speech, not room noise
+                prefix_padding_ms: 200, // Minimal prefix to avoid catching tail of ARIA's speech
+                silence_duration_ms: 800, // Faster response after 800ms silence (mic is muted during ARIA speech anyway)
               },
               tools: configRef.current.tools,
             },
@@ -392,17 +392,26 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
       case 'input_audio_buffer.speech_stopped':
         // User stopped speaking - AI is thinking
-        console.log('[REALTIME] User stopped speaking');
+        // Mute mic immediately to prevent any tail-end audio from being captured
+        console.log('[REALTIME] User stopped speaking - muting mic preemptively');
+        setMicrophoneMuted(true);
+        isSpeakingRef.current = true; // Treat as "AI will speak soon"
         onStateChange?.('thinking');
         break;
 
       case 'response.created':
-        // AI is generating response
+        // AI is generating response - IMMEDIATELY mute mic to prevent echo
+        // This is critical: mute BEFORE audio starts playing, not after
+        if (!isSpeakingRef.current) {
+          isSpeakingRef.current = true;
+          setMicrophoneMuted(true);
+          console.log('[REALTIME] Response created - mic muted preemptively');
+        }
         onStateChange?.('thinking');
         break;
 
       case 'response.audio.delta':
-        // AI is speaking (audio is playing) - MUTE mic to prevent feedback
+        // AI is speaking (audio is playing) - ensure mic stays muted
         if (!isSpeakingRef.current) {
           isSpeakingRef.current = true;
           setMicrophoneMuted(true);
@@ -412,28 +421,22 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
       case 'response.audio.done':
         // AI finished audio output - delay unmuting to avoid echo from residual audio
-        console.log('[REALTIME] AI finished speaking, waiting before unmuting mic');
-        isSpeakingRef.current = false;
-        // Add 1500ms delay to let speaker audio fully stop before unmuting mic
-        setTimeout(() => {
-          if (!isSpeakingRef.current) {
-            setMicrophoneMuted(false);
-            console.log('[REALTIME] Mic unmuted after delay');
-          }
-        }, 1500);
+        console.log('[REALTIME] AI audio done, waiting before unmuting mic');
+        // Don't set isSpeakingRef to false yet - wait for response.done
         break;
 
       case 'response.done':
         // AI finished responding completely - ensure mic is unmuted and back to listening
-        if (isSpeakingRef.current) {
-          isSpeakingRef.current = false;
-          // Add longer delay to prevent echo pickup
-          setTimeout(() => {
-            if (!isSpeakingRef.current) {
-              setMicrophoneMuted(false);
-            }
-          }, 1500);
-        }
+        console.log('[REALTIME] Response done - will unmute mic after delay');
+        isSpeakingRef.current = false;
+        // Wait 2 seconds after AI finishes to let audio completely clear from room
+        // This prevents the mic from picking up any residual echo/reverb
+        setTimeout(() => {
+          if (!isSpeakingRef.current) {
+            setMicrophoneMuted(false);
+            console.log('[REALTIME] Mic unmuted - ready for user input');
+          }
+        }, 2000);
         onStateChange?.('listening');
         break;
 
