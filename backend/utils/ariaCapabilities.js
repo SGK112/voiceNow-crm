@@ -2663,6 +2663,9 @@ export class AriaCapabilities {
       let contactName = null;
       let contactRecord = null;
 
+      // Check if userId is valid ObjectId
+      const isValidUserId = this.userId && this.userId !== 'default' && /^[a-f\d]{24}$/i.test(this.userId);
+
       // If contact identifier provided, look up the phone number
       if (contactIdentifier && !phoneNumber) {
         // Check if it's already a phone number
@@ -2672,19 +2675,35 @@ export class AriaCapabilities {
           // Search contacts by name
           const searchRegex = new RegExp(contactIdentifier, 'i');
 
-          // Try contacts first
-          contactRecord = await Contact.findOne({
-            user: this.userId,
-            isDeleted: false,
-            name: searchRegex
-          });
+          // Try contacts first - search with userId if valid, otherwise search all contacts
+          if (isValidUserId) {
+            contactRecord = await Contact.findOne({
+              user: this.userId,
+              isDeleted: false,
+              name: searchRegex
+            });
+          } else {
+            // Search all contacts when no valid userId (for testing/default mode)
+            contactRecord = await Contact.findOne({
+              isDeleted: { $ne: true },
+              name: searchRegex
+            });
+            console.log(`   🔍 Searching all contacts (no valid userId)`);
+          }
 
           if (!contactRecord) {
             // Try leads
-            contactRecord = await Lead.findOne({
-              userId: this.userId,
-              name: searchRegex
-            });
+            if (isValidUserId) {
+              contactRecord = await Lead.findOne({
+                userId: this.userId,
+                name: searchRegex
+              });
+            } else {
+              // Search all leads when no valid userId
+              contactRecord = await Lead.findOne({
+                name: searchRegex
+              });
+            }
           }
 
           if (contactRecord) {
@@ -2715,9 +2734,6 @@ export class AriaCapabilities {
       }
 
       // Find the user's default voice agent (ARIA)
-      // Handle case where userId is 'default' (not a valid ObjectId)
-      const isValidUserId = this.userId && this.userId !== 'default' && /^[a-f\d]{24}$/i.test(this.userId);
-
       let agent;
       if (isValidUserId) {
         // Find user's ARIA agent
