@@ -247,7 +247,8 @@ class ElevenLabsConversationalService extends EventEmitter {
             prompt: {
               prompt: prompt,
               llm: 'gemini-2.5-flash', // Best for conversational AI
-              temperature: 0.8
+              temperature: 0.8,
+              max_tokens: 4096
             },
             first_message: firstMessage,
             language: language
@@ -263,6 +264,10 @@ class ElevenLabsConversationalService extends EventEmitter {
           asr: {
             quality: 'high',
             provider: 'elevenlabs'
+          },
+          conversation: {
+            max_duration_seconds: 1800, // 30 minutes max call duration
+            client_events: ['conversation_ended', 'user_transcript', 'agent_response']
           }
         },
         platform_settings: {

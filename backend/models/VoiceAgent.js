@@ -114,7 +114,7 @@ const voiceAgentSchema = new mongoose.Schema({
   },
   configuration: {
     temperature: { type: Number, default: 0.8 },
-    maxDuration: { type: Number, default: 300 },
+    maxDuration: { type: Number, default: 1800 }, // 30 minutes default (was 5 min)
     language: { type: String, default: 'en' },
     qualificationQuestions: [String],
     targetAudience: {
