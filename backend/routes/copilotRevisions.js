@@ -1,6 +1,6 @@
 import express from 'express';
 import CopilotRevision from '../models/CopilotRevision.js';
-import { protect, optionalAuth } from '../middleware/auth.js';
+import { protect, optionalAuth, serviceAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -143,8 +143,8 @@ router.get('/:id', protect, async (req, res) => {
 
 // @desc    Mark revision as processing (Claude Code starting work)
 // @route   POST /api/copilot-revisions/:id/processing
-// @access  Private
-router.post('/:id/processing', protect, async (req, res) => {
+// @access  Private (or Service)
+router.post('/:id/processing', serviceAuth, async (req, res) => {
   try {
     const revision = await CopilotRevision.findById(req.params.id);
 
@@ -186,8 +186,8 @@ router.post('/:id/processing', protect, async (req, res) => {
 
 // @desc    Mark revision as applied (Claude Code finished)
 // @route   POST /api/copilot-revisions/:id/applied
-// @access  Private
-router.post('/:id/applied', protect, async (req, res) => {
+// @access  Private (or Service)
+router.post('/:id/applied', serviceAuth, async (req, res) => {
   try {
     const { changes, summary } = req.body;
     const revision = await CopilotRevision.findById(req.params.id);
@@ -226,8 +226,8 @@ router.post('/:id/applied', protect, async (req, res) => {
 
 // @desc    Mark revision as failed
 // @route   POST /api/copilot-revisions/:id/failed
-// @access  Private
-router.post('/:id/failed', protect, async (req, res) => {
+// @access  Private (or Service)
+router.post('/:id/failed', serviceAuth, async (req, res) => {
   try {
     const { error: errorMessage } = req.body;
     const revision = await CopilotRevision.findById(req.params.id);

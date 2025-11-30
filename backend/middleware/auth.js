@@ -76,6 +76,29 @@ export const generateToken = (id) => {
   });
 };
 
+// Service auth - allows n8n and other services to authenticate with API key
+export const serviceAuth = async (req, res, next) => {
+  const apiKey = req.headers['x-api-key'] || req.headers['x-service-key'];
+  const n8nApiKey = process.env.N8N_API_KEY;
+
+  // Check for n8n service key
+  if (apiKey && n8nApiKey && apiKey === n8nApiKey) {
+    // Set a service user for n8n
+    req.user = {
+      _id: 'n8n-service',
+      name: 'N8N Copilot Service',
+      email: 'copilot@voicenow.app',
+      role: 'service',
+      isService: true
+    };
+    req.isServiceRequest = true;
+    return next();
+  }
+
+  // Fall back to regular protect middleware
+  return protect(req, res, next);
+};
+
 // Optional auth - sets req.user if token present, but doesn't require it
 export const optionalAuth = async (req, res, next) => {
   let token;
