@@ -2657,6 +2657,7 @@ export class AriaCapabilities {
       const VoiceAgent = (await import('../models/VoiceAgent.js')).default;
       const CallLog = (await import('../models/CallLog.js')).default;
       const ElevenLabsService = (await import('../services/elevenLabsService.js')).default;
+      const UserProfile = (await import('../models/UserProfile.js')).default;
 
       let targetPhone = phoneNumber;
       let contactName = null;
@@ -2777,24 +2778,115 @@ export class AriaCapabilities {
       console.log(`   🤖 Using agent: ${agentName} (${elevenLabsAgentId})`);
       console.log(`   📱 Calling: ${formattedNumber} via ElevenLabs direct API`);
 
-      // Build dynamic variables for personalization
+      // Fetch user profile for personalization
+      let userProfile = null;
+      if (isValidUserId) {
+        userProfile = await UserProfile.findOne({ userId: this.userId });
+      }
+
+      // Extract contact details for rich personalization
+      const contactFirstName = contactName ? contactName.split(' ')[0] : null;
+      const contactCompany = contactRecord?.company || null;
+      const contactEmail = contactRecord?.email || null;
+      const contactTags = contactRecord?.tags?.join(', ') || null;
+      const contactNotes = contactRecord?.notes || null;
+      const lastInteraction = contactRecord?.lastInteraction ? new Date(contactRecord.lastInteraction).toLocaleDateString() : null;
+      const totalCalls = contactRecord?.totalCalls || 0;
+
+      // Extract lead-specific data if available
+      const leadStatus = contactRecord?.status || null;
+      const leadValue = contactRecord?.value || contactRecord?.estimatedValue || null;
+      const leadSource = contactRecord?.source || null;
+      const leadPriority = contactRecord?.priority || null;
+      const projectType = contactRecord?.projectType || null;
+      const projectDescription = contactRecord?.projectDescription || null;
+
+      // Extract user/business profile data
+      const userName = userProfile?.personalInfo?.fullName || userProfile?.personalInfo?.firstName || 'your assistant';
+      const userFirstName = userProfile?.personalInfo?.firstName || null;
+      const userCompany = userProfile?.workInfo?.company || null;
+      const userPosition = userProfile?.workInfo?.position || null;
+      const userIndustry = userProfile?.workInfo?.industry || null;
+      const userPhone = userProfile?.personalInfo?.phone || process.env.TWILIO_PHONE_NUMBER;
+
+      // Build rich dynamic variables for personalization
       const dynamicVariables = {
+        // Contact info
         customer_name: contactName || 'there',
+        customer_first_name: contactFirstName || 'there',
         customer_phone: formattedNumber,
+        customer_company: contactCompany || '',
+        customer_email: contactEmail || '',
+        customer_tags: contactTags || '',
+        customer_notes: contactNotes || '',
+        last_interaction: lastInteraction || 'first contact',
+        total_previous_calls: String(totalCalls),
+
+        // Lead/CRM data
+        lead_status: leadStatus || '',
+        lead_value: leadValue ? `$${leadValue}` : '',
+        lead_source: leadSource || '',
+        lead_priority: leadPriority || 'normal',
+        project_type: projectType || '',
+        project_description: projectDescription || '',
+
+        // User/Business profile (who ARIA represents)
+        owner_name: userName,
+        owner_first_name: userFirstName || userName,
+        owner_company: userCompany || 'our company',
+        owner_position: userPosition || '',
+        owner_industry: userIndustry || '',
+        callback_number: userPhone || '',
+
+        // Call context
         call_purpose: purpose,
-        call_source: 'aria_voice_command'
+        call_source: 'aria_voice_command',
+        current_date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+        current_time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
       };
 
-      // Build personalized script if instructions provided
+      console.log(`   📊 Dynamic variables prepared:`, {
+        customer: contactName || 'unknown',
+        company: contactCompany || 'none',
+        owner: userName,
+        purpose: purpose
+      });
+
+      // Build personalized script with rich context
       let personalizedScript = null;
-      if (instructions) {
-        personalizedScript = `You are ARIA, an AI voice assistant. Your goal for this call: ${purpose}
+      const contextInfo = [];
 
-Special instructions for this call:
-${instructions}
+      // Add contact context
+      if (contactName) contextInfo.push(`You are calling ${contactName}${contactCompany ? ` from ${contactCompany}` : ''}.`);
+      if (lastInteraction) contextInfo.push(`Your last interaction with them was on ${lastInteraction}.`);
+      if (totalCalls > 0) contextInfo.push(`You have spoken with them ${totalCalls} time(s) before.`);
+      if (contactNotes) contextInfo.push(`Notes about this contact: ${contactNotes}`);
 
-Be natural, conversational, and helpful. Listen to the customer and respond appropriately.`;
-      }
+      // Add lead context
+      if (leadStatus) contextInfo.push(`Their current status in your CRM is: ${leadStatus}.`);
+      if (leadValue) contextInfo.push(`Estimated deal value: $${leadValue}.`);
+      if (projectType) contextInfo.push(`Project type: ${projectType}.`);
+      if (projectDescription) contextInfo.push(`Project details: ${projectDescription}.`);
+
+      // Add business context
+      if (userCompany) contextInfo.push(`You are calling on behalf of ${userCompany}.`);
+      if (userFirstName) contextInfo.push(`The business owner's name is ${userFirstName}.`);
+
+      // Build the script
+      personalizedScript = `You are ARIA, an AI voice assistant making a call on behalf of ${userName}${userCompany ? ` at ${userCompany}` : ''}.
+
+CALL PURPOSE: ${purpose}
+
+${contextInfo.length > 0 ? `CONTEXT:\n${contextInfo.join('\n')}\n` : ''}
+${instructions ? `SPECIAL INSTRUCTIONS:\n${instructions}\n` : ''}
+GUIDELINES:
+- Be natural, warm, and conversational
+- Use the customer's name (${contactFirstName || 'their name'}) naturally in conversation
+- Reference any relevant context to make the conversation personalized
+- Listen actively and respond appropriately
+- If asked who you are, say you're ARIA, an AI assistant calling on behalf of ${userFirstName || userName}${userCompany ? ` from ${userCompany}` : ''}
+- Keep the conversation focused on: ${purpose}`;
+
 
       // Use webhook URL for conversation events
       const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
