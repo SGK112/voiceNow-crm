@@ -2243,13 +2243,14 @@ router.post('/realtime-tool', optionalAuth, async (req, res) => {
       // Make an outbound AI call to a contact
       try {
         console.log(`📞 [OUTBOUND-CALL] Initiating call to: ${args.contactName || args.phoneNumber}`);
+        console.log(`📞 [OUTBOUND-CALL] UserId: ${userId}`);
         const callResult = await ariaCapabilities.execute('initiate_outbound_call', {
           contactIdentifier: args.contactName,
           phoneNumber: args.phoneNumber,
           purpose: args.purpose,
           instructions: args.message,
           notifyOnComplete: true
-        });
+        }, userId);
         result = {
           success: callResult.success,
           action: 'outbound_call',

@@ -4342,6 +4342,9 @@ END:VCALENDAR`;
   async execute(functionName, args, userId = 'default') {
     console.log(`⚡ [CAPABILITY] Executing: ${functionName}`, args);
 
+    // Store userId for methods that need it
+    this.userId = userId;
+
     try {
     switch (functionName) {
       case 'web_search':
