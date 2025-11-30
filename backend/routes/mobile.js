@@ -1431,7 +1431,7 @@ router.get('/contacts', auth, async (req, res) => {
     const userId = req.user._id || req.user.id;
 
     // Debug logging for contact sync issues
-    console.log(`📱 [CONTACTS] Mobile request from user: ${userId} (${req.user.email})`);
+    console.log(`📱 [CONTACTS-MOBILE] User: ${userId} | Email: ${req.user.email}`);
 
     const contacts = await Contact.find({
       user: userId,
@@ -1439,6 +1439,8 @@ router.get('/contacts', auth, async (req, res) => {
     })
     .sort({ name: 1 })
     .limit(500);
+
+    console.log(`📱 [CONTACTS-MOBILE] Found ${contacts.length} contacts for user ${userId}`);
 
     res.json({
       success: true,

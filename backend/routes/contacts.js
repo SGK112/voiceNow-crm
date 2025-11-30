@@ -30,7 +30,7 @@ router.get('/', auth, async (req, res) => {
     } = req.query;
 
     // Debug logging for contact sync issues
-    console.log(`📇 [CONTACTS] Web request from user: ${req.user.id} (${req.user.email})`);
+    console.log(`📇 [CONTACTS-WEB] User: ${req.user.id} | Email: ${req.user.email}`);
 
     const query = {
       user: req.user.id,
@@ -73,6 +73,8 @@ router.get('/', auth, async (req, res) => {
         .lean(),
       Contact.countDocuments(query),
     ]);
+
+    console.log(`📇 [CONTACTS-WEB] Found ${total} contacts for user ${req.user.id}`);
 
     res.json({
       success: true,
