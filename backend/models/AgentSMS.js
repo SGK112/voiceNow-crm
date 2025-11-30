@@ -36,7 +36,7 @@ const agentSMSSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['queued', 'sent', 'delivered', 'failed', 'undelivered', 'received'],
+    enum: ['queued', 'accepted', 'sending', 'sent', 'delivered', 'failed', 'undelivered', 'received', 'read'],
     default: 'queued',
     index: true
   },
