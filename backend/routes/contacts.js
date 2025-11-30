@@ -575,13 +575,23 @@ router.post('/sync-from-leads', auth, async (req, res) => {
       }
 
       // Create new contact from lead
+      // Handle notes - convert array to string if needed
+      let notesString = '';
+      if (lead.notes) {
+        if (Array.isArray(lead.notes)) {
+          notesString = lead.notes.join('\n');
+        } else {
+          notesString = String(lead.notes);
+        }
+      }
+
       await Contact.create({
         user: req.user.id,
         name: lead.name || 'Unknown',
         phone: lead.phone,
         email: lead.email,
         company: lead.company,
-        notes: lead.notes,
+        notes: notesString,
         leadId: lead._id,
         importSource: 'lead',
         lastInteraction: lead.lastContactedAt || lead.updatedAt,

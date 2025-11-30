@@ -96,7 +96,7 @@ const contactSchema = new mongoose.Schema({
   // Import source
   importSource: {
     type: String,
-    enum: ['manual', 'phone', 'csv', 'api'],
+    enum: ['manual', 'phone', 'csv', 'api', 'lead'],
     default: 'manual'
   },
   importBatchId: String,
