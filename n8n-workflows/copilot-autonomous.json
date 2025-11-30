@@ -1,0 +1,394 @@
+{
+  "name": "AI Copilot - Autonomous Code Changes",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "Poll Every 30 Seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.VOICENOW_API_URL}}/api/copilot-revisions/pending",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-pending",
+      "name": "Get Pending Revisions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [220, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "voicenow-auth",
+          "name": "VoiceNow API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.count > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-pending",
+      "name": "Has Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "revisions",
+        "options": {}
+      },
+      "id": "split-revisions",
+      "name": "Split Revisions",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [660, -100]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.VOICENOW_API_URL}}/api/copilot-revisions/{{ $json._id }}/processing",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "mark-processing",
+      "name": "Mark Processing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [880, -100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "voicenow-auth",
+          "name": "VoiceNow API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are an AI coding assistant. Make this change to a React Native app:\\n\\n{{ $json.command }}\\n\\nRespond ONLY with file changes in this EXACT format:\\n\\nFILE: path/to/file.tsx\\nOLD:\\n```\\nexact code to replace\\n```\\nNEW:\\n```\\nreplacement code\\n```\\n\\nRules:\\n1. Only provide code changes, no explanations\\n2. Include enough context for unique matches\\n3. Changes should be for mobile/src/ directory\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "call-claude",
+      "name": "Call Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1100, -100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "anthropic-auth",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Claude's response for file changes\nconst response = $input.first().json.content[0].text;\nconst changes = [];\n\nconst fileMatches = response.split(/FILE:\\s*/i).slice(1);\n\nfor (const fileBlock of fileMatches) {\n  const lines = fileBlock.split('\\n');\n  const filePath = lines[0].trim();\n  \n  // Extract OLD code block\n  const oldMatch = fileBlock.match(/OLD:\\s*```[^\\n]*\\n([\\s\\S]*?)```/);\n  const newMatch = fileBlock.match(/NEW:\\s*```[^\\n]*\\n([\\s\\S]*?)```/);\n  \n  if (oldMatch && newMatch && filePath) {\n    changes.push({\n      filePath: filePath,\n      oldCode: oldMatch[1],\n      newCode: newMatch[1]\n    });\n  }\n}\n\nreturn [{ json: { changes, revisionId: $('Split Revisions').first().json._id, command: $('Split Revisions').first().json.command } }];"
+      },
+      "id": "parse-changes",
+      "name": "Parse Code Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, -100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.changes.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-changes",
+      "name": "Has Changes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1540, -100]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "changes",
+        "options": {}
+      },
+      "id": "split-changes",
+      "name": "Split Changes",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1760, -200]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/SGK112/voiceNow-crm/contents/{{ $json.filePath }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-file",
+      "name": "Get Current File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1980, -200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-auth",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst currentContent = Buffer.from(item.content, 'base64').toString('utf8');\nconst change = $('Split Changes').first().json;\n\n// Apply the replacement\nconst newContent = currentContent.replace(change.oldCode, change.newCode);\n\nreturn [{\n  json: {\n    path: item.path,\n    sha: item.sha,\n    newContent: Buffer.from(newContent).toString('base64'),\n    oldCode: change.oldCode,\n    newCode: change.newCode,\n    revisionId: $('Parse Code Changes').first().json.revisionId,\n    command: $('Parse Code Changes').first().json.command\n  }\n}];"
+      },
+      "id": "apply-change",
+      "name": "Apply Change",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, -200]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/SGK112/voiceNow-crm/contents/{{ $json.path }}",
+        "method": "PUT",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"Copilot: {{ $json.command }}\",\n  \"content\": \"{{ $json.newContent }}\",\n  \"sha\": \"{{ $json.sha }}\",\n  \"committer\": {\n    \"name\": \"AI Copilot\",\n    \"email\": \"copilot@voicenow.app\"\n  }\n}",
+        "options": {}
+      },
+      "id": "commit-file",
+      "name": "Commit to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2420, -200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-auth",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.VOICENOW_API_URL}}/api/copilot-revisions/{{ $json.revisionId }}/applied",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"changes\": [{\n    \"filePath\": \"{{ $json.path }}\",\n    \"oldContent\": \"...\",\n    \"newContent\": \"...\"\n  }],\n  \"summary\": \"Applied: {{ $json.command }}\"\n}",
+        "options": {}
+      },
+      "id": "mark-applied",
+      "name": "Mark Applied",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2640, -200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "voicenow-auth",
+          "name": "VoiceNow API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.VOICENOW_API_URL}}/api/copilot-revisions/{{ $json.revisionId }}/failed",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"error\": \"No valid code changes found in AI response\"\n}",
+        "options": {}
+      },
+      "id": "mark-failed",
+      "name": "Mark Failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1760, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "voicenow-auth",
+          "name": "VoiceNow API Auth"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Poll Every 30 Seconds": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Revisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Revisions": {
+      "main": [
+        [
+          {
+            "node": "Has Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Pending?": {
+      "main": [
+        [
+          {
+            "node": "Split Revisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Revisions": {
+      "main": [
+        [
+          {
+            "node": "Mark Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Processing": {
+      "main": [
+        [
+          {
+            "node": "Call Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude API": {
+      "main": [
+        [
+          {
+            "node": "Parse Code Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Code Changes": {
+      "main": [
+        [
+          {
+            "node": "Has Changes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Changes?": {
+      "main": [
+        [
+          {
+            "node": "Split Changes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Changes": {
+      "main": [
+        [
+          {
+            "node": "Get Current File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current File": {
+      "main": [
+        [
+          {
+            "node": "Apply Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Change": {
+      "main": [
+        [
+          {
+            "node": "Commit to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Mark Applied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["copilot", "autonomous", "ai"]
+}

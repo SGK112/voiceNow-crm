@@ -126,6 +126,7 @@ import networkDeviceRoutes from './routes/networkDevices.js';
 import translationRoutes from './routes/translation.js';
 import fleetRoutes from './routes/fleet.js';
 import moodboardRoutes from './routes/moodboards.js';
+import appSettingsRoutes from './routes/appSettings.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 // Aria Background Service - auto-starts on import
@@ -283,6 +284,7 @@ app.use('/api/network', networkDeviceRoutes); // Network device discovery and co
 app.use('/api/translation', translationRoutes); // Translation service for Aria multilingual support
 app.use('/api/fleet', fleetRoutes); // Fleet management for people, places, and things
 app.use('/api/moodboards', moodboardRoutes); // Design moodboards with sharing and collaboration
+app.use('/api/app-settings', appSettingsRoutes); // Voice-controlled app settings via ARIA
 
 // Error webhook receiver endpoint for Claude Code error monitoring
 app.post('/', (req, res) => {

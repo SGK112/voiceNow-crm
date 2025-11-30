@@ -167,6 +167,115 @@ function isConversationEnding(message) {
   return endingPhrases.some(phrase => lower.includes(phrase));
 }
 
+// In-memory store for pending app commands per user (mirrors appSettings route)
+const pendingAppCommands = new Map();
+
+// Helper: Detect and execute app settings commands
+// Returns { action, message, command } if it's a settings command, null otherwise
+async function detectAndExecuteAppSettingsCommand(message, user) {
+  const cmd = message.toLowerCase();
+
+  // Patterns for app settings commands
+  const patterns = [
+    // Dark mode / theme
+    { pattern: /(?:turn|switch|enable|set).*(dark\s*mode|night\s*mode)/i, action: 'dark_mode_on', message: 'Dark mode is now on. Your eyes will thank you.' },
+    { pattern: /(?:turn|switch|enable|set).*(light\s*mode|day\s*mode)/i, action: 'dark_mode_off', message: 'Light mode is now on. Back to the bright side.' },
+    { pattern: /(?:turn|disable).*(dark\s*mode|night\s*mode).*off/i, action: 'dark_mode_off', message: 'Dark mode is off.' },
+    { pattern: /(?:toggle|switch).*(?:theme|mode)/i, action: 'toggle_theme', message: 'Theme toggled.' },
+
+    // Brightness / lights
+    { pattern: /(?:turn|switch).*(?:light|lights|screen).*(?:off|down|dim)/i, action: 'brightness_min', message: 'Screen dimmed. Saving your night vision.' },
+    { pattern: /(?:dim|lower).*(?:screen|brightness|light)/i, action: 'brightness_down', message: 'Brightness reduced.' },
+    { pattern: /(?:turn|switch).*(?:light|lights|screen).*(?:on|up|bright)/i, action: 'brightness_max', message: 'Screen brightness at maximum.' },
+    { pattern: /(?:brighter|increase|raise).*(?:screen|brightness|light)/i, action: 'brightness_up', message: 'Brightness increased.' },
+    { pattern: /(?:set|make).*brightness.*(?:to\s*)?(\d+)/i, action: 'brightness_set', message: 'Brightness adjusted.' },
+    { pattern: /max(?:imum)?\s*brightness/i, action: 'brightness_max', message: 'Maximum brightness.' },
+    { pattern: /min(?:imum)?\s*brightness/i, action: 'brightness_min', message: 'Minimum brightness.' },
+
+    // Haptic / vibration
+    { pattern: /(?:turn|disable).*(?:haptic|vibrat|buzz).*off/i, action: 'haptic_off', message: 'Haptic feedback is off. Silent mode.' },
+    { pattern: /(?:turn|enable).*(?:haptic|vibrat|buzz).*on/i, action: 'haptic_on', message: 'Haptic feedback is on. You\'ll feel the vibes.' },
+    { pattern: /(?:stop|disable).*(?:vibrat|buzz)/i, action: 'haptic_off', message: 'Vibrations disabled.' },
+
+    // Notifications
+    { pattern: /(?:mute|silence|turn off|disable).*notification/i, action: 'notifications_off', message: 'Notifications muted. Peace and quiet.' },
+    { pattern: /(?:unmute|turn on|enable).*notification/i, action: 'notifications_on', message: 'Notifications enabled.' },
+    { pattern: /(?:do not disturb|dnd)/i, action: 'notifications_off', message: 'Do not disturb mode on. I\'ll keep it down.' },
+
+    // Font size
+    { pattern: /(?:make|increase).*(?:text|font).*(?:bigger|larger)/i, action: 'font_bigger', message: 'Text size increased.' },
+    { pattern: /(?:make|decrease).*(?:text|font).*(?:smaller)/i, action: 'font_smaller', message: 'Text size decreased.' },
+    { pattern: /(?:large|big).*(?:text|font)/i, action: 'font_large', message: 'Large text enabled.' },
+    { pattern: /(?:small).*(?:text|font)/i, action: 'font_small', message: 'Small text enabled.' },
+    { pattern: /(?:normal|default|medium).*(?:text|font)/i, action: 'font_medium', message: 'Normal text size.' },
+
+    // Navigation
+    { pattern: /(?:show|open|go to).*(?:contacts?|address book)/i, action: 'navigate_contacts', message: 'Opening your contacts.' },
+    { pattern: /(?:show|open|go to).*(?:leads?)/i, action: 'navigate_leads', message: 'Opening leads.' },
+    { pattern: /(?:show|open|go to).*(?:settings?|preferences)/i, action: 'navigate_settings', message: 'Opening settings.' },
+    { pattern: /(?:go|take me).*home/i, action: 'navigate_home', message: 'Going home.' },
+
+    // Refresh
+    { pattern: /refresh.*(?:data|screen|app)/i, action: 'refresh', message: 'Refreshing data.' },
+    { pattern: /(?:sync|update).*(?:data|everything)/i, action: 'refresh', message: 'Syncing data.' },
+  ];
+
+  for (const { pattern, action, message: responseMessage } of patterns) {
+    const match = cmd.match(pattern);
+    if (match) {
+      // Extract value if needed (e.g., brightness percentage)
+      let value = null;
+      if (action === 'brightness_set' && match[1]) {
+        value = parseInt(match[1]) / 100;
+      }
+
+      // Queue command for the mobile app
+      if (user?._id) {
+        const userId = user._id.toString();
+        if (!pendingAppCommands.has(userId)) {
+          pendingAppCommands.set(userId, []);
+        }
+
+        const command = {
+          id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: action.toUpperCase().replace(/_/g, '_'),
+          payload: value !== null ? { value } : {},
+          action,
+          createdAt: new Date(),
+          expiresAt: new Date(Date.now() + 60000),
+        };
+
+        pendingAppCommands.get(userId).push(command);
+        console.log(`🎛️ [APP-SETTINGS] Queued ${action} for user ${userId}`);
+
+        return {
+          action,
+          message: responseMessage,
+          command
+        };
+      }
+
+      // Even without user, return the response
+      return {
+        action,
+        message: responseMessage,
+        command: null
+      };
+    }
+  }
+
+  return null; // Not an app settings command
+}
+
+// Export pending commands for the appSettings route to poll
+export function getAndClearPendingAppCommands(userId) {
+  const commands = pendingAppCommands.get(userId) || [];
+  const now = new Date();
+  const validCommands = commands.filter(cmd => cmd.expiresAt > now);
+  pendingAppCommands.set(userId, []);
+  return validCommands;
+}
+
 // @desc    Get greeting audio (cached)
 // @route   POST /api/voice/greeting
 // @access  Public
@@ -662,6 +771,28 @@ router.post('/process', optionalAuth, async (req, res) => {
         commandId: newCommand.id,
         revisionId: revision?._id?.toString(),
         revisionNumber,
+        conversationHistory: [
+          ...conversationHistory,
+          { role: 'user', content: userMessage },
+          { role: 'assistant', content: confirmationText }
+        ]
+      });
+    }
+
+    // Check for app settings commands (dark mode, brightness, etc.)
+    const appSettingsResult = await detectAndExecuteAppSettingsCommand(lowerMessage, req.user);
+    if (appSettingsResult) {
+      console.log('🎛️ APP SETTINGS COMMAND DETECTED');
+      const confirmationText = appSettingsResult.message;
+
+      return res.json({
+        success: true,
+        userMessage: userMessage,
+        aiMessage: confirmationText,
+        audioBase64: null, // Quick response, no audio needed
+        isAppSettingsCommand: true,
+        settingsAction: appSettingsResult.action,
+        appCommand: appSettingsResult.command,
         conversationHistory: [
           ...conversationHistory,
           { role: 'user', content: userMessage },
