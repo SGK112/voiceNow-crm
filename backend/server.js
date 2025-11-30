@@ -105,6 +105,7 @@ import voiceMediaCopilotRoutes from './routes/voiceMediaCopilot.js';
 import { setupVoiceMediaCopilotWebSocket } from './routes/voiceMediaCopilotWebSocket.js';
 import voicemailAgentRoutes from './routes/voicemailAgent.js';
 import copilotRoutes from './routes/copilot.js';
+import copilotRevisionRoutes from './routes/copilotRevisions.js';
 import demoRoutes from './routes/demo.js';
 import studioRoutes from './routes/studio.js';
 import voiceEstimateRoutes from './routes/voiceEstimates.js';
@@ -263,6 +264,7 @@ app.use('/api/demo', demoRoutes); // Demo routes - no auth required
 app.use('/api/studio', studioRoutes); // Studio routes - social media staging
 app.use('/api/voicemail-agent', voicemailAgentRoutes); // Voicemail agent demo routes
 app.use('/api/copilot', copilotRoutes); // Full-featured Co-Pilot with system integrations
+app.use('/api/copilot-revisions', copilotRevisionRoutes); // Voice-controlled code changes with versioning
 app.use('/api/voice-estimates', voiceEstimateRoutes); // Voice estimate builder routes
 app.use('/api/mobile', mobileRoutes); // Mobile app API endpoints
 app.use('/api/social-media', socialMediaAIRoutes); // AI Social Media Post Writer

@@ -30,6 +30,7 @@ import {
 } from '../config/ariaAgentTemplates.js';
 import errorReportingService from '../services/errorReportingService.js';
 import materialSourcingService from '../services/materialSourcingService.js';
+import CopilotRevision from '../models/CopilotRevision.js';
 
 const router = express.Router();
 
@@ -604,7 +605,22 @@ router.post('/process', optionalAuth, async (req, res) => {
         .replace(/^(copilot|co pilot|co-pilot)[,.\s]*/i, '')
         .trim();
 
-      // Save to dev command queue
+      // Save to MongoDB for versioned history
+      let revision = null;
+      let revisionNumber = 0;
+      const userId = req.user?._id || req.user?.id;
+
+      if (userId) {
+        try {
+          revision = await CopilotRevision.createPending(userId, command, userMessage);
+          revisionNumber = revision.revisionNumber;
+          console.log(`📝 [COPILOT] Revision #${revisionNumber} saved to MongoDB: "${command}"`);
+        } catch (dbError) {
+          console.error('Failed to save copilot revision to MongoDB:', dbError.message);
+        }
+      }
+
+      // Also save to file queue for backwards compatibility
       const fs = await import('fs');
       const path = await import('path');
       const queuePath = path.join(process.cwd(), 'dev-command-queue.json');
@@ -615,21 +631,25 @@ router.post('/process', optionalAuth, async (req, res) => {
       }
 
       const newCommand = {
-        id: Date.now().toString(),
+        id: revision?._id?.toString() || Date.now().toString(),
         command,
         transcription: userMessage,
         timestamp: new Date().toISOString(),
         status: 'pending',
-        executed: false
+        executed: false,
+        userId: userId?.toString(),
+        revisionNumber
       };
 
       queue.commands.push(newCommand);
       fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2));
 
-      console.log(`📝 Dev command queued: "${command}"`);
+      console.log(`📝 Dev command queued: "${command}" (Revision #${revisionNumber})`);
 
       // Skip voice generation for dev commands - just send silent confirmation
-      const confirmationText = `Command sent to Copilot: "${command}"`;
+      const confirmationText = revisionNumber
+        ? `Got it! Revision #${revisionNumber} queued: "${command}"`
+        : `Command sent to Copilot: "${command}"`;
 
       console.log(`[TIMING] Total process time: ${Date.now() - startTime}ms`);
 
@@ -640,6 +660,8 @@ router.post('/process', optionalAuth, async (req, res) => {
         audioBase64: null, // No audio for dev commands
         isDevCommand: true,
         commandId: newCommand.id,
+        revisionId: revision?._id?.toString(),
+        revisionNumber,
         conversationHistory: [
           ...conversationHistory,
           { role: 'user', content: userMessage },
