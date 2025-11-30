@@ -2743,9 +2743,10 @@ export class AriaCapabilities {
       }
 
       // Final fallback: use default agent from environment variable
+      // Priority: ARIA agent > Demo agent > Lead Gen agent
       let elevenLabsAgentId = agent?.elevenLabsAgentId;
       if (!elevenLabsAgentId) {
-        elevenLabsAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
+        elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
         console.log(`   ⚠️ No DB agent found, using fallback: ${elevenLabsAgentId}`);
       }
 
