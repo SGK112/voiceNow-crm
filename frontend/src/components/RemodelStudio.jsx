@@ -488,7 +488,7 @@ function StudioFlow() {
           <div
             className="flex relative overflow-hidden"
             style={{
-              height: `calc(100vh - 60px - ${consoleExpanded ? consoleHeight : 48}px)`
+              height: `calc(100vh - 56px - ${consoleExpanded ? 200 : 40}px)`
             }}
           >
             {/* Collapsible Node Palette - Auto-collapsed on mobile */}
@@ -560,20 +560,23 @@ function StudioFlow() {
               >
                 <Background color="#aaa" gap={16} />
                 <Controls
-                  style={{
-                    bottom: 100,
-                    left: 10
-                  }}
+                  className="!left-2 !bottom-auto !top-2 md:!left-auto md:!right-2 md:!top-auto md:!bottom-2"
+                  showZoom={true}
+                  showFitView={true}
+                  showInteractive={false}
                 />
+                {/* Hide MiniMap on mobile, show on tablet and above */}
                 <MiniMap
                   nodeColor={(node) => {
                     const template = getTemplateByType(node.data?.nodeType);
                     return template?.color || '#3b82f6';
                   }}
-                  className="!bg-card/70 !backdrop-blur-sm !border-2 !border-border !shadow-lg !rounded-lg"
+                  className="!bg-card/70 !backdrop-blur-sm !border-2 !border-border !shadow-lg !rounded-lg hidden md:block"
                   style={{
-                    bottom: 100,
-                    right: 10
+                    bottom: 10,
+                    right: 10,
+                    width: 120,
+                    height: 80
                   }}
                 />
               </ReactFlow>
@@ -602,7 +605,7 @@ function StudioFlow() {
       <div
         className="fixed bottom-0 left-0 right-0 bg-card/70 backdrop-blur-sm border-t border-border flex flex-col z-50"
         style={{
-          height: consoleExpanded ? `${Math.min(consoleHeight, window.innerWidth < 768 ? 250 : consoleHeight)}px` : '48px',
+          height: consoleExpanded ? `${Math.min(consoleHeight, typeof window !== 'undefined' && window.innerWidth < 768 ? 200 : consoleHeight)}px` : '40px',
           transition: isResizing ? 'none' : 'height 0.3s ease-in-out'
         }}
       >
@@ -621,11 +624,11 @@ function StudioFlow() {
         )}
 
         {/* Console Header - Always Visible */}
-        <div className="flex items-center justify-between px-2 sm:px-4 py-2 bg-muted/70 border-b border-border">
+        <div className="flex items-center justify-between px-2 sm:px-4 py-1.5 sm:py-2 bg-muted/70 border-b border-border">
           <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto">
-            <div className="flex items-center gap-2 cursor-pointer touch-manipulation" onClick={() => setConsoleExpanded(!consoleExpanded)}>
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <h3 className="font-semibold text-foreground text-xs sm:text-sm whitespace-nowrap">Console</h3>
+            <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer touch-manipulation" onClick={() => setConsoleExpanded(!consoleExpanded)}>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <h3 className="font-semibold text-foreground text-[11px] sm:text-sm whitespace-nowrap">Console</h3>
             </div>
 
             {/* Tabs - Scrollable on mobile */}
