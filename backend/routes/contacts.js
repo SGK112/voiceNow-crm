@@ -29,6 +29,9 @@ router.get('/', auth, async (req, res) => {
       source,
     } = req.query;
 
+    // Debug logging for contact sync issues
+    console.log(`📇 [CONTACTS] Web request from user: ${req.user.id} (${req.user.email})`);
+
     const query = {
       user: req.user.id,
       isDeleted: { $ne: true },

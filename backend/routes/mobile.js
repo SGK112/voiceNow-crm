@@ -1430,6 +1430,9 @@ router.get('/contacts', auth, async (req, res) => {
   try {
     const userId = req.user._id || req.user.id;
 
+    // Debug logging for contact sync issues
+    console.log(`📱 [CONTACTS] Mobile request from user: ${userId} (${req.user.email})`);
+
     const contacts = await Contact.find({
       user: userId,
       isDeleted: { $ne: true }
