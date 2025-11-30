@@ -549,7 +549,8 @@ router.get('/stats/overview', auth, async (req, res) => {
 // @access  Private
 router.post('/sync-from-leads', auth, async (req, res) => {
   try {
-    const leads = await Lead.find({ user: req.user.id });
+    // Lead model uses 'userId' field, not 'user'
+    const leads = await Lead.find({ userId: req.user.id });
     const results = { synced: 0, skipped: 0 };
 
     for (const lead of leads) {
