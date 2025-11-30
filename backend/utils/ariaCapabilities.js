@@ -2629,7 +2629,7 @@ export class AriaCapabilities {
       const Lead = (await import('../models/Lead.js')).default;
       const VoiceAgent = (await import('../models/VoiceAgent.js')).default;
       const CallLog = (await import('../models/CallLog.js')).default;
-      const TwilioService = (await import('../services/twilioService.js')).default;
+      const ElevenLabsService = (await import('../services/elevenLabsService.js')).default;
 
       let targetPhone = phoneNumber;
       let contactName = null;
@@ -2729,31 +2729,57 @@ export class AriaCapabilities {
         };
       }
 
-      // Get Twilio configuration
-      const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
-      if (!twilioFromNumber) {
+      // Get ElevenLabs phone number ID (required for direct ElevenLabs calling)
+      const elevenLabsPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
+      if (!elevenLabsPhoneNumberId) {
         return {
           success: false,
-          error: 'Twilio phone number not configured for outbound calls.'
+          error: 'ElevenLabs phone number not configured for outbound calls. Please set ELEVENLABS_PHONE_NUMBER_ID.'
         };
       }
 
-      // Initialize Twilio service and make the call
-      const twilioService = new TwilioService();
+      // Initialize ElevenLabs service and make the call directly
+      const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
       console.log(`   🤖 Using agent: ${agent?.name || 'Fallback'} (${elevenLabsAgentId})`);
-      console.log(`   📱 Calling: ${formattedNumber}`);
+      console.log(`   📱 Calling: ${formattedNumber} via ElevenLabs direct API`);
 
-      const call = await twilioService.makeCallWithElevenLabs(
-        twilioFromNumber,
-        formattedNumber,
+      // Build dynamic variables for personalization
+      const dynamicVariables = {
+        customer_name: contactName || 'there',
+        customer_phone: formattedNumber,
+        call_purpose: purpose,
+        call_source: 'aria_voice_command'
+      };
+
+      // Build personalized script if instructions provided
+      let personalizedScript = null;
+      if (instructions) {
+        personalizedScript = `You are ARIA, an AI voice assistant. Your goal for this call: ${purpose}
+
+Special instructions for this call:
+${instructions}
+
+Be natural, conversational, and helpful. Listen to the customer and respond appropriately.`;
+      }
+
+      // Use webhook URL for conversation events
+      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
+      const callbackUrl = `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`;
+
+      const callResult = await elevenLabsService.initiateCall(
         elevenLabsAgentId,
-        contactName,
-        contactRecord?.email
+        formattedNumber,
+        elevenLabsPhoneNumberId,
+        callbackUrl,
+        dynamicVariables,
+        personalizedScript,
+        null,  // Use agent's default first message
+        null   // Use agent's default voice
       );
 
-      const callSid = call.sid;
-      console.log(`   ✅ Call initiated: ${callSid}`);
+      const callSid = callResult?.call_id || callResult?.id || `aria_${Date.now()}`;
+      console.log(`   ✅ Call initiated via ElevenLabs: ${callSid}`);
 
       // Create call log entry (skip if no valid userId)
       let callLog = null;
@@ -2770,9 +2796,9 @@ export class AriaCapabilities {
             purpose: purpose,
             instructions: instructions,
             contactName: contactName,
-            twilioCallSid: callSid,
-            fromNumber: twilioFromNumber,
-            method: 'aria_chat_command',
+            elevenLabsCallId: callSid,
+            fromNumber: process.env.TWILIO_PHONE_NUMBER,
+            method: 'aria_elevenlabs_direct',
             notifyOnComplete: notifyOnComplete
           }
         });
