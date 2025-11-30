@@ -142,10 +142,10 @@ export default function AgentMarketplace() {
         </div>
 
         {/* Category Chips */}
-        <div className="flex gap-2 mb-6 overflow-x-scroll pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors border ${
+            className={`flex-shrink-0 px-4 py-2 rounded-full whitespace-nowrap transition-colors border ${
               selectedCategory === 'all'
                 ? 'bg-blue-600 text-white border-blue-600'
                 : 'bg-transparent border-border text-foreground hover:bg-secondary'
@@ -157,7 +157,7 @@ export default function AgentMarketplace() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors border ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full whitespace-nowrap transition-colors border ${
                 selectedCategory === cat.id
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-transparent border-border text-foreground hover:bg-secondary'
