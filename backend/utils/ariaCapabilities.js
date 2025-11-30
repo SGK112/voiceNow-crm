@@ -2715,7 +2715,14 @@ export class AriaCapabilities {
         }).sort({ updatedAt: -1 }); // Get most recently updated agent
       }
 
-      if (!agent || !agent.elevenLabsAgentId) {
+      // Final fallback: use default agent from environment variable
+      let elevenLabsAgentId = agent?.elevenLabsAgentId;
+      if (!elevenLabsAgentId) {
+        elevenLabsAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
+        console.log(`   ⚠️ No DB agent found, using fallback: ${elevenLabsAgentId}`);
+      }
+
+      if (!elevenLabsAgentId) {
         return {
           success: false,
           error: 'No AI voice agent configured. Please set up a voice agent with ElevenLabs to make outbound calls.'
@@ -2734,13 +2741,13 @@ export class AriaCapabilities {
       // Initialize Twilio service and make the call
       const twilioService = new TwilioService();
 
-      console.log(`   🤖 Using agent: ${agent.name} (${agent.elevenLabsAgentId})`);
+      console.log(`   🤖 Using agent: ${agent?.name || 'Fallback'} (${elevenLabsAgentId})`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       const call = await twilioService.makeCallWithElevenLabs(
         twilioFromNumber,
         formattedNumber,
-        agent.elevenLabsAgentId,
+        elevenLabsAgentId,
         contactName,
         contactRecord?.email
       );
@@ -2748,28 +2755,35 @@ export class AriaCapabilities {
       const callSid = call.sid;
       console.log(`   ✅ Call initiated: ${callSid}`);
 
-      // Create call log entry
-      const callLog = await CallLog.create({
-        userId: this.userId,
-        agentId: agent._id,
-        leadId: contactRecord?._id,
-        elevenLabsCallId: callSid,
-        phoneNumber: formattedNumber,
-        status: 'initiated',
-        direction: 'outbound',
-        metadata: {
-          purpose: purpose,
-          instructions: instructions,
-          contactName: contactName,
-          twilioCallSid: callSid,
-          fromNumber: twilioFromNumber,
-          method: 'aria_chat_command',
-          notifyOnComplete: notifyOnComplete
-        }
-      });
+      // Create call log entry (skip if no valid userId)
+      let callLog = null;
+      if (isValidUserId) {
+        callLog = await CallLog.create({
+          userId: this.userId,
+          agentId: agent?._id,
+          leadId: contactRecord?._id,
+          elevenLabsCallId: callSid,
+          phoneNumber: formattedNumber,
+          status: 'initiated',
+          direction: 'outbound',
+          metadata: {
+            purpose: purpose,
+            instructions: instructions,
+            contactName: contactName,
+            twilioCallSid: callSid,
+            fromNumber: twilioFromNumber,
+            method: 'aria_chat_command',
+            notifyOnComplete: notifyOnComplete
+          }
+        });
+      } else {
+        // Log without saving to DB for unauthenticated calls
+        console.log(`   📝 Skipping call log (no valid userId)`);
+        callLog = { _id: null };
+      }
 
-      // Send notification that call is starting
-      if (notifyOnComplete) {
+      // Send notification that call is starting (skip if no valid userId)
+      if (notifyOnComplete && isValidUserId) {
         try {
           await pushNotificationService.sendAriaNotification(
             this.userId,
@@ -2785,7 +2799,7 @@ export class AriaCapabilities {
       return {
         success: true,
         callSid: callSid,
-        callLogId: callLog._id,
+        callLogId: callLog?._id,
         contactName: contactName,
         phoneNumber: formattedNumber,
         purpose: purpose,
