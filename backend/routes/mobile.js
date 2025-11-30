@@ -279,7 +279,7 @@ router.get('/auth/google/callback', async (req, res) => {
 
     if (!tokens.id_token) {
       console.error('No ID token received:', tokens);
-      return res.redirect(`voiceflow-ai://oauth?error=${encodeURIComponent(tokens.error_description || 'token_exchange_failed')}`);
+      return res.redirect(`voicenow-crm://oauth?error=${encodeURIComponent(tokens.error_description || 'token_exchange_failed')}`);
     }
 
     // Get user info from Google
@@ -414,7 +414,7 @@ router.get('/auth/google/callback', async (req, res) => {
 
     // Build deep link URLs for different scenarios
     const userData = encodeURIComponent(JSON.stringify(userDataObj));
-    const appSchemeUrl = `voiceflow-ai://oauth?token=${token}&user=${userData}&state=${state}`;
+    const appSchemeUrl = `voicenow-crm://oauth?token=${token}&user=${userData}&state=${state}`;
 
     // Send HTML page with multiple redirect options
     const html = `

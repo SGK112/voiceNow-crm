@@ -210,7 +210,7 @@ export default function SignupScreen({ navigation }: any) {
         console.log('Fallback to WebBrowser.openAuthSessionAsync');
         const result = await WebBrowser.openAuthSessionAsync(
           data.url,
-          'voiceflow-ai://oauth'
+          'voicenow-crm://oauth'
         );
         console.log('WebBrowser closed, result type:', result.type);
       }
