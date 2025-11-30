@@ -270,9 +270,11 @@ class WorkflowEngine {
     const to = this.replaceVariables(config.to, context.variables);
     const message = this.replaceVariables(config.message, context.variables);
 
+    // Use A2P compliant messaging service
+    const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
     await this.twilioClient.messages.create({
       to: to,
-      from: process.env.TWILIO_PHONE_NUMBER,
+      messagingServiceSid: messagingServiceSid,
       body: message
     });
 

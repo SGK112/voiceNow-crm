@@ -49,11 +49,12 @@ router.post('/post-call', async (req, res) => {
       console.log('✅ Vendor list requested by customer');
       console.log('📱 Customer phone:', customerPhone);
 
-      // Send vendor list link via SMS
+      // Send vendor list link via SMS using A2P compliant messaging service
       try {
+        const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
         const smsMessage = await twilioClient.messages.create({
           body: `Hi! Here's our vendor list where you can view slabs in person:\n\n🔗 https://www.surprisegranite.com/company/vendors-list\n\nRemember to mention "Surprise Granite is my fabricator" when visiting!\n\n- Surprise Granite Team`,
-          from: process.env.TWILIO_PHONE_NUMBER || '+16028337194',
+          messagingServiceSid: messagingServiceSid,
           to: customerPhone
         });
 
@@ -130,11 +131,12 @@ router.post('/post-call', async (req, res) => {
 
         console.log('✅ Calendar invite created:', calendarResult);
 
-        // Send SMS confirmation to customer
+        // Send SMS confirmation to customer using A2P compliant messaging service
         if (customerPhone) {
+          const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
           await twilioClient.messages.create({
             body: `Your appointment with Surprise Granite is confirmed!\n\n📅 ${appointmentDetails.dateTimeText}\n📍 ${appointmentDetails.location || 'Our showroom'}\n\nYou'll receive a calendar invite shortly. See you then!`,
-            from: process.env.TWILIO_PHONE_NUMBER || '+16028337194',
+            messagingServiceSid: messagingServiceSid,
             to: customerPhone
           });
           console.log('✅ SMS confirmation sent to customer');

@@ -59,13 +59,14 @@ class UsageAlertService {
   }
 
   /**
-   * Send SMS notification
+   * Send SMS notification using A2P compliant messaging service
    */
   async sendSMS(to, message) {
     try {
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
       const result = await this.twilioClient.messages.create({
         body: message,
-        from: this.twilioNumber,
+        messagingServiceSid: messagingServiceSid,
         to: to,
       });
 

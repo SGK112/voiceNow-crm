@@ -76,9 +76,11 @@ export const forgotPassword = async (req, res) => {
       }
 
       try {
+        // Use A2P compliant messaging service
+        const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
         await twilioClient.messages.create({
           body: `Your VoiceNow CRM password reset code is: ${resetCode}\n\nThis code expires in 15 minutes.\n\nIf you didn't request this, please ignore this message.`,
-          from: process.env.TWILIO_PHONE_NUMBER,
+          messagingServiceSid: messagingServiceSid,
           to: phoneNumber
         });
 

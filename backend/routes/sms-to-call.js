@@ -18,6 +18,18 @@ const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 const SMS_AGENT_ID = process.env.ELEVENLABS_SMS_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_8101ka4wyweke1s9np3je7npewrr';
 const DEMO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
+// A2P 10DLC compliant messaging service SID
+const MESSAGING_SERVICE_SID = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
+
+// Helper function to send SMS using A2P compliant messaging service
+async function sendSMS(to, body) {
+  return twilioClient.messages.create({
+    messagingServiceSid: MESSAGING_SERVICE_SID,
+    to: to,
+    body: body
+  });
+}
+
 /**
  * Handle incoming SMS with AI responses and voice call capability
  * - AI responds to any message via text
@@ -50,11 +62,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsSignup) {
       console.log(`📝 Signup request detected from ${From}`);
 
-      await twilioClient.messages.create({
-        from: DEMO_PHONE_NUMBER,
-        to: From,
-        body: '🚀 Welcome to Remodely.ai!\n\nGet started here: https://remodely.ai/signup\n\n✨ Features included:\n• 24/7 AI Voice Agents\n• Visual Workflow Builder\n• Full CRM System\n• Multi-channel Communication\n\nNeed help? Text "call me" to speak with our AI assistant!'
-      });
+      await sendSMS(From, '🚀 Welcome to Remodely.ai!\n\nGet started here: https://remodely.ai/signup\n\n✨ Features included:\n• 24/7 AI Voice Agents\n• Visual Workflow Builder\n• Full CRM System\n• Multi-channel Communication\n\nNeed help? Text "call me" to speak with our AI assistant!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -64,11 +72,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsPricing) {
       console.log(`💰 Pricing request detected from ${From}`);
 
-      await twilioClient.messages.create({
-        from: DEMO_PHONE_NUMBER,
-        to: From,
-        body: '💎 Remodely.ai Pricing Plans:\n\n📦 Starter: $99/mo\n• 1 AI Voice Agent\n• 500 calls/month\n• Basic CRM\n\n🚀 Professional: $299/mo\n• 5 AI Agents\n• Unlimited calls\n• Advanced workflows\n\n🏢 Enterprise: Custom\n• Unlimited everything\n• Dedicated support\n\nView details: https://remodely.ai/pricing\n\nText "call me" to discuss your needs!'
-      });
+      await sendSMS(From, '💎 Remodely.ai Pricing Plans:\n\n📦 Starter: $99/mo\n• 1 AI Voice Agent\n• 500 calls/month\n• Basic CRM\n\n🚀 Professional: $299/mo\n• 5 AI Agents\n• Unlimited calls\n• Advanced workflows\n\n🏢 Enterprise: Custom\n• Unlimited everything\n• Dedicated support\n\nView details: https://remodely.ai/pricing\n\nText "call me" to discuss your needs!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -78,11 +82,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsDemo) {
       console.log(`🎬 Demo request detected from ${From}`);
 
-      await twilioClient.messages.create({
-        from: DEMO_PHONE_NUMBER,
-        to: From,
-        body: '🎙️ Experience Remodely.ai live!\n\nText "call me" right now for an instant AI voice demo, or schedule a personalized demo:\n\n📅 Book a demo: https://remodely.ai/demo\n\nOur AI assistant David can:\n• Answer questions 24/7\n• Qualify leads automatically\n• Schedule appointments\n• Send follow-up SMS/emails\n• And much more!\n\nReady? Text "call me"!'
-      });
+      await sendSMS(From, '🎙️ Experience Remodely.ai live!\n\nText "call me" right now for an instant AI voice demo, or schedule a personalized demo:\n\n📅 Book a demo: https://remodely.ai/demo\n\nOur AI assistant David can:\n• Answer questions 24/7\n• Qualify leads automatically\n• Schedule appointments\n• Send follow-up SMS/emails\n• And much more!\n\nReady? Text "call me"!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -96,11 +96,7 @@ router.post('/trigger-demo-call', async (req, res) => {
       console.log(`📞 Voice call request detected! Initiating call to ${From}...`);
 
       // Send confirmation SMS
-      await twilioClient.messages.create({
-        from: DEMO_PHONE_NUMBER,
-        to: From,
-        body: '🎙️ Great! Our AI demo agent will call you in just a moment. Get ready for an amazing experience! 🚀'
-      });
+      await sendSMS(From, '🎙️ Great! Our AI demo agent will call you in just a moment. Get ready for an amazing experience! 🚀');
 
       // Wait 2 seconds before calling
       setTimeout(async () => {
@@ -149,11 +145,7 @@ router.post('/trigger-demo-call', async (req, res) => {
           console.error(`❌ Failed to initiate call:`, callError);
 
           // Send error message
-          await twilioClient.messages.create({
-            from: DEMO_PHONE_NUMBER,
-            to: From,
-            body: 'Sorry, we encountered an issue starting the call. Please try again or visit remodely.ai for assistance.'
-          });
+          await sendSMS(From, 'Sorry, we encountered an issue starting the call. Please try again or visit remodely.ai for assistance.');
         }
       }, 2000);
 
@@ -198,11 +190,7 @@ If unsure about something specific, suggest they visit remodely.ai or text "call
         const responseText = aiResponse.trim();
 
         // Send AI response via SMS
-        await twilioClient.messages.create({
-          from: DEMO_PHONE_NUMBER,
-          to: From,
-          body: responseText
-        });
+        await sendSMS(From, responseText);
 
         console.log(`✅ AI response sent: "${responseText.substring(0, 50)}..."`);
 
@@ -210,11 +198,7 @@ If unsure about something specific, suggest they visit remodely.ai or text "call
         console.error('❌ AI response failed:', aiError);
 
         // Fallback response if AI fails
-        await twilioClient.messages.create({
-          from: DEMO_PHONE_NUMBER,
-          to: From,
-          body: '👋 Thanks for reaching out! Text "call me" for a live AI voice demo, or visit remodely.ai to learn more about our Voice Workflow CRM!'
-        });
+        await sendSMS(From, '👋 Thanks for reaching out! Text "call me" for a live AI voice demo, or visit remodely.ai to learn more about our Voice Workflow CRM!');
       }
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
@@ -281,9 +265,9 @@ router.post('/send-sms-from-agent', async (req, res) => {
       return res.status(500).json({ error: 'Twilio credentials not configured' });
     }
 
-    // Send SMS via Twilio
+    // Send SMS via Twilio using A2P compliant messaging service
     const sms = await twilioClient.messages.create({
-      from: fromNumber,
+      messagingServiceSid: MESSAGING_SERVICE_SID,
       to: to,
       body: message
     });
@@ -347,9 +331,9 @@ router.post('/send-mms-from-agent', async (req, res) => {
       return res.status(500).json({ error: 'Twilio phone number not configured' });
     }
 
-    // Send MMS via Twilio
+    // Send MMS via Twilio using A2P compliant messaging service
     const mmsData = {
-      from: fromNumber,
+      messagingServiceSid: MESSAGING_SERVICE_SID,
       to: to,
       body: message
     };

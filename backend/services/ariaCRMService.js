@@ -393,14 +393,15 @@ class AriaCRMService {
   // ═══════════════════════════════════════════════════════════════════
 
   /**
-   * Send SMS
+   * Send SMS using A2P compliant messaging service
    */
   async sendSMS(userId, to, message, leadId = null) {
     if (!this.twilioClient) throw new Error('Twilio not configured');
 
+    const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
     const twilioMessage = await this.twilioClient.messages.create({
       body: message,
-      from: this.phoneNumber,
+      messagingServiceSid: messagingServiceSid,
       to: to
     });
 
@@ -435,14 +436,15 @@ class AriaCRMService {
   }
 
   /**
-   * Send MMS with media
+   * Send MMS with media using A2P compliant messaging service
    */
   async sendMMS(userId, to, message, mediaUrls, leadId = null) {
     if (!this.twilioClient) throw new Error('Twilio not configured');
 
+    const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
     const twilioMessage = await this.twilioClient.messages.create({
       body: message,
-      from: this.phoneNumber,
+      messagingServiceSid: messagingServiceSid,
       to: to,
       mediaUrl: Array.isArray(mediaUrls) ? mediaUrls : [mediaUrls]
     });

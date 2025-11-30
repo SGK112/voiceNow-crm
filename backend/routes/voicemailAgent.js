@@ -259,10 +259,11 @@ router.post('/call-completed', async (req, res) => {
       callId
     });
 
-    // Send SMS to business owner
+    // Send SMS to business owner using A2P compliant messaging service
     if (agent.notifyPhone) {
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
       await twilioClient.messages.create({
-        from: process.env.TWILIO_PHONE_NUMBER,
+        messagingServiceSid: messagingServiceSid,
         to: agent.notifyPhone,
         body: smsMessage
       });
@@ -383,8 +384,10 @@ This is how you'll receive notifications when someone calls:
 Reply "START" to activate your agent!`;
 
   try {
+    // Use A2P compliant messaging service
+    const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
     await twilioClient.messages.create({
-      from: process.env.TWILIO_PHONE_NUMBER,
+      messagingServiceSid: messagingServiceSid,
       to: phoneNumber,
       body: testMessage
     });
