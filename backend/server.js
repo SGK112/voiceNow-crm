@@ -393,6 +393,10 @@ if (process.env.NODE_ENV === 'production') {
         requestPath.startsWith('/app') || requestPath.startsWith('/onboarding') ||
         requestPath.startsWith('/signup') || requestPath.startsWith('/reset-password') ||
         requestPath.startsWith('/forgot-password')) {
+      // Prevent caching of index.html so new builds are picked up immediately
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.sendFile(join(frontendDistPath, 'index.html'));
     } else {
       // For other routes, try to serve from public first, then fall back to React
@@ -400,6 +404,10 @@ if (process.env.NODE_ENV === 'production') {
       if (fs.existsSync(publicFilePath) && fs.statSync(publicFilePath).isFile()) {
         res.sendFile(publicFilePath);
       } else {
+        // Prevent caching of index.html so new builds are picked up immediately
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.sendFile(join(frontendDistPath, 'index.html'));
       }
     }
