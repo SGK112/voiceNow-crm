@@ -2687,17 +2687,32 @@ export class AriaCapabilities {
       }
 
       // Find the user's default voice agent (ARIA)
-      let agent = await VoiceAgent.findOne({
-        userId: this.userId,
-        name: /aria/i
-      });
+      // Handle case where userId is 'default' (not a valid ObjectId)
+      const isValidUserId = this.userId && this.userId !== 'default' && /^[a-f\d]{24}$/i.test(this.userId);
 
-      // If no ARIA agent, find any agent with ElevenLabs configured
-      if (!agent) {
+      let agent;
+      if (isValidUserId) {
+        // Find user's ARIA agent
         agent = await VoiceAgent.findOne({
           userId: this.userId,
-          elevenLabsAgentId: { $exists: true, $ne: null }
+          name: /aria/i
         });
+
+        // If no ARIA agent, find any agent with ElevenLabs configured for this user
+        if (!agent) {
+          agent = await VoiceAgent.findOne({
+            userId: this.userId,
+            elevenLabsAgentId: { $exists: true, $ne: null }
+          });
+        }
+      }
+
+      // Fallback: find any active agent with ElevenLabs configured (for 'default' userId)
+      if (!agent) {
+        agent = await VoiceAgent.findOne({
+          elevenLabsAgentId: { $exists: true, $ne: null },
+          isActive: { $ne: false }
+        }).sort({ updatedAt: -1 }); // Get most recently updated agent
       }
 
       if (!agent || !agent.elevenLabsAgentId) {
