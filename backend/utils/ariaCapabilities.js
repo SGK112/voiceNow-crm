@@ -2624,6 +2624,33 @@ export class AriaCapabilities {
       console.log(`   Phone: ${phoneNumber || 'To be looked up'}`);
       console.log(`   Purpose: ${purpose}`);
 
+      // Duplicate call prevention - check if we recently initiated a call to this number
+      const targetNum = phoneNumber || contactIdentifier;
+      const cacheKey = `outbound_call_${targetNum}_${this.userId}`;
+
+      // Use a simple in-memory cache to prevent duplicate calls within 30 seconds
+      if (!global._recentCalls) global._recentCalls = new Map();
+
+      const lastCallTime = global._recentCalls.get(cacheKey);
+      const now = Date.now();
+
+      if (lastCallTime && (now - lastCallTime) < 30000) {
+        console.log(`⚠️ [OUTBOUND CALL] Duplicate call prevented - called ${targetNum} ${Math.round((now - lastCallTime) / 1000)}s ago`);
+        return {
+          success: false,
+          error: 'A call to this number was just initiated. Please wait before trying again.',
+          duplicate: true
+        };
+      }
+
+      // Mark this call as in-progress
+      global._recentCalls.set(cacheKey, now);
+
+      // Clean up old entries (older than 60 seconds)
+      for (const [key, time] of global._recentCalls.entries()) {
+        if (now - time > 60000) global._recentCalls.delete(key);
+      }
+
       // Import required modules
       const Contact = (await import('../models/Contact.js')).default;
       const Lead = (await import('../models/Lead.js')).default;
