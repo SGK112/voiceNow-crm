@@ -2902,8 +2902,8 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
 
       // Add delay before initiating call so ARIA can finish speaking to user first
       // This prevents the call from coming in mid-sentence during voice chat
-      console.log(`   ⏳ Waiting 3 seconds before initiating call (letting ARIA finish speaking)...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log(`   ⏳ Waiting 6 seconds before initiating call (letting ARIA finish speaking)...`);
+      await new Promise(resolve => setTimeout(resolve, 6000));
 
       // Initiate call via Twilio
       let twilioCall;
