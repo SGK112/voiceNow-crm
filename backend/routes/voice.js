@@ -2854,4 +2854,124 @@ router.get('/agents/:agentId/voice', (req, res) => {
   }
 });
 
+// =====================================================
+// VOICE AGENTS - Get available voice agents for calls
+// =====================================================
+
+import VoiceAgent from '../models/VoiceAgent.js';
+
+/**
+ * GET /api/voice/agents
+ * Get all available voice agents (global + user-specific)
+ * Returns agents sorted by priority for use in mobile app voice selection
+ */
+router.get('/agents', optionalAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    // Build query: get global agents + user-specific agents
+    const query = {
+      archived: { $ne: true },
+      enabled: { $ne: false },
+      status: 'active',
+      $or: [
+        { isGlobal: true }, // Global agents available to all
+      ]
+    };
+
+    // Add user-specific agents if authenticated
+    if (userId) {
+      query.$or.push({ userId: userId });
+    }
+
+    const agents = await VoiceAgent.find(query)
+      .select('name type customType voiceId voiceName voiceGender voiceDescription firstMessage priority isGlobal')
+      .sort({ priority: -1, name: 1 })
+      .lean();
+
+    // Format response for mobile app
+    const formattedAgents = agents.map(agent => ({
+      id: agent._id,
+      name: agent.name,
+      type: agent.customType || agent.type,
+      voiceId: agent.voiceId,
+      voiceName: agent.voiceName,
+      gender: agent.voiceGender,
+      description: agent.voiceDescription,
+      firstMessage: agent.firstMessage,
+      isGlobal: agent.isGlobal,
+      priority: agent.priority
+    }));
+
+    res.json({
+      success: true,
+      agents: formattedAgents,
+      total: formattedAgents.length
+    });
+  } catch (error) {
+    console.error('Get voice agents error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get voice agents',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/voice/agents/:id
+ * Get a specific voice agent by ID
+ */
+router.get('/agents/:id', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    const query = {
+      _id: id,
+      archived: { $ne: true },
+      $or: [
+        { isGlobal: true }
+      ]
+    };
+
+    if (userId) {
+      query.$or.push({ userId: userId });
+    }
+
+    const agent = await VoiceAgent.findOne(query).lean();
+
+    if (!agent) {
+      return res.status(404).json({
+        success: false,
+        message: 'Voice agent not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      agent: {
+        id: agent._id,
+        name: agent.name,
+        type: agent.customType || agent.type,
+        voiceId: agent.voiceId,
+        voiceName: agent.voiceName,
+        gender: agent.voiceGender,
+        description: agent.voiceDescription,
+        script: agent.script,
+        firstMessage: agent.firstMessage,
+        isGlobal: agent.isGlobal,
+        priority: agent.priority
+      }
+    });
+  } catch (error) {
+    console.error('Get voice agent error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get voice agent',
+      error: error.message
+    });
+  }
+});
+
 export default router;

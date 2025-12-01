@@ -67,6 +67,17 @@ const voiceAgentSchema = new mongoose.Schema({
   voiceName: {
     type: String, // Friendly name of the voice (e.g., "Rachel", "Adam", "Sarah")
   },
+  voiceGender: {
+    type: String,
+    enum: ['male', 'female', 'neutral'],
+  },
+  voiceDescription: {
+    type: String, // Description of the voice personality/character
+  },
+  isGlobal: {
+    type: Boolean,
+    default: false // If true, available to all users as a shared agent
+  },
   availability: {
     enabled: { type: Boolean, default: true },
     timezone: { type: String, default: 'America/New_York' },
