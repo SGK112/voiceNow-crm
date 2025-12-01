@@ -37,6 +37,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream>(new MediaStream());
   const isSpeakingRef = useRef(false); // Track if Aria is speaking
+  const isStartingSessionRef = useRef(false); // Guard against race conditions - prevents double session starts
 
   // Animation refs
   const breatheAnim = useRef(new Animated.Value(1)).current;
@@ -197,10 +198,18 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
       localStreamRef.current = null;
     }
     isSpeakingRef.current = false;
+    sessionConfigSentRef.current = false; // Reset config flag for next session
     InCallManager.stop();
   };
 
   const startSession = async () => {
+    // Guard against race conditions - prevent starting multiple sessions
+    if (isStartingSessionRef.current) {
+      console.log('[REALTIME] Session already starting, ignoring duplicate request');
+      return;
+    }
+    isStartingSessionRef.current = true;
+
     try {
       setIsConnecting(true);
       setConnectionStatus('connecting');
@@ -275,6 +284,8 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
         setIsConnecting(false);
         // Reset the session config flag - we'll send config after session.created
         sessionConfigSentRef.current = false;
+        // Reset the starting flag - session is now active
+        isStartingSessionRef.current = false;
       });
 
       dc.addEventListener('message', async (event: any) => {
@@ -325,6 +336,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
       console.warn('[REALTIME] Failed to start session:', error?.message || error);
       setConnectionStatus('error');
       setIsConnecting(false);
+      isStartingSessionRef.current = false; // Reset flag on failure
       cleanup();
 
       // Show user-friendly message
@@ -348,7 +360,8 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
     switch (event.type) {
       case 'session.created':
         console.log('[REALTIME] Session created');
-        // Send session config AFTER session is created (avoids voice update conflicts)
+        // Send session config with ARIA personality immediately
+        // The race condition guard (isStartingSessionRef) prevents duplicate sessions
         if (!sessionConfigSentRef.current && configRef.current && dataChannelRef.current?.readyState === 'open') {
           sessionConfigSentRef.current = true;
           const agentVoice = configRef.current.voice || 'shimmer';
@@ -368,20 +381,21 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
               turn_detection: {
                 type: 'server_vad',
                 threshold: 0.9, // High threshold - only trigger on clear speech, not room noise
-                prefix_padding_ms: 200, // Minimal prefix to avoid catching tail of ARIA's speech
-                silence_duration_ms: 800, // Faster response after 800ms silence (mic is muted during ARIA speech anyway)
+                prefix_padding_ms: 300, // Small buffer before speech
+                silence_duration_ms: 800, // Respond after 800ms silence
               },
               tools: configRef.current.tools,
             },
           };
           dataChannelRef.current.send(JSON.stringify(sessionConfig));
-          console.log('[REALTIME] Sent session config');
+          console.log('[REALTIME] Sent session config with full ARIA personality');
         }
         onStateChange?.('listening');
         break;
 
       case 'session.updated':
-        console.log('[REALTIME] Session updated');
+        console.log('[REALTIME] Session updated - ARIA is ready');
+        onStateChange?.('listening');
         break;
 
       case 'input_audio_buffer.speech_started':
@@ -628,6 +642,7 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
 
   const stopSession = () => {
     console.log('[REALTIME] Stopping session...');
+    isStartingSessionRef.current = false; // Reset flag when stopping
     cleanup();
     setIsSessionActive(false);
     setIsConnecting(false);
@@ -672,12 +687,20 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (e) {}
 
-    // Toggle: If active, stop. If stopped, start.
+    // Toggle: If active or connecting, stop. If idle, start.
     if (isSessionActive || isConnecting) {
       stopSession();
-    } else {
-      await startSession();
+      onPress();
+      return;
     }
+
+    // Guard against rapid double-taps using ref (state updates are async)
+    if (isStartingSessionRef.current) {
+      console.log('[REALTIME] Ignoring press - session already starting');
+      return;
+    }
+
+    await startSession();
     onPress();
   };
 

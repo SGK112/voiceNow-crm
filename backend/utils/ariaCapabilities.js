@@ -2778,7 +2778,7 @@ export class AriaCapabilities {
         };
       }
 
-      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/media-stream`);
+      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}:9443/media-stream`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2876,7 +2876,8 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       wsParams.set('ownerName', userFirstName || userName || 'the team');
       if (userCompany) wsParams.set('ownerCompany', userCompany);
 
-      const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
+      // Use port 9443 - direct HTTPS/1.1 server (bypasses Traefik HTTP/2, required for Twilio WebSocket)
+      const wsUrl = `wss://${ariaBridgeHost}:9443/media-stream/${ariaCallId}?${wsParams.toString()}`;
 
       // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation
