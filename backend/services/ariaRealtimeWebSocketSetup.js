@@ -15,13 +15,27 @@ export function setupAriaRealtimeWebSocket(server) {
   console.log('🌐 [ARIA-WS] WebSocket server created at /api/aria-realtime/media-stream');
 
   wss.on('connection', (ws, req) => {
-    // Extract callId from URL path
-    // URL will be like: /api/aria-realtime/media-stream/aria_1234567890_abc123
+    // Extract callId from URL path and parse query parameters
+    // URL will be like: /api/aria-realtime/media-stream/aria_1234567890_abc123?contactName=John&purpose=follow-up
     const urlParts = req.url.split('/');
-    const callId = urlParts[urlParts.length - 1]?.split('?')[0];
+    const lastPart = urlParts[urlParts.length - 1] || '';
+    const [callIdWithParams] = lastPart.split('?');
+    const callId = callIdWithParams;
+
+    // Parse query parameters (for externally initiated calls from ariaCapabilities.js)
+    const urlParams = {};
+    const queryString = req.url.split('?')[1];
+    if (queryString) {
+      const searchParams = new URLSearchParams(queryString);
+      urlParams.contactName = searchParams.get('contactName') || '';
+      urlParams.purpose = searchParams.get('purpose') || '';
+      urlParams.ownerName = searchParams.get('ownerName') || '';
+      urlParams.ownerCompany = searchParams.get('ownerCompany') || '';
+    }
 
     console.log(`🌐 [ARIA-WS] New WebSocket connection for call: ${callId}`);
     console.log(`   URL: ${req.url}`);
+    console.log(`   Params:`, urlParams);
 
     if (!callId || !callId.startsWith('aria_')) {
       console.error(`❌ [ARIA-WS] Invalid call ID: ${callId}`);
@@ -29,8 +43,8 @@ export function setupAriaRealtimeWebSocket(server) {
       return;
     }
 
-    // Delegate to the service
-    openaiRealtimeCallService.handleMediaStream(ws, callId);
+    // Delegate to the service with URL parameters for external calls
+    openaiRealtimeCallService.handleMediaStream(ws, callId, urlParams);
   });
 
   wss.on('error', (error) => {

@@ -2764,9 +2764,12 @@ export class AriaCapabilities {
       // ARIA uses OpenAI Realtime API via VPS Bridge
       // with Twilio for phone connectivity
       // NO ElevenLabs - uses OpenAI voices directly
+      // WebSocket bridge runs on same Render server for reliable connectivity
       // ========================================
 
-      const ariaBridgeHost = process.env.ARIA_BRIDGE_HOST || 'aria.srv1138307.hstgr.cloud';
+      // Use Render's WebSocket endpoint (same server, better Twilio connectivity)
+      const webhookBaseUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
+      const ariaBridgeHost = webhookBaseUrl.replace('https://', '').replace('http://', '');
       const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
       if (!twilioPhoneNumber) {
@@ -2776,7 +2779,7 @@ export class AriaCapabilities {
         };
       }
 
-      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}`);
+      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/api/aria-realtime`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2874,7 +2877,7 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       wsParams.set('ownerName', userFirstName || userName || 'the team');
       if (userCompany) wsParams.set('ownerCompany', userCompany);
 
-      const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
+      const wsUrl = `wss://${ariaBridgeHost}/api/aria-realtime/media-stream/${ariaCallId}?${wsParams.toString()}`;
 
       // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation

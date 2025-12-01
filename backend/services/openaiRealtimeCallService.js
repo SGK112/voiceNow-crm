@@ -168,15 +168,53 @@ When using tools, briefly tell them what you're doing: "Let me shoot you a quick
   /**
    * Handle Twilio media stream WebSocket connection
    * This bridges Twilio audio <-> OpenAI Realtime API
+   * Supports both:
+   * 1. Calls initiated via this service's initiateCall() method
+   * 2. Calls initiated externally (e.g., from ariaCapabilities.js) with context in URL params
    */
-  async handleMediaStream(ws, callId) {
+  async handleMediaStream(ws, callId, urlParams = {}) {
     console.log(`🌐 [ARIA-CALL] Media stream connected for call: ${callId}`);
 
-    const callState = this.activeCalls.get(callId);
+    let callState = this.activeCalls.get(callId);
+
+    // If call doesn't exist in activeCalls, create it from URL parameters
+    // This happens when calls are initiated externally (e.g., from ariaCapabilities.js)
     if (!callState) {
-      console.error(`❌ [ARIA-CALL] Call not found: ${callId}`);
-      ws.close();
-      return;
+      console.log(`📞 [ARIA-CALL] Creating call state from URL params for: ${callId}`);
+      const { contactName, purpose, ownerName, ownerCompany } = urlParams;
+
+      // Build system instructions for external calls
+      const systemInstructions = this.buildSystemInstructions({
+        contactName: contactName || 'there',
+        purpose: purpose || 'to connect and help',
+        context: {
+          ownerName: ownerName || 'the team',
+          ownerCompany: ownerCompany || ''
+        }
+      });
+
+      callState = {
+        id: callId,
+        toNumber: 'external', // We don't have this from URL params
+        contactName: contactName || 'Unknown',
+        purpose: purpose || 'General call',
+        context: { ownerName, ownerCompany },
+        systemInstructions,
+        status: 'connecting',
+        startTime: new Date(),
+        transcript: [],
+        openaiWs: null,
+        twilioStreamSid: null,
+        externalCall: true // Flag to indicate externally initiated call
+      };
+
+      this.activeCalls.set(callId, callState);
+      console.log(`✅ [ARIA-CALL] Created call state:`, {
+        contactName: callState.contactName,
+        purpose: callState.purpose,
+        ownerName,
+        ownerCompany
+      });
     }
 
     let streamSid = null;
@@ -257,6 +295,13 @@ When using tools, briefly tell them what you're doing: "Let me shoot you a quick
             callState.twilioStreamSid = streamSid;
             callState.status = 'connected';
             console.log(`🎙️ [ARIA-CALL] Stream started: ${streamSid}`);
+            // Wait for OpenAI session to be ready, then greet
+            // Small delay to ensure everything is ready for bidirectional audio
+            if (callState.openaiSessionReady && !callState.greetingSent) {
+              setTimeout(() => {
+                this.sendInitialGreeting(callState);
+              }, 500);
+            }
             break;
 
           case 'media':
@@ -301,8 +346,14 @@ When using tools, briefly tell them what you're doing: "Let me shoot you a quick
 
       case 'session.updated':
         console.log(`✅ [ARIA-CALL] OpenAI session configured`);
-        // Send initial greeting once session is ready
-        this.sendInitialGreeting(callState);
+        callState.openaiSessionReady = true;
+        // Send greeting only if stream has started (person answered)
+        // If stream hasn't started yet, the start handler will send it
+        if (callState.twilioStreamSid && !callState.greetingSent) {
+          setTimeout(() => {
+            this.sendInitialGreeting(callState);
+          }, 500);
+        }
         break;
 
       case 'response.audio.delta':
@@ -362,7 +413,19 @@ When using tools, briefly tell them what you're doing: "Let me shoot you a quick
    */
   sendInitialGreeting(callState) {
     const { openaiWs, contactName, context } = callState;
-    if (!openaiWs || openaiWs.readyState !== WebSocket.OPEN) return;
+
+    // Prevent duplicate greetings
+    if (callState.greetingSent) {
+      console.log(`⏭️ [ARIA-CALL] Greeting already sent, skipping`);
+      return;
+    }
+
+    if (!openaiWs || openaiWs.readyState !== WebSocket.OPEN) {
+      console.log(`⚠️ [ARIA-CALL] OpenAI WS not ready, can't send greeting`);
+      return;
+    }
+
+    callState.greetingSent = true;
 
     const contactFirstName = contactName ? contactName.split(' ')[0] : 'there';
     const userCompany = context.ownerCompany || context.userCompany || '';
