@@ -2761,14 +2761,14 @@ export class AriaCapabilities {
       }
 
       // ========================================
-      // ARIA uses OpenAI Realtime API via Render WebSocket Bridge
+      // ARIA uses OpenAI Realtime API via VPS WebSocket Bridge
       // with Twilio for phone connectivity
       // NO ElevenLabs - uses OpenAI voices directly
-      // WebSocket bridge runs on same Render server at /ws/aria-calls
+      // VPS runs direct HTTPS/1.1 on port 9443 (bypasses Traefik HTTP/2)
       // ========================================
 
-      // Use Render WebSocket bridge (same server)
-      const ariaBridgeHost = 'voiceflow-crm.onrender.com';
+      // Use VPS WebSocket bridge (direct HTTPS/1.1, no HTTP/2)
+      const ariaBridgeHost = 'aria.srv1138307.hstgr.cloud';
       const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
       if (!twilioPhoneNumber) {
@@ -2778,7 +2778,7 @@ export class AriaCapabilities {
         };
       }
 
-      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/ws/aria-calls`);
+      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/media-stream`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2868,19 +2868,18 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       // Generate unique call ID
       const ariaCallId = `aria_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Build WebSocket URL with context parameters for Render WebSocket bridge
-      // Uses static path /ws/aria-calls with all context in query params
+      // Build WebSocket URL with context parameters for VPS WebSocket bridge
+      // Uses path /media-stream/{callId} with context in query params
       const wsParams = new URLSearchParams();
-      wsParams.set('callId', ariaCallId);
       wsParams.set('contactName', contactName || 'there');
       wsParams.set('purpose', purpose || 'to connect');
       wsParams.set('ownerName', userFirstName || userName || 'the team');
       if (userCompany) wsParams.set('ownerCompany', userCompany);
 
-      // Use Render WebSocket endpoint (no port needed - uses standard 443)
-      const wsUrl = `wss://${ariaBridgeHost}/ws/aria-calls?${wsParams.toString()}`;
+      // Use VPS port 443 - TCP passthrough with Node.js TLS (HTTP/1.1, no HTTP/2)
+      const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
 
-      // TwiML that connects to our Render WebSocket bridge
+      // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation
       const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
