@@ -2879,12 +2879,15 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       // Use VPS port 443 - TCP passthrough with Node.js TLS (HTTP/1.1, no HTTP/2)
       const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
 
+      // Escape & to &amp; for XML compatibility in TwiML
+      const wsUrlXmlSafe = wsUrl.replace(/&/g, '&amp;');
+
       // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation
       const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Connect>
-        <Stream url="${wsUrl}" track="both_tracks">
+        <Stream url="${wsUrlXmlSafe}" track="both_tracks">
             <Parameter name="callId" value="${ariaCallId}" />
         </Stream>
     </Connect>
