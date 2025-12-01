@@ -2884,10 +2884,11 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
 
       // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation
+      // Note: For <Connect><Stream>, track attribute is not needed (defaults to bidirectional)
       const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Connect>
-        <Stream url="${wsUrlXmlSafe}" track="both_tracks">
+        <Stream url="${wsUrlXmlSafe}">
             <Parameter name="callId" value="${ariaCallId}" />
         </Stream>
     </Connect>
