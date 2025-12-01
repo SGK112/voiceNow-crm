@@ -23,6 +23,8 @@
         "NSFaceIDUsageDescription": "Use Face ID to quickly and securely sign in to your account",
         "NSLocationWhenInUseUsageDescription": "Aria uses your location to find nearby businesses, provide local search results, and give you relevant recommendations",
         "NSLocationAlwaysUsageDescription": "Aria uses your location in the background to proactively suggest nearby services and provide location-aware assistance",
+        "NSBluetoothAlwaysUsageDescription": "Connect Bluetooth headsets and earbuds for ARIA voice calls",
+        "NSBluetoothPeripheralUsageDescription": "Connect Bluetooth audio devices for hands-free ARIA calls",
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "1"
@@ -55,7 +57,11 @@
         "FOREGROUND_SERVICE",
         "WAKE_LOCK",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN"
       ],
       "versionCode": 1,
       "edgeToEdgeEnabled": true,

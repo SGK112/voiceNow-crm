@@ -10,6 +10,10 @@ import {
   Alert,
   Linking,
   TextInput,
+  Platform,
+  PermissionsAndroid,
+  FlatList,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../utils/api';
@@ -18,6 +22,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
+import RNBluetoothClassic, { BluetoothDevice } from 'react-native-bluetooth-classic';
 
 const VOICES = [
   { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', accent: 'British' },
@@ -50,9 +55,171 @@ export default function ProfileScreen({ navigation }: any) {
   const [selectedVoice, setSelectedVoice] = useState('EXAVITQu4vr4xnSDxMaL');
   const [autoCallback, setAutoCallback] = useState(false);
 
+  // Bluetooth state
+  const [bluetoothEnabled, setBluetoothEnabled] = useState(false);
+  const [bluetoothScanning, setBluetoothScanning] = useState(false);
+  const [bluetoothDevices, setBluetoothDevices] = useState<BluetoothDevice[]>([]);
+  const [pairedDevices, setPairedDevices] = useState<BluetoothDevice[]>([]);
+  const [connectedDevice, setConnectedDevice] = useState<BluetoothDevice | null>(null);
+  const [bluetoothModalVisible, setBluetoothModalVisible] = useState(false);
+
   useEffect(() => {
     loadData();
+    initBluetooth();
   }, []);
+
+  const initBluetooth = async () => {
+    try {
+      const available = await RNBluetoothClassic.isBluetoothAvailable();
+      if (available) {
+        const enabled = await RNBluetoothClassic.isBluetoothEnabled();
+        setBluetoothEnabled(enabled);
+        if (enabled) {
+          await loadPairedDevices();
+        }
+      }
+    } catch (error) {
+      console.log('Bluetooth init error:', error);
+    }
+  };
+
+  const requestBluetoothPermissions = async (): Promise<boolean> => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ]);
+        return Object.values(granted).every(
+          (result) => result === PermissionsAndroid.RESULTS.GRANTED
+        );
+      } catch (error) {
+        console.error('Permission error:', error);
+        return false;
+      }
+    }
+    return true; // iOS handles permissions automatically
+  };
+
+  const loadPairedDevices = async () => {
+    try {
+      const paired = await RNBluetoothClassic.getBondedDevices();
+      setPairedDevices(paired);
+
+      // Check if any paired device is currently connected
+      for (const device of paired) {
+        const isConnected = await device.isConnected();
+        if (isConnected) {
+          setConnectedDevice(device);
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('Error loading paired devices:', error);
+    }
+  };
+
+  const enableBluetooth = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        await RNBluetoothClassic.requestBluetoothEnabled();
+      }
+      setBluetoothEnabled(true);
+      await loadPairedDevices();
+      showSuccess('Bluetooth enabled');
+    } catch (error) {
+      showError('Could not enable Bluetooth');
+    }
+  };
+
+  const openBluetoothSettings = () => {
+    if (Platform.OS === 'android') {
+      Linking.openSettings();
+    } else {
+      Linking.openURL('App-Prefs:Bluetooth');
+    }
+  };
+
+  const scanForDevices = async () => {
+    const hasPermission = await requestBluetoothPermissions();
+    if (!hasPermission) {
+      showError('Bluetooth permission required');
+      return;
+    }
+
+    setBluetoothScanning(true);
+    setBluetoothDevices([]);
+
+    try {
+      // Start discovery
+      const discovering = await RNBluetoothClassic.startDiscovery();
+
+      // Listen for discovered devices
+      const subscription = RNBluetoothClassic.onDeviceDiscovered((event: any) => {
+        const device = event.device || event;
+        if (device && device.address) {
+          setBluetoothDevices((prev) => {
+            const exists = prev.find((d) => d.address === device.address);
+            if (exists) return prev;
+            return [...prev, device];
+          });
+        }
+      });
+
+      // Stop after 15 seconds
+      setTimeout(async () => {
+        await RNBluetoothClassic.cancelDiscovery();
+        subscription.remove();
+        setBluetoothScanning(false);
+        showInfo('Scan complete');
+      }, 15000);
+    } catch (error) {
+      console.error('Scan error:', error);
+      setBluetoothScanning(false);
+      showError('Scan failed');
+    }
+  };
+
+  const connectToDevice = async (device: BluetoothDevice) => {
+    try {
+      setSyncing('bluetooth-connect');
+
+      // Disconnect from current device if connected
+      if (connectedDevice) {
+        await connectedDevice.disconnect();
+      }
+
+      const connected = await device.connect();
+      if (connected) {
+        setConnectedDevice(device);
+        showSuccess(`Connected to ${device.name || 'device'}`);
+        setBluetoothModalVisible(false);
+      } else {
+        showError('Connection failed');
+      }
+    } catch (error) {
+      console.error('Connect error:', error);
+      showError('Could not connect');
+    } finally {
+      setSyncing(null);
+    }
+  };
+
+  const disconnectDevice = async () => {
+    if (!connectedDevice) return;
+
+    try {
+      setSyncing('bluetooth-disconnect');
+      await connectedDevice.disconnect();
+      setConnectedDevice(null);
+      showSuccess('Disconnected');
+    } catch (error) {
+      showError('Disconnect failed');
+    } finally {
+      setSyncing(null);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -456,6 +623,144 @@ export default function ProfileScreen({ navigation }: any) {
         />
       </View>
 
+      {/* Bluetooth */}
+      <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>BLUETOOTH AUDIO</Text>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Row
+          icon="bluetooth"
+          label={bluetoothEnabled ? 'Bluetooth' : 'Enable Bluetooth'}
+          value={connectedDevice ? connectedDevice.name : bluetoothEnabled ? 'Not connected' : 'Off'}
+          status={connectedDevice ? 'Connected' : undefined}
+          onPress={bluetoothEnabled ? () => setBluetoothModalVisible(true) : enableBluetooth}
+          color="#007AFF"
+        />
+        {connectedDevice && (
+          <Row
+            icon="close-circle"
+            label="Disconnect"
+            onPress={disconnectDevice}
+            isLoading={syncing === 'bluetooth-disconnect'}
+            color="#FF3B30"
+            chevron={false}
+          />
+        )}
+        <Row
+          icon="settings"
+          label="Bluetooth Settings"
+          onPress={openBluetoothSettings}
+          color="#8E8E93"
+        />
+      </View>
+
+      {/* Bluetooth Device Modal */}
+      <Modal
+        visible={bluetoothModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setBluetoothModalVisible(false)}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setBluetoothModalVisible(false)}>
+              <Text style={[styles.modalCancel, { color: colors.primary }]}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Bluetooth Devices</Text>
+            <TouchableOpacity onPress={scanForDevices} disabled={bluetoothScanning}>
+              {bluetoothScanning ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Text style={[styles.modalAction, { color: colors.primary }]}>Scan</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent}>
+            {/* Paired Devices */}
+            <Text style={[styles.modalSectionLabel, { color: colors.textTertiary }]}>PAIRED DEVICES</Text>
+            <View style={[styles.section, { backgroundColor: colors.card }]}>
+              {pairedDevices.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                    No paired devices. Pair devices in Bluetooth Settings.
+                  </Text>
+                </View>
+              ) : (
+                pairedDevices.map((device) => (
+                  <TouchableOpacity
+                    key={device.address}
+                    style={[styles.deviceRow, { borderBottomColor: colors.border }]}
+                    onPress={() => connectToDevice(device)}
+                    disabled={syncing === 'bluetooth-connect'}
+                  >
+                    <View style={[styles.iconBox, { backgroundColor: '#007AFF' }]}>
+                      <Ionicons name="headset" size={16} color="#fff" />
+                    </View>
+                    <View style={styles.deviceInfo}>
+                      <Text style={[styles.deviceName, { color: colors.text }]}>
+                        {device.name || 'Unknown Device'}
+                      </Text>
+                      <Text style={[styles.deviceAddress, { color: colors.textTertiary }]}>
+                        {device.address}
+                      </Text>
+                    </View>
+                    {connectedDevice?.address === device.address && (
+                      <View style={[styles.connectedBadge, { backgroundColor: '#34C75920' }]}>
+                        <Text style={styles.connectedText}>Connected</Text>
+                      </View>
+                    )}
+                    {syncing === 'bluetooth-connect' && (
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
+            </View>
+
+            {/* Available Devices */}
+            {bluetoothDevices.length > 0 && (
+              <>
+                <Text style={[styles.modalSectionLabel, { color: colors.textTertiary }]}>AVAILABLE DEVICES</Text>
+                <View style={[styles.section, { backgroundColor: colors.card }]}>
+                  {bluetoothDevices.map((device) => (
+                    <TouchableOpacity
+                      key={device.address}
+                      style={[styles.deviceRow, { borderBottomColor: colors.border }]}
+                      onPress={() => connectToDevice(device)}
+                      disabled={syncing === 'bluetooth-connect'}
+                    >
+                      <View style={[styles.iconBox, { backgroundColor: '#5856D6' }]}>
+                        <Ionicons name="bluetooth" size={16} color="#fff" />
+                      </View>
+                      <View style={styles.deviceInfo}>
+                        <Text style={[styles.deviceName, { color: colors.text }]}>
+                          {device.name || 'Unknown Device'}
+                        </Text>
+                        <Text style={[styles.deviceAddress, { color: colors.textTertiary }]}>
+                          {device.address}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {bluetoothScanning && (
+              <View style={styles.scanningState}>
+                <ActivityIndicator color={colors.primary} />
+                <Text style={[styles.scanningText, { color: colors.textSecondary }]}>
+                  Scanning for devices...
+                </Text>
+              </View>
+            )}
+
+            <Text style={[styles.helpText, { color: colors.textTertiary }]}>
+              Connect a Bluetooth headset or earbuds for ARIA voice calls. Make sure your device is in pairing mode.
+            </Text>
+          </ScrollView>
+        </View>
+      </Modal>
+
       {/* Google */}
       <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>GOOGLE</Text>
       <View style={[styles.section, { backgroundColor: colors.card }]}>
@@ -702,4 +1007,95 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   version: { textAlign: 'center', fontSize: 12, marginTop: 32 },
+  // Bluetooth Modal Styles
+  modalContainer: {
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ccc',
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  modalCancel: {
+    fontSize: 16,
+  },
+  modalAction: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalContent: {
+    flex: 1,
+    paddingTop: 8,
+  },
+  modalSectionLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    marginLeft: 20,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  deviceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 12,
+  },
+  deviceInfo: {
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  deviceAddress: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  connectedBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  connectedText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#34C759',
+  },
+  emptyState: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  scanningState: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 10,
+  },
+  scanningText: {
+    fontSize: 14,
+  },
+  helpText: {
+    fontSize: 13,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    lineHeight: 18,
+  },
 });

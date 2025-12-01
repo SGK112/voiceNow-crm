@@ -2869,8 +2869,7 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
         ? `Hey ${contactFirstName}! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`
         : `Hey there! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`;
 
-      // Initialize ElevenLabs service
-      const ElevenLabsService = (await import('../services/elevenLabsService.js')).default;
+      // Initialize ElevenLabs service (use the already imported ElevenLabsService)
       const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
       const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
