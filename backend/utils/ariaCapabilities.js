@@ -2767,8 +2767,8 @@ export class AriaCapabilities {
       // VPS runs direct HTTPS/1.1 on port 9443 (bypasses Traefik HTTP/2)
       // ========================================
 
-      // Use VPS WebSocket bridge (direct HTTPS/1.1, no HTTP/2)
-      const ariaBridgeHost = 'aria.srv1138307.hstgr.cloud';
+      // Use Render WebSocket bridge for better reliability
+      const ariaBridgeHost = 'aria-bridge.onrender.com';
       const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
       if (!twilioPhoneNumber) {
