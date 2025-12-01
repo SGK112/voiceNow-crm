@@ -2,7 +2,6 @@ import Fastify from "fastify";
 import WebSocket from "ws";
 import fastifyFormBody from "@fastify/formbody";
 import fastifyWs from "@fastify/websocket";
-import fs from "fs";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const VOICE = "coral";
@@ -83,30 +82,11 @@ function base64ToInt16(base64) {
   return samples;
 }
 
-// Load TLS certs from Traefik's acme.json
-let httpsOptions = null;
-try {
-  const acme = JSON.parse(fs.readFileSync("/certs/acme.json", "utf8"));
-  const resolver = acme.mytlschallenge || Object.values(acme)[0];
-  console.log("[CERT] Available:", resolver.Certificates?.map(c => c.domain.main).join(", "));
-  const certData = resolver.Certificates?.find(c => c.domain.main === "aria.srv1138307.hstgr.cloud") ||
-                   resolver.Certificates?.find(c => c.domain.main.includes("srv1138307"));
-  if (certData) {
-    httpsOptions = {
-      cert: Buffer.from(certData.certificate, "base64").toString(),
-      key: Buffer.from(certData.key, "base64").toString()
-    };
-    console.log("[CERT] Loaded:", certData.domain.main);
-  }
-} catch (e) {
-  console.error("[CERT] Error:", e.message);
-}
-
-const fastify = Fastify(httpsOptions ? { https: httpsOptions, http2: false } : {});
+const fastify = Fastify();
 fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
 
-fastify.get("/health", async () => ({ status: "ok", https: !!httpsOptions, voice: VOICE, resampling: "8kHz<->24kHz" }));
+fastify.get("/health", async () => ({ status: "ok", voice: VOICE, resampling: "8kHz<->24kHz" }));
 
 fastify.register(async (f) => {
   f.get("/media-stream/:callId", { websocket: true }, (connection, req) => {
@@ -273,7 +253,8 @@ fastify.register(async (f) => {
   });
 });
 
-fastify.listen({ port: 443, host: "0.0.0.0" }, (err) => {
+const PORT = process.env.PORT || 3000;
+fastify.listen({ port: PORT, host: "0.0.0.0" }, (err) => {
   if (err) { console.error(err); process.exit(1); }
-  console.log("[ARIA] Server on 443, HTTPS:", !!httpsOptions, "Voice:", VOICE, "Resampling: 8kHz<->24kHz");
+  console.log(`[ARIA] Server on ${PORT}, Voice: ${VOICE}, Resampling: 8kHz<->24kHz`);
 });
