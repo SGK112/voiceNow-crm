@@ -2761,35 +2761,22 @@ export class AriaCapabilities {
       }
 
       // ========================================
-      // ARIA uses ElevenLabs Conversational AI
-      // with enhanced personality via prompt override
+      // ARIA uses OpenAI Realtime API via VPS Bridge
+      // with Twilio for phone connectivity
+      // NO ElevenLabs - uses OpenAI voices directly
       // ========================================
 
-      // Get ARIA's dedicated agent ID
-      let elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID;
-      if (!elevenLabsAgentId) {
-        elevenLabsAgentId = agent?.elevenLabsAgentId || process.env.ELEVENLABS_DEMO_AGENT_ID;
-        console.log(`   ⚠️ ARIA agent not configured, using fallback: ${elevenLabsAgentId}`);
-      } else {
-        console.log(`   ✅ Using ARIA's dedicated agent: ${elevenLabsAgentId}`);
-      }
+      const ariaBridgeHost = process.env.ARIA_BRIDGE_HOST || 'aria.srv1138307.hstgr.cloud';
+      const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-      if (!elevenLabsAgentId) {
+      if (!twilioPhoneNumber) {
         return {
           success: false,
-          error: 'No AI voice agent configured. Please set ELEVENLABS_ARIA_AGENT_ID.'
+          error: 'Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER.'
         };
       }
 
-      const elevenLabsPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
-      if (!elevenLabsPhoneNumberId) {
-        return {
-          success: false,
-          error: 'ElevenLabs phone number not configured. Please set ELEVENLABS_PHONE_NUMBER_ID.'
-        };
-      }
-
-      console.log(`   🤖 Using ARIA agent: ${elevenLabsAgentId}`);
+      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2869,32 +2856,62 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
         ? `Hey ${contactFirstName}! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`
         : `Hey there! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`;
 
-      // Initialize ElevenLabs service
-      const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
-
-      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
-      const callbackUrl = `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`;
-
-      const callResult = await elevenLabsService.initiateCall(
-        elevenLabsAgentId,
-        formattedNumber,
-        elevenLabsPhoneNumberId,
-        callbackUrl,
-        dynamicVariables,
-        personalizedScript,
-        personalizedFirstMessage,
-        null
+      // Initialize Twilio client
+      const twilio = (await import('twilio')).default;
+      const twilioClient = twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
       );
 
-      if (!callResult) {
+      // Generate unique call ID
+      const ariaCallId = `aria_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Build WebSocket URL with context parameters for the VPS bridge
+      const wsParams = new URLSearchParams({
+        contactName: contactName || 'there',
+        purpose: purpose || 'to connect',
+        ownerName: userFirstName || userName || 'the team',
+        ownerCompany: userCompany || ''
+      });
+      const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
+
+      // TwiML that connects to our VPS WebSocket bridge
+      const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Connect>
+        <Stream url="${wsUrl}">
+            <Parameter name="callId" value="${ariaCallId}" />
+        </Stream>
+    </Connect>
+</Response>`;
+
+      console.log(`   🌐 WebSocket URL: ${wsUrl}`);
+
+      // Webhook URL for call status updates
+      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
+      const statusCallbackUrl = `${webhookUrl}/api/webhooks/twilio/call-status`;
+
+      // Initiate call via Twilio
+      let twilioCall;
+      try {
+        twilioCall = await twilioClient.calls.create({
+          to: formattedNumber,
+          from: twilioPhoneNumber,
+          twiml: twimlResponse,
+          statusCallback: statusCallbackUrl,
+          statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+          statusCallbackMethod: 'POST'
+        });
+      } catch (twilioError) {
+        console.error(`❌ Twilio call failed:`, twilioError.message);
         return {
           success: false,
-          error: 'Failed to initiate call with ElevenLabs'
+          error: `Failed to initiate call: ${twilioError.message}`
         };
       }
 
-      const callSid = callResult?.call_id || callResult?.id || `aria_${Date.now()}`;
-      console.log(`   ✅ Call initiated via ElevenLabs: ${callSid}`);
+      const callSid = twilioCall.sid;
+      console.log(`   ✅ Call initiated via Twilio: ${callSid}`);
 
       // Create call log entry (skip if no valid userId)
       let callLog = null;
@@ -2903,7 +2920,8 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
           userId: this.userId,
           agentId: agent?._id,
           leadId: contactRecord?._id,
-          elevenLabsCallId: callSid,
+          twilioCallSid: callSid,
+          ariaCallId: ariaCallId,
           phoneNumber: formattedNumber,
           status: 'initiated',
           direction: 'outbound',
@@ -2911,8 +2929,9 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
             purpose: purpose,
             instructions: instructions,
             contactName: contactName,
-            elevenLabsCallId: callSid,
-            method: 'aria_elevenlabs',
+            twilioCallSid: callSid,
+            ariaCallId: ariaCallId,
+            method: 'aria_openai_realtime',
             notifyOnComplete: notifyOnComplete
           }
         });
