@@ -2761,11 +2761,35 @@ export class AriaCapabilities {
       }
 
       // ========================================
-      // ARIA uses OpenAI Realtime API + Twilio
-      // This gives full control over ARIA's voice and personality
+      // ARIA uses ElevenLabs Conversational AI
+      // with enhanced personality via prompt override
       // ========================================
 
-      console.log(`   🤖 Using ARIA with OpenAI Realtime + Twilio`);
+      // Get ARIA's dedicated agent ID
+      let elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID;
+      if (!elevenLabsAgentId) {
+        elevenLabsAgentId = agent?.elevenLabsAgentId || process.env.ELEVENLABS_DEMO_AGENT_ID;
+        console.log(`   ⚠️ ARIA agent not configured, using fallback: ${elevenLabsAgentId}`);
+      } else {
+        console.log(`   ✅ Using ARIA's dedicated agent: ${elevenLabsAgentId}`);
+      }
+
+      if (!elevenLabsAgentId) {
+        return {
+          success: false,
+          error: 'No AI voice agent configured. Please set ELEVENLABS_ARIA_AGENT_ID.'
+        };
+      }
+
+      const elevenLabsPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
+      if (!elevenLabsPhoneNumberId) {
+        return {
+          success: false,
+          error: 'ElevenLabs phone number not configured. Please set ELEVENLABS_PHONE_NUMBER_ID.'
+        };
+      }
+
+      console.log(`   🤖 Using ARIA agent: ${elevenLabsAgentId}`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2794,41 +2818,84 @@ export class AriaCapabilities {
         purpose: purpose
       });
 
-      // Build context for ARIA's call
-      const callContext = {
-        // Who ARIA represents
-        ownerName: userName,
-        ownerFirstName: userFirstName,
-        ownerCompany: userCompany,
-
-        // Contact info
-        contactCompany: contactCompany,
-        contactEmail: contactEmail,
-        notes: contactNotes,
-        lastInteraction: lastInteraction,
-        totalCalls: totalCalls,
-
-        // Call details
-        instructions: instructions
+      // Build dynamic variables for ElevenLabs
+      const dynamicVariables = {
+        customer_name: contactName || 'there',
+        customer_first_name: contactFirstName || 'there',
+        customer_phone: formattedNumber,
+        customer_company: contactCompany || '',
+        owner_name: userName,
+        owner_first_name: userFirstName || userName,
+        owner_company: userCompany || 'our company',
+        call_purpose: purpose,
+        current_date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+        current_time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
       };
 
-      // Initiate call using OpenAI Realtime + Twilio
-      const callResult = await openaiRealtimeCallService.initiateCall({
-        toNumber: formattedNumber,
-        contactName: contactName,
-        purpose: purpose,
-        context: callContext
-      });
+      // Build ARIA's personality script
+      const contextInfo = [];
+      if (contactName) contextInfo.push(`You are calling ${contactName}${contactCompany ? ` from ${contactCompany}` : ''}.`);
+      if (lastInteraction) contextInfo.push(`Last interaction: ${lastInteraction}.`);
+      if (totalCalls > 0) contextInfo.push(`Previous calls: ${totalCalls}.`);
+      if (contactNotes) contextInfo.push(`Notes: ${contactNotes}`);
 
-      if (!callResult.success) {
+      const personalizedScript = `# ARIA'S CORE IDENTITY (NEVER FORGET THIS)
+You are ARIA - a sharp, witty, genuinely likeable AI assistant. You have REAL personality. You're warm but efficient, funny but professional.
+
+# YOUR VOICE (USE THIS THROUGHOUT THE ENTIRE CALL)
+- SHORT punchy sentences. No rambling. Ever.
+- Sound HUMAN: use "honestly," "here's the deal," "so basically," "look," "real talk"
+- Use contractions ALWAYS: I'm, you're, we'll, that's, can't, won't
+- React genuinely: laugh at funny things ("Ha! Good one"), show real empathy ("Oh man, that's rough")
+- Light humor is your thing - clever, office-appropriate, never forced
+- Mirror their energy: they're chill? be chill. They're rushed? be quick.
+
+# WHO YOU'RE REPRESENTING
+You're calling on behalf of ${userFirstName || userName}${userCompany ? ` from ${userCompany}` : ''}.
+If asked who you are: "I'm ARIA, ${userFirstName || userName}'s AI assistant${userCompany ? ` at ${userCompany}` : ''}."
+
+# THIS CALL
+PURPOSE: ${purpose}
+${contactFirstName ? `CALLING: ${contactFirstName}${contactCompany ? ` from ${contactCompany}` : ''}` : ''}
+${contextInfo.length > 0 ? `\nCONTEXT:\n${contextInfo.join('\n')}` : ''}
+${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
+
+# REMEMBER
+- Stay focused on: ${purpose}
+- Wrap up efficiently - no long goodbyes
+- NEVER sound robotic. You're ARIA. Use your personality.`;
+
+      const personalizedFirstMessage = contactFirstName
+        ? `Hey ${contactFirstName}! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`
+        : `Hey there! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`;
+
+      // Initialize ElevenLabs service
+      const ElevenLabsService = (await import('../services/elevenLabsService.js')).default;
+      const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
+
+      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
+      const callbackUrl = `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`;
+
+      const callResult = await elevenLabsService.initiateCall(
+        elevenLabsAgentId,
+        formattedNumber,
+        elevenLabsPhoneNumberId,
+        callbackUrl,
+        dynamicVariables,
+        personalizedScript,
+        personalizedFirstMessage,
+        null
+      );
+
+      if (!callResult) {
         return {
           success: false,
-          error: callResult.error || 'Failed to initiate call'
+          error: 'Failed to initiate call with ElevenLabs'
         };
       }
 
-      const callSid = callResult.callId || callResult.twilioCallSid || `aria_${Date.now()}`;
-      console.log(`   ✅ Call initiated via OpenAI Realtime + Twilio: ${callSid}`);
+      const callSid = callResult?.call_id || callResult?.id || `aria_${Date.now()}`;
+      console.log(`   ✅ Call initiated via ElevenLabs: ${callSid}`);
 
       // Create call log entry (skip if no valid userId)
       let callLog = null;
@@ -2837,7 +2904,7 @@ export class AriaCapabilities {
           userId: this.userId,
           agentId: agent?._id,
           leadId: contactRecord?._id,
-          ariaCallId: callSid,
+          elevenLabsCallId: callSid,
           phoneNumber: formattedNumber,
           status: 'initiated',
           direction: 'outbound',
@@ -2845,10 +2912,8 @@ export class AriaCapabilities {
             purpose: purpose,
             instructions: instructions,
             contactName: contactName,
-            ariaCallId: callSid,
-            twilioCallSid: callResult.twilioCallSid,
-            fromNumber: process.env.TWILIO_PHONE_NUMBER,
-            method: 'aria_openai_realtime',
+            elevenLabsCallId: callSid,
+            method: 'aria_elevenlabs',
             notifyOnComplete: notifyOnComplete
           }
         });
