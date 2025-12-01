@@ -2778,24 +2778,21 @@ export class AriaCapabilities {
       }
 
       // ========================================
-      // ARIA uses OpenAI Realtime API via VPS WebSocket Bridge
-      // with Twilio for phone connectivity
-      // NO ElevenLabs - uses OpenAI voices directly
-      // VPS runs direct HTTPS/1.1 on port 9443 (bypasses Traefik HTTP/2)
+      // ARIA uses ElevenLabs Conversational AI for phone calls
+      // High-quality voice synthesis with natural conversation flow
       // ========================================
 
-      // Use Render WebSocket bridge for better reliability
-      const ariaBridgeHost = 'aria-bridge.onrender.com';
-      const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+      const elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID;
+      const elevenLabsPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
 
-      if (!twilioPhoneNumber) {
+      if (!elevenLabsAgentId || !elevenLabsPhoneNumberId) {
         return {
           success: false,
-          error: 'Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER.'
+          error: 'ElevenLabs phone configuration not complete. Please set ELEVENLABS_ARIA_AGENT_ID and ELEVENLABS_PHONE_NUMBER_ID.'
         };
       }
 
-      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/media-stream`);
+      console.log(`   🤖 Using ARIA via ElevenLabs Conversational AI`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2875,74 +2872,40 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
         ? `Hey ${contactFirstName}! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`
         : `Hey there! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`;
 
-      // Initialize Twilio client
-      const twilio = (await import('twilio')).default;
-      const twilioClient = twilio(
-        process.env.TWILIO_ACCOUNT_SID,
-        process.env.TWILIO_AUTH_TOKEN
-      );
-
-      // Generate unique call ID
+      // Generate unique call ID for tracking
       const ariaCallId = `aria_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Build WebSocket URL with context parameters for VPS WebSocket bridge
-      // Uses path /media-stream/{callId} with context in query params
-      const wsParams = new URLSearchParams();
-      wsParams.set('contactName', contactName || 'there');
-      wsParams.set('purpose', purpose || 'to connect');
-      wsParams.set('ownerName', userFirstName || userName || 'the team');
-      if (userCompany) wsParams.set('ownerCompany', userCompany);
-
-      // Use VPS port 443 - TCP passthrough with Node.js TLS (HTTP/1.1, no HTTP/2)
-      const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
-
-      // Escape & to &amp; for XML compatibility in TwiML
-      const wsUrlXmlSafe = wsUrl.replace(/&/g, '&amp;');
-
-      // TwiML that connects to our VPS WebSocket bridge
-      // Using bidirectional streaming for real-time conversation
-      // Note: For <Connect><Stream>, track attribute is not needed (defaults to bidirectional)
-      const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Connect>
-        <Stream url="${wsUrlXmlSafe}">
-            <Parameter name="callId" value="${ariaCallId}" />
-        </Stream>
-    </Connect>
-</Response>`;
-
-      console.log(`   🌐 WebSocket URL: ${wsUrl}`);
-
-      // Webhook URL for call status updates
-      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
-      const statusCallbackUrl = `${webhookUrl}/api/webhooks/twilio/call-status`;
+      console.log(`   📝 Call ID: ${ariaCallId}`);
 
       // Add delay before initiating call so ARIA can finish speaking to user first
       // This prevents the call from coming in mid-sentence during voice chat
-      console.log(`   ⏳ Waiting 6 seconds before initiating call (letting ARIA finish speaking)...`);
-      await new Promise(resolve => setTimeout(resolve, 6000));
+      console.log(`   ⏳ Waiting 4 seconds before initiating call (letting ARIA finish speaking)...`);
+      await new Promise(resolve => setTimeout(resolve, 4000));
 
-      // Initiate call via Twilio
-      let twilioCall;
+      // Initialize ElevenLabs service and initiate call
+      const elevenLabsService = new ElevenLabsService();
+
+      let elevenLabsCall;
       try {
-        twilioCall = await twilioClient.calls.create({
-          to: formattedNumber,
-          from: twilioPhoneNumber,
-          twiml: twimlResponse,
-          statusCallback: statusCallbackUrl,
-          statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
-          statusCallbackMethod: 'POST'
+        elevenLabsCall = await elevenLabsService.initiateCall({
+          phoneNumber: formattedNumber,
+          agentId: elevenLabsAgentId,
+          agentPhoneNumberId: elevenLabsPhoneNumberId,
+          dynamicVariables: dynamicVariables,
+          personalizedScript: personalizedScript,
+          personalizedFirstMessage: personalizedFirstMessage
         });
-      } catch (twilioError) {
-        console.error(`❌ Twilio call failed:`, twilioError.message);
+      } catch (elevenLabsError) {
+        console.error(`❌ ElevenLabs call failed:`, elevenLabsError.message);
         return {
           success: false,
-          error: `Failed to initiate call: ${twilioError.message}`
+          error: `Failed to initiate call: ${elevenLabsError.message}`
         };
       }
 
-      const callSid = twilioCall.sid;
-      console.log(`   ✅ Call initiated via Twilio: ${callSid}`);
+      // ElevenLabs returns call_id in the response
+      const callSid = elevenLabsCall.call_id || elevenLabsCall.callId || ariaCallId;
+      console.log(`   ✅ Call initiated via ElevenLabs: ${callSid}`);
 
       // Create call log entry (skip if no valid userId)
       let callLog = null;
@@ -2951,7 +2914,7 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
           userId: this.userId,
           agentId: agent?._id,
           leadId: contactRecord?._id,
-          twilioCallSid: callSid,
+          elevenLabsCallId: callSid,
           ariaCallId: ariaCallId,
           phoneNumber: formattedNumber,
           status: 'initiated',
@@ -2960,9 +2923,9 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
             purpose: purpose,
             instructions: instructions,
             contactName: contactName,
-            twilioCallSid: callSid,
+            elevenLabsCallId: callSid,
             ariaCallId: ariaCallId,
-            method: 'aria_openai_realtime',
+            method: 'aria_elevenlabs',
             notifyOnComplete: notifyOnComplete
           }
         });
