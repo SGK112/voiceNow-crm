@@ -2867,19 +2867,21 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       const ariaCallId = `aria_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Build WebSocket URL with context parameters for the VPS bridge
-      const wsParams = new URLSearchParams({
-        contactName: contactName || 'there',
-        purpose: purpose || 'to connect',
-        ownerName: userFirstName || userName || 'the team',
-        ownerCompany: userCompany || ''
-      });
+      // Only include non-empty parameters to avoid URL issues
+      const wsParams = new URLSearchParams();
+      wsParams.set('contactName', contactName || 'there');
+      wsParams.set('purpose', purpose || 'to connect');
+      wsParams.set('ownerName', userFirstName || userName || 'the team');
+      if (userCompany) wsParams.set('ownerCompany', userCompany);
+
       const wsUrl = `wss://${ariaBridgeHost}/media-stream/${ariaCallId}?${wsParams.toString()}`;
 
       // TwiML that connects to our VPS WebSocket bridge
+      // Using bidirectional streaming for real-time conversation
       const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Connect>
-        <Stream url="${wsUrl}">
+        <Stream url="${wsUrl}" track="both_tracks">
             <Parameter name="callId" value="${ariaCallId}" />
         </Stream>
     </Connect>
