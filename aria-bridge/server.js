@@ -167,6 +167,11 @@ wss.on('connection', (ws, req) => {
           callState.streamSid = streamSid;
           callState.status = 'connected';
           console.log(`🎙️ [ARIA-BRIDGE] Stream started: ${streamSid}`);
+
+          // NOW send the greeting - person has answered the call
+          if (callState.openaiReady && !callState.greetingSent) {
+            sendInitialGreeting(callState);
+          }
           break;
 
         case 'media':
@@ -211,8 +216,13 @@ function handleOpenAIEvent(event, twilioWs, callState) {
 
     case 'session.updated':
       console.log(`✅ [ARIA-BRIDGE] OpenAI session configured for call: ${callState.id}`);
-      // Send initial greeting
-      sendInitialGreeting(callState);
+      // Mark OpenAI as ready - greeting will be sent when stream starts (person answers)
+      callState.openaiReady = true;
+
+      // If stream already started (rare), send greeting now
+      if (callState.streamSid && !callState.greetingSent) {
+        sendInitialGreeting(callState);
+      }
       break;
 
     case 'response.audio.delta':
@@ -309,6 +319,9 @@ If asked who you are: "I'm ARIA, ${ownerName}'s assistant${ownerCompany ? ` at $
 function sendInitialGreeting(callState) {
   const { openaiWs, contactName, ownerName, ownerCompany } = callState;
   if (!openaiWs || openaiWs.readyState !== WebSocket.OPEN) return;
+  if (callState.greetingSent) return; // Prevent duplicate greetings
+
+  callState.greetingSent = true; // Mark as sent
 
   const contactFirstName = contactName ? contactName.split(' ')[0] : 'there';
   const greeting = `Hey ${contactFirstName}! It's ARIA calling from ${ownerCompany || (ownerName ? `${ownerName}'s office` : 'the team')}. Got a quick sec?`;
