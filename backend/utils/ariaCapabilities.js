@@ -2779,7 +2779,7 @@ export class AriaCapabilities {
         };
       }
 
-      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/api/aria-realtime`);
+      console.log(`   🤖 Using ARIA OpenAI Realtime via: wss://${ariaBridgeHost}/ws/aria-calls`);
       console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
@@ -2869,15 +2869,16 @@ ${instructions ? `\nINSTRUCTIONS: ${instructions}` : ''}
       // Generate unique call ID
       const ariaCallId = `aria_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Build WebSocket URL with context parameters for the VPS bridge
-      // Only include non-empty parameters to avoid URL issues
+      // Build WebSocket URL with context parameters for the Render WebSocket server
+      // Uses static path /ws/aria-calls with callId as query param (dynamic paths don't work with WS routing)
       const wsParams = new URLSearchParams();
+      wsParams.set('callId', ariaCallId);
       wsParams.set('contactName', contactName || 'there');
       wsParams.set('purpose', purpose || 'to connect');
       wsParams.set('ownerName', userFirstName || userName || 'the team');
       if (userCompany) wsParams.set('ownerCompany', userCompany);
 
-      const wsUrl = `wss://${ariaBridgeHost}/api/aria-realtime/media-stream/${ariaCallId}?${wsParams.toString()}`;
+      const wsUrl = `wss://${ariaBridgeHost}/ws/aria-calls?${wsParams.toString()}`;
 
       // TwiML that connects to our VPS WebSocket bridge
       // Using bidirectional streaming for real-time conversation
