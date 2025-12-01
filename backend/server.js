@@ -128,7 +128,7 @@ import fleetRoutes from './routes/fleet.js';
 import moodboardRoutes from './routes/moodboards.js';
 import appSettingsRoutes from './routes/appSettings.js';
 import ariaRealtimeCallRoutes from './routes/ariaRealtimeCall.js';
-import { setupAriaRealtimeWebSocket } from './services/ariaRealtimeWebSocketSetup.js';
+// ARIA WebSocket now handled via express-ws in routes/ariaRealtimeCall.js
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 // Aria Background Service - auto-starts on import
@@ -478,13 +478,8 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.error('⚠️  Failed to start Voice Copilot WebSocket server:', error.message);
   }
 
-  // Initialize ARIA Realtime Call WebSocket server (OpenAI + Twilio)
-  try {
-    setupAriaRealtimeWebSocket(server);
-    console.log('✅ ARIA Realtime WebSocket server initialized');
-  } catch (error) {
-    console.error('⚠️  Failed to start ARIA Realtime WebSocket server:', error.message);
-  }
+  // ARIA Realtime WebSocket now handled via express-ws in routes/ariaRealtimeCall.js
+  console.log('✅ ARIA Realtime WebSocket available at /api/aria-realtime/media-stream/:callId');
 });
 
 // Handle server errors

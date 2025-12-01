@@ -1,7 +1,40 @@
 import express from 'express';
+import expressWs from 'express-ws';
 import openaiRealtimeCallService from '../services/openaiRealtimeCallService.js';
 
 const router = express.Router();
+
+// Enable WebSocket support on this router
+expressWs(router);
+
+/**
+ * WebSocket endpoint for Twilio Media Streams
+ * This is the key endpoint that Twilio connects to for bidirectional audio
+ * ws://host/api/aria-realtime/media-stream/:callId
+ */
+router.ws('/media-stream/:callId', async (ws, req) => {
+  const { callId } = req.params;
+
+  // Parse query parameters for externally initiated calls
+  const urlParams = {
+    contactName: req.query.contactName || '',
+    purpose: req.query.purpose || '',
+    ownerName: req.query.ownerName || '',
+    ownerCompany: req.query.ownerCompany || ''
+  };
+
+  console.log(`🌐 [ARIA-WS] New WebSocket connection for call: ${callId}`);
+  console.log(`   Query params:`, urlParams);
+
+  if (!callId || !callId.startsWith('aria_')) {
+    console.error(`❌ [ARIA-WS] Invalid call ID: ${callId}`);
+    ws.close(1008, 'Invalid call ID');
+    return;
+  }
+
+  // Delegate to the service with URL parameters for external calls
+  openaiRealtimeCallService.handleMediaStream(ws, callId, urlParams);
+});
 
 /**
  * TwiML endpoint for ARIA Realtime calls
