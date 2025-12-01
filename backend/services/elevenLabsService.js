@@ -183,10 +183,36 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
     }
   }
 
-  async initiateCall(agentId, phoneNumber, agentPhoneNumberId, callbackUrl, dynamicVariables = {}, personalizedScript = null, personalizedFirstMessage = null, voiceIdOverride = null) {
+  async initiateCall(options) {
     try {
+      // Support both object and positional parameters for backwards compatibility
+      let agentId, phoneNumber, agentPhoneNumberId, callbackUrl, dynamicVariables, personalizedScript, personalizedFirstMessage, voiceIdOverride;
+
+      if (typeof options === 'object' && options !== null && !Array.isArray(options) && 'phoneNumber' in options) {
+        // Object-style call (new format from ariaCapabilities)
+        agentId = options.agentId;
+        phoneNumber = options.phoneNumber;
+        agentPhoneNumberId = options.agentPhoneNumberId;
+        callbackUrl = options.callbackUrl;
+        dynamicVariables = options.dynamicVariables || {};
+        personalizedScript = options.personalizedScript || null;
+        personalizedFirstMessage = options.personalizedFirstMessage || null;
+        voiceIdOverride = options.voiceIdOverride || null;
+      } else {
+        // Legacy positional parameters
+        agentId = options;
+        phoneNumber = arguments[1];
+        agentPhoneNumberId = arguments[2];
+        callbackUrl = arguments[3];
+        dynamicVariables = arguments[4] || {};
+        personalizedScript = arguments[5] || null;
+        personalizedFirstMessage = arguments[6] || null;
+        voiceIdOverride = arguments[7] || null;
+      }
+
       // Validate inputs
       if (!agentId || !phoneNumber || !agentPhoneNumberId) {
+        console.error('❌ Missing required parameters:', { agentId: !!agentId, phoneNumber: !!phoneNumber, agentPhoneNumberId: !!agentPhoneNumberId });
         throw new Error('Missing required parameters for call initiation');
       }
 

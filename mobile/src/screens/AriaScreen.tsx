@@ -1000,7 +1000,7 @@ export default function AriaScreen() {
                 onLongPress={isVoiceActive ? handleStopSession : undefined}
               >
                 <Image
-                  source={require('../../assets/voiceflow-logo.jpg')}
+                  source={require('../../assets/voicenow-logo.png')}
                   style={[
                     styles.quickActionLogo,
                     isVoiceActive && styles.quickActionLogoActive
@@ -1104,7 +1104,7 @@ export default function AriaScreen() {
                     <Ionicons name="arrow-up" size={16} color="#fff" />
                   ) : (
                     <Image
-                      source={require('../../assets/voiceflow-logo.jpg')}
+                      source={require('../../assets/voicenow-logo.png')}
                       style={styles.speakBtnLogo}
                     />
                   )}

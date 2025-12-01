@@ -15,8 +15,10 @@ import User from '../models/User.js';
 import Contact from '../models/Contact.js';
 import TwilioService from '../services/twilioService.js';
 import emailService from '../services/emailService.js';
+import ElevenLabsService from '../services/elevenLabsService.js';
 
 const twilioService = new TwilioService();
+const elevenLabsService = new ElevenLabsService();
 
 const router = express.Router();
 
@@ -1250,6 +1252,22 @@ const COMM_TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'make_phone_call',
+      description: 'Make an outbound phone call to a contact using ARIA voice AI. Use this when the user asks to call someone, make a phone call, or ring someone.',
+      parameters: {
+        type: 'object',
+        properties: {
+          to: { type: 'string', description: 'Phone number to call (can be contact name to look up)' },
+          purpose: { type: 'string', description: 'The purpose/reason for the call (e.g., "follow up on estimate", "schedule appointment", "discuss project")' },
+          instructions: { type: 'string', description: 'Special instructions for the call (optional)' },
+        },
+        required: ['to', 'purpose'],
+      },
+    },
+  },
 ];
 
 // Image generation tools using Replicate (Flux models)
@@ -1671,8 +1689,8 @@ async function executeCommTool(toolName, args, userId) {
           toPhone = contact.phone;
         }
 
-        // Send SMS via Twilio
-        const result = await twilioService.sendSMS(toPhone, args.message, userId);
+        // Send SMS via Twilio (signature: to, body, from)
+        const result = await twilioService.sendSMS(toPhone, args.message);
 
         return {
           success: true,
@@ -1680,6 +1698,79 @@ async function executeCommTool(toolName, args, userId) {
           to: toPhone,
           messageId: result?.sid
         };
+      }
+
+      case 'make_phone_call': {
+        let toPhone = args.to;
+        let contactName = args.to;
+
+        // If "to" looks like a name, try to find the contact
+        if (!/^\+?\d{10,}$/.test(toPhone.replace(/[\s\-\(\)]/g, ''))) {
+          const contact = await Contact.findOne({
+            user: userId,
+            $or: [
+              { name: { $regex: toPhone, $options: 'i' } },
+              { company: { $regex: toPhone, $options: 'i' } }
+            ],
+            isDeleted: { $ne: true }
+          });
+
+          if (!contact || !contact.phone) {
+            return {
+              success: false,
+              message: `Could not find a phone number for "${toPhone}". Please provide a phone number or the contact's name.`
+            };
+          }
+          toPhone = contact.phone;
+          contactName = contact.name;
+        }
+
+        // Get user info for personalized script
+        const user = await User.findById(userId);
+        const userName = user?.name || user?.firstName || 'there';
+        const userCompany = user?.companyName || user?.company || '';
+
+        // Build personalized script
+        const personalizedScript = `You are ARIA, a professional and friendly AI assistant making a call on behalf of ${userName}${userCompany ? ` from ${userCompany}` : ''}.
+
+PURPOSE OF THIS CALL: ${args.purpose}
+
+CALLING: ${contactName}
+${args.instructions ? `SPECIAL INSTRUCTIONS: ${args.instructions}` : ''}
+
+Be conversational, professional, and get to the point. Don't ramble. If they're busy, offer to call back.`;
+
+        const personalizedFirstMessage = `Hey${contactName !== toPhone ? ` ${contactName.split(' ')[0]}` : ''}! It's ARIA calling from ${userCompany || `${userName}'s office`}. Do you have a quick moment?`;
+
+        try {
+          const callResult = await elevenLabsService.initiateCall({
+            agentId: process.env.ELEVENLABS_ARIA_AGENT_ID,
+            phoneNumber: toPhone,
+            agentPhoneNumberId: process.env.ELEVENLABS_PHONE_NUMBER_ID,
+            dynamicVariables: {
+              contact_name: contactName,
+              purpose: args.purpose,
+              user_name: userName,
+              company: userCompany
+            },
+            personalizedScript,
+            personalizedFirstMessage
+          });
+
+          return {
+            success: true,
+            message: `Calling ${contactName} at ${toPhone} to ${args.purpose}. ARIA will handle the conversation.`,
+            callId: callResult?.call_id || callResult?.callId,
+            to: toPhone
+          };
+        } catch (callError) {
+          console.error('[Aria] Phone call failed:', callError);
+          return {
+            success: false,
+            error: callError.message,
+            message: `Failed to initiate call: ${callError.message}`
+          };
+        }
       }
 
       case 'send_email': {
