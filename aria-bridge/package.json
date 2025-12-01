@@ -1,0 +1,13 @@
+{
+  "name": "aria-websocket-bridge",
+  "version": "1.0.0",
+  "description": "WebSocket bridge for ARIA - connects Twilio Media Streams to OpenAI Realtime API",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
