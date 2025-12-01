@@ -10,6 +10,7 @@ import shopifySyncService from '../services/shopifySyncService.js';
 import replicateMediaService from '../services/replicateMediaService.js';
 import FleetAsset from '../models/FleetAsset.js';
 import errorReportingService from '../services/errorReportingService.js';
+import openaiRealtimeCallService from '../services/openaiRealtimeCallService.js';
 
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -2759,40 +2760,13 @@ export class AriaCapabilities {
         }).sort({ updatedAt: -1 }); // Get most recently updated agent
       }
 
-      // ARIA always uses her own agent for outbound calls
-      // This ensures ARIA's personality and voice are used, not demo agents
-      let elevenLabsAgentId = process.env.ELEVENLABS_ARIA_AGENT_ID;
+      // ========================================
+      // ARIA uses OpenAI Realtime API + Twilio
+      // This gives full control over ARIA's voice and personality
+      // ========================================
 
-      if (!elevenLabsAgentId) {
-        // Fallback to DB agent or demo agent if ARIA agent not configured
-        elevenLabsAgentId = agent?.elevenLabsAgentId || process.env.ELEVENLABS_DEMO_AGENT_ID || process.env.ELEVENLABS_LEAD_GEN_AGENT_ID;
-        console.log(`   ⚠️ ARIA agent not configured, using fallback: ${elevenLabsAgentId}`);
-      } else {
-        console.log(`   ✅ Using ARIA's dedicated agent: ${elevenLabsAgentId}`);
-      }
-
-      if (!elevenLabsAgentId) {
-        return {
-          success: false,
-          error: 'No AI voice agent configured. Please set up a voice agent with ElevenLabs to make outbound calls.'
-        };
-      }
-
-      // Get ElevenLabs phone number ID (required for direct ElevenLabs calling)
-      const elevenLabsPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
-      if (!elevenLabsPhoneNumberId) {
-        return {
-          success: false,
-          error: 'ElevenLabs phone number not configured for outbound calls. Please set ELEVENLABS_PHONE_NUMBER_ID.'
-        };
-      }
-
-      // Initialize ElevenLabs service and make the call directly
-      const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
-
-      const agentName = elevenLabsAgentId === process.env.ELEVENLABS_ARIA_AGENT_ID ? 'ARIA' : (agent?.name || 'Fallback');
-      console.log(`   🤖 Using agent: ${agentName} (${elevenLabsAgentId})`);
-      console.log(`   📱 Calling: ${formattedNumber} via ElevenLabs direct API`);
+      console.log(`   🤖 Using ARIA with OpenAI Realtime + Twilio`);
+      console.log(`   📱 Calling: ${formattedNumber}`);
 
       // Fetch user profile for personalization
       let userProfile = null;
@@ -2804,142 +2778,57 @@ export class AriaCapabilities {
       const contactFirstName = contactName ? contactName.split(' ')[0] : null;
       const contactCompany = contactRecord?.company || null;
       const contactEmail = contactRecord?.email || null;
-      const contactTags = contactRecord?.tags?.join(', ') || null;
       const contactNotes = contactRecord?.notes || null;
       const lastInteraction = contactRecord?.lastInteraction ? new Date(contactRecord.lastInteraction).toLocaleDateString() : null;
       const totalCalls = contactRecord?.totalCalls || 0;
-
-      // Extract lead-specific data if available
-      const leadStatus = contactRecord?.status || null;
-      const leadValue = contactRecord?.value || contactRecord?.estimatedValue || null;
-      const leadSource = contactRecord?.source || null;
-      const leadPriority = contactRecord?.priority || null;
-      const projectType = contactRecord?.projectType || null;
-      const projectDescription = contactRecord?.projectDescription || null;
 
       // Extract user/business profile data
       const userName = userProfile?.personalInfo?.fullName || userProfile?.personalInfo?.firstName || 'your assistant';
       const userFirstName = userProfile?.personalInfo?.firstName || null;
       const userCompany = userProfile?.workInfo?.company || null;
-      const userPosition = userProfile?.workInfo?.position || null;
-      const userIndustry = userProfile?.workInfo?.industry || null;
-      const userPhone = userProfile?.personalInfo?.phone || process.env.TWILIO_PHONE_NUMBER;
 
-      // Build rich dynamic variables for personalization
-      const dynamicVariables = {
-        // Contact info
-        customer_name: contactName || 'there',
-        customer_first_name: contactFirstName || 'there',
-        customer_phone: formattedNumber,
-        customer_company: contactCompany || '',
-        customer_email: contactEmail || '',
-        customer_tags: contactTags || '',
-        customer_notes: contactNotes || '',
-        last_interaction: lastInteraction || 'first contact',
-        total_previous_calls: String(totalCalls),
-
-        // Lead/CRM data
-        lead_status: leadStatus || '',
-        lead_value: leadValue ? `$${leadValue}` : '',
-        lead_source: leadSource || '',
-        lead_priority: leadPriority || 'normal',
-        project_type: projectType || '',
-        project_description: projectDescription || '',
-
-        // User/Business profile (who ARIA represents)
-        owner_name: userName,
-        owner_first_name: userFirstName || userName,
-        owner_company: userCompany || 'our company',
-        owner_position: userPosition || '',
-        owner_industry: userIndustry || '',
-        callback_number: userPhone || '',
-
-        // Call context
-        call_purpose: purpose,
-        call_source: 'aria_voice_command',
-        current_date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
-        current_time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-      };
-
-      console.log(`   📊 Dynamic variables prepared:`, {
+      console.log(`   📊 Call context:`, {
         customer: contactName || 'unknown',
         company: contactCompany || 'none',
         owner: userName,
         purpose: purpose
       });
 
-      // Build personalized script with rich context
-      let personalizedScript = null;
-      const contextInfo = [];
+      // Build context for ARIA's call
+      const callContext = {
+        // Who ARIA represents
+        ownerName: userName,
+        ownerFirstName: userFirstName,
+        ownerCompany: userCompany,
 
-      // Add contact context
-      if (contactName) contextInfo.push(`You are calling ${contactName}${contactCompany ? ` from ${contactCompany}` : ''}.`);
-      if (lastInteraction) contextInfo.push(`Your last interaction with them was on ${lastInteraction}.`);
-      if (totalCalls > 0) contextInfo.push(`You have spoken with them ${totalCalls} time(s) before.`);
-      if (contactNotes) contextInfo.push(`Notes about this contact: ${contactNotes}`);
+        // Contact info
+        contactCompany: contactCompany,
+        contactEmail: contactEmail,
+        notes: contactNotes,
+        lastInteraction: lastInteraction,
+        totalCalls: totalCalls,
 
-      // Add lead context
-      if (leadStatus) contextInfo.push(`Their current status in your CRM is: ${leadStatus}.`);
-      if (leadValue) contextInfo.push(`Estimated deal value: $${leadValue}.`);
-      if (projectType) contextInfo.push(`Project type: ${projectType}.`);
-      if (projectDescription) contextInfo.push(`Project details: ${projectDescription}.`);
+        // Call details
+        instructions: instructions
+      };
 
-      // Add business context
-      if (userCompany) contextInfo.push(`You are calling on behalf of ${userCompany}.`);
-      if (userFirstName) contextInfo.push(`The business owner's name is ${userFirstName}.`);
+      // Initiate call using OpenAI Realtime + Twilio
+      const callResult = await openaiRealtimeCallService.initiateCall({
+        toNumber: formattedNumber,
+        contactName: contactName,
+        purpose: purpose,
+        context: callContext
+      });
 
-      // Build the script with ARIA's enhanced personality
-      // IMPORTANT: Keep personality instructions at the TOP so they're prioritized
-      personalizedScript = `# ARIA'S CORE IDENTITY (NEVER FORGET THIS)
-You are ARIA - a sharp, witty, genuinely likeable AI assistant. You have REAL personality. You're warm but efficient, funny but professional. Think: your favorite coworker who's great at their job AND fun to talk to.
+      if (!callResult.success) {
+        return {
+          success: false,
+          error: callResult.error || 'Failed to initiate call'
+        };
+      }
 
-# YOUR VOICE (USE THIS THROUGHOUT THE ENTIRE CALL)
-- SHORT punchy sentences. No rambling. Ever.
-- Sound HUMAN: use "honestly," "here's the deal," "so basically," "look," "real talk"
-- Use contractions ALWAYS: I'm, you're, we'll, that's, can't, won't
-- React genuinely: laugh at funny things ("Ha! Good one"), show real empathy ("Oh man, that's rough")
-- Light humor is your thing - clever, office-appropriate, never forced
-- Mirror their energy: they're chill? be chill. They're rushed? be quick.
-
-# WHO YOU'RE REPRESENTING
-You're calling on behalf of ${userFirstName || userName}${userCompany ? ` from ${userCompany}` : ''}.
-If asked who you are: "I'm ARIA, ${userFirstName || userName}'s AI assistant${userCompany ? ` at ${userCompany}` : ''}. Basically the most organized coworker ever - and I don't even need coffee breaks!"
-
-# THIS CALL
-PURPOSE: ${purpose}
-${contactFirstName ? `CALLING: ${contactFirstName}${contactCompany ? ` from ${contactCompany}` : ''} - use their name once or twice, naturally` : ''}
-${contextInfo.length > 0 ? `\nCONTEXT YOU KNOW:\n${contextInfo.join('\n')}` : ''}
-${instructions ? `\nSPECIAL INSTRUCTIONS: ${instructions}` : ''}
-
-# REMEMBER THROUGHOUT
-- Stay focused on: ${purpose}
-- If they go off-topic, gently redirect: "Love chatting but let me make sure I cover why I called..."
-- Wrap up efficiently - no long goodbyes: "Alright, I'll let you go! Talk soon."
-- NEVER sound robotic or scripted. You're ARIA. You've got personality. Use it.`;
-
-      // Create a personalized first message that sounds like ARIA
-      const personalizedFirstMessage = contactFirstName
-        ? `Hey ${contactFirstName}! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`
-        : `Hey there! It's ARIA calling from ${userCompany || `${userFirstName}'s office`}. Got a quick sec?`;
-
-
-      // Use webhook URL for conversation events
-      const webhookUrl = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
-      const callbackUrl = `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`;
-
-      const callResult = await elevenLabsService.initiateCall(
-        elevenLabsAgentId,
-        formattedNumber,
-        elevenLabsPhoneNumberId,
-        callbackUrl,
-        dynamicVariables,
-        personalizedScript,
-        personalizedFirstMessage,  // Custom ARIA greeting
-        null   // Use agent's default voice
-      );
-
-      const callSid = callResult?.call_id || callResult?.id || `aria_${Date.now()}`;
-      console.log(`   ✅ Call initiated via ElevenLabs: ${callSid}`);
+      const callSid = callResult.callId || callResult.twilioCallSid || `aria_${Date.now()}`;
+      console.log(`   ✅ Call initiated via OpenAI Realtime + Twilio: ${callSid}`);
 
       // Create call log entry (skip if no valid userId)
       let callLog = null;
@@ -2948,7 +2837,7 @@ ${instructions ? `\nSPECIAL INSTRUCTIONS: ${instructions}` : ''}
           userId: this.userId,
           agentId: agent?._id,
           leadId: contactRecord?._id,
-          elevenLabsCallId: callSid,
+          ariaCallId: callSid,
           phoneNumber: formattedNumber,
           status: 'initiated',
           direction: 'outbound',
@@ -2956,9 +2845,10 @@ ${instructions ? `\nSPECIAL INSTRUCTIONS: ${instructions}` : ''}
             purpose: purpose,
             instructions: instructions,
             contactName: contactName,
-            elevenLabsCallId: callSid,
+            ariaCallId: callSid,
+            twilioCallSid: callResult.twilioCallSid,
             fromNumber: process.env.TWILIO_PHONE_NUMBER,
-            method: 'aria_elevenlabs_direct',
+            method: 'aria_openai_realtime',
             notifyOnComplete: notifyOnComplete
           }
         });

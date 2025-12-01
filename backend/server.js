@@ -127,6 +127,8 @@ import translationRoutes from './routes/translation.js';
 import fleetRoutes from './routes/fleet.js';
 import moodboardRoutes from './routes/moodboards.js';
 import appSettingsRoutes from './routes/appSettings.js';
+import ariaRealtimeCallRoutes from './routes/ariaRealtimeCall.js';
+import { setupAriaRealtimeWebSocket } from './services/ariaRealtimeWebSocketSetup.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 // Aria Background Service - auto-starts on import
@@ -285,6 +287,7 @@ app.use('/api/translation', translationRoutes); // Translation service for Aria 
 app.use('/api/fleet', fleetRoutes); // Fleet management for people, places, and things
 app.use('/api/moodboards', moodboardRoutes); // Design moodboards with sharing and collaboration
 app.use('/api/app-settings', appSettingsRoutes); // Voice-controlled app settings via ARIA
+app.use('/api/aria-realtime', ariaRealtimeCallRoutes); // ARIA Realtime calls with OpenAI + Twilio
 
 // Error webhook receiver endpoint for Claude Code error monitoring
 app.post('/', (req, res) => {
@@ -473,6 +476,14 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     setupVoiceMediaCopilotWebSocket(server);
   } catch (error) {
     console.error('⚠️  Failed to start Voice Copilot WebSocket server:', error.message);
+  }
+
+  // Initialize ARIA Realtime Call WebSocket server (OpenAI + Twilio)
+  try {
+    setupAriaRealtimeWebSocket(server);
+    console.log('✅ ARIA Realtime WebSocket server initialized');
+  } catch (error) {
+    console.error('⚠️  Failed to start ARIA Realtime WebSocket server:', error.message);
   }
 });
 
