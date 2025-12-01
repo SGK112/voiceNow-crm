@@ -2667,12 +2667,29 @@ export class AriaCapabilities {
       // Check if userId is valid ObjectId
       const isValidUserId = this.userId && this.userId !== 'default' && /^[a-f\d]{24}$/i.test(this.userId);
 
+      // If phoneNumber is provided directly (e.g., "call me" uses user's own number),
+      // try to get the user's name from their profile
+      if (phoneNumber && !contactIdentifier) {
+        const UserProfile = (await import('../models/UserProfile.js')).default;
+        if (isValidUserId) {
+          const profile = await UserProfile.findOne({ userId: this.userId });
+          if (profile?.personalInfo?.firstName) {
+            contactName = profile.personalInfo.firstName;
+            console.log(`   👤 Calling user directly: ${contactName}`);
+          }
+        }
+      }
+
       // If contact identifier provided, look up the phone number
       if (contactIdentifier && !phoneNumber) {
         // Check if it's already a phone number
         if (contactIdentifier.match(/^\+?\d{10,}$/)) {
           targetPhone = contactIdentifier;
+          // Use contactIdentifier as name hint if it was provided alongside number
+          contactName = contactIdentifier; // Will be overwritten if we find a contact
         } else {
+          // Use the identifier as the contact name initially
+          contactName = contactIdentifier;
           // Search contacts by name
           const searchRegex = new RegExp(contactIdentifier, 'i');
 
