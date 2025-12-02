@@ -823,20 +823,24 @@ export const requestVoiceDemo = async (req, res) => {
     }
 
     // Choose agent based on demo type
-    // IMPORTANT: Use ELEVENLABS_SALES_AGENT_ID for the VoiceNow Sales agent (selling VoiceNow CRM)
-    // This is DIFFERENT from ARIA agent (ELEVENLABS_DEMO_AGENT_ID) which is for the mobile app demo
+    // IMPORTANT: Use ELEVENLABS_REMODELY_SALES_AGENT_ID for the Remodely Sales Agent (Max - male voice)
+    // This is the dedicated sales agent for marketing demo - separate from ARIA
     let agentId, agentType;
+
+    // Remodely Sales Agent (Max) - dedicated agent for marketing demos with male voice
+    // Agent ID: agent_9001kbez5eprftjtgapmmqy3xjej
+    const remodelySalesAgentId = process.env.ELEVENLABS_REMODELY_SALES_AGENT_ID || 'agent_9001kbez5eprftjtgapmmqy3xjej';
+
     if (demoType === 'sms') {
-      // SMS Demo Agent - sends a text message first, then can trigger call
-      agentId = process.env.ELEVENLABS_SALES_AGENT_ID || process.env.ELEVENLABS_SMS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
-      agentType = 'SMS Demo (VoiceNow Sales)';
+      // SMS Demo - sends a text message first, then can trigger call from same number
+      agentId = remodelySalesAgentId;
+      agentType = 'SMS Demo (Remodely Sales - Max)';
       console.log(`💬 Initiating SMS demo to ${name} at ${formattedNumber}`);
     } else {
-      // Voice Call Agent - calls directly with VoiceNow Sales pitch
-      // Use dedicated sales agent for marketing demo (NOT ARIA)
-      agentId = process.env.ELEVENLABS_SALES_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
-      agentType = 'Voice Call (VoiceNow Sales)';
-      console.log(`📞 Initiating VoiceNow sales call to ${name} at ${formattedNumber}`);
+      // Voice Call - calls directly with Remodely Sales Agent (Max)
+      agentId = remodelySalesAgentId;
+      agentType = 'Voice Call (Remodely Sales - Max)';
+      console.log(`📞 Initiating Remodely sales call to ${name} at ${formattedNumber}`);
     }
 
     // Prepare dynamic variables for agent personalization
@@ -1136,16 +1140,18 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
         });
       }
     } else {
-      // For voice demo, just initiate the call directly
+      // For voice demo, initiate call with Remodely Sales Agent (Max)
+      // The agent already has the prompt, voice, and first message configured in ElevenLabs
+      // No need to override - just pass dynamic variables for personalization
       callData = await elevenLabsService.initiateCall(
         agentId,
         formattedNumber,
         agentPhoneNumberId,
         `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
         dynamicVariables,
-        customPrompt,
-        customFirstMessage,
-        customVoiceId
+        null, // Use agent's built-in prompt
+        null, // Use agent's built-in first message
+        null  // Use agent's built-in voice (Chris - male)
       );
 
       if (!callData) {

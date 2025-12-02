@@ -64,6 +64,22 @@ router.post('/tool-invocation', async (req, res) => {
         result = await handleSendEmail(tool_parameters, agent_id, call_id);
         break;
 
+      case 'send_sms_link':
+        result = await handleSendSMSLink(tool_parameters, agent_id, call_id);
+        break;
+
+      case 'send_follow_up_email':
+        result = await handleSendFollowUpEmail(tool_parameters, agent_id, call_id);
+        break;
+
+      case 'book_sales_call':
+        result = await handleBookSalesCall(tool_parameters, agent_id, call_id);
+        break;
+
+      case 'create_lead_notification':
+        result = await handleCreateLeadNotification(tool_parameters, agent_id, call_id);
+        break;
+
       case 'end_call':
         result = { success: true, message: 'Call ending' };
         break;
@@ -181,6 +197,483 @@ async function handleSendEmail(parameters, agentId, callId) {
 
   } catch (error) {
     console.error('Failed to send email:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle sending SMS with specific links (Remodely Sales Agent tool)
+ * Link types: signup, booking, terms, privacy
+ */
+async function handleSendSMSLink(parameters, agentId, callId) {
+  try {
+    const { customer_phone, link_type, customer_name } = parameters;
+
+    if (!customer_phone || !link_type) {
+      return {
+        success: false,
+        error: 'Missing required parameters: customer_phone, link_type'
+      };
+    }
+
+    // Map link types to actual URLs
+    const linkMap = {
+      signup: 'https://remodely.ai/signup',
+      booking: 'https://remodely.ai/book',
+      terms: 'https://remodely.ai/terms.html',
+      privacy: 'https://remodely.ai/privacy.html',
+      pricing: 'https://remodely.ai/#pricing'
+    };
+
+    const url = linkMap[link_type.toLowerCase()];
+    if (!url) {
+      return {
+        success: false,
+        error: `Unknown link type: ${link_type}. Available: signup, booking, terms, privacy, pricing`
+      };
+    }
+
+    // Build personalized message
+    const name = customer_name?.split(' ')[0] || 'there';
+    let message;
+
+    switch (link_type.toLowerCase()) {
+      case 'signup':
+        message = `Hi ${name}! Here's your link to get started with VoiceNow CRM - 50 free minutes, no credit card required: ${url} - Max from Remodely AI`;
+        break;
+      case 'booking':
+        message = `Hi ${name}! Book your personalized sales call here: ${url} - We'll show you exactly how AI can transform your business. - Max from Remodely AI`;
+        break;
+      case 'terms':
+        message = `Hi ${name}, here's our Terms of Service: ${url} - Max from Remodely AI`;
+        break;
+      case 'privacy':
+        message = `Hi ${name}, here's our Privacy Policy: ${url} - Max from Remodely AI`;
+        break;
+      case 'pricing':
+        message = `Hi ${name}! Check out our pricing plans here: ${url} - Max from Remodely AI`;
+        break;
+      default:
+        message = `Hi ${name}! Here's the link you requested: ${url} - Max from Remodely AI`;
+    }
+
+    // Send SMS using Twilio
+    const smsResult = await agentSMSService.sendSMS({
+      agentId,
+      to: customer_phone,
+      message,
+      userId: null,
+      metadata: {
+        callId,
+        linkType: link_type,
+        sentDuringCall: true,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+    console.log(`✅ SMS link (${link_type}) sent to ${customer_phone}`);
+
+    return {
+      success: true,
+      message: `SMS with ${link_type} link sent successfully`,
+      smsId: smsResult._id,
+      to: customer_phone,
+      linkSent: url
+    };
+
+  } catch (error) {
+    console.error('Failed to send SMS link:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle sending follow-up email after call (Remodely Sales Agent tool)
+ */
+async function handleSendFollowUpEmail(parameters, agentId, callId) {
+  try {
+    const {
+      customer_email,
+      customer_name,
+      industry,
+      interests,
+      call_summary
+    } = parameters;
+
+    if (!customer_email) {
+      return {
+        success: false,
+        error: 'Missing required parameter: customer_email'
+      };
+    }
+
+    const name = customer_name?.split(' ')[0] || 'there';
+    const industryText = industry || 'your industry';
+    const interestsList = interests ? interests.split(',').map(i => i.trim()) : [];
+
+    // Build personalized email
+    const emailHTML = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">VoiceNow CRM</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">AI-Powered Business Automation</p>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${name}!</h2>
+
+          <p style="color: #4b5563; line-height: 1.6;">
+            Great speaking with you about how AI voice agents can transform ${industryText} businesses!
+            I wanted to follow up with some resources to help you get started.
+          </p>
+
+          ${interestsList.length > 0 ? `
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <h3 style="color: #1f2937; margin-top: 0;">Based on our conversation, you're interested in:</h3>
+            <ul style="color: #4b5563;">
+              ${interestsList.map(interest => `<li>${interest}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+
+          ${call_summary ? `
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+            <h3 style="color: #166534; margin-top: 0;">Call Summary</h3>
+            <p style="color: #4b5563;">${call_summary}</p>
+          </div>
+          ` : ''}
+
+          <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1e40af; margin-top: 0;">🚀 Ready to Get Started?</h3>
+            <p style="color: #4b5563; margin-bottom: 20px;">
+              Start your free trial with 50 minutes of AI voice calls - no credit card required!
+            </p>
+            <a href="https://remodely.ai/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+              Start Free Trial
+            </a>
+          </div>
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #4b5563; margin-bottom: 10px;">Quick links:</p>
+            <p style="margin: 5px 0;">
+              📅 <a href="https://remodely.ai/book" style="color: #3b82f6;">Book a Demo Call</a>
+            </p>
+            <p style="margin: 5px 0;">
+              💰 <a href="https://remodely.ai/#pricing" style="color: #3b82f6;">View Pricing</a>
+            </p>
+          </div>
+
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+          <p style="color: #6b7280; font-size: 14px;">
+            Questions? Just reply to this email or call me at (602) 833-7194.<br><br>
+            Best regards,<br>
+            <strong>Max</strong><br>
+            Sales Team, Remodely AI
+          </p>
+        </div>
+      </div>
+    `;
+
+    // Send email
+    const info = await emailTransporter.sendMail({
+      from: `"Max from Remodely AI" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: customer_email,
+      subject: `Great talking with you, ${name}! Here's how to get started with AI`,
+      html: emailHTML,
+      text: `Hi ${name}!\n\nGreat speaking with you about how AI voice agents can transform ${industryText} businesses!\n\nStart your free trial: https://remodely.ai/signup\nBook a demo: https://remodely.ai/book\n\nQuestions? Reply to this email or call (602) 833-7194.\n\nBest,\nMax\nRemodely AI`
+    });
+
+    // Also notify sales team
+    await emailTransporter.sendMail({
+      from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: 'help.remodely@gmail.com',
+      subject: `📧 Follow-up email sent to ${customer_name || customer_email}`,
+      html: `
+        <p>Follow-up email sent during call:</p>
+        <ul>
+          <li><strong>To:</strong> ${customer_email}</li>
+          <li><strong>Name:</strong> ${customer_name || 'Unknown'}</li>
+          <li><strong>Industry:</strong> ${industry || 'Not specified'}</li>
+          <li><strong>Interests:</strong> ${interests || 'Not specified'}</li>
+          <li><strong>Call ID:</strong> ${callId}</li>
+        </ul>
+      `
+    });
+
+    console.log(`✅ Follow-up email sent to ${customer_email}`);
+
+    return {
+      success: true,
+      message: 'Follow-up email sent successfully',
+      messageId: info.messageId,
+      to: customer_email
+    };
+
+  } catch (error) {
+    console.error('Failed to send follow-up email:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle booking a sales call (Remodely Sales Agent tool)
+ * Integrates with Google Calendar for scheduling
+ */
+async function handleBookSalesCall(parameters, agentId, callId) {
+  try {
+    const {
+      customer_name,
+      customer_email,
+      customer_phone,
+      preferred_date,
+      preferred_time,
+      call_topic
+    } = parameters;
+
+    if (!customer_name || (!customer_email && !customer_phone)) {
+      return {
+        success: false,
+        error: 'Missing required parameters: customer_name and either customer_email or customer_phone'
+      };
+    }
+
+    // Parse the preferred date/time or default to next business day
+    let startTime;
+    let endTime;
+
+    if (preferred_date && preferred_time) {
+      // Try to parse the date/time
+      const dateStr = preferred_date.includes('/')
+        ? preferred_date
+        : new Date(preferred_date).toLocaleDateString();
+
+      // Convert time preference to actual time
+      const timeMap = {
+        'morning': '10:00',
+        'afternoon': '14:00',
+        'evening': '17:00',
+        'asap': '10:00'
+      };
+
+      const timeStr = timeMap[preferred_time.toLowerCase()] || preferred_time || '10:00';
+
+      startTime = new Date(`${dateStr} ${timeStr}`);
+      if (isNaN(startTime.getTime())) {
+        // Default to next business day 10am
+        startTime = getNextBusinessDay();
+        startTime.setHours(10, 0, 0, 0);
+      }
+    } else {
+      // Default to next business day 10am Arizona time
+      startTime = getNextBusinessDay();
+      startTime.setHours(10, 0, 0, 0);
+    }
+
+    // 30-minute call
+    endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+
+    const eventDetails = {
+      summary: `VoiceNow CRM Sales Call - ${customer_name}`,
+      description: `Sales call with ${customer_name}\n\n` +
+                   `Topic: ${call_topic || 'VoiceNow CRM Demo'}\n` +
+                   `Phone: ${customer_phone || 'TBD'}\n` +
+                   `Email: ${customer_email || 'TBD'}\n\n` +
+                   `Booked during AI call (ID: ${callId})`,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      attendees: customer_email ? [customer_email, 'help.remodely@gmail.com'] : ['help.remodely@gmail.com'],
+      location: 'Phone Call'
+    };
+
+    // Create calendar event
+    const calendarResult = await googleCalendar.createEvent(eventDetails);
+
+    // If we have an email, send calendar invite
+    if (customer_email) {
+      await googleCalendar.sendCalendarInviteEmail({
+        to: customer_email,
+        ...eventDetails
+      });
+    }
+
+    // Send SMS confirmation if we have phone
+    if (customer_phone) {
+      const formattedDate = startTime.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      });
+      const formattedTime = startTime.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      });
+
+      await agentSMSService.sendSMS({
+        agentId,
+        to: customer_phone,
+        message: `Hi ${customer_name.split(' ')[0]}! Your sales call is confirmed for ${formattedDate} at ${formattedTime}. Looking forward to showing you how VoiceNow CRM can transform your business! - Max from Remodely AI`,
+        userId: null,
+        metadata: {
+          callId,
+          type: 'booking_confirmation',
+          scheduledTime: startTime.toISOString()
+        }
+      });
+    }
+
+    // Notify sales team
+    await emailTransporter.sendMail({
+      from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: 'help.remodely@gmail.com',
+      subject: `📅 NEW SALES CALL BOOKED: ${customer_name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px;">
+          <h2 style="color: #22c55e;">🎉 New Sales Call Booked!</h2>
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e;">
+            <p><strong>Customer:</strong> ${customer_name}</p>
+            <p><strong>Phone:</strong> ${customer_phone || 'Not provided'}</p>
+            <p><strong>Email:</strong> ${customer_email || 'Not provided'}</p>
+            <p><strong>Date:</strong> ${startTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            <p><strong>Time:</strong> ${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</p>
+            <p><strong>Topic:</strong> ${call_topic || 'VoiceNow CRM Demo'}</p>
+          </div>
+          <p style="color: #6b7280; margin-top: 20px;">Booked via AI call (ID: ${callId})</p>
+        </div>
+      `
+    });
+
+    console.log(`✅ Sales call booked for ${customer_name} at ${startTime.toISOString()}`);
+
+    return {
+      success: true,
+      message: `Sales call booked for ${startTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`,
+      scheduledTime: startTime.toISOString(),
+      calendarEventId: calendarResult.eventId
+    };
+
+  } catch (error) {
+    console.error('Failed to book sales call:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Helper function to get next business day
+ */
+function getNextBusinessDay() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1); // Start with tomorrow
+
+  // Skip weekends
+  while (date.getDay() === 0 || date.getDay() === 6) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  return date;
+}
+
+/**
+ * Handle creating lead notification for sales team (Remodely Sales Agent tool)
+ */
+async function handleCreateLeadNotification(parameters, agentId, callId) {
+  try {
+    const {
+      customer_name,
+      customer_phone,
+      customer_email,
+      industry,
+      interest_level,
+      notes
+    } = parameters;
+
+    if (!customer_name && !customer_phone) {
+      return {
+        success: false,
+        error: 'Missing required parameters: at least customer_name or customer_phone required'
+      };
+    }
+
+    // Determine urgency color based on interest level
+    const interestColors = {
+      'hot': '#dc2626',
+      'high': '#dc2626',
+      'warm': '#f59e0b',
+      'medium': '#f59e0b',
+      'cold': '#6b7280',
+      'low': '#6b7280'
+    };
+
+    const color = interestColors[interest_level?.toLowerCase()] || '#3b82f6';
+    const emoji = interest_level?.toLowerCase() === 'hot' || interest_level?.toLowerCase() === 'high'
+      ? '🔥'
+      : interest_level?.toLowerCase() === 'warm' || interest_level?.toLowerCase() === 'medium'
+        ? '⚡'
+        : '📋';
+
+    // Send notification to sales team
+    await emailTransporter.sendMail({
+      from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: 'help.remodely@gmail.com',
+      subject: `${emoji} NEW LEAD: ${customer_name || 'Unknown'} (${interest_level || 'Unknown'} interest)`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px;">
+          <div style="background: ${color}; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0;">${emoji} New Lead from AI Call</h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">Interest Level: ${interest_level || 'Unknown'}</p>
+          </div>
+
+          <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <h3 style="margin-top: 0;">Contact Information</h3>
+            <p><strong>Name:</strong> ${customer_name || 'Not provided'}</p>
+            <p><strong>Phone:</strong> ${customer_phone || 'Not provided'}</p>
+            <p><strong>Email:</strong> ${customer_email || 'Not provided'}</p>
+            <p><strong>Industry:</strong> ${industry || 'Not specified'}</p>
+
+            ${notes ? `
+            <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid ${color};">
+              <h4 style="margin-top: 0;">Notes from Call</h4>
+              <p style="color: #4b5563;">${notes}</p>
+            </div>
+            ` : ''}
+
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #6b7280; font-size: 14px;">
+                Lead captured during AI call<br>
+                Call ID: ${callId}<br>
+                Agent ID: ${agentId}<br>
+                Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' })} MST
+              </p>
+            </div>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`✅ Lead notification sent for ${customer_name || customer_phone}`);
+
+    return {
+      success: true,
+      message: 'Lead notification sent to sales team',
+      customerName: customer_name,
+      interestLevel: interest_level
+    };
+
+  } catch (error) {
+    console.error('Failed to create lead notification:', error);
     return {
       success: false,
       error: error.message
