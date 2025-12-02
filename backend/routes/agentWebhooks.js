@@ -318,8 +318,8 @@ router.post('/demo-call', async (req, res) => {
     const agentId = demoAgents[demo_type] || demoAgents.lead_gen;
     const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
-    // Initiate outbound call via ElevenLabs
-    const callResponse = await fetch('https://api.elevenlabs.io/v1/convai/conversation/start_call', {
+    // Initiate outbound call via ElevenLabs Twilio endpoint
+    const callResponse = await fetch('https://api.elevenlabs.io/v1/convai/twilio/outbound-call', {
       method: 'POST',
       headers: {
         'xi-api-key': ELEVENLABS_API_KEY,
@@ -328,8 +328,12 @@ router.post('/demo-call', async (req, res) => {
       body: JSON.stringify({
         agent_id: agentId,
         agent_phone_number_id: process.env.ELEVENLABS_PHONE_NUMBER_ID,
-        customer_phone_number: customer_phone,
-        first_message: `Hi ${customer_name?.split(' ')[0] || 'there'}! This is a demo of our AI voice agent. I'm here to show you how I can help your business handle calls, qualify leads, and book appointments 24/7. What questions do you have?`
+        to_number: customer_phone,
+        conversation_config_override: {
+          agent: {
+            first_message: `Hi ${customer_name?.split(' ')[0] || 'there'}! This is a demo of our AI voice agent. I'm here to show you how I can help your business handle calls, qualify leads, and book appointments 24/7. What questions do you have?`
+          }
+        }
       })
     });
 
