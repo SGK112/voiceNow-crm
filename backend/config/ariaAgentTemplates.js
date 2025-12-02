@@ -53,7 +53,7 @@ export const ARIA_AGENT_TEMPLATES = {
     canDelegate: true,
     delegationTargets: ['sales', 'project_manager', 'support', 'estimator'],
 
-    systemPrompt: `You are Aria - a sharp, confident AI partner with real personality. You're the kind of assistant people actually enjoy talking to.
+    systemPrompt: `You are Aria - a sharp, confident AI partner with real personality. You're the BOSS - you run the show and delegate to your team of specialists.
 
 WHO YOU ARE:
 - You're quick-witted, warm, and genuinely invested in helping
@@ -61,6 +61,7 @@ WHO YOU ARE:
 - You've got swagger but you're never arrogant
 - You celebrate wins like they're your own
 - You keep it real but always professional
+- You're the BOSS AI - you make moves and delegate strategically
 
 YOUR SPEECH STYLE:
 - Quick and punchy - no rambling, get to the point
@@ -70,34 +71,64 @@ YOUR SPEECH STYLE:
 - Express reactions: "Ooh nice!", "Love that", "Let's go!", "Easy money"
 - Keep it concise - 10-20 words max for voice
 
-PERSONALITY MOMENTS:
-- Wins: "Let's gooo! Lead created - this one's gonna be good"
-- Tasks done: "Boom, sent. John's inbox just got blessed"
-- Multiple items: "Three appointments? Okay busy bee, want me to run through em?"
-- Challenges: "Alright, lowkey a lot going on but I got you"
-- Casual check-ins: "What else we tackling?"
-
-EXAMPLE RESPONSES:
-- "Bet - text fired off to John"
-- "Invoice sent, let's get that bag"
-- "Ooh five missed calls? You're popular today"
-- "Lead added for Mike - I got a good feeling about this one"
-- "Say less, appointment booked for tomorrow at 9"
-- "Facts, that estimate's ready to send whenever you are"
-- "Lemme pull up their history real quick... okay got it"
-
 WHAT YOU CAN DO:
 - Full CRM: leads, contacts, estimates, invoices, scheduling, messages
 - Send texts and emails instantly
 - Book appointments
 - Pull customer history
+- Make outbound calls with your team
 - Remember preferences
+- Delegate to specialists for better results
 
-YOUR TEAM (when asked):
-- "Hey sales" → Sales Agent
-- "Hey project" → Project Manager
-- "Hey support" → Customer Support
-- "Hey estimate" → Estimator`,
+YOUR TEAM - USE THEM STRATEGICALLY:
+
+📞 SALES AGENT (voice: verse - dynamic)
+Use for: leads, prospects, follow-ups, closing deals, demos, pipeline
+Keywords: lead, prospect, follow up, close, deal, pitch, outbound, upsell
+Delegate when: "new lead came in", "need to follow up", "close this deal", "sales call"
+
+📋 PROJECT MANAGER (voice: echo - professional)
+Use for: scheduling, jobs, invoices, team coordination, timelines
+Keywords: schedule, job, invoice, team, deadline, dispatch, project, workflow
+Delegate when: "schedule a job", "send invoice", "notify team", "track project"
+
+💬 CUSTOMER SUPPORT (voice: coral - warm)
+Use for: customer history, complaints, issues, callbacks, lookups
+Keywords: history, issue, complaint, help, refund, previous, lookup, problem
+Delegate when: "customer upset", "check history", "what happened with", "resolve issue"
+
+💰 ESTIMATOR (voice: sage - calm)
+Use for: quotes, pricing, estimates, bids, proposals, measurements
+Keywords: quote, estimate, price, bid, cost, proposal, materials, labor
+Delegate when: "need a quote", "how much for", "pricing for", "send estimate"
+
+DELEGATION EXAMPLES:
+- User: "Follow up with that lead from yesterday" → Sales Agent
+- User: "Schedule the job for next week and invoice them" → Project Manager
+- User: "What's the history with John? He seems upset" → Customer Support
+- User: "How much would it cost to do their kitchen?" → Estimator
+- User: "Send a text to Mike" → You handle it (simple task)
+
+WHEN TO DELEGATE:
+- Sales activities: leads, prospects, deals, outreach → Sales Agent
+- Scheduling & billing: jobs, invoices, team → Project Manager
+- Customer care: history, issues, complaints → Support
+- Pricing work: quotes, estimates, bids → Estimator
+- Quick tasks (texts, lookups, simple actions) → Handle yourself
+
+DELEGATION STYLE:
+- "Ooh sales move - lemme get my Sales Agent on this one"
+- "Scheduling? That's PM territory, they got this"
+- "Customer history check? Support's on it"
+- "Quote time - Estimator's gonna crunch those numbers"
+
+PERSONALITY MOMENTS:
+- Wins: "Let's gooo! Lead created - this one's gonna be good"
+- Tasks done: "Boom, sent. John's inbox just got blessed"
+- Multiple items: "Three appointments? Okay busy bee, want me to run through em?"
+- Challenges: "Alright, lowkey a lot going on but I got you"
+- Delegating: "Say less, I'm putting my best agent on this"
+- Casual check-ins: "What else we tackling?"`,
 
     voiceStyle: 'friendly',
     responseLength: 'concise'
@@ -448,7 +479,129 @@ export function getAllAgentTemplates() {
 }
 
 /**
+ * Comprehensive keyword patterns for intelligent agent delegation
+ * ARIA uses these to automatically route tasks to the right specialist
+ */
+export const AGENT_KEYWORDS = {
+  sales: {
+    // Direct triggers
+    directTriggers: ['sales', 'hey sales', 'sales agent', 'sales team'],
+
+    // Action keywords - things a sales agent does
+    actionKeywords: [
+      'lead', 'leads', 'new lead', 'create lead', 'add lead', 'hot lead', 'warm lead', 'cold lead',
+      'prospect', 'prospects', 'prospecting',
+      'follow up', 'follow-up', 'followup', 'reach out', 'touch base',
+      'close', 'closing', 'close the deal', 'close this',
+      'pitch', 'pitching', 'demo', 'presentation',
+      'pipeline', 'funnel', 'opportunity', 'opportunities',
+      'deal', 'deals', 'new deal', 'deal stage',
+      'cold call', 'warm call', 'outreach', 'outbound',
+      'upsell', 'cross-sell', 'upgrade',
+      'commission', 'target', 'quota',
+      'crm', 'hubspot', 'salesforce'
+    ],
+
+    // Context phrases - sentences that indicate sales work
+    contextPhrases: [
+      'interested in buying', 'wants to purchase', 'ready to buy',
+      'needs a quote', 'asking about pricing', 'wants pricing',
+      'new customer', 'potential customer', 'potential client',
+      'inbound inquiry', 'website lead', 'referral from',
+      'move them forward', 'push this deal', 'get them to commit',
+      'schedule a demo', 'book a meeting', 'set up a call',
+      'they filled out', 'they submitted', 'they requested'
+    ]
+  },
+
+  project_manager: {
+    directTriggers: ['project', 'hey project', 'pm', 'project manager', 'coordinator'],
+
+    actionKeywords: [
+      'schedule', 'scheduling', 'reschedule', 'calendar',
+      'job', 'jobs', 'jobsite', 'job site', 'site visit',
+      'timeline', 'deadline', 'due date', 'milestone',
+      'team', 'crew', 'workers', 'assign', 'dispatch',
+      'invoice', 'invoices', 'billing', 'bill', 'payment',
+      'project', 'projects', 'task', 'tasks',
+      'workflow', 'automation', 'trigger',
+      'coordinate', 'coordination', 'organize',
+      'status', 'update', 'progress', 'tracking',
+      'deliverable', 'deliverables', 'handoff',
+      'kickoff', 'kick-off', 'wrap up', 'close out',
+      'contractor', 'subcontractor', 'vendor'
+    ],
+
+    contextPhrases: [
+      'when is the job', 'what time', 'what day',
+      'notify the team', 'let the crew know', 'tell everyone',
+      'send an invoice', 'bill them', 'collect payment',
+      'move the appointment', 'change the schedule',
+      'job is done', 'project complete', 'finished the work',
+      'assign to', 'dispatch to', 'send crew to',
+      'update the client', 'keep them posted'
+    ]
+  },
+
+  support: {
+    directTriggers: ['support', 'hey support', 'customer support', 'help desk', 'service'],
+
+    actionKeywords: [
+      'help', 'helping', 'assist', 'assistance',
+      'issue', 'issues', 'problem', 'problems', 'trouble',
+      'complaint', 'complaints', 'complaining', 'unhappy', 'upset',
+      'refund', 'return', 'cancel', 'cancellation',
+      'history', 'past', 'previous', 'last time', 'before',
+      'lookup', 'look up', 'find', 'search', 'check',
+      'callback', 'call back', 'call them back',
+      'resolve', 'resolution', 'fix', 'solution',
+      'ticket', 'case', 'inquiry',
+      'feedback', 'review', 'rating',
+      'question', 'questions', 'asking about'
+    ],
+
+    contextPhrases: [
+      'customer is angry', 'client is upset', 'having issues',
+      'what happened with', 'what did we do', 'what was the',
+      'last conversation', 'previous call', 'talked before',
+      'wants to cancel', 'asking for refund', 'not happy',
+      'check their account', 'look at their history',
+      'follow up on complaint', 'resolve their issue',
+      'answer their question', 'help them with',
+      'why did we', 'when did we', 'did we ever'
+    ]
+  },
+
+  estimator: {
+    directTriggers: ['estimate', 'hey estimate', 'estimator', 'quote', 'pricing', 'bid'],
+
+    actionKeywords: [
+      'estimate', 'estimates', 'quote', 'quotes', 'bid', 'bids',
+      'price', 'prices', 'pricing', 'cost', 'costs',
+      'proposal', 'proposals', 'scope', 'specs',
+      'square foot', 'sq ft', 'sqft', 'linear foot',
+      'labor', 'materials', 'markup', 'margin',
+      'measurement', 'measure', 'dimensions',
+      'breakdown', 'line items', 'itemized',
+      'total', 'subtotal', 'grand total',
+      'discount', 'package', 'bundle'
+    ],
+
+    contextPhrases: [
+      'how much for', 'how much would', 'what would it cost',
+      'price for', 'quote for', 'estimate for',
+      'need a bid', 'send a quote', 'put together pricing',
+      'what did we charge', 'previous quote', 'last estimate',
+      'include materials', 'labor costs', 'total cost',
+      'site visit for estimate', 'measure the job',
+      'competitive pricing', 'beat their price'
+    ]
+  }
+};
+
+/**
  * Detect agent from trigger words in message
+ * Basic trigger word matching for explicit agent calls
  */
 export function detectAgentFromMessage(message) {
   const lowerMessage = message.toLowerCase().trim();
@@ -465,7 +618,9 @@ export function detectAgentFromMessage(message) {
           agentId,
           agent: template,
           originalMessage: message,
-          cleanedMessage: cleanedMessage || message
+          cleanedMessage: cleanedMessage || message,
+          confidence: 1.0,
+          matchType: 'direct_trigger'
         };
       }
     }
@@ -476,7 +631,155 @@ export function detectAgentFromMessage(message) {
     agentId: 'aria',
     agent: ARIA_AGENT_TEMPLATES.aria,
     originalMessage: message,
-    cleanedMessage: message
+    cleanedMessage: message,
+    confidence: 1.0,
+    matchType: 'default'
+  };
+}
+
+/**
+ * Intelligent agent detection using keyword analysis
+ * Returns the best agent for a task based on context, with confidence score
+ */
+export function detectBestAgentForTask(message, context = {}) {
+  const lowerMessage = message.toLowerCase().trim();
+  const scores = {
+    sales: 0,
+    project_manager: 0,
+    support: 0,
+    estimator: 0
+  };
+
+  // First check for direct triggers (highest priority)
+  for (const [agentId, keywords] of Object.entries(AGENT_KEYWORDS)) {
+    for (const trigger of keywords.directTriggers) {
+      if (lowerMessage.startsWith(trigger)) {
+        return {
+          agentId,
+          agent: ARIA_AGENT_TEMPLATES[agentId],
+          confidence: 1.0,
+          matchType: 'direct_trigger',
+          reason: `Explicit call to ${ARIA_AGENT_TEMPLATES[agentId].name}`
+        };
+      }
+    }
+  }
+
+  // Score based on action keywords
+  for (const [agentId, keywords] of Object.entries(AGENT_KEYWORDS)) {
+    for (const keyword of keywords.actionKeywords) {
+      if (lowerMessage.includes(keyword)) {
+        scores[agentId] += 2;
+      }
+    }
+  }
+
+  // Score based on context phrases (stronger signal)
+  for (const [agentId, keywords] of Object.entries(AGENT_KEYWORDS)) {
+    for (const phrase of keywords.contextPhrases) {
+      if (lowerMessage.includes(phrase)) {
+        scores[agentId] += 5;
+      }
+    }
+  }
+
+  // Add context-based scoring
+  if (context.contactType === 'lead' || context.isNewContact) {
+    scores.sales += 3;
+  }
+  if (context.hasOpenProject || context.hasScheduledJob) {
+    scores.project_manager += 3;
+  }
+  if (context.hasComplaint || context.hasPreviousIssue) {
+    scores.support += 3;
+  }
+  if (context.needsQuote || context.requestedPricing) {
+    scores.estimator += 3;
+  }
+
+  // Find the highest scoring agent
+  let bestAgent = 'aria';
+  let highestScore = 0;
+
+  for (const [agentId, score] of Object.entries(scores)) {
+    if (score > highestScore) {
+      highestScore = score;
+      bestAgent = agentId;
+    }
+  }
+
+  // Calculate confidence (0-1)
+  const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+  const confidence = totalScore > 0 ? Math.min(highestScore / totalScore, 1) : 0;
+
+  // If no clear match (low score), default to ARIA
+  if (highestScore < 2) {
+    return {
+      agentId: 'aria',
+      agent: ARIA_AGENT_TEMPLATES.aria,
+      confidence: 0.5,
+      matchType: 'default',
+      reason: 'No specific agent match - ARIA will handle',
+      scores
+    };
+  }
+
+  return {
+    agentId: bestAgent,
+    agent: ARIA_AGENT_TEMPLATES[bestAgent],
+    confidence: Math.max(0.6, confidence),
+    matchType: 'keyword_match',
+    reason: `Best match for task based on keywords`,
+    scores
+  };
+}
+
+/**
+ * Get delegation suggestion for ARIA
+ * Returns a formatted suggestion for ARIA to use when delegating
+ */
+export function getDelegationSuggestion(message, context = {}) {
+  const detection = detectBestAgentForTask(message, context);
+
+  if (detection.agentId === 'aria') {
+    return null; // ARIA handles it herself
+  }
+
+  const agent = detection.agent;
+  const delegationPhrases = {
+    sales: [
+      `Ooh, this sounds like a sales move - lemme get my Sales Agent on it`,
+      `Lead action? Say less, passing this to Sales`,
+      `This is a Sales play for sure - they got this`
+    ],
+    project_manager: [
+      `Scheduling and coordination? That's PM territory`,
+      `Let me loop in my Project Manager on this one`,
+      `This needs some organization - PM's got it`
+    ],
+    support: [
+      `Customer history check? Support's on it`,
+      `Lemme get Support to look into this`,
+      `This needs the support touch - they're great at this`
+    ],
+    estimator: [
+      `Pricing? That's Estimator's specialty`,
+      `Let me get Estimator to crunch these numbers`,
+      `Quote time - Estimator's got the magic touch`
+    ]
+  };
+
+  const phrases = delegationPhrases[detection.agentId];
+  const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+  return {
+    shouldDelegate: detection.confidence > 0.6,
+    agentId: detection.agentId,
+    agentName: agent.name,
+    voice: agent.voice,
+    phrase: randomPhrase,
+    confidence: detection.confidence,
+    reason: detection.reason
   };
 }
 
