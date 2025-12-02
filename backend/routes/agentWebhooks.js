@@ -308,14 +308,18 @@ router.post('/demo-call', async (req, res) => {
       });
     }
 
-    // Demo agents for different use cases
-    const demoAgents = {
-      lead_gen: process.env.DEMO_LEAD_GEN_AGENT_ID || 'agent_01jemq1vmbe5wse2m4mr6f9m9d',
-      booking: process.env.DEMO_BOOKING_AGENT_ID || 'agent_01jemq1vmbe5wse2m4mr6f9m9d',
-      support: process.env.DEMO_SUPPORT_AGENT_ID || 'agent_01jemq1vmbe5wse2m4mr6f9m9d'
-    };
+    // Demo agent - use ELEVENLABS_DEMO_AGENT_ID from env
+    const demoAgentId = process.env.ELEVENLABS_DEMO_AGENT_ID;
 
-    const agentId = demoAgents[demo_type] || demoAgents.lead_gen;
+    if (!demoAgentId) {
+      console.error('   ELEVENLABS_DEMO_AGENT_ID not configured');
+      return res.json({
+        success: false,
+        message: 'Demo agent not configured. Let me send you a link to try the demo yourself instead.'
+      });
+    }
+
+    const agentId = demoAgentId;
     const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
     // Initiate outbound call via ElevenLabs Twilio endpoint
