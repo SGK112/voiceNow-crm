@@ -346,8 +346,9 @@ export const initiateCall = async (req, res) => {
         personalizedFirstMessage
       );
 
-      const callId = callData.id || callData.call_id || callData.batch_id;
-      console.log(`✅ [INITIATE CALL] Call initiated via ElevenLabs: ${callId}`);
+      // ElevenLabs Twilio outbound call returns: { success, message, conversation_id, callSid }
+      const callId = callData.conversation_id || callData.callSid || callData.id || callData.call_id || callData.batch_id;
+      console.log(`✅ [INITIATE CALL] Call initiated via ElevenLabs:`, { success: callData.success, callId });
     } catch (error) {
       console.error('❌ [INITIATE CALL] Failed to make call:', error.message);
       return res.status(500).json({
@@ -360,7 +361,7 @@ export const initiateCall = async (req, res) => {
       userId: req.user._id,
       agentId: agent._id,
       leadId: leadId || null,
-      elevenLabsCallId: callData.id || callData.call_id || callData.batch_id,
+      elevenLabsCallId: callData.conversation_id || callData.callSid || callData.id || callData.call_id || callData.batch_id,
       phoneNumber,
       status: 'initiated',
       direction: 'outbound',

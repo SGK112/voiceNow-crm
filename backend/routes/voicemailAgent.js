@@ -187,12 +187,14 @@ router.post('/test-call', async (req, res) => {
           agent.first_message
         );
 
-        console.log(`✅ Test call initiated: ${callData.id || 'pending'}`);
+        // ElevenLabs Twilio outbound call returns: { success, message, conversation_id, callSid }
+        const callId = callData.conversation_id || callData.callSid || callData.id || callData.call_id;
+        console.log(`✅ Test call initiated:`, { success: callData.success, callId });
 
         res.json({
           success: true,
           data: {
-            callId: callData.id || callData.call_id,
+            callId: callId,
             message: 'Test call initiated successfully'
           }
         });

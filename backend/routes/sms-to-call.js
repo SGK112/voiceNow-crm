@@ -119,8 +119,9 @@ router.post('/trigger-demo-call', async (req, res) => {
             null   // Use agent's default first message
           );
 
-          const callId = callData.id || callData.call_id;
-          console.log(`📞 Demo call initiated: ${callId || 'ID pending'}`);
+          // ElevenLabs Twilio outbound call returns: { success, message, conversation_id, callSid }
+          const callId = callData.conversation_id || callData.callSid || callData.id || callData.call_id;
+          console.log(`📞 Demo call initiated:`, { success: callData.success, callId });
 
           // Register call for monitoring (automatic post-call emails)
           if (callId) {

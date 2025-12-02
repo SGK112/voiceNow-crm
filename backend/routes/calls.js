@@ -51,7 +51,8 @@ router.post('/test', protect, async (req, res) => {
       callerPhone: formattedNumber,
       direction: 'outbound',
       status: 'in-progress',
-      elevenLabsCallId: callData.call_id || callData.id,
+      // ElevenLabs Twilio outbound call returns: { success, message, conversation_id, callSid }
+      elevenLabsCallId: callData.conversation_id || callData.callSid || callData.call_id || callData.id,
       metadata: {
         test_mode: test_mode,
         agent_id: agent_id

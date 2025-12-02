@@ -1051,8 +1051,14 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
         });
       }
 
-      callId = callData.id || callData.call_id;
-      console.log(`✅ Voice demo call initiated via ElevenLabs: ${callId}`);
+      // ElevenLabs Twilio outbound call returns: { success, message, conversation_id, callSid }
+      callId = callData.conversation_id || callData.callSid || callData.id || callData.call_id;
+      console.log(`✅ Voice demo call initiated via ElevenLabs:`, {
+        success: callData.success,
+        conversation_id: callData.conversation_id,
+        callSid: callData.callSid,
+        callId: callId
+      });
     }
 
     // Register call for automatic post-call email monitoring
