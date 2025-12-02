@@ -13,6 +13,10 @@ import {
 } from '../controllers/twilioWebhookController.js';
 import {
   sendSignupLinkAction,
+  sendTermsLinkAction,
+  sendPrivacyLinkAction,
+  sendBookingLinkAction,
+  sendAllLinksAction,
   handlePostCallFollowUp,
   handleConversationEvent,
   testWebhook,
@@ -33,6 +37,10 @@ router.post('/elevenlabs/:agentId', webhookLimiter, handleCallComplete);
 
 // ElevenLabs real-time action webhooks
 router.post('/elevenlabs/send-signup-link', sendSignupLinkAction);
+router.post('/elevenlabs/send-terms-link', sendTermsLinkAction);
+router.post('/elevenlabs/send-privacy-link', sendPrivacyLinkAction);
+router.post('/elevenlabs/send-booking-link', sendBookingLinkAction);
+router.post('/elevenlabs/send-all-links', sendAllLinksAction);
 router.post('/elevenlabs/post-call-followup', handlePostCallFollowUp);
 router.post('/elevenlabs/conversation-event', handleConversationEvent);
 router.get('/elevenlabs/test', testWebhook);

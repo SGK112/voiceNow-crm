@@ -1,5 +1,5 @@
 import express from 'express';
-import { marketingChat, getElevenLabsToken, contactSales, requestVoiceDemo, scheduleMeeting } from '../controllers/publicChatController.js';
+import { marketingChat, getElevenLabsToken, contactSales, requestVoiceDemo, scheduleMeeting, handleBookingRequest } from '../controllers/publicChatController.js';
 
 const router = express.Router();
 
@@ -17,5 +17,8 @@ router.post('/voice-demo', requestVoiceDemo);
 
 // Schedule a meeting/demo (no authentication required)
 router.post('/schedule-meeting', scheduleMeeting);
+
+// Booking request from book.html page (no authentication required)
+router.post('/booking-request', handleBookingRequest);
 
 export default router;

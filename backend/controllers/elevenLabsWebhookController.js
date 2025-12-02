@@ -267,12 +267,41 @@ async function detectIntents(transcript) {
   return intents;
 }
 
+// Link templates for different content types
+const LINK_TEMPLATES = {
+  signup: {
+    url: 'https://remodely.ai/signup',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'
+  },
+  terms: {
+    url: 'https://remodely.ai/terms.html',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Terms of Service as requested:\nhttps://remodely.ai/terms.html\n\nKey points:\n✓ No long-term contracts\n✓ Cancel anytime\n✓ 30-day refund policy\n✓ TCPA compliant\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    image: null
+  },
+  privacy: {
+    url: 'https://remodely.ai/privacy.html',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Privacy Policy as requested:\nhttps://remodely.ai/privacy.html\n\nYour data protection:\n🔒 SOC 2 compliant\n🔒 End-to-end encryption\n🔒 Never sell your data\n🔒 GDPR & CCPA compliant\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    image: null
+  },
+  booking: {
+    url: 'https://remodely.ai/book',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Book a call with our sales team:\nhttps://remodely.ai/book\n\nWe'll give you a personalized demo and answer all your questions!\n\n📅 Pick a time that works for you.\n\n- Remodelee AI Team`,
+    image: null
+  },
+  all_links: {
+    url: null,
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here are all the links you requested:\n\n🚀 Free Trial: https://remodely.ai/signup\n📋 Terms of Service: https://remodely.ai/terms.html\n🔒 Privacy Policy: https://remodely.ai/privacy.html\n📅 Book a Sales Call: https://remodely.ai/book\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    image: null
+  }
+};
+
 // Handle agent action: Send signup link via MMS with image during call
 export const sendSignupLinkAction = async (req, res) => {
   try {
-    const { phone_number, customer_name, conversation_id } = req.body;
+    const { phone_number, customer_name, conversation_id, link_type = 'signup' } = req.body;
 
-    console.log(`📱 Agent requested MMS signup link for ${customer_name} at ${phone_number}`);
+    console.log(`📱 Agent requested ${link_type} link for ${customer_name} at ${phone_number}`);
     console.log(`   Conversation ID: ${conversation_id}`);
 
     if (!phone_number) {
@@ -282,29 +311,58 @@ export const sendSignupLinkAction = async (req, res) => {
       });
     }
 
-    // Send signup link via MMS with image to showcase capabilities
-    const greeting = customer_name ? `Hi ${customer_name}!` : 'Hi!';
-    const message = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
-    const imageUrl = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'; // Professional business/tech image
+    // Get the appropriate link template
+    const template = LINK_TEMPLATES[link_type] || LINK_TEMPLATES.signup;
+    const message = template.message(customer_name);
 
-    await twilioService.sendMMSWithImage(phone_number, message, imageUrl);
-
-    console.log(`✅ Signup link MMS with image sent to ${phone_number} during call`);
+    // Send SMS or MMS depending on whether we have an image
+    if (template.image) {
+      await twilioService.sendMMSWithImage(phone_number, message, template.image);
+      console.log(`✅ ${link_type} MMS with image sent to ${phone_number}`);
+    } else {
+      await twilioService.sendSMS(phone_number, message);
+      console.log(`✅ ${link_type} SMS sent to ${phone_number}`);
+    }
 
     // Return success to agent
     res.json({
       success: true,
-      message: `MMS with image sent successfully to ${phone_number}`,
-      action: 'mms_sent'
+      message: `${link_type} link sent successfully to ${phone_number}`,
+      action: template.image ? 'mms_sent' : 'sms_sent',
+      link_type: link_type
     });
 
   } catch (error) {
-    console.error('Error sending signup link MMS:', error);
+    console.error('Error sending link:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to send MMS'
+      error: 'Failed to send link'
     });
   }
+};
+
+// Handle agent action: Send Terms of Service link
+export const sendTermsLinkAction = async (req, res) => {
+  req.body.link_type = 'terms';
+  return sendSignupLinkAction(req, res);
+};
+
+// Handle agent action: Send Privacy Policy link
+export const sendPrivacyLinkAction = async (req, res) => {
+  req.body.link_type = 'privacy';
+  return sendSignupLinkAction(req, res);
+};
+
+// Handle agent action: Send calendar booking link
+export const sendBookingLinkAction = async (req, res) => {
+  req.body.link_type = 'booking';
+  return sendSignupLinkAction(req, res);
+};
+
+// Handle agent action: Send all links at once
+export const sendAllLinksAction = async (req, res) => {
+  req.body.link_type = 'all_links';
+  return sendSignupLinkAction(req, res);
 };
 
 // Helper function to extract email from transcript
@@ -628,29 +686,46 @@ export const handleConversationEvent = async (req, res) => {
       case 'agent.tool_called':
       case 'tool.called':
         // Handle tool execution request from agent
-        console.log(`🔧 Tool called: ${event.tool_name || event.name}`);
+        const toolName = event.tool_name || event.name;
+        console.log(`🔧 Tool called: ${toolName}`);
         console.log(`   Parameters:`, event.parameters || event.tool_parameters);
 
-        if ((event.tool_name || event.name) === 'send_signup_link') {
-          const params = event.parameters || event.tool_parameters || {};
-          const phoneNumber = params.phone_number;
-          const customerName = params.customer_name;
+        const params = event.parameters || event.tool_parameters || {};
+        const phoneNumber = params.phone_number;
+        const customerName = params.customer_name;
 
+        // Map tool names to link types
+        const toolToLinkType = {
+          'send_signup_link': 'signup',
+          'send_terms_link': 'terms',
+          'send_privacy_link': 'privacy',
+          'send_booking_link': 'booking',
+          'send_all_links': 'all_links'
+        };
+
+        const linkType = toolToLinkType[toolName];
+
+        if (linkType) {
           try {
-            // Send MMS with image to showcase capabilities
-            const greeting = customerName ? `Hi ${customerName}!` : 'Hi!';
-            const message = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
-            const imageUrl = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'; // Professional business/tech image
+            const template = LINK_TEMPLATES[linkType];
+            const message = template.message(customerName);
 
-            await twilioService.sendMMSWithImage(phoneNumber, message, imageUrl);
-            console.log(`✅ MMS with image sent to ${phoneNumber} via tool call`);
+            // Send SMS or MMS depending on whether we have an image
+            if (template.image) {
+              await twilioService.sendMMSWithImage(phoneNumber, message, template.image);
+              console.log(`✅ ${linkType} MMS with image sent to ${phoneNumber} via tool call`);
+            } else {
+              await twilioService.sendSMS(phoneNumber, message);
+              console.log(`✅ ${linkType} SMS sent to ${phoneNumber} via tool call`);
+            }
 
             // Respond with success
             res.json({
               success: true,
               tool_result: {
-                message: `MMS with signup link sent successfully to ${phoneNumber}`,
-                status: 'sent'
+                message: `${linkType} link sent successfully to ${phoneNumber}`,
+                status: 'sent',
+                link_type: linkType
               }
             });
             return;
@@ -659,7 +734,7 @@ export const handleConversationEvent = async (req, res) => {
             res.json({
               success: false,
               tool_result: {
-                error: 'Failed to send MMS',
+                error: `Failed to send ${linkType} link`,
                 status: 'failed'
               }
             });
