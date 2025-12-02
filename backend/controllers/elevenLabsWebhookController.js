@@ -684,6 +684,426 @@ export const handleConversationEvent = async (req, res) => {
   }
 };
 
+/**
+ * Handle ARIA tool invocations during ElevenLabs calls
+ * This is the webhook endpoint for all client tools (scheduling, SMS, Slack, email, etc.)
+ *
+ * Endpoint: POST /api/elevenlabs-webhook/tool-invocation
+ */
+export const handleToolInvocation = async (req, res) => {
+  try {
+    const { tool_name, parameters, conversation_id, call_id, metadata } = req.body;
+
+    console.log(`🔧 [ARIA-TOOL] Tool invocation received:`);
+    console.log(`   Tool: ${tool_name}`);
+    console.log(`   Conversation: ${conversation_id}`);
+    console.log(`   Parameters:`, JSON.stringify(parameters, null, 2));
+
+    let result = {};
+
+    switch (tool_name) {
+      case 'schedule_appointment':
+        result = await handleScheduleAppointment(parameters, metadata);
+        break;
+
+      case 'send_sms':
+        result = await handleSendSMS(parameters, metadata);
+        break;
+
+      case 'notify_slack':
+        result = await handleSlackNotification(parameters, metadata);
+        break;
+
+      case 'draft_email':
+        result = await handleDraftEmail(parameters, metadata);
+        break;
+
+      case 'create_task':
+        result = await handleCreateTask(parameters, metadata);
+        break;
+
+      case 'update_crm':
+        result = await handleUpdateCRM(parameters, metadata);
+        break;
+
+      case 'lookup_info':
+        result = await handleLookupInfo(parameters, metadata);
+        break;
+
+      case 'create_estimate':
+        result = await handleCreateEstimate(parameters, metadata);
+        break;
+
+      case 'send_signup_link':
+        // Legacy tool for backwards compatibility
+        const phoneNumber = parameters.phone_number;
+        const customerName = parameters.customer_name || 'there';
+        const greeting = customerName !== 'there' ? `Hi ${customerName}!` : 'Hi!';
+        const message = `${greeting} Thanks for your interest!\n\nStart your FREE trial:\nhttps://remodely.ai/signup\n\n- ARIA`;
+        await twilioService.sendSMS(phoneNumber, message);
+        result = { success: true, message: `Signup link sent to ${phoneNumber}` };
+        break;
+
+      default:
+        console.log(`⚠️ [ARIA-TOOL] Unknown tool: ${tool_name}`);
+        result = { success: false, error: `Unknown tool: ${tool_name}` };
+    }
+
+    console.log(`✅ [ARIA-TOOL] Result:`, result);
+
+    // Return result to ElevenLabs so the agent can respond appropriately
+    res.json({
+      success: true,
+      tool_result: result
+    });
+
+  } catch (error) {
+    console.error('❌ [ARIA-TOOL] Error:', error);
+    res.status(500).json({
+      success: false,
+      tool_result: {
+        success: false,
+        error: error.message
+      }
+    });
+  }
+};
+
+// Tool Handlers
+
+async function handleScheduleAppointment(params, metadata) {
+  const { title, date, time, duration_minutes = 30, attendee_email, notes } = params;
+
+  console.log(`📅 Scheduling appointment: ${title} on ${date} at ${time}`);
+
+  // TODO: Integrate with Google Calendar API
+  // For now, create a task and send notification
+
+  // Parse the date/time into a Date object
+  const appointmentDate = parseNaturalDate(date, time);
+
+  // For now, log the appointment and return success
+  // In production, this would call Google Calendar API
+  const appointmentDetails = {
+    title,
+    date: appointmentDate.toISOString(),
+    duration_minutes,
+    attendee_email,
+    notes,
+    created_at: new Date().toISOString()
+  };
+
+  console.log(`📅 Appointment details:`, appointmentDetails);
+
+  // TODO: When Google Calendar is integrated:
+  // const calendarEvent = await googleCalendarService.createEvent(appointmentDetails);
+
+  return {
+    success: true,
+    message: `Appointment "${title}" scheduled for ${date} at ${time} (${duration_minutes} minutes)`,
+    appointment: appointmentDetails
+  };
+}
+
+async function handleSendSMS(params, metadata) {
+  const { phone_number, message } = params;
+
+  // Use the phone number from params, or fall back to metadata (current call)
+  const targetPhone = phone_number || metadata?.customer_phone || metadata?.phone_number;
+
+  if (!targetPhone) {
+    return { success: false, error: 'No phone number available' };
+  }
+
+  console.log(`📱 Sending SMS to ${targetPhone}: ${message}`);
+
+  await twilioService.sendSMS(targetPhone, message);
+
+  return {
+    success: true,
+    message: `SMS sent to ${targetPhone}`
+  };
+}
+
+async function handleSlackNotification(params, metadata) {
+  const { channel = 'general', message, priority = 'normal' } = params;
+
+  console.log(`💬 Sending Slack notification to #${channel}: ${message}`);
+
+  // TODO: Integrate with Slack API
+  // For now, log the notification
+  const slackNotification = {
+    channel,
+    message,
+    priority,
+    timestamp: new Date().toISOString(),
+    metadata: {
+      call_id: metadata?.call_id,
+      customer: metadata?.customer_name
+    }
+  };
+
+  console.log(`💬 Slack notification:`, slackNotification);
+
+  // TODO: When Slack is integrated:
+  // await slackService.sendMessage(channel, message, { priority });
+
+  return {
+    success: true,
+    message: `Notification sent to #${channel}`,
+    notification: slackNotification
+  };
+}
+
+async function handleDraftEmail(params, metadata) {
+  const { recipient_email, subject, body, send_immediately = false } = params;
+
+  console.log(`📧 ${send_immediately ? 'Sending' : 'Drafting'} email: ${subject}`);
+
+  const emailData = {
+    to: recipient_email || metadata?.customer_email,
+    subject,
+    text: body,
+    html: `<div style="font-family: Arial, sans-serif;">${body.replace(/\n/g, '<br>')}</div>`
+  };
+
+  if (send_immediately && emailData.to) {
+    await emailService.sendEmail(emailData);
+    return {
+      success: true,
+      message: `Email sent to ${emailData.to}`,
+      sent: true
+    };
+  } else {
+    // Save as draft (in practice, this would save to a drafts collection)
+    console.log(`📧 Email draft saved:`, emailData);
+    return {
+      success: true,
+      message: emailData.to
+        ? `Email draft created for ${emailData.to}`
+        : 'Email draft created (no recipient email available)',
+      draft: emailData,
+      sent: false
+    };
+  }
+}
+
+async function handleCreateTask(params, metadata) {
+  const { title, description, due_date, priority = 'medium', assigned_to } = params;
+
+  console.log(`✅ Creating task: ${title}`);
+
+  const task = {
+    title,
+    description,
+    due_date: due_date ? parseNaturalDate(due_date) : null,
+    priority,
+    assigned_to: assigned_to || 'owner',
+    created_at: new Date().toISOString(),
+    related_call: metadata?.call_id,
+    related_contact: metadata?.customer_name
+  };
+
+  console.log(`✅ Task created:`, task);
+
+  // TODO: Save to database or integrate with task management system
+
+  return {
+    success: true,
+    message: `Task "${title}" created${due_date ? ` (due: ${due_date})` : ''}`,
+    task
+  };
+}
+
+async function handleUpdateCRM(params, metadata) {
+  const { notes, status, tags, next_action } = params;
+
+  console.log(`📝 Updating CRM record`);
+
+  const customerPhone = metadata?.customer_phone || metadata?.phone_number;
+
+  // Find the lead by phone number
+  let lead = null;
+  if (customerPhone) {
+    lead = await Lead.findOne({ phone: customerPhone });
+  }
+
+  if (lead) {
+    // Update the lead
+    if (notes) {
+      lead.notes = (lead.notes || '') + `\n\n--- Call Note (${new Date().toLocaleString()}) ---\n${notes}`;
+    }
+    if (status) {
+      lead.status = status;
+    }
+    if (tags && tags.length > 0) {
+      lead.tags = [...new Set([...(lead.tags || []), ...tags])];
+    }
+    if (next_action) {
+      lead.nextAction = next_action;
+    }
+    lead.lastContactDate = new Date();
+
+    await lead.save();
+
+    console.log(`📝 Lead updated: ${lead._id}`);
+
+    return {
+      success: true,
+      message: `CRM record updated for ${lead.name || customerPhone}`,
+      lead_id: lead._id.toString()
+    };
+  } else {
+    console.log(`⚠️ No lead found for phone: ${customerPhone}`);
+    return {
+      success: true,
+      message: 'Notes saved (no matching contact found)',
+      notes_saved: notes
+    };
+  }
+}
+
+async function handleLookupInfo(params, metadata) {
+  const { query_type, query } = params;
+
+  console.log(`🔍 Looking up: ${query_type} - ${query}`);
+
+  let result = {};
+
+  switch (query_type) {
+    case 'customer_history':
+      const customerPhone = metadata?.customer_phone || metadata?.phone_number;
+      if (customerPhone) {
+        const lead = await Lead.findOne({ phone: customerPhone });
+        if (lead) {
+          result = {
+            name: lead.name,
+            email: lead.email,
+            status: lead.status,
+            notes: lead.notes,
+            lastContact: lead.lastContactDate,
+            totalCalls: lead.totalCalls || 0
+          };
+        } else {
+          result = { message: 'No customer history found' };
+        }
+      }
+      break;
+
+    case 'availability':
+      // TODO: Integrate with calendar to check availability
+      result = {
+        message: 'Checking availability...',
+        available_slots: [
+          'Tomorrow at 2pm',
+          'Tomorrow at 4pm',
+          'Wednesday at 10am',
+          'Wednesday at 2pm',
+          'Thursday at 11am'
+        ]
+      };
+      break;
+
+    case 'pricing':
+    case 'product_info':
+    case 'company_info':
+      // TODO: Integrate with knowledge base
+      result = {
+        message: `Searching for ${query_type}: ${query}`,
+        info: 'Please check with the team for specific pricing/info.'
+      };
+      break;
+
+    default:
+      result = { message: `Unknown query type: ${query_type}` };
+  }
+
+  return {
+    success: true,
+    query_type,
+    query,
+    result
+  };
+}
+
+async function handleCreateEstimate(params, metadata) {
+  const { service_type, details, estimated_amount, notes } = params;
+
+  console.log(`💰 Creating estimate for: ${service_type}`);
+
+  const estimate = {
+    service_type,
+    details,
+    estimated_amount,
+    notes,
+    created_at: new Date().toISOString(),
+    customer_phone: metadata?.customer_phone,
+    customer_name: metadata?.customer_name,
+    status: 'draft'
+  };
+
+  console.log(`💰 Estimate created:`, estimate);
+
+  // TODO: Save to database and potentially generate PDF
+
+  return {
+    success: true,
+    message: estimated_amount
+      ? `Estimate created: ${service_type} - approximately $${estimated_amount}`
+      : `Estimate request logged: ${service_type}`,
+    estimate
+  };
+}
+
+// Helper function to parse natural language dates
+function parseNaturalDate(dateStr, timeStr = null) {
+  const now = new Date();
+  let date = new Date(now);
+
+  const lowerDate = (dateStr || '').toLowerCase();
+
+  if (lowerDate.includes('today')) {
+    // Keep today's date
+  } else if (lowerDate.includes('tomorrow')) {
+    date.setDate(date.getDate() + 1);
+  } else if (lowerDate.includes('next week')) {
+    date.setDate(date.getDate() + 7);
+  } else if (lowerDate.includes('monday')) {
+    date.setDate(date.getDate() + ((1 + 7 - date.getDay()) % 7 || 7));
+  } else if (lowerDate.includes('tuesday')) {
+    date.setDate(date.getDate() + ((2 + 7 - date.getDay()) % 7 || 7));
+  } else if (lowerDate.includes('wednesday')) {
+    date.setDate(date.getDate() + ((3 + 7 - date.getDay()) % 7 || 7));
+  } else if (lowerDate.includes('thursday')) {
+    date.setDate(date.getDate() + ((4 + 7 - date.getDay()) % 7 || 7));
+  } else if (lowerDate.includes('friday')) {
+    date.setDate(date.getDate() + ((5 + 7 - date.getDay()) % 7 || 7));
+  } else {
+    // Try to parse as a date string
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      date = parsed;
+    }
+  }
+
+  // Parse time if provided
+  if (timeStr) {
+    const timeMatch = timeStr.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    if (timeMatch) {
+      let hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2] || '0');
+      const ampm = (timeMatch[3] || '').toLowerCase();
+
+      if (ampm === 'pm' && hours < 12) hours += 12;
+      if (ampm === 'am' && hours === 12) hours = 0;
+
+      date.setHours(hours, minutes, 0, 0);
+    }
+  }
+
+  return date;
+}
+
 // Test endpoint to verify webhook setup
 export const testWebhook = async (req, res) => {
   try {

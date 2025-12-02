@@ -339,7 +339,16 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
         };
       }
 
+      // ALWAYS add ARIA's client tools to enable actions during calls
+      // These tools allow the ElevenLabs agent to perform actions via webhooks
+      const ariaClientTools = this.getAriaClientTools();
+      if (!outboundRequestBody.conversation_config_override) {
+        outboundRequestBody.conversation_config_override = { agent: {} };
+      }
+      outboundRequestBody.conversation_config_override.agent.tools = ariaClientTools;
+
       console.log('🔍 Using /convai/twilio/outbound-call endpoint');
+      console.log('  - Tools enabled:', ariaClientTools.length);
       console.log('  - Agent ID:', outboundRequestBody.agent_id);
       console.log('  - Phone Number ID:', outboundRequestBody.agent_phone_number_id);
       console.log('  - To:', outboundRequestBody.to_number);
@@ -626,6 +635,259 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
                  Can you describe the issue you're experiencing?`
       }
     };
+  }
+
+  /**
+   * Get ARIA's client tools for use during ElevenLabs calls
+   * These tools enable the voice agent to perform real actions via webhooks
+   * Tools are invoked via POST to /api/elevenlabs-webhook/tool-invocation
+   */
+  getAriaClientTools() {
+    const webhookUrl = process.env.WEBHOOK_BASE_URL || process.env.BASE_URL || 'https://voiceflow-crm.onrender.com';
+
+    return [
+      {
+        type: 'webhook',
+        name: 'schedule_appointment',
+        description: 'Schedule an appointment or meeting on Google Calendar. Use when the customer agrees to schedule a meeting, follow-up, or appointment.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+              description: 'Title of the appointment (e.g., "Follow-up call with John")'
+            },
+            date: {
+              type: 'string',
+              description: 'Date for the appointment (e.g., "tomorrow", "next Monday", "December 5th")'
+            },
+            time: {
+              type: 'string',
+              description: 'Time for the appointment (e.g., "2pm", "10:30 AM", "afternoon")'
+            },
+            duration_minutes: {
+              type: 'number',
+              description: 'Duration in minutes (default 30)'
+            },
+            attendee_email: {
+              type: 'string',
+              description: 'Email of the person to invite (if known)'
+            },
+            notes: {
+              type: 'string',
+              description: 'Additional notes for the appointment'
+            }
+          },
+          required: ['title', 'date', 'time']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'send_sms',
+        description: 'Send an SMS text message to the customer or another phone number. Use when you need to send a quick text with info, confirmation, or link.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            phone_number: {
+              type: 'string',
+              description: 'Phone number to send SMS to (use current call number if not specified)'
+            },
+            message: {
+              type: 'string',
+              description: 'The SMS message content (keep it short and clear)'
+            }
+          },
+          required: ['message']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'notify_slack',
+        description: 'Send a notification to the team Slack channel. Use for urgent updates, when you need team attention, or to notify about important call outcomes.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            channel: {
+              type: 'string',
+              description: 'Slack channel (default: general). Options: general, sales, support, urgent'
+            },
+            message: {
+              type: 'string',
+              description: 'Message to post to Slack'
+            },
+            priority: {
+              type: 'string',
+              description: 'Priority level: normal, high, urgent'
+            }
+          },
+          required: ['message']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'draft_email',
+        description: 'Draft a follow-up email to be sent after the call. Use when you promise to send information, quotes, or follow-up details.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            recipient_email: {
+              type: 'string',
+              description: 'Email address of the recipient'
+            },
+            subject: {
+              type: 'string',
+              description: 'Email subject line'
+            },
+            body: {
+              type: 'string',
+              description: 'Email body content (can include key points discussed)'
+            },
+            send_immediately: {
+              type: 'boolean',
+              description: 'Whether to send immediately or save as draft (default: false)'
+            }
+          },
+          required: ['subject', 'body']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'create_task',
+        description: 'Create a follow-up task or reminder. Use when there is an action item that needs to be done after the call.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+              description: 'Task title'
+            },
+            description: {
+              type: 'string',
+              description: 'Task details'
+            },
+            due_date: {
+              type: 'string',
+              description: 'When the task is due (e.g., "tomorrow", "end of week")'
+            },
+            priority: {
+              type: 'string',
+              description: 'Priority: low, medium, high'
+            },
+            assigned_to: {
+              type: 'string',
+              description: 'Who to assign the task to (default: owner)'
+            }
+          },
+          required: ['title']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'update_crm',
+        description: 'Update the CRM record for this contact. Use to save notes, update status, or log important information from the call.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            notes: {
+              type: 'string',
+              description: 'Notes to add to the contact record'
+            },
+            status: {
+              type: 'string',
+              description: 'Update contact status (e.g., "interested", "follow-up needed", "closed")'
+            },
+            tags: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Tags to add to the contact'
+            },
+            next_action: {
+              type: 'string',
+              description: 'Next action to take with this contact'
+            }
+          },
+          required: ['notes']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'lookup_info',
+        description: 'Look up information from the CRM or knowledge base. Use when you need to check details about the customer, pricing, availability, or company info.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            query_type: {
+              type: 'string',
+              description: 'Type of lookup: customer_history, pricing, availability, product_info, company_info'
+            },
+            query: {
+              type: 'string',
+              description: 'What to look up'
+            }
+          },
+          required: ['query_type', 'query']
+        }
+      },
+      {
+        type: 'webhook',
+        name: 'create_estimate',
+        description: 'Create a price estimate or quote for the customer. Use when they ask about pricing or want a formal quote.',
+        webhook: {
+          url: `${webhookUrl}/api/elevenlabs-webhook/tool-invocation`,
+          method: 'POST'
+        },
+        parameters: {
+          type: 'object',
+          properties: {
+            service_type: {
+              type: 'string',
+              description: 'Type of service or product being quoted'
+            },
+            details: {
+              type: 'string',
+              description: 'Details about the work or items'
+            },
+            estimated_amount: {
+              type: 'number',
+              description: 'Estimated dollar amount (if known)'
+            },
+            notes: {
+              type: 'string',
+              description: 'Additional notes for the estimate'
+            }
+          },
+          required: ['service_type', 'details']
+        }
+      }
+    ];
   }
 }
 
