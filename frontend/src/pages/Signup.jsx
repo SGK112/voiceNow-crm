@@ -166,9 +166,9 @@ export default function Signup() {
             {/* Terms */}
             <p className="mt-4 text-center text-xs text-gray-500">
               By creating an account, you agree to our{' '}
-              <a href="#" className="text-gray-400 hover:text-gray-300">Terms of Service</a>
+              <a href="/terms.html" className="text-gray-400 hover:text-gray-300">Terms of Service</a>
               {' '}and{' '}
-              <a href="#" className="text-gray-400 hover:text-gray-300">Privacy Policy</a>
+              <a href="/privacy.html" className="text-gray-400 hover:text-gray-300">Privacy Policy</a>
             </p>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function Signup() {
             <div className="flex items-center gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-green-500" />
-                <span>30-day money back</span>
+                <span>Free trial included</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-green-500" />

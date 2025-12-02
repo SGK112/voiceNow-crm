@@ -256,9 +256,9 @@ export default function Login() {
           <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500">
             <Link to="/" className="hover:text-gray-300 transition-colors">Home</Link>
             <span>•</span>
-            <a href="#" className="hover:text-gray-300 transition-colors">Privacy</a>
+            <a href="/privacy.html" className="hover:text-gray-300 transition-colors">Privacy</a>
             <span>•</span>
-            <a href="#" className="hover:text-gray-300 transition-colors">Terms</a>
+            <a href="/terms.html" className="hover:text-gray-300 transition-colors">Terms</a>
           </div>
         </div>
       </div>
