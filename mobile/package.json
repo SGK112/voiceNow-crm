@@ -1,5 +1,5 @@
 {
-  "name": "voicenow-mobile",
+  "name": "voiceflow-ai",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
@@ -43,7 +43,6 @@
     "expo-web-browser": "^15.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-bluetooth-classic": "^1.73.0-rc.17",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-incall-manager": "^4.2.1",
     "react-native-safe-area-context": "^5.6.2",

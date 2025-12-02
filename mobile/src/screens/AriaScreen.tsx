@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
@@ -37,122 +37,7 @@ interface UserLocation {
   country?: string;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Dot Grid Background Component (React Flow style) - Optimized with memoization
-const DotGridBackground: React.FC<{ isDark?: boolean }> = React.memo(({ isDark = false }) => {
-  const dotSpacing = 24;
-  const dotSize = 2;
-  const rows = Math.ceil(SCREEN_HEIGHT / dotSpacing) + 1;
-  const cols = Math.ceil(SCREEN_WIDTH / dotSpacing) + 1;
-  const dotColor = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
-
-  // Memoize the grid to avoid recalculation on every render
-  const grid = useMemo(() => {
-    const rowElements = [];
-    for (let row = 0; row < rows; row++) {
-      const dotsInRow = [];
-      for (let col = 0; col < cols; col++) {
-        dotsInRow.push(
-          <View
-            key={col}
-            style={{
-              width: dotSize,
-              height: dotSize,
-              borderRadius: dotSize / 2,
-              backgroundColor: dotColor,
-              marginRight: dotSpacing - dotSize,
-            }}
-          />
-        );
-      }
-      rowElements.push(
-        <View
-          key={row}
-          style={{
-            flexDirection: 'row',
-            marginBottom: dotSpacing - dotSize,
-          }}
-        >
-          {dotsInRow}
-        </View>
-      );
-    }
-    return rowElements;
-  }, [isDark, rows, cols, dotColor]);
-
-  return (
-    <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="none">
-      {grid}
-    </View>
-  );
-});
-
-// GeneratedImageView component with loading and error states
-interface GeneratedImageViewProps {
-  imageUrl: string;
-  onPress: () => void;
-}
-
-const GeneratedImageView: React.FC<GeneratedImageViewProps> = ({ imageUrl, onPress }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  return (
-    <TouchableOpacity
-      style={styles.generatedImageContainer}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      {loading && !error && (
-        <View style={styles.imageLoadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.imageLoadingText}>Loading image...</Text>
-        </View>
-      )}
-      {error ? (
-        <View style={styles.imageErrorContainer}>
-          <Ionicons name="image-outline" size={40} color="#9ca3af" />
-          <Text style={styles.imageErrorText}>Image could not be loaded</Text>
-          <TouchableOpacity
-            style={styles.imageRetryButton}
-            onPress={() => {
-              setError(false);
-              setLoading(true);
-            }}
-          >
-            <Text style={styles.imageRetryText}>Tap to retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <Image
-          source={{ uri: imageUrl }}
-          style={[styles.generatedImage, loading && { opacity: 0 }]}
-          resizeMode="cover"
-          onLoadStart={() => {
-            console.log('[Aria] Image loading started:', imageUrl);
-            setLoading(true);
-          }}
-          onLoad={() => {
-            console.log('[Aria] Image loaded successfully:', imageUrl);
-            setLoading(false);
-            setError(false);
-          }}
-          onError={(e) => {
-            console.log('[Aria] Image load error:', e.nativeEvent.error, 'URL:', imageUrl);
-            setLoading(false);
-            setError(true);
-          }}
-        />
-      )}
-      {!loading && !error && (
-        <View style={styles.imageOverlay}>
-          <Ionicons name="expand-outline" size={20} color="#fff" />
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-};
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Helper function to format time ago
 const formatTimeAgo = (date: Date): string => {
@@ -174,7 +59,6 @@ const formatTimeAgo = (date: Date): string => {
 const MENU_ITEMS = [
   { id: 'Dashboard', icon: 'stats-chart-outline', label: 'Dashboard' },
   { id: 'Contacts', icon: 'people-outline', label: 'Contacts' },
-  { id: 'ContactImport', icon: 'cloud-upload-outline', label: 'Sync Contacts' },
   { id: 'Design', icon: 'color-palette-outline', label: 'Design' },
   { id: 'Calendar', icon: 'calendar-outline', label: 'Calendar' },
   { id: 'Collaboration', icon: 'chatbubbles-outline', label: 'Team' },
@@ -184,7 +68,6 @@ const MENU_ITEMS = [
 // Header tabs
 const NAV_TABS = [
   { id: 'Ask', label: 'Ask' },
-  { id: 'Daily', label: 'Daily' },
   { id: 'History', label: 'History' },
   { id: 'Settings', label: 'Settings' },
 ];
@@ -232,19 +115,6 @@ export default function AriaScreen() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
-  const [selectedVoice, setSelectedVoice] = useState<string>('shimmer');
-  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
-  const [dailyNotifications, setDailyNotifications] = useState(true);
-
-  // Available voices for OpenAI Realtime API
-  const AVAILABLE_VOICES = [
-    { id: 'shimmer', name: 'Shimmer', description: 'Warm and expressive female voice' },
-    { id: 'alloy', name: 'Alloy', description: 'Neutral and balanced voice' },
-    { id: 'echo', name: 'Echo', description: 'Natural conversational voice' },
-    { id: 'fable', name: 'Fable', description: 'British-accented storytelling voice' },
-    { id: 'onyx', name: 'Onyx', description: 'Deep and authoritative male voice' },
-    { id: 'nova', name: 'Nova', description: 'Friendly and upbeat voice' },
-  ];
 
   const realtimeOrbRef = useRef<any>(null);
 
@@ -522,28 +392,21 @@ export default function AriaScreen() {
         country: userLocation.country,
       } : null;
 
-      // Use longer timeout for image generation requests (2 minutes)
       const response = await api.post('/api/aria/chat', {
         message: userMessage.content,
         conversationHistory: chatMessages.map(m => ({ role: m.role, content: m.content })),
         location: locationData,
-      }, {
-        timeout: 120000, // 2 minutes for image generation
       });
-
-      console.log('[Aria] Chat response:', JSON.stringify(response.data, null, 2));
 
       if (response.data.success) {
         // Extract image URL from imageActions if present
-        let generatedImageUrl: string | null = null;
+        let generatedImageUrl = null;
         if (response.data.imageActions && response.data.imageActions.length > 0) {
-          console.log('[Aria] Image actions found:', response.data.imageActions);
           const imageAction = response.data.imageActions.find(
             (a: any) => a.result?.success && a.result?.imageUrl
           );
           if (imageAction) {
             generatedImageUrl = imageAction.result.imageUrl;
-            console.log('[Aria] Generated image URL:', generatedImageUrl);
           }
         }
 
@@ -555,8 +418,6 @@ export default function AriaScreen() {
           imageUrl: generatedImageUrl,
           imageActions: response.data.imageActions || null,
         };
-
-        console.log('[Aria] Assistant message with imageUrl:', assistantMessage.imageUrl);
 
         setChatMessages(prev => {
           const newMessages = [...prev, assistantMessage];
@@ -572,25 +433,11 @@ export default function AriaScreen() {
         });
         setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
       }
-    } catch (error: any) {
-      console.error('[Aria] Chat error:', error);
-      let errorContent = 'Sorry, something went wrong. Please try again.';
-
-      // Provide more specific error messages
-      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        errorContent = 'The request timed out. Image generation can take a while - please try again with a simpler prompt.';
-      } else if (error.response?.status === 401) {
-        errorContent = 'Your session has expired. Please log out and log back in.';
-      } else if (error.response?.data?.error) {
-        errorContent = `Error: ${error.response.data.error}`;
-      } else if (error.message) {
-        errorContent = `Error: ${error.message}`;
-      }
-
+    } catch (error) {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: errorContent,
+        content: 'Sorry, something went wrong.',
       };
       setChatMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -606,9 +453,6 @@ export default function AriaScreen() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          {/* Dot Grid Background */}
-          <DotGridBackground />
-
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity style={styles.menuButton} onPress={openMenu}>
@@ -673,42 +517,48 @@ export default function AriaScreen() {
                     keyboardShouldPersistTaps="handled"
                   >
                     {chatMessages.map((msg) => (
-                      <View key={msg.id} style={styles.messageRow}>
-                        {/* User messages: show on right */}
-                        {msg.role === 'user' ? (
-                          <View style={styles.userMessageContainer}>
-                            <View style={[styles.chatBubble, styles.userBubble]}>
-                              <Text style={[styles.chatBubbleText, styles.userBubbleText]}>
-                                {msg.content}
-                              </Text>
+                      <View key={msg.id}>
+                        <View
+                          style={[
+                            styles.chatBubble,
+                            msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
+                          ]}
+                        >
+                          <Text style={[
+                            styles.chatBubbleText,
+                            msg.role === 'user' && styles.userBubbleText,
+                          ]}>
+                            {msg.content}
+                          </Text>
+                        </View>
+                        {/* Render generated image if present */}
+                        {msg.imageUrl && typeof msg.imageUrl === 'string' && (
+                          <TouchableOpacity
+                            style={styles.generatedImageContainer}
+                            onPress={() => {
+                              // Open image in full screen or share
+                              const imageUrlStr = typeof msg.imageUrl === 'string' ? msg.imageUrl : '';
+                              if (imageUrlStr) {
+                                Alert.alert(
+                                  'Image Options',
+                                  'What would you like to do?',
+                                  [
+                                    { text: 'Open', onPress: () => Linking.openURL(imageUrlStr) },
+                                    { text: 'Cancel', style: 'cancel' },
+                                  ]
+                                );
+                              }
+                            }}
+                          >
+                            <Image
+                              source={{ uri: typeof msg.imageUrl === 'string' ? msg.imageUrl : '' }}
+                              style={styles.generatedImage}
+                              resizeMode="cover"
+                            />
+                            <View style={styles.imageOverlay}>
+                              <Ionicons name="expand-outline" size={20} color="#fff" />
                             </View>
-                          </View>
-                        ) : (
-                          /* Assistant messages: show on left */
-                          <View style={styles.assistantMessageContainer}>
-                            <View style={[styles.chatBubble, styles.assistantBubble]}>
-                              <Text style={styles.chatBubbleText}>
-                                {msg.content}
-                              </Text>
-                            </View>
-                            {/* Render generated image if present */}
-                            {msg.imageUrl && typeof msg.imageUrl === 'string' && (
-                              <GeneratedImageView
-                                imageUrl={msg.imageUrl}
-                                onPress={() => {
-                                  const imageUrlStr = msg.imageUrl as string;
-                                  Alert.alert(
-                                    'Image Options',
-                                    'What would you like to do?',
-                                    [
-                                      { text: 'Open in Browser', onPress: () => Linking.openURL(imageUrlStr) },
-                                      { text: 'Cancel', style: 'cancel' },
-                                    ]
-                                  );
-                                }}
-                              />
-                            )}
-                          </View>
+                          </TouchableOpacity>
                         )}
                         {/* Render LocalSearchResults for location-based UI actions */}
                         {msg.uiAction && ['local_search_results', 'place_details', 'directions'].includes(msg.uiAction.type) && (
@@ -717,12 +567,8 @@ export default function AriaScreen() {
                       </View>
                     ))}
                     {isLoading && (
-                      <View style={styles.messageRow}>
-                        <View style={styles.assistantMessageContainer}>
-                          <View style={[styles.chatBubble, styles.assistantBubble, { paddingVertical: 16 }]}>
-                            <ActivityIndicator size="small" color="#3b82f6" />
-                          </View>
-                        </View>
+                      <View style={[styles.chatBubble, styles.assistantBubble]}>
+                        <ActivityIndicator size="small" color="#3b82f6" />
                       </View>
                     )}
                   </ScrollView>
@@ -799,120 +645,31 @@ export default function AriaScreen() {
               </View>
             )}
 
-            {activeTab === 'Daily' && (
-              <ScrollView style={styles.dailyContainer} showsVerticalScrollIndicator={false}>
-                {/* Daily Summary Header */}
-                <View style={styles.dailyHeader}>
-                  <View style={styles.dailyDateBadge}>
-                    <Ionicons name="sunny-outline" size={20} color="#f59e0b" />
-                    <Text style={styles.dailyDateText}>
-                      {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </Text>
-                  </View>
-                  <Text style={styles.dailyGreeting}>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0] || 'there'}!</Text>
-                </View>
-
-                {/* Today's Stats */}
-                <View style={styles.dailyStatsRow}>
-                  <View style={styles.dailyStat}>
-                    <View style={[styles.dailyStatIcon, { backgroundColor: '#eff6ff' }]}>
-                      <Ionicons name="call-outline" size={18} color="#3b82f6" />
-                    </View>
-                    <Text style={styles.dailyStatNumber}>0</Text>
-                    <Text style={styles.dailyStatLabel}>Calls</Text>
-                  </View>
-                  <View style={styles.dailyStat}>
-                    <View style={[styles.dailyStatIcon, { backgroundColor: '#f0fdf4' }]}>
-                      <Ionicons name="chatbubble-outline" size={18} color="#10b981" />
-                    </View>
-                    <Text style={styles.dailyStatNumber}>0</Text>
-                    <Text style={styles.dailyStatLabel}>Messages</Text>
-                  </View>
-                  <View style={styles.dailyStat}>
-                    <View style={[styles.dailyStatIcon, { backgroundColor: '#fef3c7' }]}>
-                      <Ionicons name="people-outline" size={18} color="#f59e0b" />
-                    </View>
-                    <Text style={styles.dailyStatNumber}>0</Text>
-                    <Text style={styles.dailyStatLabel}>New Leads</Text>
-                  </View>
-                </View>
-
-                {/* Today's Schedule */}
-                <View style={styles.dailySection}>
-                  <View style={styles.dailySectionHeader}>
-                    <Ionicons name="calendar-outline" size={20} color="#374151" />
-                    <Text style={styles.dailySectionTitle}>Today's Schedule</Text>
-                  </View>
-                  <View style={styles.dailyEmptyState}>
-                    <Ionicons name="calendar" size={32} color="#d1d5db" />
-                    <Text style={styles.dailyEmptyText}>No appointments today</Text>
-                    <TouchableOpacity style={styles.dailyAddButton}>
-                      <Text style={styles.dailyAddButtonText}>+ Add Appointment</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Pending Tasks */}
-                <View style={styles.dailySection}>
-                  <View style={styles.dailySectionHeader}>
-                    <Ionicons name="checkbox-outline" size={20} color="#374151" />
-                    <Text style={styles.dailySectionTitle}>Pending Tasks</Text>
-                  </View>
-                  <View style={styles.dailyEmptyState}>
-                    <Ionicons name="checkmark-done" size={32} color="#d1d5db" />
-                    <Text style={styles.dailyEmptyText}>You're all caught up!</Text>
-                  </View>
-                </View>
-
-                {/* Recent Activity */}
-                <View style={styles.dailySection}>
-                  <View style={styles.dailySectionHeader}>
-                    <Ionicons name="time-outline" size={20} color="#374151" />
-                    <Text style={styles.dailySectionTitle}>Recent Activity</Text>
-                  </View>
-                  <View style={styles.dailyEmptyState}>
-                    <Ionicons name="pulse" size={32} color="#d1d5db" />
-                    <Text style={styles.dailyEmptyText}>No recent activity</Text>
-                    <Text style={styles.dailyEmptySubtext}>Start a conversation with Aria</Text>
-                  </View>
-                </View>
-              </ScrollView>
-            )}
-
             {activeTab === 'Settings' && (
               <ScrollView style={styles.settingsContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Voice</Text>
-                  <TouchableOpacity
-                    style={styles.settingsItem}
-                    onPress={() => setVoiceModalVisible(true)}
-                  >
+                  <TouchableOpacity style={styles.settingsItem}>
+                    <Ionicons name="mic-outline" size={22} color="#374151" />
+                    <Text style={styles.settingsItemText}>Voice Settings</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.settingsItem}>
                     <Ionicons name="volume-high-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Response Voice</Text>
-                    <Text style={styles.settingsItemValue}>
-                      {AVAILABLE_VOICES.find(v => v.id === selectedVoice)?.name || 'Shimmer'}
-                    </Text>
+                    <Text style={styles.settingsItemValue}>Nova</Text>
                     <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Notifications</Text>
-                  <TouchableOpacity
-                    style={styles.settingsItem}
-                    onPress={() => setDailyNotifications(!dailyNotifications)}
-                  >
+                  <TouchableOpacity style={styles.settingsItem}>
                     <Ionicons name="notifications-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Daily Summary</Text>
                     <View style={styles.settingsToggle}>
-                      <View style={[
-                        styles.settingsToggleTrack,
-                        dailyNotifications ? styles.settingsToggleTrackOn : styles.settingsToggleTrackOff
-                      ]}>
-                        <View style={[
-                          styles.settingsToggleThumb,
-                          dailyNotifications ? styles.settingsToggleThumbOn : styles.settingsToggleThumbOff
-                        ]} />
+                      <View style={[styles.settingsToggleTrack, styles.settingsToggleTrackOn]}>
+                        <View style={[styles.settingsToggleThumb, styles.settingsToggleThumbOn]} />
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -920,10 +677,7 @@ export default function AriaScreen() {
 
                 <View style={styles.settingsSection}>
                   <Text style={styles.settingsSectionTitle}>Data</Text>
-                  <TouchableOpacity
-                    style={styles.settingsItem}
-                    onPress={() => Alert.alert('Export', 'Export functionality coming soon!')}
-                  >
+                  <TouchableOpacity style={styles.settingsItem}>
                     <Ionicons name="cloud-download-outline" size={22} color="#374151" />
                     <Text style={styles.settingsItemText}>Export Conversations</Text>
                     <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
@@ -932,19 +686,6 @@ export default function AriaScreen() {
                     <Ionicons name="trash-outline" size={22} color="#ef4444" />
                     <Text style={[styles.settingsItemText, { color: '#ef4444' }]}>Clear All History</Text>
                   </TouchableOpacity>
-                </View>
-
-                <View style={styles.settingsSection}>
-                  <Text style={styles.settingsSectionTitle}>Account</Text>
-                  <View style={styles.settingsItem}>
-                    <Ionicons name="person-outline" size={22} color="#374151" />
-                    <Text style={styles.settingsItemText}>{user?.email || 'Not logged in'}</Text>
-                  </View>
-                  <View style={styles.settingsItem}>
-                    <Ionicons name="diamond-outline" size={22} color="#374151" />
-                    <Text style={styles.settingsItemText}>Plan</Text>
-                    <Text style={styles.settingsItemValue}>{user?.plan || 'Free'}</Text>
-                  </View>
                 </View>
               </ScrollView>
             )}
@@ -1237,53 +978,6 @@ export default function AriaScreen() {
               </View>
             </View>
           </Modal>
-
-          {/* Voice Selection Modal */}
-          <Modal
-            visible={voiceModalVisible}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setVoiceModalVisible(false)}
-          >
-            <View style={styles.voiceModalOverlay}>
-              <View style={styles.voiceModalContent}>
-                <View style={styles.voiceModalHeader}>
-                  <Text style={styles.voiceModalTitle}>Select Voice</Text>
-                  <TouchableOpacity onPress={() => setVoiceModalVisible(false)}>
-                    <Ionicons name="close" size={24} color="#6b7280" />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView style={styles.voiceList}>
-                  {AVAILABLE_VOICES.map((voice) => (
-                    <TouchableOpacity
-                      key={voice.id}
-                      style={[
-                        styles.voiceOption,
-                        selectedVoice === voice.id && styles.voiceOptionSelected,
-                      ]}
-                      onPress={() => {
-                        setSelectedVoice(voice.id);
-                        setVoiceModalVisible(false);
-                      }}
-                    >
-                      <View style={styles.voiceOptionInfo}>
-                        <Text style={[
-                          styles.voiceOptionName,
-                          selectedVoice === voice.id && styles.voiceOptionNameSelected,
-                        ]}>
-                          {voice.name}
-                        </Text>
-                        <Text style={styles.voiceOptionDesc}>{voice.description}</Text>
-                      </View>
-                      {selectedVoice === voice.id && (
-                        <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            </View>
-          </Modal>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -1395,38 +1089,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   chatMessagesContent: {
-    paddingTop: 20,
-    paddingBottom: 120, // Extra padding at bottom so user can scroll up to see all messages including images
-    flexGrow: 1,
-  },
-  messageRow: {
-    width: '100%',
-    marginBottom: 10,
-  },
-  userMessageContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  assistantMessageContainer: {
-    width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    paddingVertical: 20,
   },
   chatBubble: {
     maxWidth: '82%',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
+    marginBottom: 10,
   },
   userBubble: {
+    alignSelf: 'flex-end',
     backgroundColor: '#1a1a1a',
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
+    alignSelf: 'flex-start',
     backgroundColor: '#f3f4f6',
     borderBottomLeftRadius: 6,
-    marginBottom: 8,
   },
   chatBubbleText: {
     fontSize: 15,
@@ -1462,47 +1142,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  imageLoadingContainer: {
-    width: SCREEN_WIDTH * 0.75,
-    height: SCREEN_WIDTH * 0.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 16,
-  },
-  imageLoadingText: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#6b7280',
-  },
-  imageErrorContainer: {
-    width: SCREEN_WIDTH * 0.75,
-    height: SCREEN_WIDTH * 0.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f9fafb',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderStyle: 'dashed',
-  },
-  imageErrorText: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#6b7280',
-  },
-  imageRetryButton: {
-    marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#eff6ff',
-    borderRadius: 8,
-  },
-  imageRetryText: {
-    fontSize: 12,
-    color: '#3b82f6',
-    fontWeight: '500',
   },
 
   // Bottom Section
@@ -1866,118 +1505,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Daily Tab
-  dailyContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  dailyHeader: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  dailyDateBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fef3c7',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    gap: 8,
-    marginBottom: 12,
-  },
-  dailyDateText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#92400e',
-  },
-  dailyGreeting: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    letterSpacing: -0.5,
-  },
-  dailyStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  dailyStat: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  dailyStatIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dailyStatNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
-  dailyStatLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  dailySection: {
-    marginBottom: 20,
-  },
-  dailySectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
-  },
-  dailySectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  dailyEmptyState: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  dailyEmptyText: {
-    fontSize: 15,
-    color: '#6b7280',
-    marginTop: 12,
-  },
-  dailyEmptySubtext: {
-    fontSize: 13,
-    color: '#9ca3af',
-    marginTop: 4,
-  },
-  dailyAddButton: {
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#eff6ff',
-    borderRadius: 20,
-  },
-  dailyAddButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3b82f6',
-  },
-
   // Settings Tab
   settingsContainer: {
     flex: 1,
@@ -2049,12 +1576,6 @@ const styles = StyleSheet.create({
   },
   settingsToggleThumbOn: {
     alignSelf: 'flex-end',
-  },
-  settingsToggleTrackOff: {
-    backgroundColor: '#e5e7eb',
-  },
-  settingsToggleThumbOff: {
-    alignSelf: 'flex-start',
   },
 
   // Voice Recording Styles
@@ -2194,64 +1715,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#9ca3af',
     fontWeight: '500',
-  },
-
-  // Voice Modal Styles
-  voiceModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  voiceModalContent: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    maxHeight: '70%',
-  },
-  voiceModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  voiceModalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  voiceList: {
-    paddingTop: 8,
-  },
-  voiceOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginVertical: 4,
-  },
-  voiceOptionSelected: {
-    backgroundColor: '#eff6ff',
-  },
-  voiceOptionInfo: {
-    flex: 1,
-  },
-  voiceOptionName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  voiceOptionNameSelected: {
-    color: '#3b82f6',
-  },
-  voiceOptionDesc: {
-    fontSize: 13,
-    color: '#9ca3af',
   },
 });
