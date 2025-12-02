@@ -2769,6 +2769,12 @@
                 modalSelectedDemoType = 'sms';
                 modalToggleSms.classList.add('active');
                 if (modalToggleVoice) modalToggleVoice.classList.remove('active');
+                // Update button text - try multiple methods to ensure it works
+                const btnText = document.getElementById('modal-submit-btn-text');
+                if (btnText) {
+                    btnText.textContent = 'Start SMS Demo';
+                    btnText.innerHTML = 'Start SMS Demo';
+                }
                 if (modalSubmitBtnText) modalSubmitBtnText.innerHTML = 'Start SMS Demo';
                 if (modalSubmitDemoBtn) modalSubmitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
             });
@@ -2894,6 +2900,12 @@
                 selectedDemoType = 'sms';
                 toggleSms.classList.add('active');
                 if (toggleVoice) toggleVoice.classList.remove('active');
+                // Update button text - try multiple methods to ensure it works
+                const btnText = document.getElementById('submit-btn-text');
+                if (btnText) {
+                    btnText.textContent = 'Start SMS Demo';
+                    btnText.innerHTML = 'Start SMS Demo';
+                }
                 if (submitBtnText) submitBtnText.innerHTML = 'Start SMS Demo';
                 if (submitDemoBtn) submitDemoBtn.querySelector('i').className = 'fas fa-comment-dots mr-2';
             });

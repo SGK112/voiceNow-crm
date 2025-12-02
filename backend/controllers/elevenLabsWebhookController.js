@@ -12,6 +12,40 @@ const aiService = new AIService();
 const workflowEngine = new WorkflowEngine();
 
 /**
+ * In-memory store for demo call metadata
+ * Maps conversation_id to customer info for post-call follow-up emails
+ * Entries expire after 1 hour
+ */
+const demoCallMetadataStore = new Map();
+const METADATA_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+
+/**
+ * Register demo call metadata for later use by webhook
+ * Called when a demo call is initiated in publicChatController
+ */
+export const registerDemoCallMetadata = (conversationId, metadata) => {
+  console.log(`📝 Registering demo call metadata for conversation ${conversationId}`);
+  demoCallMetadataStore.set(conversationId, {
+    ...metadata,
+    registeredAt: Date.now()
+  });
+
+  // Clean up expired entries
+  for (const [id, data] of demoCallMetadataStore.entries()) {
+    if (Date.now() - data.registeredAt > METADATA_EXPIRY_MS) {
+      demoCallMetadataStore.delete(id);
+    }
+  }
+};
+
+/**
+ * Get demo call metadata by conversation ID
+ */
+export const getDemoCallMetadata = (conversationId) => {
+  return demoCallMetadataStore.get(conversationId);
+};
+
+/**
  * Handle call completion webhook from ElevenLabs
  * This endpoint automatically populates the CRM with call data
  *
@@ -390,12 +424,26 @@ export const handlePostCallFollowUp = async (req, res) => {
 
     console.log(`📞 Post-call follow-up triggered for conversation ${conversation_id}`);
     console.log(`📝 Transcript:`, transcript);
-    console.log(`📊 Metadata:`, metadata);
+    console.log(`📊 Metadata from webhook:`, metadata);
 
-    // Extract customer info from metadata
-    const customerName = metadata?.customer_name || metadata?.lead_name || 'there';
-    const customerPhone = metadata?.customer_phone || metadata?.lead_phone;
-    let customerEmail = metadata?.customer_email || metadata?.lead_email;
+    // First try to get stored metadata from our demo call store
+    const storedMetadata = getDemoCallMetadata(conversation_id);
+    if (storedMetadata) {
+      console.log(`📦 Found stored demo call metadata:`, storedMetadata);
+    }
+
+    // Merge webhook metadata with stored metadata (stored takes priority for fields we captured)
+    const mergedMetadata = {
+      ...metadata,
+      ...storedMetadata
+    };
+
+    // Extract customer info from merged metadata
+    const customerName = mergedMetadata?.customer_name || mergedMetadata?.lead_name || metadata?.customer_name || metadata?.lead_name || 'there';
+    const customerPhone = mergedMetadata?.customer_phone || mergedMetadata?.lead_phone || metadata?.customer_phone || metadata?.lead_phone;
+    let customerEmail = mergedMetadata?.customer_email || mergedMetadata?.lead_email || metadata?.customer_email || metadata?.lead_email;
+
+    console.log(`📋 Extracted info - Name: ${customerName}, Phone: ${customerPhone}, Email: ${customerEmail || 'Not found in metadata'}`);
 
     // Try to extract email from transcript if not in metadata
     if (!customerEmail && transcript) {

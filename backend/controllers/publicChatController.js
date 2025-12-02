@@ -7,6 +7,7 @@ import callMonitorService from '../services/callMonitorService.js';
 import WorkflowEngine from '../services/workflowEngine.js';
 import Lead from '../models/Lead.js';
 import User from '../models/User.js';
+import { registerDemoCallMetadata } from './elevenLabsWebhookController.js';
 
 const workflowEngine = new WorkflowEngine();
 
@@ -1171,15 +1172,30 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
       });
     }
 
-    // Register call for automatic post-call email monitoring
-    if (callId) {
-      callMonitorService.registerCall(callId, formattedNumber, {
+    // Register call metadata for webhook follow-up (this is the preferred method with webhooks)
+    // The metadata is stored in-memory and retrieved by the webhook when the call ends
+    if (callId || callData?.conversation_id) {
+      const demoMetadata = {
         customer_name: firstName,
         lead_name: name,
         customer_phone: formattedNumber,
         customer_email: email || null,
         trigger_source: 'marketing_page_demo'
-      });
+      };
+
+      // Register with the webhook controller's metadata store (for webhook-based follow-up)
+      // Register both conversation_id and callSid to ensure we catch the webhook
+      if (callData?.conversation_id) {
+        registerDemoCallMetadata(callData.conversation_id, demoMetadata);
+        console.log(`📝 Registered demo metadata for conversation_id: ${callData.conversation_id}`);
+      }
+      if (callData?.callSid && callData.callSid !== callData.conversation_id) {
+        registerDemoCallMetadata(callData.callSid, demoMetadata);
+        console.log(`📝 Registered demo metadata for callSid: ${callData.callSid}`);
+      }
+
+      // Also register with call monitor service (fallback for when webhooks are disabled)
+      callMonitorService.registerCall(callId, formattedNumber, demoMetadata);
       console.log(`✅ Call registered for automatic email follow-up`);
     }
 
