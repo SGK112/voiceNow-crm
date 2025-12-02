@@ -4,7 +4,7 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, NativeModules, Appearance } from 'react-native';
-import * as Brightness from 'expo-brightness';
+// expo-brightness removed - not installed, causes crash
 import * as Haptics from 'expo-haptics';
 import { DeviceEventEmitter } from 'react-native';
 
@@ -136,9 +136,8 @@ class AppSettingsService {
           DeviceEventEmitter.emit('themeChange', value);
           break;
         case 'brightness':
-          if (!this.settings.autoBrightness) {
-            await Brightness.setBrightnessAsync(value as number);
-          }
+          // Brightness control disabled - expo-brightness not installed
+          console.log('Brightness control not available');
           break;
         case 'hapticFeedback':
           if (value) {
@@ -222,12 +221,12 @@ class AppSettingsService {
       // Disable auto brightness when manually setting
       await this.setSetting('autoBrightness', false);
       await this.setSetting('brightness', newBrightness);
-      await Brightness.setBrightnessAsync(newBrightness);
+      // Brightness.setBrightnessAsync removed - expo-brightness not installed
 
       const percent = Math.round(newBrightness * 100);
       return {
         success: true,
-        message: `Brightness set to ${percent}%.`,
+        message: `Brightness setting saved (${percent}%). Note: System brightness control not available.`,
       };
     } catch (error) {
       return { success: false, message: 'Failed to adjust brightness. Need brightness permissions.' };
