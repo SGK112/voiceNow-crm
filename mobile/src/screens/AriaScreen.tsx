@@ -26,8 +26,6 @@ import { useAuth } from '../contexts/AuthContext';
 import AriaResponseModal from '../components/AriaResponseModal';
 import RealtimeOrbButton from '../components/RealtimeOrbButton';
 import LocalSearchResults from '../components/LocalSearchResults';
-import VoiceAgentPicker from '../components/VoiceAgentPicker';
-import voiceAgentService, { VoiceAgent } from '../services/VoiceAgentService';
 import api from '../utils/api';
 
 // Location types (services are optional - may not work in Expo Go)
@@ -237,8 +235,6 @@ export default function AriaScreen() {
   const [selectedVoice, setSelectedVoice] = useState<string>('shimmer');
   const [voiceModalVisible, setVoiceModalVisible] = useState(false);
   const [dailyNotifications, setDailyNotifications] = useState(true);
-  const [voiceAgentPickerVisible, setVoiceAgentPickerVisible] = useState(false);
-  const [selectedVoiceAgent, setSelectedVoiceAgent] = useState<VoiceAgent | null>(null);
 
   // Available voices for OpenAI Realtime API
   const AVAILABLE_VOICES = [
@@ -260,7 +256,6 @@ export default function AriaScreen() {
   useEffect(() => {
     loadConversationsFromStorage();
     initializeLocation();
-    loadVoiceAgents();
 
     // Cleanup: stop session when leaving screen
     return () => {
@@ -269,23 +264,6 @@ export default function AriaScreen() {
       }
     };
   }, []);
-
-  // Load voice agents on mount
-  const loadVoiceAgents = async () => {
-    try {
-      const agents = await voiceAgentService.getVoiceAgents();
-      // Set default agent (ARIA)
-      if (agents.length > 0) {
-        const aria = agents.find(a => a.name === 'ARIA') || agents[0];
-        setSelectedVoiceAgent(aria);
-      } else {
-        setSelectedVoiceAgent(voiceAgentService.getDefaultAgent());
-      }
-    } catch (error) {
-      console.error('Error loading voice agents:', error);
-      setSelectedVoiceAgent(voiceAgentService.getDefaultAgent());
-    }
-  };
 
   // Initialize location services for Aria's awareness
   // Note: Location requires native module - disabled for Expo Go compatibility
@@ -990,59 +968,45 @@ export default function AriaScreen() {
                 <Text style={styles.quickActionTextPrimary}>Get SuperAria</Text>
               </TouchableOpacity>
 
-              {/* Voice button - Toggle on/off with PNG logo */}
+              {/* Voice button - Toggle on/off */}
               <TouchableOpacity
                 style={[
-                  styles.quickActionLarge,
+                  styles.quickAction,
                   isVoiceActive && styles.quickActionActive
                 ]}
                 onPress={handleVoicePress}
                 onLongPress={isVoiceActive ? handleStopSession : undefined}
               >
-                <Image
-                  source={require('../../assets/voicenow-logo.jpg')}
-                  style={[
-                    styles.quickActionLogo,
-                    isVoiceActive && styles.quickActionLogoActive
-                  ]}
-                />
+                <View style={[
+                  styles.quickActionIcon,
+                  isVoiceActive && styles.quickActionIconActive
+                ]}>
+                  <Ionicons
+                    name={isVoiceActive ? "mic" : "mic-outline"}
+                    size={16}
+                    color={isVoiceActive ? "#10b981" : "#6b7280"}
+                  />
+                </View>
                 <Text style={[
-                  styles.quickActionTextLarge,
+                  styles.quickActionText,
                   isVoiceActive && styles.quickActionTextActive
                 ]}>
                   {isVoiceActive ? (conversationState === 'speaking' ? 'Speaking...' : 'Listening') : "Voice"}
                 </Text>
               </TouchableOpacity>
 
-              {/* Voice Agent Picker button */}
+              {/* Generate Image quick action */}
               <TouchableOpacity
-                style={styles.quickActionLarge}
-                onPress={() => setVoiceAgentPickerVisible(true)}
-              >
-                <View style={[styles.quickActionIconLarge, { backgroundColor: selectedVoiceAgent?.gender === 'female' ? '#fce7f3' : '#dbeafe' }]}>
-                  <Ionicons
-                    name={selectedVoiceAgent?.gender === 'female' ? 'woman' : 'man'}
-                    size={20}
-                    color={selectedVoiceAgent?.gender === 'female' ? '#ec4899' : '#3b82f6'}
-                  />
-                </View>
-                <Text style={styles.quickActionTextLarge} numberOfLines={1}>
-                  {selectedVoiceAgent?.name || 'ARIA'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Generate Image quick action - larger */}
-              <TouchableOpacity
-                style={styles.quickActionLarge}
+                style={styles.quickAction}
                 onPress={() => {
                   setTextInput('Help me create an image for ');
                   inputRef.current?.focus();
                 }}
               >
-                <View style={[styles.quickActionIconLarge, { backgroundColor: '#f3e8ff' }]}>
-                  <Ionicons name="sparkles" size={20} color="#8b5cf6" />
+                <View style={styles.quickActionIcon}>
+                  <Ionicons name="sparkles-outline" size={16} color="#8b5cf6" />
                 </View>
-                <Text style={styles.quickActionTextLarge}>Create</Text>
+                <Text style={styles.quickActionText}>Generate</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.quickActionImage} onPress={pickImage}>
@@ -1104,7 +1068,7 @@ export default function AriaScreen() {
                     <Ionicons name="arrow-up" size={16} color="#fff" />
                   ) : (
                     <Image
-                      source={require('../../assets/voicenow-logo.jpg')}
+                      source={require('../../assets/voiceflow-logo.jpg')}
                       style={styles.speakBtnLogo}
                     />
                   )}
@@ -1119,14 +1083,6 @@ export default function AriaScreen() {
             uiAction={currentUIAction}
             onClose={() => setModalVisible(false)}
             onAction={() => setModalVisible(false)}
-          />
-
-          {/* Voice Agent Picker Modal */}
-          <VoiceAgentPicker
-            visible={voiceAgentPickerVisible}
-            onClose={() => setVoiceAgentPickerVisible(false)}
-            onSelect={(agent) => setSelectedVoiceAgent(agent)}
-            selectedAgentId={selectedVoiceAgent?.id}
           />
 
           {/* Hidden Realtime Orb for voice - controls are in the input area */}
@@ -1598,49 +1554,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#3b82f6',
     letterSpacing: -0.2,
-  },
-  // Larger quick action buttons
-  quickActionLarge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 28,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 10,
-    minWidth: 100,
-  },
-  quickActionIconLarge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  quickActionTextLarge: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#374151',
-    letterSpacing: -0.3,
-  },
-  quickActionLogo: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-  },
-  quickActionLogoActive: {
-    borderWidth: 2,
-    borderColor: '#10b981',
   },
   quickActionImage: {
     backgroundColor: '#f3f4f6',
