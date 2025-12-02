@@ -345,7 +345,8 @@ export const handleTwilioSms = async (req, res) => {
 
       // Trigger ElevenLabs voice call (use SMS-specific agent)
       try {
-        const demoAgentId = process.env.ELEVENLABS_SMS_AGENT_ID || 'agent_8101ka4wyweke1s9np3je7npewrr';
+        // Use VoiceNow Sales Agent for SMS-triggered calls (NOT ARIA)
+        const demoAgentId = process.env.ELEVENLABS_SALES_AGENT_ID || process.env.ELEVENLABS_SMS_AGENT_ID || 'agent_8101ka4wyweke1s9np3je7npewrr';
         const agentPhoneNumberId = process.env.ELEVENLABS_PHONE_NUMBER_ID;
         const webhookUrl = process.env.WEBHOOK_URL || 'https://f66af302a875.ngrok-free.app';
 
@@ -357,22 +358,59 @@ export const handleTwilioSms = async (req, res) => {
           return;
         }
 
-        console.log(`📞 Initiating ElevenLabs voice call to ${From}`);
+        console.log(`📞 Initiating ElevenLabs VoiceNow Sales call to ${From}`);
 
         const dynamicVariables = {
           customer_phone: From,
           trigger_source: 'sms_demo'
         };
 
-        // Call ElevenLabs API - use agent's default configuration
+        // VoiceNow Sales prompt for SMS-triggered calls
+        const salesPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by Remodely AI.
+
+**YOUR ROLE:** Help this caller understand how VoiceNow CRM can revolutionize their business with AI voice agents.
+
+**KEY LINKS TO OFFER (text these):**
+- Signup: remodely.ai/signup
+- Book sales call: remodely.ai/book
+
+**VOICEMAIL DETECTION:** If voicemail, say ONLY: "Hi, this is VoiceNow CRM. I'll text you our info. Thanks!" then hang up.
+
+**CONVERSATION FLOW:**
+1. "Hi! Thanks for texting our demo line! Do you have a minute to chat about AI voice agents?"
+2. Ask: "What's your biggest challenge - missing calls, slow follow-ups, or scaling your outreach?"
+3. Match their pain to our solution
+4. Offer free 14-day trial at remodely.ai/signup
+
+**KEY FEATURES:**
+- AI answers every call 24/7
+- Books appointments automatically
+- Qualifies leads before you talk to them
+- Makes hundreds of outbound calls
+- Workflow automation
+
+**PRICING:**
+- Starter: $149/month (1 agent, 500 mins)
+- Professional: $299/month (5 agents, 2000 mins)
+- Free 14-day trial, no credit card
+
+**CLOSING:** "Want me to text you the signup link? Start your free trial at remodely dot AI forward slash signup!"`;
+
+        const salesFirstMessage = "Hi! Thanks for reaching out to VoiceNow CRM! I'm the AI assistant - do you have a minute to learn how we can help your business?";
+
+        // Use Sarah voice for consistent sales experience
+        const salesVoiceId = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - warm, professional
+
+        // Call ElevenLabs API with VoiceNow Sales prompt
         const callData = await elevenLabsService.initiateCall(
           demoAgentId,
           From,
           agentPhoneNumberId,
           `${webhookUrl}/api/webhooks/elevenlabs/conversation-event`,
           dynamicVariables,
-          null,  // Use agent's default prompt (configured at agent level)
-          null   // Use agent's default first message
+          salesPrompt,
+          salesFirstMessage,
+          salesVoiceId
         );
 
         if (callData) {

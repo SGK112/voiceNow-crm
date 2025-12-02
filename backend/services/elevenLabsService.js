@@ -227,11 +227,13 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
       }
       // If no personalizedScript is provided, don't override - let agent use its default config
 
-      // Validate script length (ElevenLabs typically has limits around 3000-5000 chars)
-      const MAX_SCRIPT_LENGTH = 4000;
+      // Validate script length (ElevenLabs supports longer prompts - testing up to 15000 chars)
+      const MAX_SCRIPT_LENGTH = 15000;
       if (personalizedScript && personalizedScript.length > MAX_SCRIPT_LENGTH) {
-        console.warn(`⚠️ Script length (${personalizedScript.length}) exceeds recommended maximum (${MAX_SCRIPT_LENGTH}). Truncating...`);
+        console.warn(`⚠️ Script length (${personalizedScript.length}) exceeds maximum (${MAX_SCRIPT_LENGTH}). Truncating...`);
         personalizedScript = personalizedScript.substring(0, MAX_SCRIPT_LENGTH) + '...';
+      } else if (personalizedScript) {
+        console.log(`📝 Script length: ${personalizedScript.length} chars (within ${MAX_SCRIPT_LENGTH} limit)`);
       }
 
       // Build conversation initiation client data with dynamic variables

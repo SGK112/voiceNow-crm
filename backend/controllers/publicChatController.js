@@ -823,17 +823,20 @@ export const requestVoiceDemo = async (req, res) => {
     }
 
     // Choose agent based on demo type
+    // IMPORTANT: Use ELEVENLABS_SALES_AGENT_ID for the VoiceNow Sales agent (selling VoiceNow CRM)
+    // This is DIFFERENT from ARIA agent (ELEVENLABS_DEMO_AGENT_ID) which is for the mobile app demo
     let agentId, agentType;
     if (demoType === 'sms') {
-      // SMS Demo Agent - sends a text message first
-      agentId = process.env.ELEVENLABS_SMS_DEMO_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
-      agentType = 'SMS Demo';
+      // SMS Demo Agent - sends a text message first, then can trigger call
+      agentId = process.env.ELEVENLABS_SALES_AGENT_ID || process.env.ELEVENLABS_SMS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+      agentType = 'SMS Demo (VoiceNow Sales)';
       console.log(`💬 Initiating SMS demo to ${name} at ${formattedNumber}`);
     } else {
-      // Voice Call Agent - calls directly
-      agentId = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
-      agentType = 'Voice Call';
-      console.log(`📞 Initiating voice call demo to ${name} at ${formattedNumber}`);
+      // Voice Call Agent - calls directly with VoiceNow Sales pitch
+      // Use dedicated sales agent for marketing demo (NOT ARIA)
+      agentId = process.env.ELEVENLABS_SALES_AGENT_ID || process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr383djx5zk7300x';
+      agentType = 'Voice Call (VoiceNow Sales)';
+      console.log(`📞 Initiating VoiceNow sales call to ${name} at ${formattedNumber}`);
     }
 
     // Prepare dynamic variables for agent personalization
