@@ -308,50 +308,50 @@ When scheduling, calculate dates from TODAY (${formattedDate}):
         to_number: phoneNumber
       };
 
-      // Add conversation config overrides if provided
-      if (personalizedScript || personalizedFirstMessage || voiceIdOverride) {
-        outboundRequestBody.conversation_config_override = {
-          agent: {}
-        };
-
-        if (personalizedScript) {
-          outboundRequestBody.conversation_config_override.agent.prompt = {
-            prompt: personalizedScript
-          };
-        }
-
-        if (personalizedFirstMessage) {
-          outboundRequestBody.conversation_config_override.agent.first_message = personalizedFirstMessage;
-        }
-
-        if (voiceIdOverride) {
-          outboundRequestBody.conversation_config_override.tts = {
-            voice_id: voiceIdOverride,
-            model_id: 'eleven_flash_v2'
-          };
-        }
-      }
-
-      // Add dynamic variables if provided
-      if (Object.keys(dynamicVariables).length > 0) {
-        outboundRequestBody.conversation_initiation_client_data = {
-          dynamic_variables: dynamicVariables
-        };
-      }
-
-      // ALWAYS add ARIA's client tools to enable actions during calls
-      // These tools allow the ElevenLabs agent to perform actions via webhooks
+      // Get ARIA's client tools for the call
       const ariaClientTools = this.getAriaClientTools();
-      if (!outboundRequestBody.conversation_config_override) {
-        outboundRequestBody.conversation_config_override = { agent: {} };
-      }
-      outboundRequestBody.conversation_config_override.agent.tools = ariaClientTools;
+
+      // Build conversation_initiation_client_data with proper structure
+      // CRITICAL: conversation_config_override MUST be inside conversation_initiation_client_data
+      // per ElevenLabs API: https://elevenlabs.io/docs/api-reference/twilio/outbound-call
+      outboundRequestBody.conversation_initiation_client_data = {
+        // Dynamic variables for template substitution
+        dynamic_variables: Object.keys(dynamicVariables).length > 0 ? dynamicVariables : {},
+
+        // Conversation config overrides - THIS IS WHERE THE MAGIC HAPPENS
+        conversation_config_override: {
+          agent: {
+            // Override the agent's prompt with ARIA's personalized script
+            ...(personalizedScript && {
+              prompt: {
+                prompt: personalizedScript
+              }
+            }),
+            // Override the first message
+            ...(personalizedFirstMessage && {
+              first_message: personalizedFirstMessage
+            }),
+            // Add ARIA's tools for in-call actions
+            tools: ariaClientTools
+          },
+          // Override TTS settings if specified
+          ...(voiceIdOverride && {
+            tts: {
+              voice_id: voiceIdOverride
+            }
+          })
+        }
+      };
 
       console.log('🔍 Using /convai/twilio/outbound-call endpoint');
-      console.log('  - Tools enabled:', ariaClientTools.length);
       console.log('  - Agent ID:', outboundRequestBody.agent_id);
       console.log('  - Phone Number ID:', outboundRequestBody.agent_phone_number_id);
       console.log('  - To:', outboundRequestBody.to_number);
+      console.log('  - Has custom prompt:', !!personalizedScript);
+      console.log('  - Prompt length:', personalizedScript?.length || 0);
+      console.log('  - Has custom first_message:', !!personalizedFirstMessage);
+      console.log('  - Tools enabled:', ariaClientTools.length);
+      console.log('  - Dynamic variables:', Object.keys(dynamicVariables));
 
       const response = await this.client.post('/convai/twilio/outbound-call', outboundRequestBody);
 
