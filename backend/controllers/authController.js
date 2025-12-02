@@ -274,6 +274,25 @@ export const signup = async (req, res) => {
       console.error('Failed to send welcome email:', err.message);
     });
 
+    // Send NEW SIGNUP notification to sales team (don't wait for it)
+    emailService.sendNewSignupNotification(user.email, user.company).catch(err => {
+      console.error('Failed to send signup notification:', err.message);
+    });
+
+    // Send SMS notification for new signup (don't wait for it)
+    if (twilioClient) {
+      const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID || 'MGa86452ccc15de86eee32177817a09d90';
+      twilioClient.messages.create({
+        body: `🎉 NEW SIGNUP!\n\nEmail: ${user.email}\nCompany: ${user.company || 'Not provided'}\nPlan: Trial\nTime: ${new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' })} MST`,
+        messagingServiceSid: messagingServiceSid,
+        to: '+16028337194' // Sales notification number
+      }).then(() => {
+        console.log('✅ Signup SMS notification sent');
+      }).catch(err => {
+        console.error('Failed to send signup SMS notification:', err.message);
+      });
+    }
+
     res.status(201).json({
       _id: user._id,
       email: user.email,

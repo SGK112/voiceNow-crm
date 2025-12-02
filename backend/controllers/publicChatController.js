@@ -1128,7 +1128,7 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
         // Return success with phone number
         return res.json({
           success: true,
-          message: 'SMS sent successfully!',
+          message: 'We just sent you a text! 💬',
           type: 'sms',
           demoPhoneNumber: demoPhoneNumber
         });
@@ -1474,7 +1474,8 @@ Login to CRM: https://remodely.ai/leads`,
 
     res.json({
       success: true,
-      message: 'Call initiated! You should receive a call from our AI agent shortly.',
+      message: "We're calling you now! 📞",
+      type: 'voice',
       callId: callId
     });
 

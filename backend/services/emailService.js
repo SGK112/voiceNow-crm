@@ -344,6 +344,84 @@ class EmailService {
   }
 
   /**
+   * Send new signup notification to sales team
+   */
+  async sendNewSignupNotification(userEmail, companyName) {
+    const subject = `🎉 NEW SIGNUP: ${companyName || userEmail}`;
+    const signupTime = new Date().toLocaleString('en-US', {
+      timeZone: 'America/Phoenix',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 25px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f0fdf4; padding: 30px; border: 1px solid #22c55e; border-top: none; border-radius: 0 0 10px 10px; }
+          .info-box { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; border-left: 4px solid #22c55e; }
+          .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+          .cta { display: inline-block; background: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 New Customer Signed Up!</h1>
+          </div>
+          <div class="content">
+            <p>Great news! A new customer just created an account on VoiceNow CRM.</p>
+
+            <div class="info-box">
+              <p><strong>📧 Email:</strong> ${userEmail}</p>
+              <p><strong>🏢 Company:</strong> ${companyName || 'Not provided'}</p>
+              <p><strong>📅 Signup Time:</strong> ${signupTime} MST</p>
+              <p><strong>📋 Plan:</strong> Trial (30 minutes)</p>
+            </div>
+
+            <p><strong>Recommended Actions:</strong></p>
+            <ul>
+              <li>Send a personalized welcome message</li>
+              <li>Schedule an onboarding call</li>
+              <li>Monitor their first agent creation</li>
+            </ul>
+
+            <a href="https://voiceflow-crm.onrender.com" class="cta">View Dashboard</a>
+          </div>
+          <div class="footer">
+            <p>VoiceNow CRM - New Signup Notification</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      🎉 NEW SIGNUP!
+
+      Email: ${userEmail}
+      Company: ${companyName || 'Not provided'}
+      Time: ${signupTime} MST
+      Plan: Trial (30 minutes)
+    `;
+
+    return this.sendEmail({
+      to: 'help.remodely@gmail.com',
+      subject,
+      html,
+      text
+    });
+  }
+
+  /**
    * Send password reset email
    */
   async sendPasswordResetEmail(userEmail, resetCode, companyName) {

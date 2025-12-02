@@ -598,12 +598,47 @@ Provide a concise analysis in bullet points.`;
             `
           });
           console.log(`✅ Lead alert email sent to business`);
+
+          // Send SMS notification to sales team
+          try {
+            const callTime = new Date().toLocaleString('en-US', {
+              timeZone: 'America/Phoenix',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            });
+            const smsNotification = `📞 NEW DEMO CALL COMPLETED!\n\nName: ${customerName || 'Unknown'}\nPhone: ${customerPhone || 'Not provided'}\nEmail: ${customerEmail || 'Not provided'}\nTime: ${callTime} MST\n\n${callAnalysis ? '🤖 AI says: ' + callAnalysis.substring(0, 100) + '...' : ''}`;
+
+            await twilioService.sendSMS('+16028337194', smsNotification);
+            console.log(`✅ Post-call SMS notification sent to sales team`);
+          } catch (smsNotifyError) {
+            console.error('Failed to send post-call SMS notification:', smsNotifyError);
+          }
+
         } catch (alertError) {
           console.error('Failed to send lead alert email:', alertError);
         }
 
       } catch (emailError) {
         console.error('Failed to send post-call email:', emailError);
+      }
+    }
+
+    // Send SMS notification even if no email (phone-only leads)
+    if (!customerEmail && customerPhone) {
+      try {
+        const callTime = new Date().toLocaleString('en-US', {
+          timeZone: 'America/Phoenix',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+        const smsNotification = `📞 NEW DEMO CALL!\n\nName: ${customerName || 'Unknown'}\nPhone: ${customerPhone}\nTime: ${callTime} MST\n\n⚠️ No email - phone only lead!`;
+
+        await twilioService.sendSMS('+16028337194', smsNotification);
+        console.log(`✅ Phone-only lead SMS notification sent to sales team`);
+      } catch (smsNotifyError) {
+        console.error('Failed to send phone-only lead SMS notification:', smsNotifyError);
       }
     }
 
