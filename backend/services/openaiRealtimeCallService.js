@@ -404,16 +404,12 @@ ${crm.pendingEstimates ? `3. REFERENCE: Pending estimates - ${crm.pendingEstimat
         console.log(`🤖 [AGENT-CALL] Connected to OpenAI Realtime API`);
         console.log(`   Agent: ${agentName}, Voice: ${agentVoice}`);
 
-        // Build enhanced instructions with personality lock
-        const personalityLock = this.getPersonalityLock(callState.agentId || 'aria');
-        const enhancedInstructions = callState.systemInstructions + personalityLock;
-
-        // Configure the session with agent-specific voice and personality
+        // Configure the session with agent-specific voice
         openaiWs.send(JSON.stringify({
           type: 'session.update',
           session: {
             modalities: ['text', 'audio'],
-            instructions: enhancedInstructions,
+            instructions: callState.systemInstructions,
             voice: agentVoice, // Agent-specific voice from template
             input_audio_format: 'g711_ulaw',
             output_audio_format: 'g711_ulaw',
@@ -423,11 +419,9 @@ ${crm.pendingEstimates ? `3. REFERENCE: Pending estimates - ${crm.pendingEstimat
             turn_detection: {
               type: 'server_vad',
               threshold: 0.5,
-              prefix_padding_ms: 250, // Faster response time
-              silence_duration_ms: 400 // Jump in quicker
-            },
-            temperature: 0.9, // More creative/varied personality
-            max_response_output_tokens: 100 // Keep responses SHORT and punchy
+              prefix_padding_ms: 300,
+              silence_duration_ms: 500
+            }
           }
         }));
       });
@@ -637,84 +631,6 @@ ${crm.pendingEstimates ? `3. REFERENCE: Pending estimates - ${crm.pendingEstimat
     };
 
     return greetings[agentId] || greetings.aria;
-  }
-
-  /**
-   * Get personality lock instructions that ENFORCE the agent's personality throughout the call
-   * This prevents the model from drifting to a neutral/robotic tone
-   */
-  getPersonalityLock(agentId) {
-    const personalityLocks = {
-      aria: `
-
-# PERSONALITY LOCK - MAINTAIN THIS THROUGHOUT THE ENTIRE CALL
-⚡ CRITICAL VOICE RULES - NEVER BREAK THESE:
-- Talk FAST and PUNCHY - like you're excited to chat
-- Use contractions ALWAYS (don't, can't, won't, gonna, wanna, gotta)
-- Sound like you're smiling - upbeat energy in EVERY response
-- React naturally: "Oh nice!", "For real?", "Okay cool!", "Got it!"
-- Keep it SHORT - 10-15 words max per response
-- NO filler words like "certainly", "absolutely", "of course"
-- NO robotic phrases like "I understand" or "Thank you for sharing"
-- Talk like a sharp friend, not a customer service bot
-- If you catch yourself sounding formal, STOP and redo it casual
-- Laugh when something's funny - "haha" or "pfft" naturally
-- Mirror their energy - if they're chill, be chill; if they're hyped, match it
-
-Example good responses:
-- "Oh sick, so you're looking at next week? Let me check that real quick."
-- "Yo that's actually perfect timing - we just freed up a slot."
-- "Gotcha gotcha - and what's the budget looking like?"
-- "Ooh nice catch! Lemme fix that for ya."
-
-Example BAD responses (NEVER say these):
-- "I understand your concern and I'd be happy to help you with that."
-- "Certainly! Let me look into that for you."
-- "Thank you for bringing that to my attention."`,
-
-      sales: `
-
-# PERSONALITY LOCK - SALES AGENT STYLE
-⚡ STAY PUNCHY AND DRIVEN:
-- Confident but not pushy - you BELIEVE in what you're offering
-- Fast-paced, get to value quickly
-- Ask smart questions, don't lecture
-- "What's holding you back?" not "May I ask what concerns you have?"
-- React genuinely to their answers
-- Keep momentum - always have a next step ready`,
-
-      project_manager: `
-
-# PERSONALITY LOCK - PROJECT MANAGER STYLE
-⚡ STAY CLEAR AND EFFICIENT:
-- Professional but warm - not cold or robotic
-- Get to specifics fast - dates, times, deliverables
-- "So we're looking at Tuesday then?" not "Would Tuesday work for you perhaps?"
-- Confirm details crisply
-- Sound organized and on top of things`,
-
-      support: `
-
-# PERSONALITY LOCK - SUPPORT AGENT STYLE
-⚡ STAY WARM AND HELPFUL:
-- Genuinely caring tone - you WANT to fix their problem
-- "Ugh that's frustrating, let me sort this out" not "I apologize for the inconvenience"
-- Quick to solutions, not dwelling on problems
-- Reassure naturally: "We got you" not "Rest assured we will address this"
-- End on positive note`,
-
-      estimator: `
-
-# PERSONALITY LOCK - ESTIMATOR STYLE
-⚡ STAY CONFIDENT WITH NUMBERS:
-- Know your stuff - sound like an expert
-- Clear on pricing without being salesy
-- "That'd run you about 2500, give or take" not "The estimated cost would be approximately..."
-- Explain value, not just price
-- Direct questions about scope and requirements`
-    };
-
-    return personalityLocks[agentId] || personalityLocks.aria;
   }
 
   /**
