@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import contactService, { Contact } from '../services/ContactService';
+import { Contact } from '../services/ContactService';
+import { useContacts } from '../hooks/useContacts';
 
 interface ContactSection {
   title: string;
@@ -22,11 +23,17 @@ interface ContactSection {
 
 export default function ContactsScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [filteredContacts, setFilteredContacts] = useState<ContactSection[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const {
+    contactSections,
+    searchQuery,
+    setSearchQuery,
+    loading,
+    refreshing,
+    onRefresh,
+    fetchContacts,
+    totalContacts,
+    activeContacts,
+  } = useContacts();
 
   useEffect(() => {
     fetchContacts();
@@ -36,99 +43,8 @@ export default function ContactsScreen({ navigation }: any) {
     return unsubscribe;
   }, [navigation]);
 
-  useEffect(() => {
-    filterAndGroupContacts();
-  }, [contacts, searchQuery]);
-
-  const fetchContacts = async (forceRefresh = false) => {
-    try {
-      if (!forceRefresh) setLoading(true);
-      const fetchedContacts = await contactService.getContacts(forceRefresh);
-      setContacts(fetchedContacts);
-    } catch (err: any) {
-      console.error('Error fetching contacts:', err);
-      // Check for 401 unauthorized - don't show alert, just show empty state
-      if (err?.response?.status === 401) {
-        console.log('Unauthorized - user may need to re-login');
-        setContacts([]);
-      } else if (!forceRefresh) {
-        // Only show alert on initial load, not on refresh
-        Alert.alert('Error', 'Failed to fetch contacts. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  const filterAndGroupContacts = () => {
-    let filtered = contacts;
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = contacts.filter(
-        contact =>
-          contact.name.toLowerCase().includes(query) ||
-          contact.phone.includes(query) ||
-          contact.email?.toLowerCase().includes(query) ||
-          contact.company?.toLowerCase().includes(query)
-      );
-    }
-
-    const grouped: { [key: string]: Contact[] } = {};
-    filtered.forEach(contact => {
-      const firstLetter = contact.name.charAt(0).toUpperCase();
-      const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
-      if (!grouped[letter]) grouped[letter] = [];
-      grouped[letter].push(contact);
-    });
-
-    const sections: ContactSection[] = Object.keys(grouped)
-      .sort()
-      .map(letter => ({
-        title: letter,
-        data: grouped[letter].sort((a, b) => a.name.localeCompare(b.name))
-      }));
-
-    setFilteredContacts(sections);
-  };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchContacts(true);
-  }, []);
-
   const handleContactPress = (contact: Contact) => {
     navigation.navigate('ContactDetails', { contactId: contact._id });
-  };
-
-  const handleEditContact = (contact: Contact) => {
-    navigation.navigate('AddEditContact', {
-      mode: 'edit',
-      contactId: contact._id,
-    });
-  };
-
-  const handleDeleteContact = async (contact: Contact) => {
-    Alert.alert(
-      'Delete Contact',
-      `Are you sure you want to delete ${contact.name}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await contactService.deleteContact(contact._id);
-              await fetchContacts(true);
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete contact.');
-            }
-          },
-        },
-      ]
-    );
   };
 
   const handleAddContact = () => {
@@ -220,30 +136,29 @@ export default function ContactsScreen({ navigation }: any) {
       <View style={[styles.emptyIcon, { backgroundColor: colors.backgroundSecondary }]}>
         <Ionicons name="people-outline" size={40} color={colors.textTertiary} />
       </View>
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>No Contacts</Text>
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>No Contacts Found</Text>
       <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-        Add contacts or import from your phone
+        {searchQuery ? 'Try a different search term.' : 'Add contacts or import from your phone'}
       </Text>
-      <TouchableOpacity
-        style={[styles.importBtn, { backgroundColor: colors.primary }]}
-        onPress={handleImportContacts}
-      >
-        <Ionicons name="download-outline" size={18} color="#fff" />
-        <Text style={styles.importBtnText}>Import Contacts</Text>
-      </TouchableOpacity>
+      {!searchQuery && (
+        <TouchableOpacity
+          style={[styles.importBtn, { backgroundColor: colors.primary }]}
+          onPress={handleImportContacts}
+        >
+          <Ionicons name="download-outline" size={18} color="#fff" />
+          <Text style={styles.importBtnText}>Import Contacts</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
-  if (loading && contacts.length === 0) {
+  if (loading && totalContacts === 0) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
-
-  const totalContacts = contacts.length;
-  const activeContacts = contacts.filter(c => c.lastInteraction).length;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -294,9 +209,9 @@ export default function ContactsScreen({ navigation }: any) {
       </View>
 
       {/* Contact List */}
-      {filteredContacts.length > 0 ? (
+      {contactSections.length > 0 ? (
         <SectionList
-          sections={filteredContacts}
+          sections={contactSections}
           keyExtractor={(item) => item._id}
           renderItem={renderContactItem}
           renderSectionHeader={renderSectionHeader}
@@ -324,7 +239,6 @@ export default function ContactsScreen({ navigation }: any) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

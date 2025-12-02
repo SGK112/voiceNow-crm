@@ -37,13 +37,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // Token is invalid or expired - clear the invalid token
-      console.log('401 Unauthorized - Token invalid or expired, clearing stored token');
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      console.log('401 Unauthorized - Token invalid or expired. Logging out.');
       try {
-        await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+        // Use dynamic import to avoid circular dependency
+        const { authService } = await import('./AuthService');
+        // This will clear all user data and the AuthContext will trigger navigation to the login screen
+        await authService.logout();
       } catch (e) {
-        console.error('Failed to clear invalid token:', e);
+        console.error('Failed to handle logout after 401:', e);
       }
     }
     return Promise.reject(error);

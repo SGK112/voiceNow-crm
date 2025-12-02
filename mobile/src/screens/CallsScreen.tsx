@@ -1,41 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import api from '../services/api';
+import { Call } from '../services/CallHistoryService';
+import { useCallHistory } from '../hooks/useCallHistory';
 
 export default function CallsScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const [calls, setCalls] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    fetchCalls();
-  }, []);
-
-  const fetchCalls = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/api/mobile/call-history', {
-        params: { _t: Date.now() },
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-      });
-      if (response.data.success) {
-        setCalls(response.data.calls);
-      }
-    } catch (err) {
-      console.error('Error fetching calls:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { calls, loading, refreshing, onRefresh } = useCallHistory();
 
   const formatDate = (date: string) => {
     const d = new Date(date);
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const renderCall = ({ item }: any) => (
+  const renderCall = ({ item }: { item: Call }) => (
     <View style={[styles.callCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.callHeader}>
         <View style={styles.callInfo}>
@@ -102,7 +81,7 @@ export default function CallsScreen({ navigation }: any) {
         <View style={styles.headerButton} />
       </View>
 
-      {calls.length === 0 ? (
+      {calls.length === 0 && !loading ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
             <Ionicons name="call-outline" size={48} color={colors.textTertiary} />
@@ -116,9 +95,16 @@ export default function CallsScreen({ navigation }: any) {
         <FlatList
           data={calls}
           renderItem={renderCall}
-          keyExtractor={(item: any) => item._id}
+          keyExtractor={(item: Call) => item._id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+            />
+          }
         />
       )}
     </View>

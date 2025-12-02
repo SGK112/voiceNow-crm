@@ -1,34 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import api from '../services/api';
+import { Thread } from '../services/MessageService';
+import { useMessageThreads } from '../hooks/useMessageThreads';
 
 export default function MessagesScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const [threads, setThreads] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    fetchThreads();
-  }, []);
-
-  const fetchThreads = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/api/mobile/sms-threads', {
-        params: { _t: Date.now() },
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-      });
-      if (response.data.success) {
-        setThreads(response.data.threads);
-      }
-    } catch (err) {
-      console.error('Error fetching threads:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { threads, loading, refreshing, onRefresh } = useMessageThreads();
 
   const formatTime = (date: string) => {
     const d = new Date(date);
@@ -48,7 +27,7 @@ export default function MessagesScreen({ navigation }: any) {
     return avatarColors[index];
   };
 
-  const renderThread = ({ item }: any) => (
+  const renderThread = ({ item }: { item: Thread }) => (
     <TouchableOpacity style={[styles.threadCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.threadHeader}>
         <View style={[styles.avatar, { backgroundColor: getAvatarColor(item.contactName) }]}>
@@ -100,7 +79,7 @@ export default function MessagesScreen({ navigation }: any) {
         <View style={styles.headerButton} />
       </View>
 
-      {threads.length === 0 ? (
+      {threads.length === 0 && !loading ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
             <Ionicons name="chatbubbles-outline" size={48} color={colors.textTertiary} />
@@ -114,9 +93,16 @@ export default function MessagesScreen({ navigation }: any) {
         <FlatList
           data={threads}
           renderItem={renderThread}
-          keyExtractor={(item: any) => item.phone}
+          keyExtractor={(item: Thread) => item.phone}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+            />
+          }
         />
       )}
     </View>

@@ -72,9 +72,7 @@ class AuthService {
           await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
           return { token: this.token, user: this.user };
         } else {
-          // Token invalid (401 or other error), clear storage and logout
-          console.log('Token validation failed, logging out');
-          await this.logout();
+          // Token is invalid, the 401 interceptor in api.ts will handle the logout
           return { token: null, user: null };
         }
       }
@@ -286,11 +284,6 @@ class AuthService {
       };
     } catch (error: any) {
       console.error('Get current user error:', error);
-      // If 401, clear the invalid token
-      if (error.response?.status === 401) {
-        console.log('Token invalid, clearing auth data');
-        await this.logout();
-      }
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to get user',

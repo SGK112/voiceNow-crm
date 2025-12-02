@@ -38,7 +38,6 @@ import MoodboardDetailScreen from '../screens/MoodboardDetailScreen';
 
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
-const OnboardingStack = createStackNavigator();
 
 // Auth Navigator (Welcome, Login, Signup, Forgot Password)
 function AuthNavigator() {
@@ -64,17 +63,17 @@ function OnboardingNavigator() {
   const { colors } = useTheme();
 
   return (
-    <OnboardingStack.Navigator
+    <Stack.Navigator
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: colors.background },
       }}
     >
       {/* Start with Aria introduction */}
-      <OnboardingStack.Screen name="AriaOnboarding" component={AriaOnboardingScreen} />
-      <OnboardingStack.Screen name="SyncOnboarding" component={SyncOnboardingScreen} />
-      <OnboardingStack.Screen name="Main" component={MainNavigator} />
-    </OnboardingStack.Navigator>
+      <Stack.Screen name="AriaOnboarding" component={AriaOnboardingScreen} />
+      <Stack.Screen name="SyncOnboarding" component={SyncOnboardingScreen} />
+      <Stack.Screen name="Main" component={MainNavigator} />
+    </Stack.Navigator>
   );
 }
 
@@ -261,12 +260,6 @@ export default function AppNavigator() {
             border: colors.border,
             notification: colors.error,
           },
-          fonts: {
-            regular: { fontFamily: 'System', fontWeight: '400' as const },
-            medium: { fontFamily: 'System', fontWeight: '500' as const },
-            bold: { fontFamily: 'System', fontWeight: '700' as const },
-            heavy: { fontFamily: 'System', fontWeight: '900' as const },
-          },
         }}
       >
         <LoadingScreen />
@@ -286,15 +279,17 @@ export default function AppNavigator() {
           border: colors.border,
           notification: colors.error,
         },
-        fonts: {
-          regular: { fontFamily: 'System', fontWeight: '400' as const },
-          medium: { fontFamily: 'System', fontWeight: '500' as const },
-          bold: { fontFamily: 'System', fontWeight: '700' as const },
-          heavy: { fontFamily: 'System', fontWeight: '900' as const },
-        },
       }}
     >
-      {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
+      {isAuthenticated ? (
+        needsOnboarding ? (
+          <OnboardingNavigator />
+        ) : (
+          <MainNavigator />
+        )
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 }

@@ -803,6 +803,174 @@ export const SHOPIFY_AGENTS = {
       'Follow-up sequences'
     ],
     requiredIntegrations: ['shopify', 'twilio']
+  },
+
+  // ============================================
+  // SHOPIFY STORE MANAGER - COMPREHENSIVE AI AGENT
+  // ============================================
+  'shopify-store-manager': {
+    id: 'shopify-store-manager',
+    name: 'Shopify Store Manager AI',
+    description: 'Comprehensive AI agent that manages your entire Shopify store - inventory, orders, customers, analytics, and more via natural language commands',
+    category: 'shopify-operations',
+    icon: '🏪',
+    tier: 'enterprise',
+    rating: 4.9,
+    downloads: 0,
+    price: { monthly: 299, perAction: 0 },
+    features: [
+      'Natural language store management',
+      'Real-time inventory monitoring',
+      'Order processing & fulfillment',
+      'Customer inquiry handling',
+      'Sales analytics & reports',
+      'Product catalog management',
+      'Low stock alerts',
+      'Bulk operations support',
+      'Collection organization',
+      'Revenue tracking & insights'
+    ],
+    requiredIntegrations: ['shopify'],
+    optionalIntegrations: ['slack', 'twilio', 'email'],
+
+    // Setup questions for configuration
+    setupQuestions: [
+      {
+        id: 'storeName',
+        type: 'text',
+        label: 'Store Name',
+        placeholder: 'My Awesome Store',
+        required: true
+      },
+      {
+        id: 'managerRole',
+        type: 'select',
+        label: 'Primary Management Focus',
+        required: true,
+        options: [
+          { value: 'full-operations', label: 'Full Store Operations' },
+          { value: 'inventory', label: 'Inventory Management' },
+          { value: 'orders', label: 'Order Processing' },
+          { value: 'customer-service', label: 'Customer Service' },
+          { value: 'analytics', label: 'Analytics & Reporting' }
+        ]
+      },
+      {
+        id: 'lowStockThreshold',
+        type: 'number',
+        label: 'Low Stock Alert Threshold',
+        placeholder: '10',
+        default: 10
+      },
+      {
+        id: 'alertChannel',
+        type: 'select',
+        label: 'Where to send alerts?',
+        options: [
+          { value: 'dashboard', label: 'App Dashboard Only' },
+          { value: 'sms', label: 'SMS Notifications' },
+          { value: 'email', label: 'Email Notifications' },
+          { value: 'slack', label: 'Slack Channel' }
+        ]
+      },
+      {
+        id: 'businessHours',
+        type: 'text',
+        label: 'Business Hours (e.g., Mon-Fri 9AM-5PM)',
+        placeholder: 'Mon-Fri 9AM-5PM PST'
+      }
+    ],
+
+    // Capabilities this agent has
+    capabilities: [
+      'list_products',
+      'search_products',
+      'get_product_details',
+      'check_inventory',
+      'list_orders',
+      'get_order_details',
+      'track_order',
+      'list_customers',
+      'search_customers',
+      'get_customer_history',
+      'generate_sales_report',
+      'get_store_analytics',
+      'check_low_stock',
+      'get_top_products',
+      'get_recent_orders'
+    ],
+
+    // System prompt generator
+    generatePrompt: (config, userInfo) => {
+      const roleFocus = {
+        'full-operations': 'You handle ALL aspects of store management including inventory, orders, customers, and analytics.',
+        'inventory': 'Your primary focus is inventory management - tracking stock levels, alerting on low inventory, and monitoring product availability.',
+        'orders': 'Your primary focus is order management - processing orders, tracking fulfillment, and handling order inquiries.',
+        'customer-service': 'Your primary focus is customer service - answering customer questions, looking up orders, and resolving issues.',
+        'analytics': 'Your primary focus is analytics and reporting - providing sales insights, revenue tracking, and performance metrics.'
+      };
+
+      return `You are an AI Store Manager for "${config.storeName || 'the Shopify store'}".
+
+ROLE: ${roleFocus[config.managerRole] || roleFocus['full-operations']}
+
+CAPABILITIES:
+You have direct access to the Shopify Admin API and can:
+
+📦 PRODUCTS & INVENTORY
+- List all products with prices, variants, and stock levels
+- Search products by name, SKU, or description
+- Check inventory levels for any product
+- Identify low stock items (threshold: ${config.lowStockThreshold || 10} units)
+- View product collections and categories
+
+🛒 ORDERS
+- List recent orders with status and totals
+- Look up specific orders by order number
+- Track shipments and provide tracking info
+- View order history and fulfillment status
+- Calculate daily/weekly/monthly order totals
+
+👥 CUSTOMERS
+- Search customers by email or phone
+- View customer order history
+- See customer lifetime value
+- Look up customer details
+
+📊 ANALYTICS
+- Generate sales reports (daily, weekly, monthly)
+- Show top-selling products
+- Revenue tracking and trends
+- Order volume statistics
+
+RESPONSE STYLE:
+- Be concise and actionable
+- Use bullet points for lists
+- Include relevant numbers and metrics
+- Proactively suggest insights when appropriate
+- Format currency as USD
+
+ALERT SETTINGS:
+- Low stock threshold: ${config.lowStockThreshold || 10} units
+- Alert channel: ${config.alertChannel || 'dashboard'}
+- Business hours: ${config.businessHours || '24/7'}
+
+When users ask questions, use your Shopify API access to provide real, accurate data from their store.`;
+    },
+
+    // Example commands users can give
+    exampleCommands: [
+      'List my Shopify products',
+      'Show me today\'s orders',
+      'Check inventory for [product name]',
+      'What are my top selling products?',
+      'Find customer by email [email]',
+      'Generate a sales report for this week',
+      'Show low stock items',
+      'Look up order #1234',
+      'How much revenue did we make today?',
+      'What products need restocking?'
+    ]
   }
 };
 

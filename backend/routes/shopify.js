@@ -9,6 +9,7 @@ import shopifySyncService from '../services/shopifySyncService.js';
 import { getOAuthRedirectUri } from '../utils/oauthConfig.js';
 import { protect as auth } from '../middleware/auth.js';
 import OAuthState from '../models/OAuthState.js';
+import * as storeManagerController from '../controllers/shopifyStoreManagerController.js';
 
 const router = express.Router();
 
@@ -455,5 +456,69 @@ router.post('/sync/customers', auth, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// ============================================
+// STORE MANAGER AI AGENT
+// ============================================
+
+/**
+ * GET /api/shopify/store-manager/template
+ * Get the store manager agent template configuration
+ */
+router.get('/store-manager/template', auth, storeManagerController.getAgentTemplate);
+
+/**
+ * POST /api/shopify/store-manager/command
+ * Execute a natural language command
+ */
+router.post('/store-manager/command', auth, storeManagerController.executeCommand);
+
+/**
+ * POST /api/shopify/store-manager/chat
+ * Chat with the store manager AI
+ */
+router.post('/store-manager/chat', auth, storeManagerController.chatWithManager);
+
+/**
+ * GET /api/shopify/store-manager/overview
+ * Get store overview/dashboard data
+ */
+router.get('/store-manager/overview', auth, storeManagerController.getStoreOverview);
+
+/**
+ * GET /api/shopify/store-manager/sales-report
+ * Get sales report for date range
+ */
+router.get('/store-manager/sales-report', auth, storeManagerController.getSalesReport);
+
+/**
+ * GET /api/shopify/store-manager/today
+ * Get today's sales summary
+ */
+router.get('/store-manager/today', auth, storeManagerController.getTodaysSales);
+
+/**
+ * GET /api/shopify/store-manager/top-products
+ * Get top selling products
+ */
+router.get('/store-manager/top-products', auth, storeManagerController.getTopProducts);
+
+/**
+ * GET /api/shopify/store-manager/low-stock
+ * Get low stock products
+ */
+router.get('/store-manager/low-stock', auth, storeManagerController.getLowStock);
+
+/**
+ * GET /api/shopify/store-manager/recent-orders
+ * Get recent orders
+ */
+router.get('/store-manager/recent-orders', auth, storeManagerController.getRecentOrders);
+
+/**
+ * GET /api/shopify/store-manager/collections
+ * Get all collections
+ */
+router.get('/store-manager/collections', auth, storeManagerController.getCollections);
 
 export default router;

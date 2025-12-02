@@ -70,7 +70,7 @@ const CACHE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
 class ContactService {
   // Get all contacts with caching
-  async getContacts(forceRefresh = false): Promise<Contact[]> {
+  async getContacts(forceRefresh = false): Promise<{ data: Contact[] | null; error: string | null; }> {
     try {
       // Check cache first if not forcing refresh
       if (!forceRefresh) {
@@ -78,21 +78,17 @@ class ContactService {
         if (cachedContacts) {
           // Fetch fresh data in background
           this.fetchAndCacheContacts().catch(console.error);
-          return cachedContacts;
+          return { data: cachedContacts, error: null };
         }
       }
 
-      return await this.fetchAndCacheContacts();
+      const contacts = await this.fetchAndCacheContacts();
+      return { data: contacts, error: null };
     } catch (error: any) {
-      // Silently handle 401 errors (user not authenticated)
-      if (error?.response?.status === 401) {
-        console.log('Contacts: User not authenticated');
-        return [];
-      }
       console.warn('Error getting contacts:', error?.message || error);
       // Return cached data as fallback
       const cached = await this.getCachedContacts();
-      return cached || [];
+      return { data: cached, error: error?.message || 'Failed to fetch contacts' };
     }
   }
 
@@ -217,15 +213,18 @@ class ContactService {
   }
 
   // Search contacts
-  async searchContacts(query: string): Promise<Contact[]> {
+  async searchContacts(query: string): Promise<{ data: Contact[] | null; error: string | null; }> {
     try {
       const response = await api.get<ContactsResponse>(
         `/api/mobile/contacts/search/${encodeURIComponent(query)}`
       );
-      return response.data.success ? response.data.contacts : [];
-    } catch (error) {
+      if (response.data.success) {
+        return { data: response.data.contacts, error: null };
+      }
+      return { data: [], error: null };
+    } catch (error: any) {
       console.error('Error searching contacts:', error);
-      return [];
+      return { data: [], error: error.message || 'Failed to search contacts' };
     }
   }
 

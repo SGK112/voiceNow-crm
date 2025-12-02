@@ -508,6 +508,412 @@ class ShopifySyncService {
       }
     };
   }
+
+  // ============================================
+  // STORE MANAGER - ANALYTICS & REPORTS
+  // ============================================
+
+  /**
+   * Get store overview/dashboard data
+   */
+  async getStoreOverview(userId) {
+    const { shop, accessToken, integration } = await this.getClientForUser(userId);
+
+    // Get shop info
+    const shopData = await this.makeApiRequest(shop, accessToken, '/shop.json');
+
+    // Get recent orders (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const ordersParams = new URLSearchParams({
+      status: 'any',
+      created_at_min: thirtyDaysAgo.toISOString(),
+      limit: '250'
+    });
+    const ordersData = await this.makeApiRequest(shop, accessToken, `/orders.json?${ordersParams}`);
+
+    // Get product count
+    const productsCount = await this.makeApiRequest(shop, accessToken, '/products/count.json');
+
+    // Get customer count
+    const customersCount = await this.makeApiRequest(shop, accessToken, '/customers/count.json');
+
+    // Calculate metrics
+    const orders = ordersData.orders || [];
+    const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
+    const paidOrders = orders.filter(o => o.financial_status === 'paid');
+    const pendingOrders = orders.filter(o => o.fulfillment_status === null && o.financial_status === 'paid');
+
+    integration.lastUsed = new Date();
+    integration.usageCount += 1;
+    await integration.save();
+
+    return {
+      success: true,
+      store: {
+        name: shopData.shop?.name,
+        domain: shopData.shop?.domain,
+        currency: shopData.shop?.currency,
+        timezone: shopData.shop?.timezone
+      },
+      metrics: {
+        totalProducts: productsCount.count || 0,
+        totalCustomers: customersCount.count || 0,
+        ordersLast30Days: orders.length,
+        revenueLast30Days: totalRevenue.toFixed(2),
+        paidOrders: paidOrders.length,
+        pendingFulfillment: pendingOrders.length,
+        averageOrderValue: orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0.00'
+      }
+    };
+  }
+
+  /**
+   * Get sales report for a date range
+   */
+  async getSalesReport(userId, options = {}) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+
+    // Default to last 7 days
+    const endDate = options.endDate ? new Date(options.endDate) : new Date();
+    const startDate = options.startDate ? new Date(options.startDate) : new Date(endDate - 7 * 24 * 60 * 60 * 1000);
+
+    const params = new URLSearchParams({
+      status: 'any',
+      created_at_min: startDate.toISOString(),
+      created_at_max: endDate.toISOString(),
+      limit: '250'
+    });
+
+    const data = await this.makeApiRequest(shop, accessToken, `/orders.json?${params}`);
+    const orders = data.orders || [];
+
+    // Calculate daily breakdown
+    const dailyStats = {};
+    orders.forEach(order => {
+      const date = order.created_at.split('T')[0];
+      if (!dailyStats[date]) {
+        dailyStats[date] = { orders: 0, revenue: 0, items: 0 };
+      }
+      dailyStats[date].orders += 1;
+      dailyStats[date].revenue += parseFloat(order.total_price || 0);
+      dailyStats[date].items += order.line_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+    });
+
+    // Calculate totals
+    const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
+    const totalItems = orders.reduce((sum, o) => sum + (o.line_items?.reduce((s, i) => s + i.quantity, 0) || 0), 0);
+
+    return {
+      success: true,
+      period: {
+        start: startDate.toISOString().split('T')[0],
+        end: endDate.toISOString().split('T')[0]
+      },
+      summary: {
+        totalOrders: orders.length,
+        totalRevenue: totalRevenue.toFixed(2),
+        totalItems: totalItems,
+        averageOrderValue: orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0.00'
+      },
+      dailyBreakdown: Object.entries(dailyStats)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, stats]) => ({
+          date,
+          orders: stats.orders,
+          revenue: stats.revenue.toFixed(2),
+          items: stats.items
+        }))
+    };
+  }
+
+  /**
+   * Get top selling products
+   */
+  async getTopProducts(userId, options = {}) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+    const limit = options.limit || 10;
+    const days = options.days || 30;
+
+    // Get recent orders
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const params = new URLSearchParams({
+      status: 'any',
+      financial_status: 'paid',
+      created_at_min: startDate.toISOString(),
+      limit: '250'
+    });
+
+    const data = await this.makeApiRequest(shop, accessToken, `/orders.json?${params}`);
+    const orders = data.orders || [];
+
+    // Count product sales
+    const productSales = {};
+    orders.forEach(order => {
+      order.line_items?.forEach(item => {
+        const key = item.product_id;
+        if (!productSales[key]) {
+          productSales[key] = {
+            productId: item.product_id,
+            title: item.title,
+            variant: item.variant_title,
+            quantity: 0,
+            revenue: 0
+          };
+        }
+        productSales[key].quantity += item.quantity;
+        productSales[key].revenue += parseFloat(item.price) * item.quantity;
+      });
+    });
+
+    // Sort by quantity and take top N
+    const topProducts = Object.values(productSales)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, limit)
+      .map((p, i) => ({
+        rank: i + 1,
+        ...p,
+        revenue: p.revenue.toFixed(2)
+      }));
+
+    return {
+      success: true,
+      period: `Last ${days} days`,
+      topProducts
+    };
+  }
+
+  /**
+   * Get low stock products
+   */
+  async getLowStockProducts(userId, threshold = 10) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+
+    // Get all products with inventory
+    const data = await this.makeApiRequest(shop, accessToken, '/products.json?limit=250');
+    const products = data.products || [];
+
+    const lowStockItems = [];
+
+    products.forEach(product => {
+      product.variants?.forEach(variant => {
+        if (variant.inventory_quantity !== null && variant.inventory_quantity <= threshold) {
+          lowStockItems.push({
+            productId: product.id,
+            variantId: variant.id,
+            title: product.title,
+            variant: variant.title !== 'Default Title' ? variant.title : null,
+            sku: variant.sku,
+            currentStock: variant.inventory_quantity,
+            price: variant.price,
+            status: variant.inventory_quantity === 0 ? 'OUT_OF_STOCK' : 'LOW_STOCK'
+          });
+        }
+      });
+    });
+
+    // Sort by stock level (lowest first)
+    lowStockItems.sort((a, b) => a.currentStock - b.currentStock);
+
+    return {
+      success: true,
+      threshold,
+      lowStockCount: lowStockItems.length,
+      outOfStockCount: lowStockItems.filter(i => i.currentStock === 0).length,
+      items: lowStockItems
+    };
+  }
+
+  /**
+   * Get recent orders with details
+   */
+  async getRecentOrders(userId, limit = 10) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+
+    const params = new URLSearchParams({
+      status: 'any',
+      limit: limit.toString()
+    });
+
+    const data = await this.makeApiRequest(shop, accessToken, `/orders.json?${params}`);
+    const orders = data.orders || [];
+
+    return {
+      success: true,
+      orders: orders.map(order => ({
+        id: order.id,
+        orderNumber: order.name,
+        createdAt: order.created_at,
+        customer: order.customer ? `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() : 'Guest',
+        email: order.email,
+        total: order.total_price,
+        currency: order.currency,
+        financialStatus: order.financial_status,
+        fulfillmentStatus: order.fulfillment_status || 'unfulfilled',
+        itemCount: order.line_items?.reduce((sum, i) => sum + i.quantity, 0) || 0,
+        status: this.formatOrderStatus(order)
+      }))
+    };
+  }
+
+  /**
+   * Get today's sales summary
+   */
+  async getTodaysSales(userId) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const params = new URLSearchParams({
+      status: 'any',
+      created_at_min: today.toISOString(),
+      limit: '250'
+    });
+
+    const data = await this.makeApiRequest(shop, accessToken, `/orders.json?${params}`);
+    const orders = data.orders || [];
+
+    const paidOrders = orders.filter(o => o.financial_status === 'paid');
+    const totalRevenue = paidOrders.reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
+
+    return {
+      success: true,
+      date: today.toISOString().split('T')[0],
+      summary: {
+        totalOrders: orders.length,
+        paidOrders: paidOrders.length,
+        pendingOrders: orders.filter(o => o.financial_status === 'pending').length,
+        revenue: totalRevenue.toFixed(2),
+        averageOrderValue: paidOrders.length > 0 ? (totalRevenue / paidOrders.length).toFixed(2) : '0.00'
+      },
+      recentOrders: orders.slice(0, 5).map(o => ({
+        orderNumber: o.name,
+        total: o.total_price,
+        status: this.formatOrderStatus(o),
+        time: new Date(o.created_at).toLocaleTimeString()
+      }))
+    };
+  }
+
+  /**
+   * Get all collections
+   */
+  async getCollections(userId) {
+    const { shop, accessToken } = await this.getClientForUser(userId);
+
+    // Get custom collections
+    const customData = await this.makeApiRequest(shop, accessToken, '/custom_collections.json?limit=250');
+
+    // Get smart collections
+    const smartData = await this.makeApiRequest(shop, accessToken, '/smart_collections.json?limit=250');
+
+    const collections = [
+      ...(customData.custom_collections || []).map(c => ({ ...c, type: 'custom' })),
+      ...(smartData.smart_collections || []).map(c => ({ ...c, type: 'smart' }))
+    ];
+
+    return {
+      success: true,
+      collections: collections.map(c => ({
+        id: c.id,
+        title: c.title,
+        handle: c.handle,
+        type: c.type,
+        productsCount: c.products_count,
+        publishedAt: c.published_at
+      }))
+    };
+  }
+
+  /**
+   * Execute a store manager command (natural language processing)
+   */
+  async executeCommand(userId, command) {
+    const cmd = command.toLowerCase();
+
+    try {
+      // Products
+      if (cmd.includes('list') && cmd.includes('product')) {
+        return await this.getProducts(userId, { limit: 20 });
+      }
+      if (cmd.includes('search') && cmd.includes('product')) {
+        const match = cmd.match(/search\s+(?:for\s+)?(?:product[s]?\s+)?["']?([^"']+)["']?/i);
+        if (match) return await this.searchProducts(userId, match[1].trim());
+      }
+      if (cmd.includes('low stock') || cmd.includes('restock') || cmd.includes('inventory alert')) {
+        const thresholdMatch = cmd.match(/(\d+)/);
+        const threshold = thresholdMatch ? parseInt(thresholdMatch[1]) : 10;
+        return await this.getLowStockProducts(userId, threshold);
+      }
+
+      // Orders
+      if (cmd.includes('recent') && cmd.includes('order')) {
+        const limitMatch = cmd.match(/(\d+)/);
+        return await this.getRecentOrders(userId, limitMatch ? parseInt(limitMatch[1]) : 10);
+      }
+      if (cmd.includes('today') && (cmd.includes('sale') || cmd.includes('order') || cmd.includes('revenue'))) {
+        return await this.getTodaysSales(userId);
+      }
+      if (cmd.includes('order') && cmd.includes('#')) {
+        const orderMatch = cmd.match(/#?(\d+)/);
+        if (orderMatch) return await this.getOrderByNumber(userId, orderMatch[1]);
+      }
+
+      // Analytics
+      if (cmd.includes('top') && cmd.includes('product')) {
+        const limitMatch = cmd.match(/top\s+(\d+)/i);
+        return await this.getTopProducts(userId, { limit: limitMatch ? parseInt(limitMatch[1]) : 10 });
+      }
+      if (cmd.includes('sales report') || cmd.includes('revenue report')) {
+        return await this.getSalesReport(userId);
+      }
+      if (cmd.includes('overview') || cmd.includes('dashboard') || cmd.includes('store stats')) {
+        return await this.getStoreOverview(userId);
+      }
+
+      // Customers
+      if (cmd.includes('customer') && (cmd.includes('search') || cmd.includes('find'))) {
+        const emailMatch = cmd.match(/[\w.-]+@[\w.-]+\.\w+/);
+        if (emailMatch) return await this.searchCustomer(userId, emailMatch[0]);
+      }
+      if (cmd.includes('list') && cmd.includes('customer')) {
+        return await this.getCustomers(userId, { limit: 20 });
+      }
+
+      // Collections
+      if (cmd.includes('collection')) {
+        return await this.getCollections(userId);
+      }
+
+      // Default - return overview
+      return {
+        success: true,
+        message: 'Command not recognized. Try: "list products", "show today\'s sales", "low stock items", "recent orders", "top products", "sales report"',
+        availableCommands: [
+          'list products',
+          'search products [name]',
+          'low stock items',
+          'recent orders',
+          'today\'s sales',
+          'top 10 products',
+          'sales report',
+          'store overview',
+          'list customers',
+          'find customer [email]',
+          'order #[number]',
+          'collections'
+        ]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
 
 export default new ShopifySyncService();
