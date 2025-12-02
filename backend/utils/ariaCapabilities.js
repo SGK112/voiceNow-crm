@@ -2348,6 +2348,70 @@ export class AriaCapabilities {
     }
   }
 
+  // Helper: Parse natural language date/time (e.g., "tomorrow at 2pm")
+  parseNaturalDateTime(dateStr, timeStr) {
+    const now = new Date();
+    let result = new Date(now);
+
+    // Handle common date phrases
+    const dateLower = (dateStr || '').toLowerCase();
+    if (dateLower.includes('today')) {
+      // Keep today's date
+    } else if (dateLower.includes('tomorrow')) {
+      result.setDate(result.getDate() + 1);
+    } else if (dateLower.includes('next week')) {
+      result.setDate(result.getDate() + 7);
+    } else if (dateLower.includes('monday')) {
+      const dayDiff = (1 - now.getDay() + 7) % 7 || 7;
+      result.setDate(result.getDate() + dayDiff);
+    } else if (dateLower.includes('tuesday')) {
+      const dayDiff = (2 - now.getDay() + 7) % 7 || 7;
+      result.setDate(result.getDate() + dayDiff);
+    } else if (dateLower.includes('wednesday')) {
+      const dayDiff = (3 - now.getDay() + 7) % 7 || 7;
+      result.setDate(result.getDate() + dayDiff);
+    } else if (dateLower.includes('thursday')) {
+      const dayDiff = (4 - now.getDay() + 7) % 7 || 7;
+      result.setDate(result.getDate() + dayDiff);
+    } else if (dateLower.includes('friday')) {
+      const dayDiff = (5 - now.getDay() + 7) % 7 || 7;
+      result.setDate(result.getDate() + dayDiff);
+    } else {
+      // Try to parse as a date string
+      const parsedDate = new Date(dateStr);
+      if (!isNaN(parsedDate)) {
+        result = parsedDate;
+      }
+    }
+
+    // Parse time
+    const timeToUse = timeStr || dateStr || '';
+    const timeLower = timeToUse.toLowerCase();
+    const timeMatch = timeLower.match(/(\d+)(?::(\d+))?\s*(am|pm)?/i);
+
+    if (timeMatch) {
+      let hour = parseInt(timeMatch[1], 10);
+      const minute = parseInt(timeMatch[2] || '0', 10);
+      const meridiem = timeMatch[3]?.toLowerCase();
+
+      if (meridiem === 'pm' && hour !== 12) hour += 12;
+      if (meridiem === 'am' && hour === 12) hour = 0;
+
+      result.setHours(hour, minute, 0, 0);
+    } else if (timeLower.includes('morning')) {
+      result.setHours(9, 0, 0, 0);
+    } else if (timeLower.includes('afternoon')) {
+      result.setHours(14, 0, 0, 0);
+    } else if (timeLower.includes('evening')) {
+      result.setHours(18, 0, 0, 0);
+    } else {
+      // Default to 10 AM
+      result.setHours(10, 0, 0, 0);
+    }
+
+    return result;
+  }
+
   // Helper: Normalize phone number to E.164 format
   normalizePhoneNumber(phone) {
     if (!phone) return null;
@@ -3721,13 +3785,67 @@ END:VCALENDAR`;
         throw new Error('Required models not available');
       }
 
-      console.log(`📅 [APPOINTMENT] Booking for: ${params.contactIdentifier}`);
+      // Handle parameter variations from different sources
+      // ElevenLabs webhook sends: title, date, time, attendee_email
+      // Direct ARIA calls send: contactIdentifier, title, startTime
+      const contactIdentifier = params.contactIdentifier || params.attendee_email || params.attendee_name || params.contact_name || '';
 
-      // Find contact
+      console.log(`📅 [APPOINTMENT] Booking appointment`);
+      console.log(`   Params received:`, JSON.stringify(params, null, 2));
+      console.log(`   Contact identifier: "${contactIdentifier}"`);
+
+      // Ensure contactIdentifier is a string and not empty
+      if (!contactIdentifier || typeof contactIdentifier !== 'string' || contactIdentifier.trim() === '') {
+        // If no contact identifier, create a general appointment without contact lookup
+        console.log(`   ⚠️ No contact identifier provided, creating standalone appointment`);
+
+        // Parse date and time from params
+        let startTime;
+        if (params.startTime) {
+          startTime = new Date(params.startTime);
+        } else if (params.date) {
+          // Parse natural language date/time
+          startTime = this.parseNaturalDateTime(params.date, params.time);
+        } else {
+          startTime = new Date();
+          startTime.setHours(startTime.getHours() + 1);
+        }
+
+        const duration = params.duration_minutes || params.duration || 30;
+        const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        const appointment = await this.models.Appointment.create({
+          userId: this.userId || '000000000000000000000000',
+          title: params.title || 'Appointment',
+          description: params.notes || params.description || `Scheduled via ARIA`,
+          type: params.type || 'meeting',
+          startTime,
+          endTime,
+          location: params.location,
+          status: 'scheduled',
+          aiScheduled: true,
+          reminderSent: false
+        });
+
+        return {
+          success: true,
+          appointment: {
+            id: appointment._id,
+            title: appointment.title,
+            startTime: appointment.startTime,
+            endTime: appointment.endTime
+          },
+          message: `Appointment "${params.title}" scheduled for ${startTime.toLocaleString()}`
+        };
+      }
+
+      // Find contact with validated string
+      const searchTerm = String(contactIdentifier).trim();
       const contact = await this.models.Contact.findOne({
         $or: [
-          { name: { $regex: params.contactIdentifier, $options: 'i' } },
-          { phone: { $regex: params.contactIdentifier, $options: 'i' } }
+          { name: { $regex: searchTerm, $options: 'i' } },
+          { phone: { $regex: searchTerm.replace(/\D/g, ''), $options: 'i' } },
+          { email: { $regex: searchTerm, $options: 'i' } }
         ],
         isDeleted: false
       });
