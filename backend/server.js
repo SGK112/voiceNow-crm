@@ -129,6 +129,8 @@ import moodboardRoutes from './routes/moodboards.js';
 import appSettingsRoutes from './routes/appSettings.js';
 import ariaRealtimeCallRoutes from './routes/ariaRealtimeCall.js';
 import { setupAriaRealtimeWebSocket } from './services/ariaRealtimeWebSocketSetup.js';
+import browserAgentRoutes from './routes/browserAgent.js';
+import remodelyRoutes from './routes/remodely.js';
 import { startOverageBillingCron } from './jobs/monthlyOverageBilling.js';
 
 // Aria Background Service - auto-starts on import
@@ -288,6 +290,8 @@ app.use('/api/fleet', fleetRoutes); // Fleet management for people, places, and 
 app.use('/api/moodboards', moodboardRoutes); // Design moodboards with sharing and collaboration
 app.use('/api/app-settings', appSettingsRoutes); // Voice-controlled app settings via ARIA
 app.use('/api/aria-realtime', ariaRealtimeCallRoutes); // ARIA Realtime calls with OpenAI + Twilio
+app.use('/api/browser-agent', browserAgentRoutes); // Browser automation via browser-use AI agent
+app.use('/api/remodely', remodelyRoutes); // REMODELY.AI mobile app API proxy
 
 // Error webhook receiver endpoint for Claude Code error monitoring
 app.post('/', (req, res) => {
