@@ -22,7 +22,19 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
-import RNBluetoothClassic, { BluetoothDevice } from 'react-native-bluetooth-classic';
+// Bluetooth module - optional, may not be available in all builds
+let RNBluetoothClassic: any = null;
+try {
+  RNBluetoothClassic = require('react-native-bluetooth-classic').default;
+} catch (e) {
+  console.log('Bluetooth module not available');
+}
+
+interface BluetoothDevice {
+  id: string;
+  name: string;
+  address: string;
+}
 
 const VOICES = [
   { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', accent: 'British' },
@@ -69,6 +81,10 @@ export default function ProfileScreen({ navigation }: any) {
   }, []);
 
   const initBluetooth = async () => {
+    if (!RNBluetoothClassic) {
+      console.log('Bluetooth not available in this build');
+      return;
+    }
     try {
       const available = await RNBluetoothClassic.isBluetoothAvailable();
       if (available) {
@@ -103,6 +119,10 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   const loadPairedDevices = async () => {
+    if (!RNBluetoothClassic) {
+      console.log('Bluetooth not available');
+      return;
+    }
     try {
       const paired = await RNBluetoothClassic.getBondedDevices();
       setPairedDevices(paired);
@@ -121,6 +141,10 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   const enableBluetooth = async () => {
+    if (!RNBluetoothClassic) {
+      showError('Bluetooth not available in this build');
+      return;
+    }
     try {
       if (Platform.OS === 'android') {
         await RNBluetoothClassic.requestBluetoothEnabled();
@@ -142,6 +166,11 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   const scanForDevices = async () => {
+    if (!RNBluetoothClassic) {
+      showError('Bluetooth not available in this build');
+      return;
+    }
+
     const hasPermission = await requestBluetoothPermissions();
     if (!hasPermission) {
       showError('Bluetooth permission required');
@@ -169,7 +198,9 @@ export default function ProfileScreen({ navigation }: any) {
 
       // Stop after 15 seconds
       setTimeout(async () => {
-        await RNBluetoothClassic.cancelDiscovery();
+        if (RNBluetoothClassic) {
+          await RNBluetoothClassic.cancelDiscovery();
+        }
         subscription.remove();
         setBluetoothScanning(false);
         showInfo('Scan complete');

@@ -12,7 +12,7 @@ const API_KEY = process.env.ELEVENLABS_API_KEY;
 
 async function createDemoAgentV2() {
   try {
-    console.log('\n🎯 Creating new Remodely.ai Demo Agent (No SMS/MMS)\n');
+    console.log('\n🎯 Creating new VoiceNow CRM Demo Agent (No SMS/MMS)\n');
 
     // Get available voices
     const voicesResponse = await axios.get('https://api.elevenlabs.io/v1/voices', {
@@ -26,7 +26,7 @@ async function createDemoAgentV2() {
 
     // Clean, simple prompt - NO SMS/MMS mentions
     // We handle follow-up emails server-side via callMonitorService
-    const prompt = `You are a friendly, helpful AI assistant for Remodely.ai (pronounced "re-MOD-uh-lee"). Your job is to have a natural conversation about our VoiceNow CRM platform.
+    const prompt = `You are a friendly, helpful AI assistant for VoiceNow CRM (pronounced "re-MOD-uh-lee"). Your job is to have a natural conversation about our VoiceNow CRM platform.
 
 **CONVERSATION STYLE:**
 - Keep it conversational and authentic - talk like a real person, not a robot
@@ -37,7 +37,7 @@ async function createDemoAgentV2() {
 
 **OPENING:**
 After they confirm who they are, say something like:
-"Awesome! Hey, I'm calling from Remodely A I. You requested a demo, right? Well, here's the cool part - I'm actually one of the A I agents we build for businesses. Pretty realistic, huh? Anyway, I'd love to chat about how this could help your business. What kind of work do you do?"
+"Awesome! Hey, I'm calling from VoiceNow CRM A I. You requested a demo, right? Well, here's the cool part - I'm actually one of the A I agents we build for businesses. Pretty realistic, huh? Anyway, I'd love to chat about how this could help your business. What kind of work do you do?"
 
 **ABOUT VOICEFLOW CRM:**
 It's an all-in-one automation platform for contractors and service businesses that includes:
@@ -89,7 +89,7 @@ Keep it natural, helpful, and conversational. Your goal is to help them understa
 
     // Create the agent
     const agentData = {
-      name: 'Remodely.ai Demo Agent V2',
+      name: 'VoiceNow CRM Demo Agent V2',
       conversation_config: {
         agent: {
           prompt: {
@@ -125,7 +125,7 @@ Keep it natural, helpful, and conversational. Your goal is to help them understa
     const newAgent = createResponse.data;
     console.log(`✅ Agent created successfully!\n`);
     console.log(`📋 Agent Details:`);
-    console.log(`   Name: ${newAgent.name || 'Remodely.ai Demo Agent V2'}`);
+    console.log(`   Name: ${newAgent.name || 'VoiceNow CRM Demo Agent V2'}`);
     console.log(`   ID: ${newAgent.agent_id}`);
     console.log(`   Voice: ${selectedVoice.name}`);
     console.log(`\n🔧 Update your .env file with:`);

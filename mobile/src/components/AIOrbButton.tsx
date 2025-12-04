@@ -836,13 +836,13 @@ const AIOrbButton = forwardRef(({ onPress, onUIAction, userName }: AIOrbButtonPr
   const getGradientColors = (): readonly [string, string, ...string[]] => {
     if (isRecording) return ['#10B981', '#059669', '#047857', '#065F46'] as const; // Green
     if (isListening) return ['#F59E0B', '#D97706', '#B45309', '#92400E'] as const; // Amber
-    return ['#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6'] as const; // Purple
+    return ['#3B82F6', '#2563EB', '#1D4ED8', '#1E40AF'] as const; // Blue
   };
 
   const getRingColor = () => {
     if (isRecording) return '#10B981';
     if (isListening) return '#F59E0B';
-    return '#8B5CF6';
+    return '#3B82F6';
   };
 
   // Interpolations for ring animations (scale and opacity from single value)

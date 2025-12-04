@@ -13,7 +13,7 @@ export default function OnboardingTour({ onComplete }) {
       target: 'body',
       content: (
         <div>
-          <h2 className="text-xl font-bold mb-2">Welcome to Remodely.ai!</h2>
+          <h2 className="text-xl font-bold mb-2">Welcome to VoiceNow CRM!</h2>
           <p className="text-gray-600">
             Your AI-powered CRM for contractors. Let's take a quick tour to help you get started.
           </p>

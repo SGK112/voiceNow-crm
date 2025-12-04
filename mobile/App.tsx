@@ -3,15 +3,23 @@ import { StatusBar } from 'expo-status-bar';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import notificationService from './src/services/notificationService';
-import { NotificationProvider } from './src/contexts/NotificationContext';
+import { NotificationProvider, useNotification } from './src/contexts/NotificationContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { deviceSyncService } from './src/services/DeviceSyncService';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 function AppContent() {
   const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
+  const { showError, showSuccess, showInfo } = useNotification();
   const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    deviceSyncService.setNotificationHooks({ showError, showSuccess, showInfo });
+  }, [showError, showSuccess, showInfo]);
 
   useEffect(() => {
     // Only initialize services when authenticated
@@ -32,10 +40,7 @@ function AppContent() {
     // Initial device sync on app start
     const initSync = async () => {
       try {
-        const result = await deviceSyncService.syncDeviceData();
-        if (result.calls > 0 || result.sms > 0) {
-          console.log(`Synced ${result.calls} calls and ${result.sms} messages from device`);
-        }
+        await deviceSyncService.syncDeviceData();
       } catch (error) {
         console.error('Initial sync failed:', error);
       }
@@ -60,10 +65,7 @@ function AppContent() {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         console.log('App came to foreground, syncing device data...');
         try {
-          const result = await deviceSyncService.syncDeviceData();
-          if (result.calls > 0 || result.sms > 0) {
-            console.log(`Synced ${result.calls} calls and ${result.sms} messages`);
-          }
+          await deviceSyncService.syncDeviceData();
         } catch (error) {
           console.error('Background sync failed:', error);
         }
@@ -88,12 +90,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <NotificationProvider>
-          <AppContent />
-        </NotificationProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

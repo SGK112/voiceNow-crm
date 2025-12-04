@@ -201,7 +201,7 @@ export default function ContactImportScreen({ navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const colors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+    const colors = ['#3b82f6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   selectAllText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8b5cf6',
+    color: '#3b82f6',
   },
   selectedCount: {
     fontSize: 14,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   permissionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#3b82f6',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#3b82f6',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 12,

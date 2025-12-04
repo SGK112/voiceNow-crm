@@ -96,9 +96,14 @@ export default function DesignScreen() {
       }
 
       const response = await api.get('/moodboards', { params });
-      setMoodboards(response.data);
+      // Handle various response formats
+      const data = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.moodboards || response.data?.data || []);
+      setMoodboards(data);
     } catch (error) {
       console.error('Error fetching moodboards:', error);
+      setMoodboards([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -169,85 +174,90 @@ export default function DesignScreen() {
     }
   };
 
-  const renderMoodboard = ({ item }: { item: MoodboardItem }) => (
-    <TouchableOpacity
-      style={[styles.moodboardCard, { backgroundColor: colors.card }]}
-      onPress={() => navigation.navigate('MoodboardDetail', { moodboardId: item._id })}
-      onLongPress={() => item.isOwner && handleDeleteMoodboard(item._id, item.name)}
-    >
-      {/* Cover Image */}
-      <View style={styles.coverContainer}>
-        {item.coverImage ? (
-          <Image source={{ uri: item.coverImage }} style={styles.coverImage} />
-        ) : (
-          <View style={[styles.placeholderCover, { backgroundColor: colors.border }]}>
-            <Ionicons name="images-outline" size={40} color={colors.textSecondary} />
+  const renderMoodboard = ({ item }: { item: MoodboardItem }) => {
+    // Safety check - if item is undefined or null, don't render
+    if (!item) return null;
+
+    return (
+      <TouchableOpacity
+        style={[styles.moodboardCard, { backgroundColor: colors.card }]}
+        onPress={() => item._id && navigation.navigate('MoodboardDetail', { moodboardId: item._id })}
+        onLongPress={() => item.isOwner && item._id && handleDeleteMoodboard(item._id, item.name || 'Untitled')}
+      >
+        {/* Cover Image */}
+        <View style={styles.coverContainer}>
+          {item.coverImage ? (
+            <Image source={{ uri: item.coverImage }} style={styles.coverImage} />
+          ) : (
+            <View style={[styles.placeholderCover, { backgroundColor: colors.border }]}>
+              <Ionicons name="images-outline" size={40} color={colors.textSecondary} />
+            </View>
+          )}
+
+          {/* Badges */}
+          <View style={styles.badgeContainer}>
+            {item.sharing?.isPublic && (
+              <View style={[styles.badge, { backgroundColor: colors.primary }]}>
+                <Ionicons name="globe-outline" size={12} color="#fff" />
+              </View>
+            )}
+            {(item.collaborators?.length || 0) > 0 && (
+              <View style={[styles.badge, { backgroundColor: colors.secondary }]}>
+                <Ionicons name="people-outline" size={12} color="#fff" />
+                <Text style={styles.badgeText}>{item.collaborators?.length || 0}</Text>
+              </View>
+            )}
           </View>
-        )}
 
-        {/* Badges */}
-        <View style={styles.badgeContainer}>
-          {item.sharing?.isPublic && (
-            <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-              <Ionicons name="globe-outline" size={12} color="#fff" />
-            </View>
-          )}
-          {(item.collaborators?.length || 0) > 0 && (
-            <View style={[styles.badge, { backgroundColor: colors.secondary }]}>
-              <Ionicons name="people-outline" size={12} color="#fff" />
-              <Text style={styles.badgeText}>{item.collaborators?.length}</Text>
-            </View>
-          )}
+          {/* Item Count */}
+          <View style={[styles.itemCount, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
+            <Ionicons name="images" size={12} color="#fff" />
+            <Text style={styles.itemCountText}>{item.itemCount || 0}</Text>
+          </View>
         </View>
 
-        {/* Item Count */}
-        <View style={[styles.itemCount, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-          <Ionicons name="images" size={12} color="#fff" />
-          <Text style={styles.itemCountText}>{item.itemCount}</Text>
+        {/* Info */}
+        <View style={styles.cardInfo}>
+          <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
+            {item.name || 'Untitled'}
+          </Text>
+
+          <View style={styles.cardMeta}>
+            <View style={[styles.categoryBadge, { backgroundColor: colors.border }]}>
+              <Text style={[styles.categoryText, { color: colors.textSecondary }]}>
+                {(item.category || 'general').replace('_', ' ')}
+              </Text>
+            </View>
+
+            {item.approval?.status && item.approval.status !== 'draft' && (
+              <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.approval?.status) }]} />
+            )}
+          </View>
+
+          {item.projectId?.name && (
+            <Text style={[styles.linkedProject, { color: colors.textSecondary }]} numberOfLines={1}>
+              <Ionicons name="folder-outline" size={10} /> {item.projectId.name}
+            </Text>
+          )}
+
+          {item.budget?.total ? (
+            <Text style={[styles.budget, { color: colors.primary }]}>
+              ${(item.budget.total || 0).toLocaleString()}
+            </Text>
+          ) : null}
         </View>
-      </View>
 
-      {/* Info */}
-      <View style={styles.cardInfo}>
-        <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
-          {item.name}
-        </Text>
-
-        <View style={styles.cardMeta}>
-          <View style={[styles.categoryBadge, { backgroundColor: colors.border }]}>
-            <Text style={[styles.categoryText, { color: colors.textSecondary }]}>
-              {item.category.replace('_', ' ')}
+        {/* Role indicator */}
+        {!item.isOwner && item.role && (
+          <View style={[styles.roleIndicator, { backgroundColor: colors.secondary + '20' }]}>
+            <Text style={[styles.roleText, { color: colors.secondary }]}>
+              {item.role}
             </Text>
           </View>
-
-          {item.approval?.status && item.approval.status !== 'draft' && (
-            <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.approval.status) }]} />
-          )}
-        </View>
-
-        {item.projectId?.name && (
-          <Text style={[styles.linkedProject, { color: colors.textSecondary }]} numberOfLines={1}>
-            <Ionicons name="folder-outline" size={10} /> {item.projectId.name}
-          </Text>
         )}
-
-        {item.budget?.total ? (
-          <Text style={[styles.budget, { color: colors.primary }]}>
-            ${item.budget.total.toLocaleString()}
-          </Text>
-        ) : null}
-      </View>
-
-      {/* Role indicator */}
-      {!item.isOwner && (
-        <View style={[styles.roleIndicator, { backgroundColor: colors.secondary + '20' }]}>
-          <Text style={[styles.roleText, { color: colors.secondary }]}>
-            {item.role}
-          </Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderCreateModal = () => (
     <Modal
@@ -451,7 +461,7 @@ export default function DesignScreen() {
         <FlatList
           data={moodboards}
           renderItem={renderMoodboard}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item, index) => item._id ? `${item._id}-${index}` : `moodboard-${index}`}
           numColumns={2}
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.listContent}

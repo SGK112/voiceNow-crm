@@ -281,7 +281,7 @@ export const connectSlack = async (req, res) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: '✅ Remodely.ai integration test - your Slack is connected!'
+          text: '✅ VoiceNow CRM integration test - your Slack is connected!'
         })
       });
 
@@ -473,7 +473,7 @@ export const testIntegration = async (req, res) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: '✅ Test from Remodely.ai - integration working!'
+            text: '✅ Test from VoiceNow CRM - integration working!'
           })
         });
         break;

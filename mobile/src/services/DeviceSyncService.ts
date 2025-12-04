@@ -2,18 +2,25 @@ import { Platform, PermissionsAndroid, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Contacts from 'expo-contacts';
 import contactService from './ContactService';
+import CallLogs from 'react-native-call-log';
+import SmsAndroid from 'react-native-get-sms-android';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 // Storage keys
 const LAST_CALL_SYNC_KEY = 'last_call_sync_timestamp';
+
 const LAST_SMS_SYNC_KEY = 'last_sms_sync_timestamp';
 const SYNC_ENABLED_KEY = 'device_sync_enabled';
+const SYNC_PERIOD_KEY = 'device_sync_period';
 
 interface CallLogEntry {
   phoneNumber: string;
-  type: 'incoming' | 'outgoing' | 'missed';
+  type: 'INCOMING' | 'OUTGOING' | 'MISSED' | 'UNKNOWN';
   duration: number;
-  timestamp: number;
+  timestamp: string;
   name?: string;
+  dateTime: string;
+  rawType: number;
 }
 
 interface SMSEntry {
@@ -24,8 +31,19 @@ interface SMSEntry {
   read: boolean;
 }
 
+type NotificationHooks = {
+  showError: (message: string) => void;
+  showSuccess: (message: string) => void;
+  showInfo: (message: string) => void;
+}
+
 class DeviceSyncService {
   private syncInProgress = false;
+  private notificationHooks: NotificationHooks | null = null;
+
+  setNotificationHooks(hooks: NotificationHooks) {
+    this.notificationHooks = hooks;
+  }
 
   // Check if sync is enabled
   async isSyncEnabled(): Promise<boolean> {
@@ -40,6 +58,17 @@ class DeviceSyncService {
   // Enable/disable sync
   async setSyncEnabled(enabled: boolean): Promise<void> {
     await AsyncStorage.setItem(SYNC_ENABLED_KEY, enabled ? 'true' : 'false');
+  }
+
+  // Set sync period in days
+  async setSyncPeriod(days: number): Promise<void> {
+    await AsyncStorage.setItem(SYNC_PERIOD_KEY, days.toString());
+  }
+
+  // Get sync period in days
+  async getSyncPeriod(): Promise<number> {
+    const period = await AsyncStorage.getItem(SYNC_PERIOD_KEY);
+    return period ? parseInt(period, 10) : 7; // Default to 7 days
   }
 
   // Request necessary permissions
@@ -68,6 +97,7 @@ class DeviceSyncService {
         return callLogGranted || smsGranted;
       } catch (err) {
         console.error('Permission request error:', err);
+        this.notificationHooks?.showError('Failed to get sync permissions.');
         return false;
       }
     }
@@ -96,16 +126,31 @@ class DeviceSyncService {
     return { callLog: false, sms: false, contacts: false };
   }
 
+  private async createContactMap() {
+    const { data: contacts } = await contactService.getContacts();
+    if (!contacts) return new Map();
+
+    const contactMap = new Map();
+    for (const contact of contacts) {
+      if (contact.phone) {
+        const normalizedPhone = this.normalizePhoneNumber(contact.phone);
+        if (normalizedPhone) {
+          contactMap.set(normalizedPhone, contact);
+        }
+      }
+    }
+    return contactMap;
+  }
+
   // Main sync function - call this on app focus
   async syncDeviceData(): Promise<{ calls: number; sms: number }> {
     if (this.syncInProgress) {
-      console.log('Sync already in progress, skipping...');
+      this.notificationHooks?.showInfo('Sync already in progress.');
       return { calls: 0, sms: 0 };
     }
 
     const enabled = await this.isSyncEnabled();
     if (!enabled) {
-      console.log('Device sync is disabled');
       return { calls: 0, sms: 0 };
     }
 
@@ -115,23 +160,25 @@ class DeviceSyncService {
 
     try {
       const permissions = await this.checkPermissions();
+      const contactMap = await this.createContactMap();
 
       if (Platform.OS === 'android') {
         if (permissions.callLog) {
-          callsSynced = await this.syncCallHistory();
+          callsSynced = await this.syncCallHistory(contactMap);
         }
         if (permissions.sms) {
-          smsSynced = await this.syncSMSHistory();
+          smsSynced = await this.syncSMSHistory(contactMap);
         }
       }
 
-      // iOS note: We can't access call/SMS history on iOS
-      // Would need to use CallKit for call detection (complex setup)
+      if(callsSynced > 0 || smsSynced > 0) {
+        this.notificationHooks?.showSuccess(`Synced ${callsSynced} calls and ${smsSynced} messages.`);
+      }
 
-      console.log(`Sync complete: ${callsSynced} calls, ${smsSynced} SMS`);
       return { calls: callsSynced, sms: smsSynced };
     } catch (error) {
       console.error('Sync error:', error);
+      this.notificationHooks?.showError('Device sync failed.');
       return { calls: 0, sms: 0 };
     } finally {
       this.syncInProgress = false;
@@ -139,32 +186,30 @@ class DeviceSyncService {
   }
 
   // Sync call history (Android only)
-  private async syncCallHistory(): Promise<number> {
+  private async syncCallHistory(contactMap: Map<string, any>): Promise<number> {
     if (Platform.OS !== 'android') return 0;
 
     try {
       // Get last sync timestamp
+      const syncPeriodDays = await this.getSyncPeriod();
       const lastSyncStr = await AsyncStorage.getItem(LAST_CALL_SYNC_KEY);
-      const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : Date.now() - (7 * 24 * 60 * 60 * 1000); // Default: 7 days ago
+      const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : Date.now() - (syncPeriodDays * 24 * 60 * 60 * 1000);
 
-      // Use react-native-call-log or similar native module
-      // For now, we'll use a placeholder that would need a native module
       const callLogs = await this.getCallLogs(lastSync);
 
       let syncedCount = 0;
-      const contacts = await contactService.getContacts();
 
       for (const call of callLogs) {
         // Find matching contact by phone number
         const normalizedPhone = this.normalizePhoneNumber(call.phoneNumber);
-        const matchingContact = contacts.find(c =>
-          this.normalizePhoneNumber(c.phone) === normalizedPhone
-        );
+        if (!normalizedPhone) continue;
+
+        const matchingContact = contactMap.get(normalizedPhone);
 
         if (matchingContact) {
           // Log the call to the contact
-          const direction = call.type === 'incoming' || call.type === 'missed' ? 'incoming' : 'outgoing';
-          const content = call.type === 'missed'
+          const direction = call.type === 'INCOMING' || call.type === 'MISSED' ? 'incoming' : 'outgoing';
+          const content = call.type === 'MISSED'
             ? 'Missed call'
             : `${direction === 'incoming' ? 'Incoming' : 'Outgoing'} call (${this.formatDuration(call.duration)})`;
 
@@ -177,7 +222,7 @@ class DeviceSyncService {
               duration: call.duration,
               callType: call.type,
               syncedFromDevice: true,
-              originalTimestamp: call.timestamp,
+              originalTimestamp: parseInt(call.timestamp, 10),
             }
           );
           syncedCount++;
@@ -190,31 +235,31 @@ class DeviceSyncService {
       return syncedCount;
     } catch (error) {
       console.error('Error syncing call history:', error);
+      this.notificationHooks?.showError('Failed to sync call history.');
       return 0;
     }
   }
 
   // Sync SMS history (Android only)
-  private async syncSMSHistory(): Promise<number> {
+  private async syncSMSHistory(contactMap: Map<string, any>): Promise<number> {
     if (Platform.OS !== 'android') return 0;
 
     try {
       // Get last sync timestamp
+      const syncPeriodDays = await this.getSyncPeriod();
       const lastSyncStr = await AsyncStorage.getItem(LAST_SMS_SYNC_KEY);
-      const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : Date.now() - (7 * 24 * 60 * 60 * 1000);
+      const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : Date.now() - (syncPeriodDays * 24 * 60 * 60 * 1000);
 
-      // Use react-native-get-sms-android or similar native module
       const messages = await this.getSMSMessages(lastSync);
 
       let syncedCount = 0;
-      const contacts = await contactService.getContacts();
 
       for (const sms of messages) {
         // Find matching contact by phone number
         const normalizedPhone = this.normalizePhoneNumber(sms.address);
-        const matchingContact = contacts.find(c =>
-          this.normalizePhoneNumber(c.phone) === normalizedPhone
-        );
+        if (!normalizedPhone) continue;
+        
+        const matchingContact = contactMap.get(normalizedPhone);
 
         if (matchingContact) {
           // Log the SMS to the contact
@@ -243,62 +288,52 @@ class DeviceSyncService {
       return syncedCount;
     } catch (error) {
       console.error('Error syncing SMS history:', error);
+      this.notificationHooks?.showError('Failed to sync SMS history.');
       return 0;
     }
   }
 
   // Placeholder - would need native module like react-native-call-log
   private async getCallLogs(sinceTimestamp: number): Promise<CallLogEntry[]> {
-    // This requires a native module like:
-    // - react-native-call-log
-    // - react-native-call-detection
-    //
-    // Example with react-native-call-log:
-    // import CallLogs from 'react-native-call-log';
-    // const logs = await CallLogs.load(100, { minTimestamp: sinceTimestamp });
-    // return logs.map(log => ({
-    //   phoneNumber: log.phoneNumber,
-    //   type: log.type === 1 ? 'incoming' : log.type === 2 ? 'outgoing' : 'missed',
-    //   duration: log.duration,
-    //   timestamp: log.timestamp,
-    //   name: log.name,
-    // }));
-
-    console.log('Call log reading requires native module installation');
-    return [];
+    const logs = await CallLogs.load(-1, { minTimestamp: sinceTimestamp });
+    return logs;
   }
 
   // Placeholder - would need native module like react-native-get-sms-android
   private async getSMSMessages(sinceTimestamp: number): Promise<SMSEntry[]> {
-    // This requires a native module like:
-    // - react-native-get-sms-android
-    //
-    // Example:
-    // import SmsAndroid from 'react-native-get-sms-android';
-    // const filter = {
-    //   box: '', // both inbox and sent
-    //   minDate: sinceTimestamp,
-    // };
-    // return new Promise((resolve) => {
-    //   SmsAndroid.list(JSON.stringify(filter), (fail) => resolve([]), (count, smsList) => {
-    //     const messages = JSON.parse(smsList);
-    //     resolve(messages.map(m => ({
-    //       address: m.address,
-    //       body: m.body,
-    //       type: m.type === 1 ? 'inbox' : 'sent',
-    //       date: m.date,
-    //       read: m.read === 1,
-    //     })));
-    //   });
-    // });
+    const filter = {
+      box: '', // 'inbox' or 'sent'
+      minDate: sinceTimestamp,
+    };
 
-    console.log('SMS reading requires native module installation');
-    return [];
+    return new Promise((resolve, reject) => {
+      SmsAndroid.list(
+        JSON.stringify(filter),
+        (fail) => {
+          console.error('Failed to get SMS messages:', fail);
+          reject(fail);
+        },
+        (count, smsList) => {
+          const messages = JSON.parse(smsList);
+          resolve(messages.map(m => ({
+            address: m.address,
+            body: m.body,
+            type: m.type === 1 ? 'inbox' : 'sent',
+            date: m.date,
+            read: m.read === 1,
+          })));
+        }
+      );
+    });
   }
 
   // Normalize phone number for comparison
-  private normalizePhoneNumber(phone: string): string {
-    return phone.replace(/\D/g, '').slice(-10); // Last 10 digits
+  private normalizePhoneNumber(phone: string): string | null {
+    const phoneNumber = parsePhoneNumberFromString(phone, 'US');
+    if (phoneNumber) {
+      return phoneNumber.format('E.164');
+    }
+    return null;
   }
 
   // Format call duration

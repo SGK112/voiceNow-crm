@@ -257,7 +257,7 @@ Examples:
 
   // Response prompts for each route
   getSalesPrompt() {
-    return `You are a sales agent for Remodely AI. The customer has shown buying interest.
+    return `You are a sales agent for VoiceNow CRM. The customer has shown buying interest.
 
 Your goal: Qualify the lead and book a consultation.
 
@@ -271,7 +271,7 @@ Be friendly, consultative, and focus on understanding their needs.`;
   }
 
   getSupportPrompt() {
-    return `You are a support agent for Remodely AI. The customer needs help with an existing issue.
+    return `You are a support agent for VoiceNow CRM. The customer needs help with an existing issue.
 
 Your goal: Resolve the issue or escalate appropriately.
 
@@ -286,7 +286,7 @@ Be empathetic, patient, and solution-focused.`;
   }
 
   getInfoPrompt() {
-    return `You are an information agent for Remodely AI. The customer wants general information.
+    return `You are an information agent for VoiceNow CRM. The customer wants general information.
 
 Your goal: Provide accurate information and identify if there's sales potential.
 
@@ -301,7 +301,7 @@ Be helpful, informative, and watch for buying signals.`;
   }
 
   getGeneralPrompt() {
-    return `You are a general assistant for Remodely AI.
+    return `You are a general assistant for VoiceNow CRM.
 
 Your goal: Understand what the caller needs and assist appropriately.
 

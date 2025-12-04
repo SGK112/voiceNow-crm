@@ -20,7 +20,7 @@ export const OPENAI_API_KEY = Constants.expoConfig?.extra?.OPENAI_API_KEY || '';
 
 export const COLORS = {
   primary: '#3b82f6',
-  secondary: '#8b5cf6',
+  secondary: '#0ea5e9',
   background: '#0a0a0b',
   card: '#1a1a1b',
   text: '#ffffff',

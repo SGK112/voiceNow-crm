@@ -352,7 +352,7 @@ export const handleTwilioSms = async (req, res) => {
 
         if (!agentPhoneNumberId) {
           console.log('   ⚠️ No ElevenLabs phone number configured');
-          response.message('I\'d love to call you! For now, you can chat with our AI agent at remodely.ai or text me questions here.');
+          response.message('I\'d love to call you! For now, you can chat with our AI agent at voicenowcrm.com or text me questions here.');
           res.type('text/xml');
           res.send(response.toString());
           return;
@@ -366,13 +366,13 @@ export const handleTwilioSms = async (req, res) => {
         };
 
         // VoiceNow Sales prompt for SMS-triggered calls
-        const salesPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by Remodely AI.
+        const salesPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by VoiceNow CRM AI.
 
 **YOUR ROLE:** Help this caller understand how VoiceNow CRM can revolutionize their business with AI voice agents.
 
 **KEY LINKS TO OFFER (text these):**
-- Signup: remodely.ai/signup
-- Book sales call: remodely.ai/book
+- Signup: voicenowcrm.com/signup
+- Book sales call: voicenowcrm.com/book
 
 **VOICEMAIL DETECTION:** If voicemail, say ONLY: "Hi, this is VoiceNow CRM. I'll text you our info. Thanks!" then hang up.
 
@@ -380,7 +380,7 @@ export const handleTwilioSms = async (req, res) => {
 1. "Hi! Thanks for texting our demo line! Do you have a minute to chat about AI voice agents?"
 2. Ask: "What's your biggest challenge - missing calls, slow follow-ups, or scaling your outreach?"
 3. Match their pain to our solution
-4. Offer free 14-day trial at remodely.ai/signup
+4. Offer free 14-day trial at voicenowcrm.com/signup
 
 **KEY FEATURES:**
 - AI answers every call 24/7
@@ -394,7 +394,7 @@ export const handleTwilioSms = async (req, res) => {
 - Professional: $299/month (5 agents, 2000 mins)
 - Free 14-day trial, no credit card
 
-**CLOSING:** "Want me to text you the signup link? Start your free trial at remodely dot AI forward slash signup!"`;
+**CLOSING:** "Want me to text you the signup link? Start your free trial at voicenowcrm dot AI forward slash signup!"`;
 
         const salesFirstMessage = "Hi! Thanks for reaching out to VoiceNow CRM! I'm the AI assistant - do you have a minute to learn how we can help your business?";
 
@@ -430,7 +430,7 @@ export const handleTwilioSms = async (req, res) => {
           response.message('Perfect! My AI voice agent is calling you right now to discuss VoiceNow CRM. Answer and chat! 📞');
         } else {
           console.error(`❌ Failed to initiate call`);
-          response.message('I\'d love to call you! Text "DEMO" and I\'ll get you connected, or visit remodely.ai/signup to start your free trial!');
+          response.message('I\'d love to call you! Text "DEMO" and I\'ll get you connected, or visit voicenowcrm.com/signup to start your free trial!');
         }
 
         res.type('text/xml');
@@ -439,7 +439,7 @@ export const handleTwilioSms = async (req, res) => {
 
       } catch (callError) {
         console.error('❌ Error initiating voice call:', callError);
-        response.message('I\'d love to call you! For now, try our AI chat at remodely.ai or text me questions here.');
+        response.message('I\'d love to call you! For now, try our AI chat at voicenowcrm.com or text me questions here.');
         res.type('text/xml');
         res.send(response.toString());
         return;
@@ -483,11 +483,11 @@ Keep it conversational, text-friendly, and brief.`;
           console.log(`   AI Vision Response: "${aiMessage}"`);
         } catch (visionError) {
           console.error('   Vision analysis failed:', visionError.message);
-          aiMessage = `Thanks for the image! I'd love to help. VoiceNow CRM provides AI voice agents for contractors. Try free: remodely.ai/signup`;
+          aiMessage = `Thanks for the image! I'd love to help. VoiceNow CRM provides AI voice agents for contractors. Try free: voicenowcrm.com/signup`;
         }
       } else {
         // Non-image media (video, audio, etc.)
-        aiMessage = `Thanks for sharing! For best results, text or call us. Learn more about VoiceNow CRM: remodely.ai/signup`;
+        aiMessage = `Thanks for sharing! For best results, text or call us. Learn more about VoiceNow CRM: voicenowcrm.com/signup`;
       }
     } else {
       // Regular text-only SMS
@@ -499,7 +499,7 @@ Key info about VoiceNow CRM:
 - AI voice agents that answer calls 24/7 for contractors
 - FREE 14-day trial (no credit card required)
 - $299/month after trial
-- Signup at: remodely.ai/signup
+- Signup at: voicenowcrm.com/signup
 - Handles: appointment booking, lead qualification, missed calls
 - **IMPORTANT:** You can trigger a LIVE voice call! If customer wants to talk, tell them to text "call me"
 
@@ -509,7 +509,7 @@ Response rules:
 - If they ask about features, briefly explain and point to signup
 - If they have questions, answer helpfully
 - If they seem interested, suggest either:
-  1. Signup link (remodely.ai/signup)
+  1. Signup link (voicenowcrm.com/signup)
   2. OR offer them a voice call (say "Want me to call you? Just text 'call me'")
 - Always stay in character as VoiceNow CRM assistant
 - Use text-friendly language (contractions, casual tone)
@@ -520,7 +520,7 @@ Examples:
 - "What's this about?" → "VoiceNow CRM helps contractors never miss a call! AI answers 24/7, books appointments. Want me to call you?"
 - "How much?" → "$299/mo after a FREE 14-day trial (no card needed). Want a quick call to see how it works?"
 - "Tell me more" → "AI voice agent handles your calls when you're busy. Books appointments, qualifies leads. I can call you right now to explain!"
-- "Sounds interesting" → "Awesome! Want to try it free at remodely.ai/signup OR I can call you right now to walk you through it?"
+- "Sounds interesting" → "Awesome! Want to try it free at voicenowcrm.com/signup OR I can call you right now to walk you through it?"
 
 User message: ${Body}`;
 
@@ -545,7 +545,7 @@ User message: ${Body}`;
 
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const response = new MessagingResponse();
-    response.message('Thanks for your message! Visit remodely.ai/signup to try VoiceNow CRM free for 14 days!');
+    response.message('Thanks for your message! Visit voicenowcrm.com/signup to try VoiceNow CRM free for 14 days!');
 
     res.type('text/xml');
     res.send(response.toString());
@@ -563,7 +563,7 @@ export const handleTwilioSmsFallback = async (req, res) => {
 
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const response = new MessagingResponse();
-    response.message('We apologize for the inconvenience. Please contact support@remodely.ai for assistance.');
+    response.message('We apologize for the inconvenience. Please contact support@voicenowcrm.com for assistance.');
 
     res.type('text/xml');
     res.send(response.toString());

@@ -36,6 +36,17 @@ import AriaOnboardingScreen from '../screens/AriaOnboardingScreen';
 import DesignScreen from '../screens/DesignScreen';
 import MoodboardDetailScreen from '../screens/MoodboardDetailScreen';
 
+// Agents screen
+import AgentsScreen from '../screens/AgentsScreen';
+
+// CRM screen
+import CRMScreen from '../screens/CRMScreen';
+
+// Estimates & Invoices screens
+import EstimatesScreen from '../screens/EstimatesScreen';
+import InvoicesScreen from '../screens/InvoicesScreen';
+import EstimateFormScreen from '../screens/EstimateFormScreen';
+
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
 
@@ -140,6 +151,22 @@ function MainNavigator() {
           cardStyle: { backgroundColor: colors.background },
         }}
       />
+      <Stack.Screen
+        name="Agents"
+        component={AgentsScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="CRM"
+        component={CRMScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
 
       {/* Sub-screens for contacts flow */}
       <Stack.Screen
@@ -207,7 +234,7 @@ function MainNavigator() {
       />
       <Stack.Screen
         name="Call"
-        component={CallScreen}
+        component={CallScreen as any}
         options={{
           ...TransitionPresets.ModalSlideFromBottomIOS,
           gestureEnabled: false,
@@ -215,7 +242,7 @@ function MainNavigator() {
       />
       <Stack.Screen
         name="SMSChat"
-        component={SMSChatScreen}
+        component={SMSChatScreen as any}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}
@@ -225,6 +252,32 @@ function MainNavigator() {
         component={MoodboardDetailScreen}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+
+      {/* Estimates & Invoices screens */}
+      <Stack.Screen
+        name="Estimates"
+        component={EstimatesScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="Invoices"
+        component={InvoicesScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="EstimateForm"
+        component={EstimateFormScreen}
+        options={{
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+          cardStyle: { backgroundColor: colors.background },
         }}
       />
     </Stack.Navigator>
@@ -246,6 +299,14 @@ export default function AppNavigator() {
   const { colors, isDark } = useTheme();
   const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
 
+  // Default fonts for React Navigation theme
+  const defaultFonts = {
+    regular: { fontFamily: 'System', fontWeight: '400' as const },
+    medium: { fontFamily: 'System', fontWeight: '500' as const },
+    bold: { fontFamily: 'System', fontWeight: '700' as const },
+    heavy: { fontFamily: 'System', fontWeight: '900' as const },
+  };
+
   // Show loading screen while checking auth status
   if (isLoading) {
     return (
@@ -260,6 +321,7 @@ export default function AppNavigator() {
             border: colors.border,
             notification: colors.error,
           },
+          fonts: defaultFonts,
         }}
       >
         <LoadingScreen />
@@ -279,6 +341,7 @@ export default function AppNavigator() {
           border: colors.border,
           notification: colors.error,
         },
+        fonts: defaultFonts,
       }}
     >
       {isAuthenticated ? (

@@ -1,13 +1,30 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { Call } from '../services/CallHistoryService';
 import { useCallHistory } from '../hooks/useCallHistory';
 
+type TabType = 'daily' | 'history';
+
 export default function CallsScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { calls, loading, refreshing, onRefresh } = useCallHistory();
+  const [activeTab, setActiveTab] = useState<TabType>('daily');
+
+  // Filter calls based on active tab
+  const filteredCalls = useMemo(() => {
+    if (activeTab === 'daily') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return calls.filter(call => {
+        const callDate = new Date(call.timestamp);
+        callDate.setHours(0, 0, 0, 0);
+        return callDate.getTime() === today.getTime();
+      });
+    }
+    return calls;
+  }, [calls, activeTab]);
 
   const formatDate = (date: string) => {
     const d = new Date(date);
@@ -76,24 +93,69 @@ export default function CallsScreen({ navigation }: any) {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={[styles.title, { color: colors.text }]}>Call History</Text>
-          <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{calls.length} total calls</Text>
+          <Text style={[styles.subtitle, { color: colors.textTertiary }]}>
+            {activeTab === 'daily' ? `${filteredCalls.length} today` : `${calls.length} total calls`}
+          </Text>
         </View>
         <View style={styles.headerButton} />
       </View>
 
-      {calls.length === 0 && !loading ? (
+      {/* Tab Selector */}
+      <View style={[styles.tabContainer, { backgroundColor: colors.backgroundSecondary }]}>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'daily' && [styles.activeTab, { backgroundColor: colors.primary }]
+          ]}
+          onPress={() => setActiveTab('daily')}
+        >
+          <Ionicons
+            name="today-outline"
+            size={16}
+            color={activeTab === 'daily' ? '#fff' : colors.textSecondary}
+          />
+          <Text style={[
+            styles.tabText,
+            { color: activeTab === 'daily' ? '#fff' : colors.textSecondary }
+          ]}>Daily</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'history' && [styles.activeTab, { backgroundColor: colors.primary }]
+          ]}
+          onPress={() => setActiveTab('history')}
+        >
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={activeTab === 'history' ? '#fff' : colors.textSecondary}
+          />
+          <Text style={[
+            styles.tabText,
+            { color: activeTab === 'history' ? '#fff' : colors.textSecondary }
+          ]}>History</Text>
+        </TouchableOpacity>
+      </View>
+
+      {filteredCalls.length === 0 && !loading ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
             <Ionicons name="call-outline" size={48} color={colors.textTertiary} />
           </View>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No calls yet</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>
+            {activeTab === 'daily' ? 'No calls today' : 'No calls yet'}
+          </Text>
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-            When you receive missed calls, the AI will automatically call them back and the history will appear here.
+            {activeTab === 'daily'
+              ? 'No calls have been made or received today. Check the History tab to see all past calls.'
+              : 'When you receive missed calls, the AI will automatically call them back and the history will appear here.'
+            }
           </Text>
         </View>
       ) : (
         <FlatList
-          data={calls}
+          data={filteredCalls}
           renderItem={renderCall}
           keyExtractor={(item: Call) => item._id}
           contentContainerStyle={styles.list}
@@ -122,6 +184,35 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 4,
+    gap: 4,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    gap: 6,
+  },
+  activeTab: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   backButton: {
     width: 40,

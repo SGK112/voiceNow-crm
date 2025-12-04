@@ -394,7 +394,7 @@ class TwilioService {
       }
 
       const greeting = customerName ? `Hi ${customerName}!` : 'Hi!';
-      const body = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nwww.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+      const body = `${greeting} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nwww.voicenowcrm.com/signup\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`;
 
       return await this.sendSMS(to, body);
     } catch (error) {

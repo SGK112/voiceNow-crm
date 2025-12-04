@@ -11,7 +11,7 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 
 /**
  * Create Test User for Login
- * Email: help.remodely@gmail.com
+ * Email: help.voicenowcrm@gmail.com
  * Password: password123
  */
 
@@ -21,7 +21,7 @@ async function createTestUser() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB');
 
-    const testEmail = 'help.remodely@gmail.com';
+    const testEmail = 'help.voicenowcrm@gmail.com';
     const testPassword = 'password123';
 
     // Check if user exists
@@ -41,7 +41,7 @@ async function createTestUser() {
       const newUser = await User.create({
         email: testEmail,
         password: testPassword,
-        company: 'Remodely AI',
+        company: 'VoiceNow CRM AI',
         plan: 'enterprise',
         subscriptionStatus: 'active'
       });

@@ -40,7 +40,7 @@ const syncOptions: SyncOption[] = [
     title: 'Calendar Events',
     description: 'Sync appointments and schedule jobs seamlessly',
     icon: 'calendar',
-    color: '#8B5CF6',
+    color: '#3B82F6',
   },
 ];
 
@@ -229,7 +229,7 @@ export default function SyncOnboardingScreen({ navigation }: any) {
         ]}>
           {/* Card Header Accent */}
           <LinearGradient
-            colors={['#3B82F6', '#8B5CF6']}
+            colors={['#3B82F6', '#3B82F6']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.cardAccent}

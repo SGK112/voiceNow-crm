@@ -36,7 +36,7 @@ export default function LeadsScreen({ navigation }: any) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return '#3b82f6';
-      case 'contacted': return '#8b5cf6';
+      case 'contacted': return '#3b82f6';
       case 'qualified': return '#10b981';
       case 'won': return '#22c55e';
       case 'lost': return '#ef4444';

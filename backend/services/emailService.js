@@ -414,7 +414,7 @@ class EmailService {
     `;
 
     return this.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject,
       html,
       text
@@ -524,7 +524,7 @@ class EmailService {
 
             <div class="warning">
               <strong>⚠️ Didn't make this change?</strong><br>
-              If you did not change your password, please contact our support team immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'} or reset your password again.
+              If you did not change your password, please contact our support team immediately at ${process.env.HELP_DESK_EMAIL || 'help.voicenowcrm@gmail.com'} or reset your password again.
             </div>
 
             <p>Thank you for using VoiceNow CRM!</p>
@@ -547,7 +547,7 @@ class EmailService {
       Changed on: ${new Date().toLocaleString()}
 
       ⚠️ Didn't make this change?
-      If you did not change your password, please contact support immediately at ${process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com'}
+      If you did not change your password, please contact support immediately at ${process.env.HELP_DESK_EMAIL || 'help.voicenowcrm@gmail.com'}
 
       Thank you for using VoiceNow CRM!
     `;
@@ -742,7 +742,7 @@ class EmailService {
     `;
 
     // Send to help desk email
-    const helpDeskEmail = process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com';
+    const helpDeskEmail = process.env.HELP_DESK_EMAIL || 'help.voicenowcrm@gmail.com';
 
     return this.sendEmail({
       to: helpDeskEmail,

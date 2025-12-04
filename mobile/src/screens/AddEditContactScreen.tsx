@@ -182,7 +182,7 @@ export default function AddEditContactScreen({ route, navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const colors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+    const colors = ['#3b82f6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8b5cf6',
+    color: '#3b82f6',
   },
   content: {
     flex: 1,
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   },
   changeAvatarText: {
     fontSize: 16,
-    color: '#8b5cf6',
+    color: '#3b82f6',
     fontWeight: '600',
   },
   formSection: {

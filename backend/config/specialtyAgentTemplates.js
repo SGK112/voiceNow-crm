@@ -812,7 +812,7 @@ Houzz users are researching contractors - make a great impression.`;
         id: 'signupUrl',
         type: 'text',
         label: 'Signup/Website URL',
-        placeholder: 'remodely.ai/signup',
+        placeholder: 'voicenowcrm.com/signup',
         required: true,
         helpText: 'Where should I send interested customers?'
       },
@@ -953,7 +953,7 @@ Keep responses SHORT (under 160 characters when possible) and always drive towar
         id: 'signupUrl',
         type: 'text',
         label: 'Signup/Website URL',
-        placeholder: 'remodely.ai/signup',
+        placeholder: 'voicenowcrm.com/signup',
         required: true
       }
     ],

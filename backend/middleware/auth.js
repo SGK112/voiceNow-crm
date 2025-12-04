@@ -11,12 +11,18 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+      // Try Redis cache first, but gracefully handle if Redis is unavailable
       const redis = getRedisClient();
       if (redis) {
-        const cachedUser = await redis.get(`user:${decoded.id}`);
-        if (cachedUser) {
-          req.user = JSON.parse(cachedUser);
-          return next();
+        try {
+          const cachedUser = await redis.get(`user:${decoded.id}`);
+          if (cachedUser) {
+            req.user = JSON.parse(cachedUser);
+            return next();
+          }
+        } catch (redisError) {
+          // Redis unavailable (closed/disconnected), continue without cache
+          console.log('Redis cache unavailable, fetching user from DB');
         }
       }
 
@@ -26,8 +32,13 @@ export const protect = async (req, res, next) => {
         return res.status(401).json({ message: 'Not authorized, user not found' });
       }
 
+      // Try to cache user in Redis, but don't fail if Redis is unavailable
       if (redis) {
-        await redis.setEx(`user:${decoded.id}`, 3600, JSON.stringify(req.user));
+        try {
+          await redis.setEx(`user:${decoded.id}`, 3600, JSON.stringify(req.user));
+        } catch (redisError) {
+          // Redis unavailable, continue without caching
+        }
       }
 
       next();
@@ -110,17 +121,25 @@ export const optionalAuth = async (req, res, next) => {
 
       const redis = getRedisClient();
       if (redis) {
-        const cachedUser = await redis.get(`user:${decoded.id}`);
-        if (cachedUser) {
-          req.user = JSON.parse(cachedUser);
-          return next();
+        try {
+          const cachedUser = await redis.get(`user:${decoded.id}`);
+          if (cachedUser) {
+            req.user = JSON.parse(cachedUser);
+            return next();
+          }
+        } catch (redisError) {
+          // Redis unavailable, continue without cache
         }
       }
 
       req.user = await User.findById(decoded.id).select('-password');
 
       if (redis && req.user) {
-        await redis.setEx(`user:${decoded.id}`, 3600, JSON.stringify(req.user));
+        try {
+          await redis.setEx(`user:${decoded.id}`, 3600, JSON.stringify(req.user));
+        } catch (redisError) {
+          // Redis unavailable, continue without caching
+        }
       }
     } catch (error) {
       // Token invalid, but we don't fail - just continue without user

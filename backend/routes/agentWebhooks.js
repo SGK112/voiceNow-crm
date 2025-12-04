@@ -37,16 +37,16 @@ router.post('/send-signup-link', async (req, res) => {
       });
     }
 
-    const signupUrl = `${process.env.FRONTEND_URL || 'https://remodely.ai'}/signup`;
+    const signupUrl = `${process.env.FRONTEND_URL || 'https://voicenowcrm.com'}/signup`;
 
     // Send email if we have it
     if (customer_email) {
       await emailService.sendEmail({
         to: customer_email,
-        subject: 'Welcome to Remodely.ai - Your Signup Link',
+        subject: 'Welcome to VoiceNow CRM - Your Signup Link',
         html: `
           <h2>Hi ${customer_name || 'there'}!</h2>
-          <p>Thanks for your interest in Remodely.ai VoiceNow CRM!</p>
+          <p>Thanks for your interest in VoiceNow CRM VoiceNow CRM!</p>
           <p>As we discussed on the call, here's your signup link to get started with your FREE 14-day trial:</p>
           <p style="margin: 30px 0;">
             <a href="${signupUrl}" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
@@ -61,7 +61,7 @@ router.post('/send-signup-link', async (req, res) => {
             <li>14-day FREE trial - no credit card required</li>
           </ul>
           <p>If you have any questions, just reply to this email!</p>
-          <p>Best,<br>The Remodely.ai Team</p>
+          <p>Best,<br>The VoiceNow CRM Team</p>
         `
       });
 
@@ -70,7 +70,7 @@ router.post('/send-signup-link', async (req, res) => {
 
     // TODO: Send SMS if only phone is provided
     // if (!customer_email && customer_phone) {
-    //   await twilioService.sendSMS(customer_phone, `Hi ${customer_name}! Start your free Remodely.ai trial: ${signupUrl}`);
+    //   await twilioService.sendSMS(customer_phone, `Hi ${customer_name}! Start your free VoiceNow CRM trial: ${signupUrl}`);
     // }
 
     res.json({
@@ -145,13 +145,13 @@ router.post('/book-appointment', async (req, res) => {
         </div>
         <p>We'll call you at ${customer_phone || 'your number'} at the scheduled time.</p>
         <p>Looking forward to speaking with you!</p>
-        <p>Best,<br>The Remodely.ai Team</p>
+        <p>Best,<br>The VoiceNow CRM Team</p>
       `
     });
 
     // Send internal notification
     await emailService.sendEmail({
-      to: process.env.SMTP_USER || 'help.remodely@gmail.com',
+      to: process.env.SMTP_USER || 'help.voicenowcrm@gmail.com',
       subject: `New Appointment Booked - ${appointment_date}`,
       html: `
         <h2>New Appointment Scheduled</h2>
@@ -214,7 +214,7 @@ router.post('/collect-lead-info', async (req, res) => {
 
     // Send notification to sales team
     await emailService.sendEmail({
-      to: process.env.SMTP_USER || 'help.remodely@gmail.com',
+      to: process.env.SMTP_USER || 'help.voicenowcrm@gmail.com',
       subject: `New Lead: ${customer_name} - ${business_type || 'Unknown Business'}`,
       html: `
         <h2>New Lead Collected by AI Agent</h2>
@@ -233,14 +233,14 @@ router.post('/collect-lead-info', async (req, res) => {
 
     // If we have customer email, send them info
     if (customer_email) {
-      const signupUrl = `${process.env.FRONTEND_URL || 'https://remodely.ai'}/signup`;
+      const signupUrl = `${process.env.FRONTEND_URL || 'https://voicenowcrm.com'}/signup`;
 
       await emailService.sendEmail({
         to: customer_email,
-        subject: 'Great talking to you - Remodely.ai Info',
+        subject: 'Great talking to you - VoiceNow CRM Info',
         html: `
           <h2>Hi ${customer_name}!</h2>
-          <p>Thanks for the great conversation! As promised, here's everything you need to get started with Remodely.ai.</p>
+          <p>Thanks for the great conversation! As promised, here's everything you need to get started with VoiceNow CRM.</p>
           <p style="margin: 30px 0;">
             <a href="${signupUrl}" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
               Start Your FREE 14-Day Trial →
@@ -254,7 +254,7 @@ router.post('/collect-lead-info', async (req, res) => {
             <li>Set up in 2-3 hours</li>
           </ul>
           <p>Questions? Just reply to this email!</p>
-          <p>Best,<br>The Remodely.ai Team</p>
+          <p>Best,<br>The VoiceNow CRM Team</p>
         `
       });
     }
@@ -392,16 +392,16 @@ router.post('/send-sms', async (req, res) => {
     // Map link types to URLs and messages
     const linkConfig = {
       signup: {
-        url: 'https://remodely.ai/signup',
-        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Here's your link to start your FREE trial with VoiceNow CRM - 50 free minutes, no credit card required: https://remodely.ai/signup - Max from Remodely AI`
+        url: 'https://voicenowcrm.com/signup',
+        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Here's your link to start your FREE trial with VoiceNow CRM - 50 free minutes, no credit card required: https://voicenowcrm.com/signup - Max from VoiceNow CRM AI`
       },
       demo: {
-        url: 'https://remodely.ai/demo',
-        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Try our AI voice agent demo here: https://remodely.ai/demo - Experience it yourself! - Max from Remodely AI`
+        url: 'https://voicenowcrm.com/demo',
+        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Try our AI voice agent demo here: https://voicenowcrm.com/demo - Experience it yourself! - Max from VoiceNow CRM AI`
       },
       pricing: {
-        url: 'https://remodely.ai/#pricing',
-        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Here's our pricing info: https://remodely.ai/#pricing - Starting at just $99/month with a FREE trial! - Max from Remodely AI`
+        url: 'https://voicenowcrm.com/#pricing',
+        message: `Hi ${customer_name?.split(' ')[0] || 'there'}! Here's our pricing info: https://voicenowcrm.com/#pricing - Starting at just $99/month with a FREE trial! - Max from VoiceNow CRM AI`
       }
     };
 
@@ -485,9 +485,9 @@ router.post('/send-email', async (req, res) => {
               <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="color: #1e40af; margin-top: 0;">Ready to Get Started?</h3>
                 <p style="color: #4b5563; margin-bottom: 20px;">Start your free trial with 50 minutes of AI voice calls - no credit card required!</p>
-                <a href="https://remodely.ai/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">Start Free Trial</a>
+                <a href="https://voicenowcrm.com/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">Start Free Trial</a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Questions? Just reply to this email!<br><br>Best,<br><strong>Max</strong><br>Remodely AI Sales Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Questions? Just reply to this email!<br><br>Best,<br><strong>Max</strong><br>VoiceNow CRM AI Sales Team</p>
             </div>
           </div>
         `
@@ -517,7 +517,7 @@ router.post('/send-email', async (req, res) => {
                 </div>
               </div>
               <p style="color: #059669; font-weight: 600;">All plans include a FREE 14-day trial with 50 minutes!</p>
-              <a href="https://remodely.ai/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 15px;">Start Free Trial</a>
+              <a href="https://voicenowcrm.com/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 15px;">Start Free Trial</a>
             </div>
           </div>
         `
@@ -533,8 +533,8 @@ router.post('/send-email', async (req, res) => {
               <h2 style="color: #1f2937; margin-top: 0;">Hi ${name}!</h2>
               <p style="color: #4b5563; line-height: 1.6;">Thank you for taking the time to experience our AI voice agent demo! I hope it gave you a sense of how powerful our technology can be for your business.</p>
               <p style="color: #4b5563; line-height: 1.6;">Ready to put this to work for your own business? Start your free trial today and get 50 minutes to try it with your actual customers.</p>
-              <a href="https://remodely.ai/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 20px 0;">Start Free Trial</a>
-              <p style="color: #6b7280; font-size: 14px;">Questions? Just reply to this email or call us at (602) 833-7194!<br><br>Best,<br><strong>Max</strong><br>Remodely AI Sales Team</p>
+              <a href="https://voicenowcrm.com/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 20px 0;">Start Free Trial</a>
+              <p style="color: #6b7280; font-size: 14px;">Questions? Just reply to this email or call us at (602) 833-7194!<br><br>Best,<br><strong>Max</strong><br>VoiceNow CRM AI Sales Team</p>
             </div>
           </div>
         `
@@ -545,7 +545,7 @@ router.post('/send-email', async (req, res) => {
 
     // Send email
     await emailTransporter.sendMail({
-      from: `"Max from Remodely AI" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+      from: `"Max from VoiceNow CRM AI" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
       to: customer_email,
       subject: content.subject,
       html: content.html
@@ -554,7 +554,7 @@ router.post('/send-email', async (req, res) => {
     // Notify sales team
     await emailTransporter.sendMail({
       from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `📧 Email sent to ${customer_name || customer_email} (${email_type || 'info'})`,
       html: `<p>Max Sales Agent sent a ${email_type || 'info'} email to ${customer_email}</p><p>Customer Name: ${customer_name || 'Unknown'}</p>`
     });
@@ -596,13 +596,13 @@ router.post('/send-booking', async (req, res) => {
     }
 
     const name = customer_name?.split(' ')[0] || 'there';
-    const bookingUrl = 'https://calendly.com/remodely/consultation';
+    const bookingUrl = 'https://calendly.com/voicenowcrm/consultation';
 
     // Send SMS with booking link
     await agentSMSService.sendSMS({
       agentId: 'max-sales-agent',
       to: customer_phone,
-      message: `Hi ${name}! Here's your link to book a personalized consultation call: ${bookingUrl} - Pick a time that works best for you and we'll show you exactly how VoiceNow CRM can transform your business! - Max from Remodely AI`,
+      message: `Hi ${name}! Here's your link to book a personalized consultation call: ${bookingUrl} - Pick a time that works best for you and we'll show you exactly how VoiceNow CRM can transform your business! - Max from VoiceNow CRM AI`,
       userId: null,
       metadata: {
         source: 'max_sales_agent',
@@ -615,7 +615,7 @@ router.post('/send-booking', async (req, res) => {
     // Notify sales team
     await emailTransporter.sendMail({
       from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `📅 Booking link sent to ${customer_name || customer_phone}`,
       html: `<p>Max Sales Agent sent a booking link to:</p><p>Name: ${customer_name || 'Unknown'}<br>Phone: ${customer_phone}</p><p>Booking URL: ${bookingUrl}</p>`
     });
@@ -664,9 +664,9 @@ router.post('/post-call-notification', async (req, res) => {
     console.log(`   Duration: ${call_duration || 'N/A'}`);
     console.log(`   Outcome: ${call_outcome || 'Unknown'}`);
 
-    // Send notification to help.remodely@gmail.com
+    // Send notification to help.voicenowcrm@gmail.com
     await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `New Call Completed - ${customer_name || 'Unknown Customer'}`,
       html: `
         <h2>📞 Call Summary</h2>
@@ -700,7 +700,7 @@ router.post('/post-call-notification', async (req, res) => {
       `
     });
 
-    console.log(`   ✅ Post-call notification sent to help.remodely@gmail.com`);
+    console.log(`   ✅ Post-call notification sent to help.voicenowcrm@gmail.com`);
 
     res.json({
       success: true,

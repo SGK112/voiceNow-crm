@@ -66,7 +66,7 @@ export interface ImportResult {
 // Cache keys
 const CONTACTS_CACHE_KEY = 'contacts';
 const CONTACTS_CACHE_TIMESTAMP_KEY = 'contacts_cache_timestamp';
-const CACHE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_EXPIRY_MS = 1 * 60 * 1000; // 1 minute - faster sync between webapp and mobile
 
 class ContactService {
   // Get all contacts with caching
@@ -283,7 +283,9 @@ class ContactService {
     try {
       // Normalize phone number for search
       const normalizedPhone = phone.replace(/\D/g, '');
-      const contacts = await this.getContacts();
+      const { data: contacts } = await this.getContacts();
+
+      if (!contacts) return null;
 
       return contacts.find(c =>
         c.phone.replace(/\D/g, '') === normalizedPhone
@@ -297,7 +299,9 @@ class ContactService {
   // Get contacts for Aria (simplified data)
   async getContactsForAria(): Promise<Array<{ name: string; phone: string; company?: string }>> {
     try {
-      const contacts = await this.getContacts();
+      const { data: contacts } = await this.getContacts();
+      if (!contacts) return [];
+
       return contacts.map(c => ({
         name: c.name,
         phone: c.phone,

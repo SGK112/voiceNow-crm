@@ -115,14 +115,14 @@ class GoogleCalendarService {
       return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
-    const uid = `${Date.now()}@remodely.ai`;
+    const uid = `${Date.now()}@voicenowcrm.com`;
     const dtstamp = formatDate(new Date());
     const dtstart = formatDate(startTime);
     const dtend = formatDate(endTime);
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Remodely//VoiceNow CRM//EN
+PRODID:-//VoiceNow CRM//VoiceNow CRM//EN
 CALSCALE:GREGORIAN
 METHOD:REQUEST
 BEGIN:VEVENT
@@ -135,7 +135,7 @@ DESCRIPTION:${description.replace(/\n/g, '\\n')}
 LOCATION:${location || ''}
 STATUS:CONFIRMED
 SEQUENCE:0
-ORGANIZER:mailto:help.remodely@gmail.com
+ORGANIZER:mailto:help.voicenowcrm@gmail.com
 ${attendees.map(email => `ATTENDEE:mailto:${email}`).join('\n')}
 BEGIN:VALARM
 TRIGGER:-PT24H
@@ -211,7 +211,7 @@ END:VCALENDAR`;
 
             <p style="color: #6b7280; font-size: 14px;">
               Questions? Contact us:<br>
-              📧 help.remodely@gmail.com<br>
+              📧 help.voicenowcrm@gmail.com<br>
               📞 (602) 833-4780
             </p>
           </div>

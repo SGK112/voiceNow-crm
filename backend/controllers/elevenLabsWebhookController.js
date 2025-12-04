@@ -304,28 +304,28 @@ async function detectIntents(transcript) {
 // Link templates for different content types
 const LINK_TEMPLATES = {
   signup: {
-    url: 'https://remodely.ai/signup',
-    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    url: 'https://voicenowcrm.com/signup',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Thanks for your interest in VoiceNow CRM! 🤖\n\nStart your FREE 14-day trial (no credit card needed):\nhttps://voicenowcrm.com/signup\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`,
     image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80'
   },
   terms: {
-    url: 'https://remodely.ai/terms.html',
-    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Terms of Service as requested:\nhttps://remodely.ai/terms.html\n\nKey points:\n✓ No long-term contracts\n✓ Cancel anytime\n✓ 30-day refund policy\n✓ TCPA compliant\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    url: 'https://voicenowcrm.com/terms.html',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Terms of Service as requested:\nhttps://voicenowcrm.com/terms.html\n\nKey points:\n✓ No long-term contracts\n✓ Cancel anytime\n✓ 30-day refund policy\n✓ TCPA compliant\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`,
     image: null
   },
   privacy: {
-    url: 'https://remodely.ai/privacy.html',
-    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Privacy Policy as requested:\nhttps://remodely.ai/privacy.html\n\nYour data protection:\n🔒 SOC 2 compliant\n🔒 End-to-end encryption\n🔒 Never sell your data\n🔒 GDPR & CCPA compliant\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    url: 'https://voicenowcrm.com/privacy.html',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here's our Privacy Policy as requested:\nhttps://voicenowcrm.com/privacy.html\n\nYour data protection:\n🔒 SOC 2 compliant\n🔒 End-to-end encryption\n🔒 Never sell your data\n🔒 GDPR & CCPA compliant\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`,
     image: null
   },
   booking: {
-    url: 'https://remodely.ai/book',
-    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Book a call with our sales team:\nhttps://remodely.ai/book\n\nWe'll give you a personalized demo and answer all your questions!\n\n📅 Pick a time that works for you.\n\n- Remodelee AI Team`,
+    url: 'https://voicenowcrm.com/book',
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Book a call with our sales team:\nhttps://voicenowcrm.com/book\n\nWe'll give you a personalized demo and answer all your questions!\n\n📅 Pick a time that works for you.\n\n- VoiceNow AI Team`,
     image: null
   },
   all_links: {
     url: null,
-    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here are all the links you requested:\n\n🚀 Free Trial: https://remodely.ai/signup\n📋 Terms of Service: https://remodely.ai/terms.html\n🔒 Privacy Policy: https://remodely.ai/privacy.html\n📅 Book a Sales Call: https://remodely.ai/book\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`,
+    message: (name) => `${name ? `Hi ${name}!` : 'Hi!'} Here are all the links you requested:\n\n🚀 Free Trial: https://voicenowcrm.com/signup\n📋 Terms of Service: https://voicenowcrm.com/terms.html\n🔒 Privacy Policy: https://voicenowcrm.com/privacy.html\n📅 Book a Sales Call: https://voicenowcrm.com/book\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`,
     image: null
   }
 };
@@ -454,7 +454,7 @@ export const handlePostCallFollowUp = async (req, res) => {
     // Send follow-up SMS if phone number available
     if (customerPhone) {
       try {
-        const smsBody = `Hi ${customerName}! Thanks for chatting with our AI agent! 🤖\n\nReady to start your FREE VoiceNow CRM trial?\n👉 www.remodely.ai/signup\n\nQuestions? Reply to this text!\n\n- Remodelee AI Team`;
+        const smsBody = `Hi ${customerName}! Thanks for chatting with our AI agent! 🤖\n\nReady to start your FREE VoiceNow CRM trial?\n👉 www.voicenowcrm.com/signup\n\nQuestions? Reply to this text!\n\n- VoiceNow AI Team`;
 
         await twilioService.sendSMS(customerPhone, smsBody);
         console.log(`✅ Post-call SMS sent to ${customerPhone}`);
@@ -470,7 +470,7 @@ export const handlePostCallFollowUp = async (req, res) => {
         await emailService.sendEmail({
           to: customerEmail,
           subject: 'Thanks for Trying VoiceNow CRM! 🤖',
-          text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceNow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceNow CRM (no credit card needed):\nwww.remodely.ai/signup\n\n💡 What You'll Get with VoiceNow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe Remodelee AI Team`,
+          text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceNow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceNow CRM (no credit card needed):\nwww.voicenowcrm.com/signup\n\n💡 What You'll Get with VoiceNow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe VoiceNow AI Team`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -499,7 +499,7 @@ export const handlePostCallFollowUp = async (req, res) => {
                   </div>
 
                   <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://www.remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                    <a href="https://www.voicenowcrm.com/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
                       Start VoiceNow CRM Trial →
                     </a>
                   </div>
@@ -522,14 +522,14 @@ export const handlePostCallFollowUp = async (req, res) => {
 
                   <p style="font-size: 15px; color: #64748b; margin: 30px 0 0 0;">
                     Best regards,<br>
-                    <strong style="color: #0f172a;">The Remodelee AI Team</strong>
+                    <strong style="color: #0f172a;">The VoiceNow AI Team</strong>
                   </p>
                 </div>
 
                 <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
                   <p style="margin: 0; color: #64748b; font-size: 13px;">
-                    <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
-                    <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
+                    <a href="https://www.voicenowcrm.com" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
+                    <a href="mailto:help.voicenowcrm@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
                   </p>
                 </div>
               </div>
@@ -576,7 +576,7 @@ Provide a concise analysis in bullet points.`;
           const fullTranscript = transcript || 'No transcript available';
 
           await emailService.sendEmail({
-            to: 'help.remodely@gmail.com',
+            to: 'help.voicenowcrm@gmail.com',
             subject: `🎯 New Demo Lead: ${customerName || 'Unknown'} ${customerPhone ? `(${customerPhone})` : ''}`,
             text: `New demo call completed!\n\nLead Information:\n- Name: ${customerName || 'Not provided'}\n- Phone: ${customerPhone || 'Not provided'}\n- Email: ${customerEmail}\n- Conversation ID: ${conversation_id}\n\n${callAnalysis ? `AI Call Analysis:\n${callAnalysis}\n\n` : ''}Conversation Snippet:\n${transcriptSnippet}\n\nFull Transcript:\n${fullTranscript}\n\nNext Steps:\n- Follow up with the lead\n- Check if they signed up for trial\n- Provide personalized assistance\n\nView full conversation in CRM dashboard.`,
             html: `

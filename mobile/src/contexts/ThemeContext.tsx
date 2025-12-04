@@ -61,11 +61,11 @@ export const lightTheme: ThemeColors = {
   textTertiary: '#9CA3AF',
   textInverse: '#FFFFFF',
 
-  // Brand - softer, calmer blue
-  primary: '#4F8EF7',
-  primaryLight: '#6BA3FF',
-  primaryDark: '#3B7DE8',
-  secondary: '#8B5CF6',
+  // Brand - blue theme
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  primaryDark: '#2563EB',
+  secondary: '#0EA5E9',
 
   // Status - muted tones
   success: '#34D399',
@@ -83,7 +83,7 @@ export const lightTheme: ThemeColors = {
   // Tab bar
   tabBar: '#FFFFFF',
   tabBarBorder: '#E5E7EB',
-  tabBarActive: '#4F8EF7',
+  tabBarActive: '#3B82F6',
   tabBarInactive: '#9CA3AF',
 
   // Input
@@ -107,11 +107,11 @@ export const darkTheme: ThemeColors = {
   textTertiary: '#9CA3AF',
   textInverse: '#111827',
 
-  // Brand
+  // Brand - blue theme
   primary: '#60A5FA',
   primaryLight: '#93C5FD',
   primaryDark: '#3B82F6',
-  secondary: '#A78BFA',
+  secondary: '#38BDF8',
 
   // Status
   success: '#34D399',

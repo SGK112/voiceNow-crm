@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import { protect as auth } from '../middleware/auth.js';
 import Invoice from '../models/Invoice.js';
+import Payment from '../models/Payment.js';
 import Lead from '../models/Lead.js';
 import { Extension, UserExtension } from '../models/Extension.js';
 import qbService from '../services/quickbooksService.js';
@@ -232,10 +233,24 @@ router.post('/:id/send', auth, async (req, res) => {
   }
 });
 
-// Record payment
+// Record payment (deposit, partial, or final payment)
 router.post('/:id/payment', auth, async (req, res) => {
   try {
-    const { amount, paymentMethod, notes, paymentDate } = req.body;
+    const {
+      amount,
+      paymentMethod = 'other',
+      paymentType = 'partial',
+      notes,
+      memo,
+      paymentDate,
+      referenceNumber,
+      checkNumber,
+      transactionId
+    } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Amount must be greater than 0' });
+    }
 
     const invoice = await Invoice.findOne({
       _id: req.params.id,
@@ -250,15 +265,181 @@ router.post('/:id/payment', auth, async (req, res) => {
       return res.status(400).json({ message: 'Can only record payments for invoices' });
     }
 
-    await invoice.addPayment(amount);
+    if (amount > invoice.amountDue) {
+      return res.status(400).json({
+        message: `Payment amount ($${amount}) exceeds amount due ($${invoice.amountDue})`
+      });
+    }
 
-    // TODO: Create payment record in separate Payment model
-    // TODO: Sync with accounting software if enabled
+    // Create payment record
+    const payment = new Payment({
+      invoice: invoice._id,
+      user: req.user.userId,
+      contact: invoice.lead,
+      amount,
+      paymentMethod,
+      paymentType,
+      paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+      referenceNumber,
+      checkNumber,
+      transactionId,
+      notes,
+      memo,
+      status: 'completed'
+    });
 
-    res.json(invoice);
+    await payment.save();
+
+    // Update invoice amounts
+    invoice.amountPaid += amount;
+    invoice.amountDue = invoice.total - invoice.amountPaid;
+
+    // Update invoice status based on payment
+    if (invoice.amountDue <= 0) {
+      invoice.status = 'paid';
+      invoice.paidDate = new Date();
+    } else if (invoice.amountPaid > 0) {
+      invoice.status = 'partial';
+    }
+
+    await invoice.save();
+
+    // Auto-sync payment to QuickBooks in background
+    autoSyncPaymentToQuickBooks(req.user.userId, payment, invoice).catch(err =>
+      console.error('Background QB payment sync error:', err)
+    );
+
+    res.json({ payment, invoice });
   } catch (error) {
     console.error('Record payment error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get all payments for an invoice
+router.get('/:id/payments', auth, async (req, res) => {
+  try {
+    const invoice = await Invoice.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    const payments = await Payment.find({
+      invoice: req.params.id,
+      status: { $in: ['completed', 'refunded'] }
+    })
+      .sort({ paymentDate: -1 })
+      .populate('contact', 'name email');
+
+    res.json({ payments, invoice });
+  } catch (error) {
+    console.error('Get payments error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Refund a payment
+router.post('/:id/payments/:paymentId/refund', auth, async (req, res) => {
+  try {
+    const { amount, notes } = req.body;
+
+    const invoice = await Invoice.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    const payment = await Payment.findOne({
+      _id: req.params.paymentId,
+      invoice: req.params.id,
+      status: 'completed'
+    });
+
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found' });
+    }
+
+    const refundAmount = amount || payment.amount;
+
+    if (refundAmount > payment.amount) {
+      return res.status(400).json({
+        message: 'Refund amount cannot exceed original payment'
+      });
+    }
+
+    // Create refund record
+    const refund = await payment.processRefund(refundAmount, notes);
+
+    // Update invoice status
+    if (invoice.amountDue > 0) {
+      invoice.status = invoice.amountPaid > 0 ? 'partial' : 'sent';
+      invoice.paidDate = null;
+      await invoice.save();
+    }
+
+    res.json({ refund, invoice });
+  } catch (error) {
+    console.error('Refund payment error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Record deposit (shorthand for deposit payment type)
+router.post('/:id/deposit', auth, async (req, res) => {
+  try {
+    const { amount, paymentMethod = 'other', notes, paymentDate } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Deposit amount must be greater than 0' });
+    }
+
+    const invoice = await Invoice.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    if (invoice.type !== 'invoice') {
+      return res.status(400).json({ message: 'Can only record deposits for invoices' });
+    }
+
+    // Create deposit payment
+    const payment = new Payment({
+      invoice: invoice._id,
+      user: req.user.userId,
+      contact: invoice.lead,
+      amount,
+      paymentMethod,
+      paymentType: 'deposit',
+      paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+      notes: notes || 'Initial deposit',
+      status: 'completed'
+    });
+
+    await payment.save();
+
+    // Update invoice
+    invoice.amountPaid += amount;
+    invoice.amountDue = invoice.total - invoice.amountPaid;
+    if (invoice.amountPaid > 0 && invoice.amountDue > 0) {
+      invoice.status = 'partial';
+    }
+    await invoice.save();
+
+    res.json({ payment, invoice });
+  } catch (error) {
+    console.error('Record deposit error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -519,6 +700,114 @@ async function autoSyncToQuickBooks(userId, invoice) {
     invoice.syncStatus = 'error';
     invoice.syncError = error.message;
     await invoice.save();
+  }
+}
+
+// ========================================
+// Helper: Auto-Sync Payment to QuickBooks
+// ========================================
+async function autoSyncPaymentToQuickBooks(userId, payment, invoice) {
+  try {
+    // Find QuickBooks extension
+    const qbExtension = await Extension.findOne({ slug: 'quickbooks-online' });
+    if (!qbExtension) return;
+
+    // Find user's QB connection
+    const qbExt = await UserExtension.findOne({
+      user: userId,
+      extension: qbExtension._id,
+      status: 'active'
+    }).select('+oauth +credentials');
+
+    if (!qbExt) {
+      console.log(`No active QB connection for user ${userId}`);
+      payment.syncStatus = 'not_connected';
+      await payment.save();
+      return;
+    }
+
+    // Check if auto-sync is enabled
+    if (qbExt.settings?.autoSync === false) {
+      console.log(`Auto-sync disabled for user ${userId}`);
+      return;
+    }
+
+    // Must have invoice synced to QB first
+    if (!invoice.quickbooksId) {
+      console.log(`Invoice ${invoice.invoiceNumber} not synced to QB yet, skipping payment sync`);
+      payment.syncStatus = 'pending';
+      await payment.save();
+      return;
+    }
+
+    console.log(`🔄 Auto-syncing payment for invoice ${invoice.invoiceNumber} to QuickBooks...`);
+
+    // Refresh token if needed
+    if (new Date() > qbExt.oauth.expiresAt) {
+      console.log('Refreshing QB access token...');
+      const newTokens = await qbService.refreshToken(qbExt.oauth.refreshToken);
+      qbExt.oauth.accessToken = newTokens.access_token;
+      qbExt.oauth.refreshToken = newTokens.refresh_token;
+      qbExt.oauth.expiresAt = new Date(Date.now() + newTokens.expires_in * 1000);
+      await qbExt.save();
+    }
+
+    const realmId = qbExt.credentials.realmId;
+    const accessToken = qbExt.oauth.accessToken;
+
+    // Create payment in QuickBooks
+    const qbPaymentData = {
+      CustomerRef: { value: invoice.quickbooksCustomerId },
+      TotalAmt: payment.amount,
+      TxnDate: payment.paymentDate.toISOString().split('T')[0],
+      Line: [{
+        Amount: payment.amount,
+        LinkedTxn: [{
+          TxnId: invoice.quickbooksId,
+          TxnType: 'Invoice'
+        }]
+      }],
+      PrivateNote: payment.notes || `Payment via ${payment.paymentMethod}`
+    };
+
+    // Map payment method to QuickBooks payment method
+    const paymentMethodMap = {
+      'cash': 'Cash',
+      'check': 'Check',
+      'credit_card': 'Credit Card',
+      'debit_card': 'Debit Card',
+      'bank_transfer': 'Bank Transfer',
+      'paypal': 'PayPal',
+      'stripe': 'Stripe',
+      'venmo': 'Venmo',
+      'zelle': 'Zelle',
+      'other': 'Other'
+    };
+
+    // Try to find or create payment method in QB
+    // Note: QuickBooks has a PaymentMethod reference, but for simplicity we'll use the note
+
+    const qbPayment = await qbService.makeRequest(
+      'POST',
+      '/payment',
+      realmId,
+      accessToken,
+      qbPaymentData
+    );
+
+    payment.quickbooksId = qbPayment.Payment.Id;
+    payment.quickbooksCustomerId = invoice.quickbooksCustomerId;
+    payment.syncToken = qbPayment.Payment.SyncToken;
+    payment.syncStatus = 'synced';
+    payment.lastSyncedAt = new Date();
+    await payment.save();
+
+    console.log(`✅ Payment synced successfully to QuickBooks! QB Payment ID: ${qbPayment.Payment.Id}`);
+  } catch (error) {
+    console.error(`❌ Auto-sync failed for payment:`, error);
+    payment.syncStatus = 'failed';
+    payment.syncError = error.message;
+    await payment.save();
   }
 }
 

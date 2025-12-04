@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import * as Calendar from 'expo-calendar';
 import api from '../utils/api';
+import { Deal, STAGES, PRIORITIES } from '../types';
 
 interface CalendarEvent {
   id: string;
@@ -22,6 +23,13 @@ interface CalendarEvent {
   location?: string;
   notes?: string;
   isAllDay?: boolean;
+  // CRM-specific fields
+  type?: 'calendar' | 'deal' | 'task';
+  dealId?: string;
+  value?: number;
+  stage?: string;
+  priority?: 'low' | 'medium' | 'high';
+  contactName?: string;
 }
 
 interface DayEvents {
@@ -93,11 +101,41 @@ export default function CalendarScreen({ navigation }: any) {
             endDate: new Date(e.endDate || e.end),
             location: e.location,
             notes: e.description || e.notes,
+            type: 'calendar' as const,
           }));
           setEvents(prev => [...prev, ...backendEvents]);
         }
       } catch (err) {
         // Backend events optional
+      }
+
+      // Fetch CRM deals with due dates
+      try {
+        const dealsRes = await api.get('/deals');
+        const deals: Deal[] = dealsRes.data || [];
+        const dealsWithDueDates = deals.filter(deal => deal.dueDate);
+
+        const dealEvents: CalendarEvent[] = dealsWithDueDates.map(deal => {
+          const dueDate = new Date(deal.dueDate!);
+          return {
+            id: `deal-${deal._id}`,
+            title: `📊 ${deal.title}`,
+            startDate: dueDate,
+            endDate: dueDate,
+            isAllDay: true,
+            type: 'deal' as const,
+            dealId: deal._id,
+            value: deal.value,
+            stage: deal.stage,
+            priority: deal.priority,
+            contactName: deal.contact?.name,
+            notes: deal.description,
+          };
+        });
+
+        setEvents(prev => [...prev, ...dealEvents]);
+      } catch (err) {
+        console.log('Could not fetch CRM deals:', err);
       }
 
     } catch (error) {
@@ -162,9 +200,33 @@ export default function CalendarScreen({ navigation }: any) {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
-  const getEventColor = (index: number) => {
-    const eventColors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
+  const getEventColor = (event: CalendarEvent, index: number) => {
+    // Use priority-based colors for deals
+    if (event.type === 'deal') {
+      const priorityColors: Record<string, string> = {
+        high: '#EF4444',
+        medium: '#F59E0B',
+        low: '#6B7280',
+      };
+      return priorityColors[event.priority || 'medium'] || '#A855F7';
+    }
+    // Default colors for calendar events
+    const eventColors = ['#3B82F6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
     return eventColors[index % eventColors.length];
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const getStageLabel = (stageKey: string) => {
+    const stage = STAGES.find(s => s.key === stageKey);
+    return stage?.label || stageKey;
   };
 
   const weekDays = getWeekDays();
@@ -246,7 +308,7 @@ export default function CalendarScreen({ navigation }: any) {
                     key={event.id}
                     style={[
                       styles.eventCard,
-                      { backgroundColor: colors.card, borderLeftColor: getEventColor(eventIndex) },
+                      { backgroundColor: colors.card, borderLeftColor: getEventColor(event, eventIndex) },
                     ]}
                   >
                     <View style={styles.eventTime}>
@@ -256,7 +318,35 @@ export default function CalendarScreen({ navigation }: any) {
                     </View>
                     <View style={styles.eventDetails}>
                       <Text style={[styles.eventTitle, { color: colors.text }]}>{event.title}</Text>
-                      {event.location && (
+                      {/* Show deal-specific info */}
+                      {event.type === 'deal' && (
+                        <View style={styles.dealInfo}>
+                          {event.value !== undefined && event.value > 0 && (
+                            <Text style={[styles.dealValue, { color: colors.primary }]}>
+                              {formatCurrency(event.value)}
+                            </Text>
+                          )}
+                          <View style={styles.dealMeta}>
+                            {event.stage && (
+                              <View style={[styles.dealBadge, { backgroundColor: colors.primary + '20' }]}>
+                                <Text style={[styles.dealBadgeText, { color: colors.primary }]}>
+                                  {getStageLabel(event.stage)}
+                                </Text>
+                              </View>
+                            )}
+                            {event.contactName && (
+                              <View style={styles.eventLocation}>
+                                <Ionicons name="person-outline" size={12} color={colors.textTertiary} />
+                                <Text style={[styles.eventLocationText, { color: colors.textTertiary }]}>
+                                  {event.contactName}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      )}
+                      {/* Show location for regular calendar events */}
+                      {event.location && event.type !== 'deal' && (
                         <View style={styles.eventLocation}>
                           <Ionicons name="location-outline" size={12} color={colors.textTertiary} />
                           <Text style={[styles.eventLocationText, { color: colors.textTertiary }]}>
@@ -430,5 +520,28 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  dealInfo: {
+    marginTop: 4,
+  },
+  dealValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  dealMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  dealBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  dealBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
 });

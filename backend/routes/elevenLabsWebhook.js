@@ -2,6 +2,7 @@ import express from 'express';
 import agentSMSService from '../services/agentSMSService.js';
 import googleCalendar from '../services/googleCalendar.js';
 import nodemailer from 'nodemailer';
+import browserAgentService from '../services/browserAgentService.js';
 import {
   verifyWebhookToken,
   verifyWebhookTimestamp,
@@ -82,6 +83,19 @@ router.post('/tool-invocation', async (req, res) => {
 
       case 'end_call':
         result = { success: true, message: 'Call ending' };
+        break;
+
+      // Browser automation tools
+      case 'research_company':
+        result = await handleResearchCompany(tool_parameters, agent_id, call_id);
+        break;
+
+      case 'check_calendar_availability':
+        result = await handleCheckAvailability(tool_parameters, agent_id, call_id);
+        break;
+
+      case 'fill_web_form':
+        result = await handleFillWebForm(tool_parameters, agent_id, call_id);
         break;
 
       default:
@@ -205,7 +219,7 @@ async function handleSendEmail(parameters, agentId, callId) {
 }
 
 /**
- * Handle sending SMS with specific links (Remodely Sales Agent tool)
+ * Handle sending SMS with specific links (VoiceNow CRM Sales Agent tool)
  * Link types: signup, booking, terms, privacy
  */
 async function handleSendSMSLink(parameters, agentId, callId) {
@@ -221,11 +235,11 @@ async function handleSendSMSLink(parameters, agentId, callId) {
 
     // Map link types to actual URLs
     const linkMap = {
-      signup: 'https://remodely.ai/signup',
-      booking: 'https://remodely.ai/book',
-      terms: 'https://remodely.ai/terms.html',
-      privacy: 'https://remodely.ai/privacy.html',
-      pricing: 'https://remodely.ai/#pricing'
+      signup: 'https://voicenowcrm.com/signup',
+      booking: 'https://voicenowcrm.com/book',
+      terms: 'https://voicenowcrm.com/terms.html',
+      privacy: 'https://voicenowcrm.com/privacy.html',
+      pricing: 'https://voicenowcrm.com/#pricing'
     };
 
     const url = linkMap[link_type.toLowerCase()];
@@ -242,22 +256,22 @@ async function handleSendSMSLink(parameters, agentId, callId) {
 
     switch (link_type.toLowerCase()) {
       case 'signup':
-        message = `Hi ${name}! Here's your link to get started with VoiceNow CRM - 50 free minutes, no credit card required: ${url} - Max from Remodely AI`;
+        message = `Hi ${name}! Here's your link to get started with VoiceNow CRM - 50 free minutes, no credit card required: ${url} - Max from VoiceNow CRM AI`;
         break;
       case 'booking':
-        message = `Hi ${name}! Book your personalized sales call here: ${url} - We'll show you exactly how AI can transform your business. - Max from Remodely AI`;
+        message = `Hi ${name}! Book your personalized sales call here: ${url} - We'll show you exactly how AI can transform your business. - Max from VoiceNow CRM AI`;
         break;
       case 'terms':
-        message = `Hi ${name}, here's our Terms of Service: ${url} - Max from Remodely AI`;
+        message = `Hi ${name}, here's our Terms of Service: ${url} - Max from VoiceNow CRM AI`;
         break;
       case 'privacy':
-        message = `Hi ${name}, here's our Privacy Policy: ${url} - Max from Remodely AI`;
+        message = `Hi ${name}, here's our Privacy Policy: ${url} - Max from VoiceNow CRM AI`;
         break;
       case 'pricing':
-        message = `Hi ${name}! Check out our pricing plans here: ${url} - Max from Remodely AI`;
+        message = `Hi ${name}! Check out our pricing plans here: ${url} - Max from VoiceNow CRM AI`;
         break;
       default:
-        message = `Hi ${name}! Here's the link you requested: ${url} - Max from Remodely AI`;
+        message = `Hi ${name}! Here's the link you requested: ${url} - Max from VoiceNow CRM AI`;
     }
 
     // Send SMS using Twilio
@@ -294,7 +308,7 @@ async function handleSendSMSLink(parameters, agentId, callId) {
 }
 
 /**
- * Handle sending follow-up email after call (Remodely Sales Agent tool)
+ * Handle sending follow-up email after call (VoiceNow CRM Sales Agent tool)
  */
 async function handleSendFollowUpEmail(parameters, agentId, callId) {
   try {
@@ -354,7 +368,7 @@ async function handleSendFollowUpEmail(parameters, agentId, callId) {
             <p style="color: #4b5563; margin-bottom: 20px;">
               Start your free trial with 50 minutes of AI voice calls - no credit card required!
             </p>
-            <a href="https://remodely.ai/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            <a href="https://voicenowcrm.com/signup" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
               Start Free Trial
             </a>
           </div>
@@ -362,10 +376,10 @@ async function handleSendFollowUpEmail(parameters, agentId, callId) {
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
             <p style="color: #4b5563; margin-bottom: 10px;">Quick links:</p>
             <p style="margin: 5px 0;">
-              📅 <a href="https://remodely.ai/book" style="color: #3b82f6;">Book a Demo Call</a>
+              📅 <a href="https://voicenowcrm.com/book" style="color: #3b82f6;">Book a Demo Call</a>
             </p>
             <p style="margin: 5px 0;">
-              💰 <a href="https://remodely.ai/#pricing" style="color: #3b82f6;">View Pricing</a>
+              💰 <a href="https://voicenowcrm.com/#pricing" style="color: #3b82f6;">View Pricing</a>
             </p>
           </div>
 
@@ -375,7 +389,7 @@ async function handleSendFollowUpEmail(parameters, agentId, callId) {
             Questions? Just reply to this email or call me at (602) 833-7194.<br><br>
             Best regards,<br>
             <strong>Max</strong><br>
-            Sales Team, Remodely AI
+            Sales Team, VoiceNow CRM AI
           </p>
         </div>
       </div>
@@ -383,17 +397,17 @@ async function handleSendFollowUpEmail(parameters, agentId, callId) {
 
     // Send email
     const info = await emailTransporter.sendMail({
-      from: `"Max from Remodely AI" <${process.env.SMTP_FROM_EMAIL}>`,
+      from: `"Max from VoiceNow CRM AI" <${process.env.SMTP_FROM_EMAIL}>`,
       to: customer_email,
       subject: `Great talking with you, ${name}! Here's how to get started with AI`,
       html: emailHTML,
-      text: `Hi ${name}!\n\nGreat speaking with you about how AI voice agents can transform ${industryText} businesses!\n\nStart your free trial: https://remodely.ai/signup\nBook a demo: https://remodely.ai/book\n\nQuestions? Reply to this email or call (602) 833-7194.\n\nBest,\nMax\nRemodely AI`
+      text: `Hi ${name}!\n\nGreat speaking with you about how AI voice agents can transform ${industryText} businesses!\n\nStart your free trial: https://voicenowcrm.com/signup\nBook a demo: https://voicenowcrm.com/book\n\nQuestions? Reply to this email or call (602) 833-7194.\n\nBest,\nMax\nVoiceNow CRM AI`
     });
 
     // Also notify sales team
     await emailTransporter.sendMail({
       from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `📧 Follow-up email sent to ${customer_name || customer_email}`,
       html: `
         <p>Follow-up email sent during call:</p>
@@ -426,7 +440,7 @@ async function handleSendFollowUpEmail(parameters, agentId, callId) {
 }
 
 /**
- * Handle booking a sales call (Remodely Sales Agent tool)
+ * Handle booking a sales call (VoiceNow CRM Sales Agent tool)
  * Integrates with Google Calendar for scheduling
  */
 async function handleBookSalesCall(parameters, agentId, callId) {
@@ -491,7 +505,7 @@ async function handleBookSalesCall(parameters, agentId, callId) {
                    `Booked during AI call (ID: ${callId})`,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      attendees: customer_email ? [customer_email, 'help.remodely@gmail.com'] : ['help.remodely@gmail.com'],
+      attendees: customer_email ? [customer_email, 'help.voicenowcrm@gmail.com'] : ['help.voicenowcrm@gmail.com'],
       location: 'Phone Call'
     };
 
@@ -522,7 +536,7 @@ async function handleBookSalesCall(parameters, agentId, callId) {
       await agentSMSService.sendSMS({
         agentId,
         to: customer_phone,
-        message: `Hi ${customer_name.split(' ')[0]}! Your sales call is confirmed for ${formattedDate} at ${formattedTime}. Looking forward to showing you how VoiceNow CRM can transform your business! - Max from Remodely AI`,
+        message: `Hi ${customer_name.split(' ')[0]}! Your sales call is confirmed for ${formattedDate} at ${formattedTime}. Looking forward to showing you how VoiceNow CRM can transform your business! - Max from VoiceNow CRM AI`,
         userId: null,
         metadata: {
           callId,
@@ -535,7 +549,7 @@ async function handleBookSalesCall(parameters, agentId, callId) {
     // Notify sales team
     await emailTransporter.sendMail({
       from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `📅 NEW SALES CALL BOOKED: ${customer_name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
@@ -587,7 +601,7 @@ function getNextBusinessDay() {
 }
 
 /**
- * Handle creating lead notification for sales team (Remodely Sales Agent tool)
+ * Handle creating lead notification for sales team (VoiceNow CRM Sales Agent tool)
  */
 async function handleCreateLeadNotification(parameters, agentId, callId) {
   try {
@@ -627,7 +641,7 @@ async function handleCreateLeadNotification(parameters, agentId, callId) {
     // Send notification to sales team
     await emailTransporter.sendMail({
       from: `"VoiceNow CRM" <${process.env.SMTP_FROM_EMAIL}>`,
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `${emoji} NEW LEAD: ${customer_name || 'Unknown'} (${interest_level || 'Unknown'} interest)`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
@@ -903,14 +917,14 @@ router.post('/post-call', async (req, res) => {
         let smsMessage = `Hi ${customerName}! `;
 
         if (leadScore >= 15) {
-          smsMessage += `It was great talking about ${features}! I'm excited to help you get started. Start your free trial: https://remodely.ai/signup`;
+          smsMessage += `It was great talking about ${features}! I'm excited to help you get started. Start your free trial: https://voicenowcrm.com/signup`;
         } else if (leadScore >= 10) {
-          smsMessage += `Thanks for chatting about ${features}. Here's your trial link: https://remodely.ai/signup - 50 free minutes, no credit card needed!`;
+          smsMessage += `Thanks for chatting about ${features}. Here's your trial link: https://voicenowcrm.com/signup - 50 free minutes, no credit card needed!`;
         } else {
-          smsMessage += `Thanks for your interest in VoiceNow CRM. Learn more and start free: https://remodely.ai/signup`;
+          smsMessage += `Thanks for your interest in VoiceNow CRM. Learn more and start free: https://voicenowcrm.com/signup`;
         }
 
-        smsMessage += ` - Sarah from Remodely AI`;
+        smsMessage += ` - Sarah from VoiceNow CRM AI`;
 
         await agentSMSService.sendSMS({
           agentId: agent_id,
@@ -956,7 +970,7 @@ router.post('/post-call', async (req, res) => {
 
       await emailTransporter.sendMail({
         from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
-        to: 'help.remodely@gmail.com',
+        to: 'help.voicenowcrm@gmail.com',
         subject: `${leadQuality.label} ${customerName} - Score: ${leadScore}/20`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 700px;">
@@ -1043,7 +1057,7 @@ router.post('/post-call', async (req, res) => {
           </div>
         `
       });
-      console.log('✅ Intelligent sales notification sent to help.remodely@gmail.com');
+      console.log('✅ Intelligent sales notification sent to help.voicenowcrm@gmail.com');
     } catch (error) {
       console.error('❌ Sales notification failed:', error.message);
     }
@@ -1055,5 +1069,187 @@ router.post('/post-call', async (req, res) => {
     // Don't return error to ElevenLabs - we already acknowledged
   }
 });
+
+// ==========================================
+// BROWSER AUTOMATION TOOL HANDLERS
+// ==========================================
+
+/**
+ * Handle research_company tool from voice agent
+ * Uses browser-use to research a company in real-time during calls
+ */
+async function handleResearchCompany(parameters, agentId, callId) {
+  try {
+    const { company_name, contact_name } = parameters;
+
+    if (!company_name) {
+      return {
+        success: false,
+        error: 'Company name is required for research'
+      };
+    }
+
+    console.log(`🔍 Voice agent researching company: ${company_name}`);
+
+    // Check if browser agent service is available
+    const isHealthy = await browserAgentService.isHealthy();
+
+    if (!isHealthy) {
+      console.log('⚠️ Browser agent service unavailable, returning basic response');
+      return {
+        success: true,
+        response: `I'll note that you're interested in information about ${company_name}. Our team will research this and follow up with you.`,
+        data: { company_name, researched: false }
+      };
+    }
+
+    // Use quick research for real-time voice calls
+    const result = await browserAgentService.voiceAgentResearch(company_name, contact_name);
+
+    if (result.success && result.research) {
+      return {
+        success: true,
+        response: result.research,
+        data: { company_name, contact_name, researched: true }
+      };
+    } else {
+      return {
+        success: true,
+        response: `I found some basic information about ${company_name}. Would you like me to have our team do deeper research and send it to you?`,
+        data: { company_name, researched: false }
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Research company failed:', error);
+    return {
+      success: true,
+      response: "I'll have our team research that company and follow up with you.",
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle check_calendar_availability tool from voice agent
+ * Checks scheduling page availability during calls
+ */
+async function handleCheckAvailability(parameters, agentId, callId) {
+  try {
+    const { date } = parameters;
+    const calendarUrl = process.env.DEFAULT_CALENDAR_URL || 'https://calendly.com/voicenowcrm-ai';
+
+    if (!date) {
+      return {
+        success: false,
+        error: 'Date is required to check availability'
+      };
+    }
+
+    console.log(`📅 Voice agent checking availability for: ${date}`);
+
+    // Check if browser agent service is available
+    const isHealthy = await browserAgentService.isHealthy();
+
+    if (!isHealthy) {
+      console.log('⚠️ Browser agent service unavailable');
+      return {
+        success: true,
+        response: `I can schedule you for ${date}. What time works best for you - morning, afternoon, or evening?`,
+        data: { date, checked: false }
+      };
+    }
+
+    const result = await browserAgentService.voiceAgentCheckAvailability(calendarUrl, date);
+
+    if (result.success && result.availability) {
+      return {
+        success: true,
+        response: result.availability,
+        data: { date, availability: result.availability, checked: true }
+      };
+    } else {
+      return {
+        success: true,
+        response: `I have availability on ${date}. What time works best - morning around 10am, afternoon around 2pm, or later in the day around 4pm?`,
+        data: { date, checked: false }
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Check availability failed:', error);
+    return {
+      success: true,
+      response: "Let me check our calendar. What time of day works best for you?",
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle fill_web_form tool from voice agent
+ * Fills out web forms on behalf of customers
+ */
+async function handleFillWebForm(parameters, agentId, callId) {
+  try {
+    const { form_url, customer_name, customer_email, customer_phone, additional_info } = parameters;
+
+    if (!form_url) {
+      return {
+        success: false,
+        error: 'Form URL is required'
+      };
+    }
+
+    console.log(`📝 Voice agent filling form: ${form_url}`);
+
+    // Check if browser agent service is available
+    const isHealthy = await browserAgentService.isHealthy();
+
+    if (!isHealthy) {
+      console.log('⚠️ Browser agent service unavailable');
+      return {
+        success: true,
+        response: "I'll send you a link to that form so you can fill it out at your convenience. Can I get your email to send it to?",
+        data: { form_url, filled: false }
+      };
+    }
+
+    const formData = {
+      name: customer_name,
+      email: customer_email,
+      phone: customer_phone
+    };
+
+    if (additional_info) {
+      formData.message = additional_info;
+      formData.notes = additional_info;
+    }
+
+    const result = await browserAgentService.fillForm(form_url, formData, false);
+
+    if (result.success) {
+      return {
+        success: true,
+        response: `I've pre-filled the form with your information. You'll just need to review and submit it. Would you like me to send you the link?`,
+        data: { form_url, filled: true, formData }
+      };
+    } else {
+      return {
+        success: true,
+        response: "I'll send you a direct link to that form. It should only take a minute to fill out.",
+        data: { form_url, filled: false }
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Fill form failed:', error);
+    return {
+      success: true,
+      response: "Let me send you that form link directly. What's the best email to reach you?",
+      error: error.message
+    };
+  }
+}
 
 export default router;

@@ -14,7 +14,7 @@ async function createDemoAgents() {
     console.log('✅ Connected to MongoDB');
 
     // Find an existing user (use first available)
-    let demoUser = await User.findOne({ email: 'help.remodely@gmail.com' });
+    let demoUser = await User.findOne({ email: 'help.voicenowcrm@gmail.com' });
 
     if (!demoUser) {
       // Try other users
@@ -40,7 +40,7 @@ async function createDemoAgents() {
     // Create INBOUND agent - Handles incoming calls from website
     const inboundAgent = new VoiceAgent({
       userId: demoUser._id,
-      name: 'Remodely Inbound Assistant',
+      name: 'VoiceNow CRM Inbound Assistant',
       type: 'general_contractor',
       voiceId: RACHEL_VOICE_ID,
       voiceName: 'Rachel',
@@ -49,10 +49,10 @@ async function createDemoAgents() {
       priority: 10, // Higher priority
       status: 'active',
       enabled: true,
-      firstMessage: 'Hi! Thanks for calling Remodelee dot A I. I\'m Rachel, your AI assistant. How can I help you today?',
-      script: `You are Rachel, a friendly and professional AI assistant for Remodelee dot A I (spelled R-E-M-O-D-E-L-Y, pronounced "re-MODE-lee"), a voice AI platform for contractors.
+      firstMessage: 'Hi! Thanks for calling VoiceNow dot A I. I\'m Rachel, your AI assistant. How can I help you today?',
+      script: `You are Rachel, a friendly and professional AI assistant for VoiceNow dot A I (spelled R-E-M-O-D-E-L-Y, pronounced "re-MODE-lee"), a voice AI platform for contractors.
 
-IMPORTANT: Always pronounce the company name as "Remodelee" (re-MODE-lee), not "Remodel-y".
+IMPORTANT: Always pronounce the company name as "VoiceNow" (re-MODE-lee), not "Remodel-y".
 
 Your role:
 - Answer questions about VoiceNow CRM features and pricing
@@ -98,7 +98,7 @@ Be conversational, ask qualifying questions, and always offer to book a demo or 
     // Create OUTBOUND agent - Handles "Call Me" requests from website
     const outboundAgent = new VoiceAgent({
       userId: demoUser._id,
-      name: 'Remodely Outbound Follow-up',
+      name: 'VoiceNow CRM Outbound Follow-up',
       type: 'lead_gen',
       voiceId: RACHEL_VOICE_ID,
       voiceName: 'Rachel',
@@ -107,10 +107,10 @@ Be conversational, ask qualifying questions, and always offer to book a demo or 
       priority: 5,
       status: 'active',
       enabled: true,
-      firstMessage: 'Hi! This is Rachel from Remodelee dot A I. You requested a call from our website. Is now a good time to chat about how our AI voice agents can help your business?',
-      script: `You are Rachel, calling on behalf of Remodelee dot A I (spelled R-E-M-O-D-E-L-Y, pronounced "re-MODE-lee") to follow up with someone who requested a call from the website.
+      firstMessage: 'Hi! This is Rachel from VoiceNow dot A I. You requested a call from our website. Is now a good time to chat about how our AI voice agents can help your business?',
+      script: `You are Rachel, calling on behalf of VoiceNow dot A I (spelled R-E-M-O-D-E-L-Y, pronounced "re-MODE-lee") to follow up with someone who requested a call from the website.
 
-IMPORTANT: Always pronounce the company name as "Remodelee" (re-MODE-lee), not "Remodel-y".
+IMPORTANT: Always pronounce the company name as "VoiceNow" (re-MODE-lee), not "Remodel-y".
 
 Your role:
 - Confirm this is a good time to talk (if not, offer to schedule a callback)

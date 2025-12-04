@@ -5,7 +5,7 @@ dotenv.config();
 
 async function testPostCallEmail() {
   try {
-    const testEmail = 'help.remodely@gmail.com'; // Change this to your email for testing
+    const testEmail = 'help.voicenowcrm@gmail.com'; // Change this to your email for testing
     const customerName = 'John Doe';
     const customerPhone = '+14802555887';
     const conversationId = 'test_conversation_123';
@@ -18,7 +18,7 @@ async function testPostCallEmail() {
     await emailService.sendEmail({
       to: testEmail,
       subject: 'Thanks for Trying VoiceNow CRM! 🤖',
-      text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceNow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceNow CRM (no credit card needed):\nwww.remodely.ai/signup\n\n💡 What You'll Get with VoiceNow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe Remodelee AI Team`,
+      text: `Hi ${customerName}!\n\nThanks for taking the time to chat with our AI voice agent! We hope you saw how realistic and helpful VoiceNow CRM can be.\n\n🎯 What's Next?\nStart your FREE 14-day trial of VoiceNow CRM (no credit card needed):\nwww.voicenowcrm.com/signup\n\n💡 What You'll Get with VoiceNow CRM:\n✓ 24/7 AI agents that never miss calls\n✓ Automated lead qualification\n✓ Appointment booking\n✓ Custom workflows (no coding needed)\n✓ Full CRM included\n\n📞 Questions?\nReply to this email or call us anytime!\n\nBest regards,\nThe VoiceNow AI Team`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -47,7 +47,7 @@ async function testPostCallEmail() {
               </div>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://www.remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                <a href="https://www.voicenowcrm.com/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
                   Start VoiceNow CRM Trial →
                 </a>
               </div>
@@ -70,14 +70,14 @@ async function testPostCallEmail() {
 
               <p style="font-size: 15px; color: #64748b; margin: 30px 0 0 0;">
                 Best regards,<br>
-                <strong style="color: #0f172a;">The Remodelee AI Team</strong>
+                <strong style="color: #0f172a;">The VoiceNow AI Team</strong>
               </p>
             </div>
 
             <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
               <p style="margin: 0; color: #64748b; font-size: 13px;">
-                <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
-                <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
+                <a href="https://www.voicenowcrm.com" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
+                <a href="mailto:help.voicenowcrm@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ async function testPostCallEmail() {
     const transcriptSnippet = transcript.substring(0, 500);
 
     await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `🎯 New Demo Lead: ${customerName || 'Unknown'} ${customerPhone ? `(${customerPhone})` : ''}`,
       text: `New demo call completed!\n\nLead Information:\n- Name: ${customerName || 'Not provided'}\n- Phone: ${customerPhone || 'Not provided'}\n- Email: ${testEmail}\n- Conversation ID: ${conversationId}\n\nConversation Snippet:\n${transcriptSnippet}\n\nNext Steps:\n- Follow up with the lead\n- Check if they signed up for trial\n- Provide personalized assistance\n\nView full conversation in CRM dashboard.`,
       html: `

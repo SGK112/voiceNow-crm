@@ -15,7 +15,7 @@ async function testEmail() {
   console.log('📧 Testing Email Notification...\n');
 
   // Test email
-  const testEmail = process.env.SMTP_FROM_EMAIL || 'helpremodely@gmail.com';
+  const testEmail = process.env.SMTP_FROM_EMAIL || 'helpvoicenowcrm@gmail.com';
 
   console.log(`📮 Sending test email to: ${testEmail}`);
   console.log(`📤 From: ${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`);
@@ -39,7 +39,7 @@ async function testEmail() {
       console.error(`   SMTP_PASSWORD: ${process.env.SMTP_PASSWORD ? '✓ Set' : '✗ Missing'}`);
       console.error('\n   💡 To generate an app password:');
       console.error('   1. Go to: https://myaccount.google.com/apppasswords');
-      console.error('   2. Sign in as helpremodely@gmail.com');
+      console.error('   2. Sign in as helpvoicenowcrm@gmail.com');
       console.error('   3. Create app password for "VoiceNow CRM"');
       console.error('   4. Add to .env as SMTP_PASSWORD=<16-char-password>');
     } else if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {

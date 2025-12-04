@@ -21,7 +21,7 @@ export default function MessagesScreen({ navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const avatarColors = ['#8B5CF6', '#4F8EF7', '#34D399', '#FBBF24', '#F87171', '#EC4899'];
+    const avatarColors = ['#3B82F6', '#4F8EF7', '#34D399', '#FBBF24', '#F87171', '#EC4899'];
     const char = name?.charAt(0) || '?';
     const index = char.charCodeAt(0) % avatarColors.length;
     return avatarColors[index];

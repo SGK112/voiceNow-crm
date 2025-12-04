@@ -59,8 +59,10 @@ const formatTimeAgo = (date: Date): string => {
 const MENU_ITEMS = [
   { id: 'Dashboard', icon: 'stats-chart-outline', label: 'Dashboard' },
   { id: 'Contacts', icon: 'people-outline', label: 'Contacts' },
+  { id: 'CRM', icon: 'briefcase-outline', label: 'CRM' },
   { id: 'Design', icon: 'color-palette-outline', label: 'Design' },
   { id: 'Calendar', icon: 'calendar-outline', label: 'Calendar' },
+  { id: 'Agents', icon: 'hardware-chip-outline', label: 'Agents' },
   { id: 'Collaboration', icon: 'chatbubbles-outline', label: 'Team' },
   { id: 'Profile', icon: 'person-outline', label: 'Profile' },
 ];
@@ -314,7 +316,36 @@ export default function AriaScreen() {
       role,
       content: text,
     };
-    setChatMessages(prev => [...prev, newMessage]);
+
+    // Create new conversation if this is the first user message
+    const isNewConversation = chatMessages.length === 0 && !currentConversationId && role === 'user';
+    let convId = currentConversationId;
+
+    if (isNewConversation) {
+      convId = Date.now().toString();
+      const newConversation: Conversation = {
+        id: convId,
+        title: generateTitle(text),
+        messages: [newMessage],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setConversations(prev => [newConversation, ...prev]);
+      setCurrentConversationId(convId);
+    }
+
+    setChatMessages(prev => {
+      const newMessages = [...prev, newMessage];
+      // Update conversation in history
+      if (convId) {
+        setConversations(convs => convs.map(conv =>
+          conv.id === convId
+            ? { ...conv, messages: newMessages, updatedAt: new Date() }
+            : conv
+        ));
+      }
+      return newMessages;
+    });
     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
@@ -745,7 +776,7 @@ export default function AriaScreen() {
                 }}
               >
                 <View style={styles.quickActionIcon}>
-                  <Ionicons name="sparkles-outline" size={16} color="#8b5cf6" />
+                  <Ionicons name="sparkles-outline" size={16} color="#3b82f6" />
                 </View>
                 <Text style={styles.quickActionText}>Generate</Text>
               </TouchableOpacity>

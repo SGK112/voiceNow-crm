@@ -60,7 +60,7 @@ rl.question('Paste the full redirect URL here: ', async (url) => {
     console.log(`GMAIL_CLIENT_ID=${CLIENT_ID}`);
     console.log(`GMAIL_CLIENT_SECRET=${CLIENT_SECRET}`);
     console.log(`GMAIL_REFRESH_TOKEN=${tokens.refresh_token}`);
-    console.log(`GMAIL_USER=helpremodely@gmail.com`);
+    console.log(`GMAIL_USER=helpvoicenowcrm@gmail.com`);
     console.log('\n🎉 You can now send emails using Gmail API!');
 
   } catch (error) {

@@ -38,10 +38,70 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: var(--gray-900);
+            color: #e2e8f0;
             line-height: 1.6;
-            background: #fff;
+            background: #0a0a0b;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* Global dark background with dot grid - matches login/signup */
+        .dark-bg-global {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0b 50%, #000000 100%);
+            background-attachment: fixed;
+        }
+
+        .dot-grid-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-color: transparent;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Animated gradient orbs */
+        .gradient-orb-purple {
+            position: fixed;
+            top: -20%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.15);
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: -1;
+            animation: orb-float-1 20s ease-in-out infinite;
+        }
+
+        .gradient-orb-blue {
+            position: fixed;
+            bottom: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: -1;
+            animation: orb-float-2 25s ease-in-out infinite;
+        }
+
+        @keyframes orb-float-1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-50px, 30px) scale(1.1); }
+            66% { transform: translate(30px, -40px) scale(0.95); }
+        }
+
+        @keyframes orb-float-2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -30px) scale(1.05); }
+            66% { transform: translate(-30px, 50px) scale(1.1); }
         }
 
         /* Universal Button Styles - Floating Effect */
@@ -517,68 +577,22 @@
             }
         }
 
-        /* Hero Section */
+        /* Hero Section - Dark theme matching login/signup */
         .hero {
             padding: 180px 24px 60px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            background: transparent;
             position: relative;
             overflow: hidden;
         }
 
-        /* Minimal Cloud-like Background */
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(147, 197, 253, 0.04) 0%, transparent 30%),
-                radial-gradient(circle at 50% 60%, rgba(96, 165, 250, 0.02) 0%, transparent 35%),
-                radial-gradient(circle at 30% 80%, rgba(191, 219, 254, 0.03) 0%, transparent 25%);
-            animation: cloud-drift 30s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes cloud-drift {
-            0%, 100% { transform: translate(0, 0); opacity: 1; }
-            50% { transform: translate(20px, -15px); opacity: 0.8; }
-        }
-
+        /* No pseudo-element backgrounds for hero - using global orbs instead */
+        .hero::before,
         .hero::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background:
-                radial-gradient(circle at 70% 20%, rgba(147, 197, 253, 0.1) 0%, transparent 35%),
-                radial-gradient(circle at 30% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 60% 60%, rgba(37, 99, 235, 0.08) 0%, transparent 45%);
-            animation: liquid-move 25s ease-in-out infinite reverse;
-            pointer-events: none;
-        }
-
-        @keyframes liquid-move {
-            0%, 100% {
-                transform: translate(0%, 0%) rotate(0deg) scale(1);
-            }
-            25% {
-                transform: translate(10%, -10%) rotate(5deg) scale(1.1);
-            }
-            50% {
-                transform: translate(-5%, 15%) rotate(-3deg) scale(0.95);
-            }
-            75% {
-                transform: translate(15%, 5%) rotate(7deg) scale(1.05);
-            }
+            display: none;
         }
 
         .hero-container {
@@ -600,22 +614,22 @@
             font-size: 56px;
             font-weight: 900;
             line-height: 1.1;
-            color: #0f172a;
+            color: #ffffff;
             margin-bottom: 24px;
             letter-spacing: -0.02em;
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+            filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
         }
 
         .hero p {
             font-size: 20px;
-            color: #475569;
+            color: #94a3b8;
             max-width: 600px;
             margin-bottom: 40px;
             line-height: 1.6;
@@ -970,7 +984,7 @@
         /* AI Reality Section */
         .ai-reality-section {
             padding: 100px 24px;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            background: transparent;
             position: relative;
             overflow: hidden;
         }
@@ -980,8 +994,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(147, 197, 253, 0.06) 0%, transparent 50%);
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(147, 51, 234, 0.08) 0%, transparent 50%);
         }
 
         .reality-badge {
@@ -1001,7 +1015,7 @@
         .ai-reality-section h2 {
             font-size: 52px;
             font-weight: 900;
-            color: #0f172a;
+            color: #ffffff;
             text-align: center;
             margin-bottom: 60px;
             letter-spacing: -0.03em;
@@ -1018,13 +1032,14 @@
         }
 
         .reality-card {
-            background: white;
-            border: 2px solid #e2e8f0;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             border-radius: 24px;
             padding: 40px;
             text-align: center;
             transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
         }
 
         .reality-card:hover {
@@ -1043,21 +1058,21 @@
         .reality-card h3 {
             font-size: 24px;
             font-weight: 800;
-            color: #0f172a;
+            color: #ffffff;
             margin-bottom: 16px;
         }
 
         .reality-card p {
             font-size: 16px;
-            color: #64748b;
+            color: #94a3b8;
             line-height: 1.8;
         }
 
         .fomo-section {
             padding: 60px 24px;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-            border-top: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
+            background: transparent;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .fomo-container {
@@ -3269,9 +3284,149 @@
             color: #6b7280;
             line-height: 1.5;
         }
+
+        /* ============================================ */
+        /* DARK THEME OVERRIDES - Matches login/signup */
+        /* ============================================ */
+
+        /* All sections get transparent background */
+        section {
+            background: transparent !important;
+        }
+
+        /* Dark cards for all content cards */
+        .feature-card,
+        .pricing-card,
+        .testimonial-card,
+        .industry-card,
+        .faq-item,
+        .comparison-row {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(59, 130, 246, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        .pricing-card.featured {
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        /* White text for headings */
+        h1, h2, h3, h4, h5, h6,
+        .section-title,
+        .pricing-plan,
+        .pricing-price,
+        .feature-title,
+        .testimonial-name,
+        .faq-question,
+        .fomo-header h2 {
+            color: #ffffff !important;
+        }
+
+        /* Gray text for body content */
+        p,
+        .pricing-features li,
+        .feature-description,
+        .testimonial-text,
+        .faq-answer,
+        .fomo-stat-label {
+            color: #94a3b8 !important;
+        }
+
+        /* Gradient text for emphasis */
+        .section-title {
+            background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+
+        /* FOMO stats cards */
+        .fomo-stat {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(59, 130, 246, 0.2) !important;
+        }
+
+        .fomo-stat-number {
+            color: #60a5fa !important;
+        }
+
+        /* Features section */
+        .features::before,
+        .features::after {
+            display: none !important;
+        }
+
+        .feature-icon {
+            color: #60a5fa !important;
+        }
+
+        /* Pricing section specific */
+        .pricing::before {
+            display: none !important;
+        }
+
+        .pricing-price span {
+            color: #64748b !important;
+        }
+
+        /* Testimonials */
+        .testimonial-role {
+            color: #64748b !important;
+        }
+
+        /* Industries section */
+        .industries-section-premium {
+            background: transparent !important;
+        }
+
+        .industry-stat {
+            color: #4ade80 !important;
+        }
+
+        /* FAQ section */
+        .faq-section {
+            background: transparent !important;
+        }
+
+        /* CTA section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .cta-section h2 {
+            color: #ffffff !important;
+        }
+
+        .cta-section p {
+            color: #94a3b8 !important;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        footer a,
+        footer p,
+        footer span {
+            color: #94a3b8 !important;
+        }
+
+        footer a:hover {
+            color: #60a5fa !important;
+        }
     </style>
 </head>
 <body>
+    <!-- Animated Dark Background - matches login/signup pages -->
+    <div class="dark-bg-global"></div>
+    <div class="dot-grid-overlay"></div>
+    <div class="gradient-orb-purple"></div>
+    <div class="gradient-orb-blue"></div>
+
     <!-- Promotional Banner -->
     <div id="promoBanner" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); color: white; text-align: center; padding: 10px 24px; font-size: 14px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1001; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
         <span style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
@@ -3291,7 +3446,7 @@
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 2px; transition: all 0.3s;">
                     <span class="logo-text" style="font-size: 23px; font-weight: 900; letter-spacing: -0.04em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; transition: all 0.3s;">VoiceNow CRM</span>
-                    <span class="logo-subtitle" style="font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; transition: all 0.3s;">by Remodely.ai</span>
+                    <span class="logo-subtitle" style="font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; transition: all 0.3s;">by Remodely.ai</span>
                 </div>
             </a>
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -3437,15 +3592,15 @@
                     <span style="color: #00b67a; font-size: 24px;">★</span>
                     <span style="color: #00b67a; font-size: 24px;">★</span>
                 </div>
-                <span style="color: #0f172a; font-size: 18px; font-weight: 600;">2,800+ contractors</span>
+                <span style="color: #e2e8f0; font-size: 18px; font-weight: 600;">2,800+ contractors</span>
             </div>
 
             <div>
-                <h1 style="font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: #0f172a; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <h1 style="font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: #ffffff; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">
                     Never miss a call while you're<br>
                     <span class="gradient-text">on the roof</span>
                 </h1>
-                <p style="font-size: 22px; color: #1e293b; max-width: 700px; margin: 0 auto 40px; line-height: 1.6; font-weight: 500;">
+                <p style="font-size: 22px; color: #94a3b8; max-width: 700px; margin: 0 auto 40px; line-height: 1.6; font-weight: 500;">
                     AI voice receptionist that answers calls, books jobs, and qualifies leads 24/7. Built for contractors who can't afford to miss $10K+ opportunities.
                 </p>
                 <div class="hero-cta" style="margin-bottom: 24px;">
@@ -3454,37 +3609,37 @@
                     </a>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; margin-bottom: 48px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #2563eb; font-size: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #60a5fa; font-size: 15px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                         <span style="font-weight: 700;">Free 14-day trial</span>
                     </div>
-                    <span style="color: #94a3b8;">•</span>
-                    <div style="display: flex; align-items: center; gap: 8px; color: #059669; font-size: 15px;">
+                    <span style="color: #64748b;">•</span>
+                    <div style="display: flex; align-items: center; gap: 8px; color: #4ade80; font-size: 15px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
                         <span style="font-weight: 700;">100% money-back guarantee</span>
                     </div>
                     <span style="color: #94a3b8;">•</span>
-                    <div style="display: flex; align-items: center; gap: 8px; color: #475569; font-size: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 15px;">
                         <span style="font-weight: 700;">No credit card required</span>
                     </div>
                 </div>
                 <div class="trust-badges" style="justify-content: center;">
-                    <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">98%</div>
-                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Answer Rate</div>
+                    <div class="trust-badge" style="background: rgba(59, 130, 246, 0.1); padding: 20px 28px; border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.3); backdrop-filter: blur(10px);">
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">98%</div>
+                        <div class="trust-badge-label" style="color: #e2e8f0; font-weight: 700;">Answer Rate</div>
                     </div>
-                    <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">24/7</div>
-                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Availability</div>
+                    <div class="trust-badge" style="background: rgba(59, 130, 246, 0.1); padding: 20px 28px; border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.3); backdrop-filter: blur(10px);">
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">24/7</div>
+                        <div class="trust-badge-label" style="color: #e2e8f0; font-weight: 700;">Availability</div>
                     </div>
-                    <div class="trust-badge" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px 28px; border-radius: 16px; border: 2px solid #3b82f6;">
-                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">100%</div>
-                        <div class="trust-badge-label" style="color: #1e293b; font-weight: 700;">Human-Like Voice</div>
+                    <div class="trust-badge" style="background: rgba(59, 130, 246, 0.1); padding: 20px 28px; border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.3); backdrop-filter: blur(10px);">
+                        <div class="trust-badge-number" style="background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 42px; font-weight: 900;">100%</div>
+                        <div class="trust-badge-label" style="color: #e2e8f0; font-weight: 700;">Human-Like Voice</div>
                     </div>
                 </div>
             </div>

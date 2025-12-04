@@ -23,7 +23,7 @@ async function testEmailService() {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
     console.error('❌ SMTP credentials not configured in .env file');
     console.log('\nPlease add to your .env file:');
-    console.log('SMTP_USER=help.remodely@gmail.com');
+    console.log('SMTP_USER=help.voicenowcrm@gmail.com');
     console.log('SMTP_PASSWORD=your-gmail-app-password');
     console.log('\nTo get a Gmail App Password:');
     console.log('1. Go to https://myaccount.google.com/apppasswords');
@@ -52,10 +52,10 @@ async function testEmailService() {
   }
 
   // Test 2: Send a simple test email
-  console.log('📧 Test 2: Sending test email to help.remodely@gmail.com...');
+  console.log('📧 Test 2: Sending test email to help.voicenowcrm@gmail.com...');
   try {
     const result = await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: '🧪 VoiceNow CRM Email Test',
       html: `
         <h2>Email Service Test</h2>
@@ -102,7 +102,7 @@ async function testEmailService() {
   console.log('📞 Test 3: Sending mock post-call notification...');
   try {
     const result = await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: 'New Call Completed - Test Customer',
       html: `
         <h2>📞 Call Summary</h2>
@@ -125,7 +125,7 @@ async function testEmailService() {
 
         <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3>Call Transcript</h3>
-          <p style="white-space: pre-wrap; font-family: monospace; font-size: 12px;">Agent: Hey! This is the AI from Remodely calling...
+          <p style="white-space: pre-wrap; font-family: monospace; font-size: 12px;">Agent: Hey! This is the AI from VoiceNow CRM calling...
 Customer: Hi there!
 Agent: What kind of business are you in?
 Customer: I'm a contractor.
@@ -146,7 +146,7 @@ Customer: Yes, definitely interested!</p>
 
   console.log('🎉 All email tests passed!\n');
   console.log('✅ Email service is fully configured and working');
-  console.log('✅ Check help.remodely@gmail.com for the test emails\n');
+  console.log('✅ Check help.voicenowcrm@gmail.com for the test emails\n');
 
   process.exit(0);
 }

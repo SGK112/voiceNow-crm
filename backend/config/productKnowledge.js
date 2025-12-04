@@ -4,12 +4,12 @@
  */
 
 export const COMPANY_INFO = {
-  name: 'Remodely.ai',
+  name: 'VoiceNow CRM',
   product: 'VoiceNow CRM',
   tagline: 'AI-Powered Voice Agents for 24/7 Lead Engagement',
-  website: 'https://remodely.ai',
+  website: 'https://voicenowcrm.com',
   phone: '+1 (602) 833-7194',
-  email: 'help.remodely@gmail.com',
+  email: 'help.voicenowcrm@gmail.com',
   founded: '2024',
   headquarters: 'Phoenix, Arizona',
   mission: 'Helping service businesses never miss a lead with AI voice agents that sound human and work 24/7',

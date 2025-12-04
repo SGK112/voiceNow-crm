@@ -89,7 +89,7 @@ router.post('/send', protect, async (req, res) => {
       to: Array.isArray(to) ? to : [{ email: to }],
       from: {
         email: process.env.SMTP_FROM_EMAIL,
-        name: req.user.name || 'remodely.ai'
+        name: req.user.name || 'voicenowcrm.com'
       },
       subject,
       body,

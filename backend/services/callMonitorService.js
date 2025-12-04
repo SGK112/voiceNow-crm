@@ -256,7 +256,7 @@ class CallMonitorService {
               </div>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://www.remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                <a href="https://www.voicenowcrm.com/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 18px;">
                   Start Your Free Trial →
                 </a>
               </div>
@@ -279,14 +279,14 @@ class CallMonitorService {
 
               <p style="font-size: 15px; color: #64748b; margin: 30px 0 0 0;">
                 Best regards,<br>
-                <strong style="color: #0f172a;">The Remodelee AI Team</strong>
+                <strong style="color: #0f172a;">The VoiceNow AI Team</strong>
               </p>
             </div>
 
             <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
               <p style="margin: 0; color: #64748b; font-size: 13px;">
-                <a href="https://www.remodely.ai" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
-                <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
+                <a href="https://www.voicenowcrm.com" style="color: #3b82f6; text-decoration: none;">Visit VoiceNow CRM</a> |
+                <a href="mailto:help.voicenowcrm@gmail.com" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
               </p>
             </div>
           </div>
@@ -303,7 +303,7 @@ class CallMonitorService {
     const transcriptSnippet = transcript.substring(0, 500);
 
     await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: `🎯 New Demo Lead: ${customerName || 'Unknown'} ${customerPhone ? `(${customerPhone})` : ''}`,
       html: `
         <!DOCTYPE html>

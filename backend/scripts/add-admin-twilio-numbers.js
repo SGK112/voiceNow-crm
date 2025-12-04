@@ -13,7 +13,7 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 
 /**
  * Add all existing Twilio numbers to admin user account
- * Admin: help.remodely@gmail.com
+ * Admin: help.voicenowcrm@gmail.com
  */
 
 async function addAdminTwilioNumbers() {
@@ -29,7 +29,7 @@ async function addAdminTwilioNumbers() {
     );
 
     // Find admin user
-    const adminEmail = 'help.remodely@gmail.com';
+    const adminEmail = 'help.voicenowcrm@gmail.com';
     const admin = await User.findOne({ email: adminEmail });
 
     if (!admin) {
@@ -40,7 +40,7 @@ async function addAdminTwilioNumbers() {
       const newAdmin = await User.create({
         email: adminEmail,
         password: 'TempPassword123!', // User should change this
-        company: 'Remodely AI',
+        company: 'VoiceNow CRM AI',
         plan: 'enterprise',
         subscriptionStatus: 'active'
       });

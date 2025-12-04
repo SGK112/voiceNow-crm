@@ -54,7 +54,7 @@ router.post('/request', async (req, res) => {
     console.error('❌ Help desk request error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to submit help desk request. Please try again or email help.remodely@gmail.com directly.'
+      message: 'Failed to submit help desk request. Please try again or email help.voicenowcrm@gmail.com directly.'
     });
   }
 });
@@ -123,7 +123,7 @@ ${message}
     console.error('❌ Contact form error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to submit contact form. Please email help.remodely@gmail.com directly.'
+      message: 'Failed to submit contact form. Please email help.voicenowcrm@gmail.com directly.'
     });
   }
 });

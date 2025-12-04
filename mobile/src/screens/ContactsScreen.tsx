@@ -88,7 +88,7 @@ export default function ContactsScreen({ navigation }: any) {
   };
 
   const getAvatarColor = (name: string) => {
-    const avatarColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
+    const avatarColors = ['#3B82F6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
     const index = name.charCodeAt(0) % avatarColors.length;
     return avatarColors[index];
   };

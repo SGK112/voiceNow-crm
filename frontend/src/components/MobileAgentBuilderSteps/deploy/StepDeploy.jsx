@@ -113,7 +113,7 @@ export default function StepDeploy({ agentData }) {
         payload.config = {
           subject: agentData.emailSubject,
           body: agentData.emailBody,
-          from: agentData.emailFrom || 'noreply@remodely.ai'
+          from: agentData.emailFrom || 'noreply@voicenowcrm.com'
         };
       }
 
@@ -148,7 +148,7 @@ export default function StepDeploy({ agentData }) {
       navigate(`/app/agents/${agentId}`);
     } else if (optionId === 'share') {
       // Copy share link
-      const link = `https://remodely.ai/call/${agentId}`;
+      const link = `https://voicenowcrm.com/call/${agentId}`;
       navigator.clipboard.writeText(link);
       alert('Link copied to clipboard!');
     }

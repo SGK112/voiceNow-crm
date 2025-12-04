@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
-import { FULL_AGENT_LIBRARY, AGENT_CATEGORIES } from '../config/fullAgentLibrary.js';
+import { FULL_AGENT_LIBRARY, AGENT_CATEGORIES, SHOPIFY_AGENTS } from '../config/fullAgentLibrary.js';
 import { SPECIALTY_TRADE_AGENTS, RAG_AGENTS, CUSTOMER_SERVICE_AGENTS } from '../config/specialtyTradeAgents.js';
 import agentTemplates from '../config/agentTemplates.js';
 
@@ -20,14 +20,15 @@ router.get('/', async (req, res) => {
     let allAgents = [];
 
     // Combine all agent sources
-    const voiceAgents = Object.values(FULL_AGENT_LIBRARY.voice);
-    const smsAgents = Object.values(FULL_AGENT_LIBRARY.sms);
-    const emailAgents = Object.values(FULL_AGENT_LIBRARY.email);
-    const marketingAgents = Object.values(FULL_AGENT_LIBRARY.marketing);
-    const specializedAgents = Object.values(FULL_AGENT_LIBRARY.specialized);
-    const tradeAgents = Object.values(SPECIALTY_TRADE_AGENTS);
-    const ragAgents = Object.values(RAG_AGENTS);
-    const serviceAgents = Object.values(CUSTOMER_SERVICE_AGENTS);
+    const voiceAgents = Object.values(FULL_AGENT_LIBRARY.voice || {});
+    const smsAgents = Object.values(FULL_AGENT_LIBRARY.sms || {});
+    const emailAgents = Object.values(FULL_AGENT_LIBRARY.email || {});
+    const marketingAgents = Object.values(FULL_AGENT_LIBRARY.marketing || {});
+    const specializedAgents = Object.values(FULL_AGENT_LIBRARY.specialized || {});
+    const shopifyAgents = Object.values(FULL_AGENT_LIBRARY.shopify || SHOPIFY_AGENTS || {});
+    const tradeAgents = Object.values(SPECIALTY_TRADE_AGENTS || {});
+    const ragAgents = Object.values(RAG_AGENTS || {});
+    const serviceAgents = Object.values(CUSTOMER_SERVICE_AGENTS || {});
 
     // Combine all
     allAgents = [
@@ -36,6 +37,7 @@ router.get('/', async (req, res) => {
       ...emailAgents,
       ...marketingAgents,
       ...specializedAgents,
+      ...shopifyAgents,
       ...tradeAgents,
       ...ragAgents,
       ...serviceAgents
@@ -49,6 +51,7 @@ router.get('/', async (req, res) => {
         if (category === 'email') return emailAgents.includes(agent);
         if (category === 'marketing') return marketingAgents.includes(agent);
         if (category === 'specialized') return specializedAgents.includes(agent);
+        if (category === 'shopify') return shopifyAgents.includes(agent);
         if (category === 'trade') return tradeAgents.includes(agent);
         if (category === 'rag') return ragAgents.includes(agent);
         if (category === 'service') return serviceAgents.includes(agent);
@@ -99,14 +102,15 @@ router.get('/categories', async (req, res) => {
       data: {
         categories: AGENT_CATEGORIES,
         counts: {
-          voice: Object.keys(FULL_AGENT_LIBRARY.voice).length,
-          sms: Object.keys(FULL_AGENT_LIBRARY.sms).length,
-          email: Object.keys(FULL_AGENT_LIBRARY.email).length,
-          marketing: Object.keys(FULL_AGENT_LIBRARY.marketing).length,
-          specialized: Object.keys(FULL_AGENT_LIBRARY.specialized).length,
-          trade: Object.keys(SPECIALTY_TRADE_AGENTS).length,
-          rag: Object.keys(RAG_AGENTS).length,
-          service: Object.keys(CUSTOMER_SERVICE_AGENTS).length
+          voice: Object.keys(FULL_AGENT_LIBRARY.voice || {}).length,
+          sms: Object.keys(FULL_AGENT_LIBRARY.sms || {}).length,
+          email: Object.keys(FULL_AGENT_LIBRARY.email || {}).length,
+          marketing: Object.keys(FULL_AGENT_LIBRARY.marketing || {}).length,
+          specialized: Object.keys(FULL_AGENT_LIBRARY.specialized || {}).length,
+          shopify: Object.keys(FULL_AGENT_LIBRARY.shopify || SHOPIFY_AGENTS || {}).length,
+          trade: Object.keys(SPECIALTY_TRADE_AGENTS || {}).length,
+          rag: Object.keys(RAG_AGENTS || {}).length,
+          service: Object.keys(CUSTOMER_SERVICE_AGENTS || {}).length
         }
       }
     });
@@ -131,15 +135,17 @@ router.get('/:agentId', async (req, res) => {
     let agent = null;
 
     // Check all libraries
-    if (FULL_AGENT_LIBRARY.voice[agentId]) agent = FULL_AGENT_LIBRARY.voice[agentId];
-    else if (FULL_AGENT_LIBRARY.sms[agentId]) agent = FULL_AGENT_LIBRARY.sms[agentId];
-    else if (FULL_AGENT_LIBRARY.email[agentId]) agent = FULL_AGENT_LIBRARY.email[agentId];
-    else if (FULL_AGENT_LIBRARY.marketing[agentId]) agent = FULL_AGENT_LIBRARY.marketing[agentId];
-    else if (FULL_AGENT_LIBRARY.specialized[agentId]) agent = FULL_AGENT_LIBRARY.specialized[agentId];
-    else if (SPECIALTY_TRADE_AGENTS[agentId]) agent = SPECIALTY_TRADE_AGENTS[agentId];
-    else if (RAG_AGENTS[agentId]) agent = RAG_AGENTS[agentId];
-    else if (CUSTOMER_SERVICE_AGENTS[agentId]) agent = CUSTOMER_SERVICE_AGENTS[agentId];
-    else if (agentTemplates[agentId]) agent = agentTemplates[agentId];
+    if (FULL_AGENT_LIBRARY.voice?.[agentId]) agent = FULL_AGENT_LIBRARY.voice[agentId];
+    else if (FULL_AGENT_LIBRARY.sms?.[agentId]) agent = FULL_AGENT_LIBRARY.sms[agentId];
+    else if (FULL_AGENT_LIBRARY.email?.[agentId]) agent = FULL_AGENT_LIBRARY.email[agentId];
+    else if (FULL_AGENT_LIBRARY.marketing?.[agentId]) agent = FULL_AGENT_LIBRARY.marketing[agentId];
+    else if (FULL_AGENT_LIBRARY.specialized?.[agentId]) agent = FULL_AGENT_LIBRARY.specialized[agentId];
+    else if (FULL_AGENT_LIBRARY.shopify?.[agentId]) agent = FULL_AGENT_LIBRARY.shopify[agentId];
+    else if (SHOPIFY_AGENTS?.[agentId]) agent = SHOPIFY_AGENTS[agentId];
+    else if (SPECIALTY_TRADE_AGENTS?.[agentId]) agent = SPECIALTY_TRADE_AGENTS[agentId];
+    else if (RAG_AGENTS?.[agentId]) agent = RAG_AGENTS[agentId];
+    else if (CUSTOMER_SERVICE_AGENTS?.[agentId]) agent = CUSTOMER_SERVICE_AGENTS[agentId];
+    else if (agentTemplates?.[agentId]) agent = agentTemplates[agentId];
 
     if (!agent) {
       return res.status(404).json({
@@ -174,15 +180,17 @@ router.post('/:agentId/install', async (req, res) => {
     // Get agent template
     let agent = null;
 
-    if (FULL_AGENT_LIBRARY.voice[agentId]) agent = FULL_AGENT_LIBRARY.voice[agentId];
-    else if (FULL_AGENT_LIBRARY.sms[agentId]) agent = FULL_AGENT_LIBRARY.sms[agentId];
-    else if (FULL_AGENT_LIBRARY.email[agentId]) agent = FULL_AGENT_LIBRARY.email[agentId];
-    else if (FULL_AGENT_LIBRARY.marketing[agentId]) agent = FULL_AGENT_LIBRARY.marketing[agentId];
-    else if (FULL_AGENT_LIBRARY.specialized[agentId]) agent = FULL_AGENT_LIBRARY.specialized[agentId];
-    else if (SPECIALTY_TRADE_AGENTS[agentId]) agent = SPECIALTY_TRADE_AGENTS[agentId];
-    else if (RAG_AGENTS[agentId]) agent = RAG_AGENTS[agentId];
-    else if (CUSTOMER_SERVICE_AGENTS[agentId]) agent = CUSTOMER_SERVICE_AGENTS[agentId];
-    else if (agentTemplates[agentId]) agent = agentTemplates[agentId];
+    if (FULL_AGENT_LIBRARY.voice?.[agentId]) agent = FULL_AGENT_LIBRARY.voice[agentId];
+    else if (FULL_AGENT_LIBRARY.sms?.[agentId]) agent = FULL_AGENT_LIBRARY.sms[agentId];
+    else if (FULL_AGENT_LIBRARY.email?.[agentId]) agent = FULL_AGENT_LIBRARY.email[agentId];
+    else if (FULL_AGENT_LIBRARY.marketing?.[agentId]) agent = FULL_AGENT_LIBRARY.marketing[agentId];
+    else if (FULL_AGENT_LIBRARY.specialized?.[agentId]) agent = FULL_AGENT_LIBRARY.specialized[agentId];
+    else if (FULL_AGENT_LIBRARY.shopify?.[agentId]) agent = FULL_AGENT_LIBRARY.shopify[agentId];
+    else if (SHOPIFY_AGENTS?.[agentId]) agent = SHOPIFY_AGENTS[agentId];
+    else if (SPECIALTY_TRADE_AGENTS?.[agentId]) agent = SPECIALTY_TRADE_AGENTS[agentId];
+    else if (RAG_AGENTS?.[agentId]) agent = RAG_AGENTS[agentId];
+    else if (CUSTOMER_SERVICE_AGENTS?.[agentId]) agent = CUSTOMER_SERVICE_AGENTS[agentId];
+    else if (agentTemplates?.[agentId]) agent = agentTemplates[agentId];
 
     if (!agent) {
       return res.status(404).json({

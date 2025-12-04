@@ -12,6 +12,7 @@ const router = express.Router();
 router.post('/generate/image', protect, async (req, res) => {
   try {
     const { prompt, model, aspectRatio, numOutputs, style } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!prompt) {
       return res.status(400).json({
@@ -20,7 +21,7 @@ router.post('/generate/image', protect, async (req, res) => {
       });
     }
 
-    const result = await replicateMediaService.generateImage(req.user.userId, {
+    const result = await replicateMediaService.generateImage(userId, {
       prompt,
       model: model || 'flux_schnell',
       aspectRatio: aspectRatio || '1:1',
@@ -46,6 +47,7 @@ router.post('/generate/image', protect, async (req, res) => {
 router.post('/generate/video', protect, async (req, res) => {
   try {
     const { prompt, model, duration, aspectRatio } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!prompt) {
       return res.status(400).json({
@@ -54,7 +56,7 @@ router.post('/generate/video', protect, async (req, res) => {
       });
     }
 
-    const result = await replicateMediaService.generateVideo(req.user.userId, {
+    const result = await replicateMediaService.generateVideo(userId, {
       prompt,
       model: model || 'runway_gen3',
       duration: duration || 5,
@@ -79,6 +81,7 @@ router.post('/generate/video', protect, async (req, res) => {
 router.post('/upscale', protect, async (req, res) => {
   try {
     const { imageUrl, scale } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!imageUrl) {
       return res.status(400).json({
@@ -88,7 +91,7 @@ router.post('/upscale', protect, async (req, res) => {
     }
 
     const result = await replicateMediaService.upscaleImage(
-      req.user.userId,
+      userId,
       imageUrl,
       scale || 4
     );
@@ -111,6 +114,7 @@ router.post('/upscale', protect, async (req, res) => {
 router.post('/remove-background', protect, async (req, res) => {
   try {
     const { imageUrl } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!imageUrl) {
       return res.status(400).json({
@@ -120,7 +124,7 @@ router.post('/remove-background', protect, async (req, res) => {
     }
 
     const result = await replicateMediaService.removeBackground(
-      req.user.userId,
+      userId,
       imageUrl
     );
 
@@ -142,6 +146,7 @@ router.post('/remove-background', protect, async (req, res) => {
 router.post('/image-to-video', protect, async (req, res) => {
   try {
     const { imageUrl, prompt, duration } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!imageUrl) {
       return res.status(400).json({
@@ -151,7 +156,7 @@ router.post('/image-to-video', protect, async (req, res) => {
     }
 
     const result = await replicateMediaService.imageToVideo(
-      req.user.userId,
+      userId,
       imageUrl,
       { prompt, duration }
     );
@@ -173,7 +178,8 @@ router.post('/image-to-video', protect, async (req, res) => {
  */
 router.get('/credits', protect, async (req, res) => {
   try {
-    const credits = await replicateMediaService.getCredits(req.user.userId);
+    const userId = req.user._id || req.user.id;
+    const credits = await replicateMediaService.getCredits(userId);
 
     res.json({
       success: true,
@@ -196,6 +202,7 @@ router.get('/credits', protect, async (req, res) => {
 router.post('/credits/purchase', protect, async (req, res) => {
   try {
     const { amount, paymentIntentId } = req.body;
+    const userId = req.user._id || req.user.id;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({
@@ -211,7 +218,7 @@ router.post('/credits/purchase', protect, async (req, res) => {
     // }
 
     const credits = await replicateMediaService.addCredits(
-      req.user.userId,
+      userId,
       amount,
       'purchase'
     );

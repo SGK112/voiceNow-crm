@@ -88,7 +88,7 @@ class NotificationService {
           name: 'Text Messages',
           importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 100, 250],
-          lightColor: '#8B5CF6',
+          lightColor: '#3B82F6',
           sound: 'default',
         }),
         // Channel for missed calls

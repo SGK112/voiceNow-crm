@@ -5452,7 +5452,7 @@ END:VCALENDAR`;
 
       const response = await axios.get(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; AriaBot/1.0; +https://remodely.ai)'
+          'User-Agent': 'Mozilla/5.0 (compatible; AriaBot/1.0; +https://voicenowcrm.com)'
         },
         timeout: 15000,
         maxContentLength: 5 * 1024 * 1024 // 5MB max

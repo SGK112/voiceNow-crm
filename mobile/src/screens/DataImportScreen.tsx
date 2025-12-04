@@ -27,7 +27,7 @@ export default function DataImportScreen({ navigation }: any) {
       title: 'Phone Contacts',
       description: 'Import contacts from your phone\'s address book',
       icon: 'people',
-      color: '#8b5cf6',
+      color: '#3b82f6',
       route: 'ContactImport',
     },
     {
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     flexDirection: 'row',
-    backgroundColor: '#8b5cf620',
+    backgroundColor: '#3b82f620',
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,

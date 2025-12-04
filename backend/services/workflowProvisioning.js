@@ -184,7 +184,7 @@ return [{
                 parameters: [
                   { name: 'From', value: '+16028337194' },
                   { name: 'To', value: '={{ $json.callData.caller_phone }}' },
-                  { name: 'Body', value: `Thank you for calling ${user.name || 'us'}! We'll follow up within 24 hours. - Remodely.ai` }
+                  { name: 'Body', value: `Thank you for calling ${user.name || 'us'}! We'll follow up within 24 hours. - VoiceNow CRM` }
                 ]
               }
             },
@@ -219,7 +219,7 @@ return [{
           },
           {
             parameters: {
-              fromEmail: user.email || 'help.remodely@gmail.com',
+              fromEmail: user.email || 'help.voicenowcrm@gmail.com',
               toEmail: '={{ $json.callData.email }}',
               subject: `Thank you for contacting ${user.name || 'us'}`,
               emailType: 'text',

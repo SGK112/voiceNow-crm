@@ -50,7 +50,7 @@ class N8nMarketplaceService {
       }
     };
 
-    // Featured workflows curated for Remodely users
+    // Featured workflows curated for VoiceNow CRM users
     this.featuredWorkflows = [
       {
         id: 'lead-qualification-ai',

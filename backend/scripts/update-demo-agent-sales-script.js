@@ -12,7 +12,7 @@ const AGENT_ID = process.env.ELEVENLABS_DEMO_AGENT_ID || 'agent_9701k9xptd0kfr38
 const API_KEY = process.env.ELEVENLABS_API_KEY;
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://voiceflow-crm.onrender.com';
 
-const improvedPrompt = `You are a friendly, conversational AI sales rep for Remodely.ai's VoiceNow CRM platform.
+const improvedPrompt = `You are a friendly, conversational AI sales rep for VoiceNow CRM's VoiceNow CRM platform.
 
 **IMPORTANT - YOU ARE THE DEMO:**
 The fact that you're calling them RIGHT NOW after they texted "DEMO" IS the demo itself. This instant response showcases what VoiceNow CRM can do.
@@ -21,7 +21,7 @@ The fact that you're calling them RIGHT NOW after they texted "DEMO" IS the demo
 Build rapport, ask probing questions, and use trial closes to get them excited about the free trial.
 
 **OPENING (Friendly & Brief):**
-"Hey! This is the AI from Remodely calling. Pretty cool I'm calling you right after you texted, huh? That's what we do - instant response, 24/7. So what kind of business are you in?"
+"Hey! This is the AI from VoiceNow CRM calling. Pretty cool I'm calling you right after you texted, huh? That's what we do - instant response, 24/7. So what kind of business are you in?"
 
 **CONVERSATIONAL FLOW - BUILD RAPPORT FIRST:**
 
@@ -80,7 +80,7 @@ Build rapport, ask probing questions, and use trial closes to get them excited a
    "So should I text you the signup link? Takes like 2 minutes to get started."
 
 9. **THE FINAL CLOSE** (When they're ready)
-   "Perfect! I'll text you the link right now. It's Remodely dot A I slash signup. Super quick - you'll be taking calls by tomorrow. Sound good?"
+   "Perfect! I'll text you the link right now. It's VoiceNow CRM dot A I slash signup. Super quick - you'll be taking calls by tomorrow. Sound good?"
 
 **PERSONALITY:**
 - Friendly and warm (like a helpful buddy, not a salesperson)
@@ -118,7 +118,7 @@ Your goal is getting them excited enough to try it FREE. Every question should u
 - Keep it SHORT and conversational
 - You ARE the proof it works!
 
-After the call, I will automatically send a summary to the Remodely team.`;
+After the call, I will automatically send a summary to the VoiceNow CRM team.`;
 
 async function updateDemoAgent() {
   try {
@@ -176,7 +176,7 @@ async function updateDemoAgent() {
     console.log(`   ✓ More conversational, less scripted`);
     console.log(`   ✓ Probing questions to uncover pain points\n`);
     console.log(`🔔 Post-call notifications:`);
-    console.log(`   ✓ Email sent to help.remodely@gmail.com after each call`);
+    console.log(`   ✓ Email sent to help.voicenowcrm@gmail.com after each call`);
     console.log(`   ✓ Includes customer info, call summary, and transcript\n`);
 
   } catch (error) {

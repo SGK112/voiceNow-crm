@@ -45,7 +45,7 @@ const AriaResponseModal: React.FC<Props> = ({ visible, uiAction, onClose, onActi
         case 'warm': return '#F59E0B';
         case 'new': return '#10B981';
         case 'cold': return '#6B7280';
-        default: return '#8B5CF6';
+        default: return '#3B82F6';
       }
     };
 
@@ -94,7 +94,7 @@ const AriaResponseModal: React.FC<Props> = ({ visible, uiAction, onClose, onActi
               <Ionicons
                 name={uiAction.listType === 'leads' ? 'people' : uiAction.listType === 'contacts' ? 'person' : 'calendar'}
                 size={24}
-                color="#8B5CF6"
+                color="#3B82F6"
               />
               <Text style={styles.listTitle}>
                 {uiAction.listType === 'leads' ? 'Leads' : uiAction.listType === 'contacts' ? 'Contacts' : 'Appointments'}
@@ -218,8 +218,8 @@ const AriaResponseModal: React.FC<Props> = ({ visible, uiAction, onClose, onActi
       case 'confirm_memory':
         return (
           <View style={styles.confirmContainer}>
-            <View style={[styles.confirmIcon, { backgroundColor: '#8B5CF620' }]}>
-              <Ionicons name="sparkles" size={48} color="#8B5CF6" />
+            <View style={[styles.confirmIcon, { backgroundColor: '#3B82F620' }]}>
+              <Ionicons name="sparkles" size={48} color="#3B82F6" />
             </View>
             <Text style={styles.confirmTitle}>Got it!</Text>
             <Text style={styles.memoryText}>
@@ -267,7 +267,7 @@ const AriaResponseModal: React.FC<Props> = ({ visible, uiAction, onClose, onActi
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <View style={styles.ariaIcon}>
-                  <Ionicons name="sparkles" size={16} color="#8B5CF6" />
+                  <Ionicons name="sparkles" size={16} color="#3B82F6" />
                 </View>
                 <Text style={styles.headerTitle}>Aria</Text>
               </View>
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#8B5CF620',
+    backgroundColor: '#3B82F620',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   actionButton: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: '#3B82F6',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,

@@ -8,7 +8,7 @@ dotenv.config();
 const DEMO_AGENT_ID = 'agent_9701k9xptd0kfr383djx5zk7300x'; // ElevenLabs agent ID
 const DEMO_PHONE = '+16028334780';
 
-const COMPREHENSIVE_PROMPT = `You are Sarah, a friendly and knowledgeable AI assistant for Remodely AI, showcasing the VoiceNow CRM platform. Your role is to demonstrate the platform's powerful capabilities through an engaging conversation while qualifying the prospect.
+const COMPREHENSIVE_PROMPT = `You are Sarah, a friendly and knowledgeable AI assistant for VoiceNow CRM AI, showcasing the VoiceNow CRM platform. Your role is to demonstrate the platform's powerful capabilities through an engaging conversation while qualifying the prospect.
 
 PERSONALITY:
 - Professional yet conversational
@@ -20,7 +20,7 @@ PERSONALITY:
 CONVERSATION FLOW:
 
 OPENING (30 seconds):
-"Hi! This is Sarah from Remodely AI. Am I speaking with you?
+"Hi! This is Sarah from VoiceNow CRM AI. Am I speaking with you?
 
 Great! Thanks for trying our demo. I'm actually an AI voice agent built on the VoiceNow CRM platform - the same technology you could use for your business.
 
@@ -133,7 +133,7 @@ Medium Interest:
 Sound good?"
 
 Low Interest:
-"No worries if now isn't the right time! I'll send you the information via email and SMS. Feel free to reach out to help@remodely.ai anytime.
+"No worries if now isn't the right time! I'll send you the information via email and SMS. Feel free to reach out to help@voicenowcrm.com anytime.
 
 Anything else I can help with today?"
 
@@ -143,7 +143,7 @@ SIGN-OFF:
 Quick recap:
 ✅ You'll receive an SMS and email with trial signup and platform info
 ✅ Our team will get your contact details for follow-up
-✅ You can start your free 50-minute trial anytime at Remodely.ai
+✅ You can start your free 50-minute trial anytime at VoiceNow CRM
 
 Have a great day, and I'm excited for you to try VoiceFlow!"
 
@@ -159,7 +159,7 @@ IMPORTANT GUIDELINES:
 - Extract: name, phone, email, industry, pain points, budget, timeline
 - Qualify based on: need, budget, timeline, authority`;
 
-const FIRST_MESSAGE = "Hi! This is Sarah from Remodely AI. Thanks for trying our demo! I'm actually an AI voice agent built on the VoiceNow CRM platform. I'm going to show you what our platform can do through a real conversation. Can you tell me a bit about your business?";
+const FIRST_MESSAGE = "Hi! This is Sarah from VoiceNow CRM AI. Thanks for trying our demo! I'm actually an AI voice agent built on the VoiceNow CRM platform. I'm going to show you what our platform can do through a real conversation. Can you tell me a bit about your business?";
 
 async function updateDemoAgent() {
   try {
@@ -167,7 +167,7 @@ async function updateDemoAgent() {
     console.log('✅ Connected to MongoDB');
 
     // Find admin user
-    const adminUser = await User.findOne({ email: 'help.remodely@gmail.com' });
+    const adminUser = await User.findOne({ email: 'help.voicenowcrm@gmail.com' });
     if (!adminUser) {
       console.error('❌ Admin user not found');
       process.exit(1);
@@ -183,7 +183,7 @@ async function updateDemoAgent() {
 
     const agentData = {
       userId: adminUser._id,
-      name: 'Remodely AI - Comprehensive Demo Agent',
+      name: 'VoiceNow CRM AI - Comprehensive Demo Agent',
       type: 'custom',
       phoneNumber: DEMO_PHONE,
       voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel voice
@@ -202,13 +202,13 @@ async function updateDemoAgent() {
         conferenceCapable: true
       },
       variables: {
-        company_name: 'Remodely AI',
+        company_name: 'VoiceNow CRM AI',
         platform_name: 'VoiceNow CRM',
         trial_minutes: '50',
         starter_price: '$99',
         professional_price: '$299',
-        website: 'https://remodely.ai',
-        help_email: 'help@remodely.ai',
+        website: 'https://voicenowcrm.com',
+        help_email: 'help@voicenowcrm.com',
         demo_phone: '+1 (602) 833-4780'
       },
       status: 'active',
@@ -243,7 +243,7 @@ async function updateDemoAgent() {
     console.log(`   3. After call, check for:`);
     console.log(`      - SMS to customer phone`);
     console.log(`      - Email to customer email`);
-    console.log(`      - Lead notification to help.remodely@gmail.com`);
+    console.log(`      - Lead notification to help.voicenowcrm@gmail.com`);
     console.log(`      - Lead created in CRM`);
     console.log(`      - Follow-up task created`);
 

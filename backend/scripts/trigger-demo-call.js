@@ -57,7 +57,7 @@ async function triggerDemoCall() {
     console.log(`Call ID: ${callId}`);
     console.log(`Status: ${response.data.status || 'Calling...'}\n`);
     console.log('📱 The agent should be calling Josh now...\n');
-    console.log('📧 You will receive an email at help.remodely@gmail.com after the call ends with:');
+    console.log('📧 You will receive an email at help.voicenowcrm@gmail.com after the call ends with:');
     console.log('   - Call transcript');
     console.log('   - Customer information');
     console.log('   - Whether they were interested');

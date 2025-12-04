@@ -2,7 +2,7 @@ import axios from 'axios';
 
 console.log('🧪 Quick Webhook & Email Test\n');
 
-const MY_EMAIL = 'help.remodely@gmail.com'; // Change this to YOUR email!
+const MY_EMAIL = 'help.voicenowcrm@gmail.com'; // Change this to YOUR email!
 
 console.log('📧 This test will send an email to:', MY_EMAIL);
 console.log('⚠️  Make sure to check your spam folder!');
@@ -43,7 +43,7 @@ try {
   console.log('');
   console.log('📬 CHECK YOUR INBOX:');
   console.log('   Subject: "Consultation Scheduled with Surprise Granite"');
-  console.log('   From: Surprise Granite (help.remodely@gmail.com)');
+  console.log('   From: Surprise Granite (help.voicenowcrm@gmail.com)');
   console.log('   Attachment: invite.ics');
   console.log('');
   console.log('⚠️  If you don\'t see it:');

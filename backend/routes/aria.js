@@ -16,6 +16,7 @@ import Contact from '../models/Contact.js';
 import TwilioService from '../services/twilioService.js';
 import emailService from '../services/emailService.js';
 import ElevenLabsService from '../services/elevenLabsService.js';
+import ariaCRMService from '../services/ariaCRMService.js';
 
 const twilioService = new TwilioService();
 const elevenLabsService = new ElevenLabsService();
@@ -1270,6 +1271,159 @@ const COMM_TOOLS = [
   },
 ];
 
+// CRM data access tools - give ARIA full access to contacts, calendar, leads, etc.
+const CRM_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'search_contacts',
+      description: 'Search through all contacts in the CRM by name, phone, email, or company. Use this when the user asks about their contacts, customers, or clients.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Search query to find contacts (name, phone, email, or company)' },
+        },
+        required: ['query'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_all_contacts',
+      description: 'Get a list of all contacts in the CRM. Use this when the user asks to see their contacts or list their customers.',
+      parameters: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Maximum number of contacts to return (default 50)' },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'search_leads',
+      description: 'Search through CRM leads by name, phone, email, status, or notes. Use this when the user asks about leads, prospects, or sales pipeline.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Search query to find leads' },
+        },
+        required: ['query'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_leads_needing_followup',
+      description: 'Get leads that need follow-up based on age. Use this when the user asks about follow-ups, pending leads, or stale leads.',
+      parameters: {
+        type: 'object',
+        properties: {
+          daysOld: { type: 'number', description: 'Get leads older than this many days (default 3)' },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_today_appointments',
+      description: 'Get all appointments scheduled for today. Use this when the user asks about their schedule, today\'s meetings, or daily agenda.',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_upcoming_appointments',
+      description: 'Get upcoming appointments within a specified number of days. Use this when the user asks about upcoming meetings, schedule, or future appointments.',
+      parameters: {
+        type: 'object',
+        properties: {
+          days: { type: 'number', description: 'Number of days to look ahead (default 7)' },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'create_appointment',
+      description: 'Create a new appointment or meeting. Use this when the user wants to schedule something.',
+      parameters: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Title/subject of the appointment' },
+          startTime: { type: 'string', description: 'Start date/time in ISO format or natural language' },
+          endTime: { type: 'string', description: 'End date/time in ISO format or natural language' },
+          contactName: { type: 'string', description: 'Name of contact to associate with appointment' },
+          location: { type: 'string', description: 'Location or address for the appointment' },
+          notes: { type: 'string', description: 'Additional notes for the appointment' },
+        },
+        required: ['title', 'startTime'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_sms_history',
+      description: 'Get SMS message history with a specific phone number. Use this when the user asks about text message conversations.',
+      parameters: {
+        type: 'object',
+        properties: {
+          phone: { type: 'string', description: 'Phone number to get SMS history for' },
+          limit: { type: 'number', description: 'Number of messages to retrieve (default 50)' },
+        },
+        required: ['phone'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_caller_context',
+      description: 'Get full context about a caller including contact info, lead info, SMS history, call history, and appointments. Use this when the user asks about a specific customer or caller.',
+      parameters: {
+        type: 'object',
+        properties: {
+          phone: { type: 'string', description: 'Phone number to get context for' },
+        },
+        required: ['phone'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'create_contact',
+      description: 'Create or update a contact in the CRM. Use this when the user wants to add a new customer or update existing contact info.',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Contact name' },
+          phone: { type: 'string', description: 'Phone number' },
+          email: { type: 'string', description: 'Email address' },
+          company: { type: 'string', description: 'Company name' },
+          notes: { type: 'string', description: 'Notes about the contact' },
+          tags: { type: 'array', items: { type: 'string' }, description: 'Tags/labels for the contact' },
+        },
+        required: ['phone'],
+      },
+    },
+  },
+];
+
 // Image generation tools using Replicate (Flux models)
 const IMAGE_TOOLS = [
   {
@@ -1830,6 +1984,195 @@ function detectCommIntent(message) {
 
   const lower = message.toLowerCase();
   return commKeywords.some(kw => lower.includes(kw));
+}
+
+// Detect if message is about CRM data (contacts, calendar, leads)
+function detectCRMIntent(message) {
+  const crmKeywords = [
+    'contact', 'contacts', 'customer', 'customers', 'client', 'clients',
+    'calendar', 'schedule', 'appointment', 'appointments', 'meeting', 'meetings',
+    'lead', 'leads', 'prospect', 'prospects', 'pipeline', 'sales',
+    'follow up', 'followup', 'follow-up', 'reminder', 'reminders',
+    'who is', 'who\'s', 'tell me about', 'information on', 'info on',
+    'my schedule', 'my calendar', 'today\'s', 'upcoming', 'this week',
+    'sms history', 'text history', 'message history', 'call history',
+    'how many contacts', 'list contacts', 'show contacts', 'show customers',
+    'add contact', 'create contact', 'new contact', 'save contact',
+    'crm', 'database', 'records',
+  ];
+
+  const lower = message.toLowerCase();
+  return crmKeywords.some(kw => lower.includes(kw));
+}
+
+// Execute CRM tool calls
+async function executeCRMTool(toolName, args, userId) {
+  console.log(`[Aria] Executing CRM tool: ${toolName}`, args);
+  try {
+    switch (toolName) {
+      case 'search_contacts': {
+        const contacts = await ariaCRMService.searchContacts(userId, args.query);
+        return {
+          success: true,
+          count: contacts.length,
+          contacts: contacts.map(c => ({
+            id: c._id,
+            name: c.name,
+            phone: c.phone,
+            email: c.email,
+            company: c.company,
+            tags: c.tags,
+            lastInteraction: c.lastInteraction,
+          })),
+        };
+      }
+      case 'get_all_contacts': {
+        const limit = args.limit || 50;
+        const contacts = await Contact.find({ user: userId, isDeleted: false })
+          .sort({ lastInteraction: -1 })
+          .limit(limit);
+        return {
+          success: true,
+          count: contacts.length,
+          contacts: contacts.map(c => ({
+            id: c._id,
+            name: c.name,
+            phone: c.phone,
+            email: c.email,
+            company: c.company,
+            tags: c.tags,
+          })),
+        };
+      }
+      case 'search_leads': {
+        const leads = await ariaCRMService.searchLeads(userId, args.query);
+        return {
+          success: true,
+          count: leads.length,
+          leads: leads.map(l => ({
+            id: l._id,
+            name: l.name,
+            phone: l.phone,
+            email: l.email,
+            status: l.status,
+            source: l.source,
+            value: l.value,
+            lastContact: l.lastContact,
+          })),
+        };
+      }
+      case 'get_leads_needing_followup': {
+        const leads = await ariaCRMService.getLeadsNeedingFollowUp(userId, args.daysOld || 3);
+        return {
+          success: true,
+          count: leads.length,
+          leads: leads.map(l => ({
+            id: l._id,
+            name: l.name,
+            phone: l.phone,
+            status: l.status,
+            lastContact: l.lastContact,
+            daysSinceContact: Math.floor((Date.now() - new Date(l.lastContact)) / (1000 * 60 * 60 * 24)),
+          })),
+        };
+      }
+      case 'get_today_appointments': {
+        const appointments = await ariaCRMService.getTodayAppointments(userId);
+        return {
+          success: true,
+          count: appointments.length,
+          appointments: appointments.map(a => ({
+            id: a._id,
+            title: a.title,
+            startTime: a.startTime,
+            endTime: a.endTime,
+            location: a.location,
+            contactName: a.contact?.name,
+            notes: a.notes,
+          })),
+        };
+      }
+      case 'get_upcoming_appointments': {
+        const appointments = await ariaCRMService.getUpcomingAppointments(userId, args.days || 7);
+        return {
+          success: true,
+          count: appointments.length,
+          appointments: appointments.map(a => ({
+            id: a._id,
+            title: a.title,
+            startTime: a.startTime,
+            endTime: a.endTime,
+            location: a.location,
+            contactName: a.contact?.name,
+          })),
+        };
+      }
+      case 'create_appointment': {
+        const appointment = await ariaCRMService.createAppointment(userId, {
+          title: args.title,
+          startTime: new Date(args.startTime),
+          endTime: args.endTime ? new Date(args.endTime) : null,
+          location: args.location,
+          notes: args.notes,
+          contactName: args.contactName,
+        });
+        return {
+          success: true,
+          message: 'Appointment created',
+          appointment: {
+            id: appointment._id,
+            title: appointment.title,
+            startTime: appointment.startTime,
+            endTime: appointment.endTime,
+          },
+        };
+      }
+      case 'get_sms_history': {
+        const messages = await ariaCRMService.getSMSHistory(userId, args.phone, args.limit || 50);
+        return {
+          success: true,
+          count: messages.length,
+          messages: messages.map(m => ({
+            direction: m.direction,
+            body: m.body,
+            timestamp: m.timestamp || m.createdAt,
+          })),
+        };
+      }
+      case 'get_caller_context': {
+        const context = await ariaCRMService.getCallerContext(userId, args.phone);
+        return {
+          success: true,
+          ...context,
+        };
+      }
+      case 'create_contact': {
+        const contact = await ariaCRMService.upsertContact(userId, {
+          name: args.name,
+          phone: args.phone,
+          email: args.email,
+          company: args.company,
+          notes: args.notes,
+          tags: args.tags,
+        });
+        return {
+          success: true,
+          message: contact.wasNew ? 'Contact created' : 'Contact updated',
+          contact: {
+            id: contact._id,
+            name: contact.name,
+            phone: contact.phone,
+            email: contact.email,
+          },
+        };
+      }
+      default:
+        return { success: false, error: `Unknown CRM tool: ${toolName}` };
+    }
+  } catch (error) {
+    console.error(`[Aria] CRM tool error (${toolName}):`, error);
+    return { success: false, error: error.message };
+  }
 }
 
 // Detect if message is about image generation
@@ -2641,8 +2984,8 @@ router.post('/chat', async (req, res) => {
     };
 
     // Combine tools based on detected intents
-    // ALWAYS include IMAGE_TOOLS and COMM_TOOLS so GPT can generate images and send messages when asked
-    const tools = [...IMAGE_TOOLS, ...COMM_TOOLS];
+    // ALWAYS include IMAGE_TOOLS, COMM_TOOLS, and CRM_TOOLS so ARIA has full access to user data
+    const tools = [...IMAGE_TOOLS, ...COMM_TOOLS, ...CRM_TOOLS];
     if (needsNetwork) tools.push(...NETWORK_TOOLS);
     if (needsLocation) tools.push(...LOCATION_TOOLS);
     if (needsTranslation) tools.push(...TRANSLATION_TOOLS);
@@ -2702,6 +3045,8 @@ router.post('/chat', async (req, res) => {
           imageActions.push({ tool: toolName, args: toolArgs, result });
         } else if (COMM_TOOLS.some(t => t.function.name === toolName)) {
           result = await executeCommTool(toolName, toolArgs, userId);
+        } else if (CRM_TOOLS.some(t => t.function.name === toolName)) {
+          result = await executeCRMTool(toolName, toolArgs, userId);
         } else {
           result = { success: false, error: `Unknown tool: ${toolName}` };
         }

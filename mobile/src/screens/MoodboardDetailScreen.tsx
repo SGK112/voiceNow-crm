@@ -107,8 +107,37 @@ export default function MoodboardDetailScreen() {
   const fetchMoodboard = useCallback(async () => {
     try {
       const response = await api.get(`/moodboards/${moodboardId}`);
-      setMoodboard(response.data);
-      setNewName(response.data.name);
+      // Handle various response formats and ensure all nested objects exist
+      const data = response.data?.moodboard || response.data;
+      const safeMoodboard: Moodboard = {
+        ...data,
+        items: data.items || [],
+        tags: data.tags || [],
+        collaborators: data.collaborators || [],
+        budget: {
+          estimated: data.budget?.estimated || 0,
+          materials: data.budget?.materials || 0,
+          labor: data.budget?.labor || 0,
+          total: data.budget?.total || 0,
+        },
+        sharing: {
+          isPublic: data.sharing?.isPublic || false,
+          publicUrl: data.sharing?.publicUrl || '',
+          allowComments: data.sharing?.allowComments || false,
+          viewCount: data.sharing?.viewCount || 0,
+        },
+        approval: {
+          status: data.approval?.status || 'pending',
+        },
+        layout: {
+          type: data.layout?.type || 'grid',
+          columns: data.layout?.columns || 2,
+          backgroundColor: data.layout?.backgroundColor || '#ffffff',
+        },
+        comments: data.comments || [],
+      };
+      setMoodboard(safeMoodboard);
+      setNewName(data.name || 'Untitled');
     } catch (error) {
       console.error('Error fetching moodboard:', error);
       Alert.alert('Error', 'Failed to load moodboard');
@@ -210,12 +239,17 @@ export default function MoodboardDetailScreen() {
 
     try {
       const response = await api.post(`/moodboards/${moodboardId}/public`, {
-        isPublic: !moodboard.sharing.isPublic,
+        isPublic: !moodboard.sharing?.isPublic,
         allowComments: true,
       });
       setMoodboard({
         ...moodboard,
-        sharing: response.data.sharing
+        sharing: response.data?.sharing || {
+          isPublic: !moodboard.sharing?.isPublic,
+          publicUrl: '',
+          allowComments: true,
+          viewCount: 0,
+        }
       });
     } catch (error) {
       console.error('Error toggling sharing:', error);

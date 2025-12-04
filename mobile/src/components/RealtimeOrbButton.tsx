@@ -708,13 +708,13 @@ const RealtimeOrbButton = forwardRef(({ onPress, onUIAction, onTranscript, onSta
   const getGradientColors = (): readonly [string, string, ...string[]] => {
     if (isSessionActive) return ['#10B981', '#059669', '#047857'] as const; // Green - active
     if (isConnecting) return ['#F59E0B', '#D97706', '#B45309'] as const; // Amber - connecting
-    return ['#8B5CF6', '#7C3AED', '#6D28D9'] as const; // Purple - idle
+    return ['#3B82F6', '#2563EB', '#1D4ED8'] as const; // Blue - idle
   };
 
   const getRingColor = () => {
     if (isSessionActive) return '#10B981';
     if (isConnecting) return '#F59E0B';
-    return '#8B5CF6';
+    return '#3B82F6';
   };
 
   // Size multiplier for fullScreen mode

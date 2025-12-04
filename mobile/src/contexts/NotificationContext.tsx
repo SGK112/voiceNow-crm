@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as Notifications from 'expo-notifications';
+import InAppNotification, { NotificationType } from '../components/InAppNotification';
 
 interface NotificationContextType {
   notification: Notifications.Notification | null;
@@ -24,9 +25,16 @@ interface NotificationProviderProps {
   children: React.ReactNode;
 }
 
+interface InAppNotificationState {
+  message: string;
+  type: NotificationType;
+  visible: boolean;
+}
+
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+  const [inAppNotification, setInAppNotification] = useState<InAppNotificationState | null>(null);
 
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener((notification) => {
@@ -36,16 +44,24 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     return () => subscription.remove();
   }, []);
 
+  const showNotification = (message: string, type: NotificationType) => {
+    setInAppNotification({ message, type, visible: true });
+  };
+
   const showSuccess = (message: string) => {
-    console.log('✅ Success:', message);
+    showNotification(message, 'success');
   };
 
   const showError = (message: string) => {
-    console.log('❌ Error:', message);
+    showNotification(message, 'error');
   };
 
   const showInfo = (message: string) => {
-    console.log('ℹ️ Info:', message);
+    showNotification(message, 'info');
+  };
+
+  const onDismiss = () => {
+    setInAppNotification(null);
   };
 
   return (
@@ -57,6 +73,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       showInfo
     }}>
       {children}
+      {inAppNotification && inAppNotification.visible && (
+        <InAppNotification
+          message={inAppNotification.message}
+          type={inAppNotification.type}
+          onDismiss={onDismiss}
+        />
+      )}
     </NotificationContext.Provider>
   );
 };

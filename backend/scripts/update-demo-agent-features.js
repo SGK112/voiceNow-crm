@@ -82,7 +82,7 @@ async function updateDemoAgentFeatures() {
     console.log(`   General: "Upload contacts for reminder calls, marketing campaigns"\n`);
 
     console.log(`🔔 Post-call notifications:`);
-    console.log(`   ✓ Email sent to help.remodely@gmail.com after each call\n`);
+    console.log(`   ✓ Email sent to help.voicenowcrm@gmail.com after each call\n`);
 
   } catch (error) {
     console.error('\n❌ Error:', error.response?.data || error.message);

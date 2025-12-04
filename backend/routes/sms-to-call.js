@@ -62,7 +62,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsSignup) {
       console.log(`📝 Signup request detected from ${From}`);
 
-      await sendSMS(From, '🚀 Welcome to Remodely.ai!\n\nGet started here: https://remodely.ai/signup\n\n✨ Features included:\n• 24/7 AI Voice Agents\n• Visual Workflow Builder\n• Full CRM System\n• Multi-channel Communication\n\nNeed help? Text "call me" to speak with our AI assistant!');
+      await sendSMS(From, '🚀 Welcome to VoiceNow CRM!\n\nGet started here: https://voicenowcrm.com/signup\n\n✨ Features included:\n• 24/7 AI Voice Agents\n• Visual Workflow Builder\n• Full CRM System\n• Multi-channel Communication\n\nNeed help? Text "call me" to speak with our AI assistant!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -72,7 +72,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsPricing) {
       console.log(`💰 Pricing request detected from ${From}`);
 
-      await sendSMS(From, '💎 Remodely.ai Pricing Plans:\n\n📦 Starter: $99/mo\n• 1 AI Voice Agent\n• 500 calls/month\n• Basic CRM\n\n🚀 Professional: $299/mo\n• 5 AI Agents\n• Unlimited calls\n• Advanced workflows\n\n🏢 Enterprise: Custom\n• Unlimited everything\n• Dedicated support\n\nView details: https://remodely.ai/pricing\n\nText "call me" to discuss your needs!');
+      await sendSMS(From, '💎 VoiceNow CRM Pricing Plans:\n\n📦 Starter: $99/mo\n• 1 AI Voice Agent\n• 500 calls/month\n• Basic CRM\n\n🚀 Professional: $299/mo\n• 5 AI Agents\n• Unlimited calls\n• Advanced workflows\n\n🏢 Enterprise: Custom\n• Unlimited everything\n• Dedicated support\n\nView details: https://voicenowcrm.com/pricing\n\nText "call me" to discuss your needs!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -82,7 +82,7 @@ router.post('/trigger-demo-call', async (req, res) => {
     if (wantsDemo) {
       console.log(`🎬 Demo request detected from ${From}`);
 
-      await sendSMS(From, '🎙️ Experience Remodely.ai live!\n\nText "call me" right now for an instant AI voice demo, or schedule a personalized demo:\n\n📅 Book a demo: https://remodely.ai/demo\n\nOur AI assistant David can:\n• Answer questions 24/7\n• Qualify leads automatically\n• Schedule appointments\n• Send follow-up SMS/emails\n• And much more!\n\nReady? Text "call me"!');
+      await sendSMS(From, '🎙️ Experience VoiceNow CRM live!\n\nText "call me" right now for an instant AI voice demo, or schedule a personalized demo:\n\n📅 Book a demo: https://voicenowcrm.com/demo\n\nOur AI assistant David can:\n• Answer questions 24/7\n• Qualify leads automatically\n• Schedule appointments\n• Send follow-up SMS/emails\n• And much more!\n\nReady? Text "call me"!');
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
       return;
@@ -146,7 +146,7 @@ router.post('/trigger-demo-call', async (req, res) => {
           console.error(`❌ Failed to initiate call:`, callError);
 
           // Send error message
-          await sendSMS(From, 'Sorry, we encountered an issue starting the call. Please try again or visit remodely.ai for assistance.');
+          await sendSMS(From, 'Sorry, we encountered an issue starting the call. Please try again or visit voicenowcrm.com for assistance.');
         }
       }, 2000);
 
@@ -160,10 +160,10 @@ router.post('/trigger-demo-call', async (req, res) => {
         const aiResponse = await aiService.chat([
           {
             role: 'system',
-            content: `You are an AI assistant for Remodely.ai, a Voice Workflow CRM platform.
+            content: `You are an AI assistant for VoiceNow CRM, a Voice Workflow CRM platform.
 
 Your role:
-- Answer questions about Remodely.ai features (AI voice agents, workflow automation, CRM, etc.)
+- Answer questions about VoiceNow CRM features (AI voice agents, workflow automation, CRM, etc.)
 - Be friendly, helpful, and concise (SMS responses should be under 160 characters when possible)
 - If asked about pricing, features, or demos, provide helpful info
 - Suggest they text "call me" if they want to speak with our AI voice agent
@@ -176,7 +176,7 @@ Key features to mention when relevant:
 - Integrations with Google, Slack, Stripe, etc.
 - No coding required
 
-If unsure about something specific, suggest they visit remodely.ai or text "call me" for a voice demo.`
+If unsure about something specific, suggest they visit voicenowcrm.com or text "call me" for a voice demo.`
           },
           {
             role: 'user',
@@ -199,7 +199,7 @@ If unsure about something specific, suggest they visit remodely.ai or text "call
         console.error('❌ AI response failed:', aiError);
 
         // Fallback response if AI fails
-        await sendSMS(From, '👋 Thanks for reaching out! Text "call me" for a live AI voice demo, or visit remodely.ai to learn more about our Voice Workflow CRM!');
+        await sendSMS(From, '👋 Thanks for reaching out! Text "call me" for a live AI voice demo, or visit voicenowcrm.com to learn more about our Voice Workflow CRM!');
       }
 
       res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);

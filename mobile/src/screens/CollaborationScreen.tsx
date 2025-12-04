@@ -142,7 +142,7 @@ export default function CollaborationScreen({ navigation }: any) {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'owner': return '#8B5CF6';
+      case 'owner': return '#3B82F6';
       case 'admin': return '#3B82F6';
       default: return '#6B7280';
     }

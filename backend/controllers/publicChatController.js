@@ -65,9 +65,9 @@ const KNOWLEDGE_BASE = {
     }
   },
   commonQuestions: {
-    'what is': 'Remodelee AI is an AI-powered voice agent platform that helps businesses automate phone calls, qualify leads, and manage customers through voice conversations and CRM tools.',
+    'what is': 'VoiceNow AI is an AI-powered voice agent platform that helps businesses automate phone calls, qualify leads, and manage customers through voice conversations and CRM tools.',
     'how does it work': 'We build custom AI voice agents for your business. They handle calls 24/7, qualify leads, book appointments, and integrate with your existing tools through our visual workflow builder.',
-    'pricing': 'We have three plans: Starter at $149/month for small businesses, Professional at $299/month (most popular) for growing teams, and Enterprise with custom pricing for large organizations. All plans include a 14-day free trial at remodely.ai/signup!',
+    'pricing': 'We have three plans: Starter at $149/month for small businesses, Professional at $299/month (most popular) for growing teams, and Enterprise with custom pricing for large organizations. All plans include a 14-day free trial at voicenowcrm.com/signup!',
     'free trial': 'Yes! We offer a 14-day free trial with no credit card required. You get full access to test the platform and see how it works for your business.',
     'setup': 'Most businesses are live in 2-3 hours. We handle the setup for you - just tell us about your business and we\'ll build your custom AI agent.',
     'integrations': 'We integrate with Twilio (calls/SMS), Google Calendar, Stripe (payments), Gmail, and many more through our visual workflow builder.',
@@ -84,17 +84,17 @@ const KNOWLEDGE_BASE = {
 };
 
 // System prompt for marketing chat AI
-const MARKETING_SYSTEM_PROMPT = `You are an expert sales consultant for Remodelee AI's voice automation platform. You excel at understanding customer needs and providing personalized, helpful responses.
+const MARKETING_SYSTEM_PROMPT = `You are an expert sales consultant for VoiceNow AI's voice automation platform. You excel at understanding customer needs and providing personalized, helpful responses.
 
 CORE IDENTITY:
-Company: Remodelee AI (pronounced: REM-oh-del-ee A-I)
-Product: Remodelee AI - AI Voice Workflows & Automation Platform
+Company: VoiceNow AI (pronounced: REM-oh-del-ee A-I)
+Product: VoiceNow AI - AI Voice Workflows & Automation Platform
 Mission: Help businesses automate operations with AI voice agents
 
 IMPORTANT PRONUNCIATION GUIDE:
 - Company name: "REMODELEE AI" (REM-oh-del-ee A-I)
-- When speaking about signup, say: "REMODELEE AI forward slash signup" or "remodely dot A I forward slash signup"
-- Website: remodely.ai (pronounced: remodely dot A I)
+- When speaking about signup, say: "REMODELEE AI forward slash signup" or "voicenowcrm dot A I forward slash signup"
+- Website: voicenowcrm.com (pronounced: voicenowcrm dot A I)
 
 COMMUNICATION STYLE:
 1. Be conversational and warm - like a knowledgeable friend
@@ -222,7 +222,7 @@ export const marketingChat = async (req, res) => {
     if (!openai) {
       return res.status(503).json({
         error: 'AI chat is currently unavailable. Please contact our team directly.',
-        fallbackResponse: "Thanks for your interest! Our AI assistant is temporarily unavailable, but our team would love to help you. Please email us at support@remodely.ai or schedule a demo to learn more about VoiceNow CRM!",
+        fallbackResponse: "Thanks for your interest! Our AI assistant is temporarily unavailable, but our team would love to help you. Please email us at support@voicenowcrm.com or schedule a demo to learn more about VoiceNow CRM!",
         suggestions: generateFollowUps('general', conversationHistory)
       });
     }
@@ -509,9 +509,9 @@ ${'-'.repeat(50)}
 This inquiry was automatically captured by VoiceNow CRM
     `;
 
-    // Send email to sales team (help.remodely@gmail.com)
+    // Send email to sales team (help.voicenowcrm@gmail.com)
     await emailService.sendEmail({
-      to: 'help.remodely@gmail.com',
+      to: 'help.voicenowcrm@gmail.com',
       subject: emailSubject,
       text: emailText,
       html: emailHtml
@@ -615,14 +615,14 @@ This inquiry was automatically captured by VoiceNow CRM
             <div class="message">
               <p style="font-size: 14px; color: #6b7280; margin: 0;">
                 <strong style="color: #374151;">Questions in the meantime?</strong><br>
-                Feel free to reach out directly at <a href="mailto:help.remodely@gmail.com" style="color: #2563eb; text-decoration: none; font-weight: 500;">help.remodely@gmail.com</a>
+                Feel free to reach out directly at <a href="mailto:help.voicenowcrm@gmail.com" style="color: #2563eb; text-decoration: none; font-weight: 500;">help.voicenowcrm@gmail.com</a>
               </p>
             </div>
           </div>
           <div class="footer">
             <p class="footer-text" style="font-weight: 600; color: #374151; margin-bottom: 4px;">VoiceNow CRM</p>
             <p class="footer-text">AI-Powered Voice Communication Platform</p>
-            <p class="footer-text" style="margin-top: 16px;">© 2025 VoiceNow CRM by Remodely. All rights reserved.</p>
+            <p class="footer-text" style="margin-top: 16px;">© 2025 VoiceNow CRM by VoiceNow CRM. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -650,7 +650,7 @@ This inquiry was automatically captured by VoiceNow CRM
     console.error('Contact sales form error:', error);
     res.status(500).json({
       error: 'Failed to submit contact form',
-      message: 'Sorry, there was an error processing your request. Please try again or email us directly at help.remodely@gmail.com'
+      message: 'Sorry, there was an error processing your request. Please try again or email us directly at help.voicenowcrm@gmail.com'
     });
   }
 };
@@ -704,7 +704,7 @@ export const requestVoiceDemo = async (req, res) => {
           console.log(`⚠️  Demo rate limit exceeded for ${formattedNumber} (${rateLimit.count} requests in 24h)`);
           return res.status(429).json({
             error: 'Too many demo requests',
-            message: `You've reached the maximum number of demo requests (${DEMO_RATE_LIMIT.maxRequests}) for this phone number. Please try again in 24 hours or contact us at help.remodely@gmail.com for assistance.`,
+            message: `You've reached the maximum number of demo requests (${DEMO_RATE_LIMIT.maxRequests}) for this phone number. Please try again in 24 hours or contact us at help.voicenowcrm@gmail.com for assistance.`,
             retryAfter: Math.ceil((rateLimit.firstRequestTime + DEMO_RATE_LIMIT.windowMs - now) / 1000 / 60) // minutes
           });
         }
@@ -751,8 +751,8 @@ export const requestVoiceDemo = async (req, res) => {
     let createdLead = null;
 
     try {
-      // Find superadmin user (help.remodely@gmail.com)
-      const superAdmin = await User.findOne({ email: 'help.remodely@gmail.com' });
+      // Find superadmin user (help.voicenowcrm@gmail.com)
+      const superAdmin = await User.findOne({ email: 'help.voicenowcrm@gmail.com' });
 
       if (!superAdmin) {
         console.error('⚠️  SuperAdmin user not found - lead will not be created in CRM');
@@ -824,24 +824,24 @@ export const requestVoiceDemo = async (req, res) => {
     }
 
     // Choose agent based on demo type
-    // IMPORTANT: Use ELEVENLABS_REMODELY_SALES_AGENT_ID for the Remodely Sales Agent (Max - male voice)
+    // IMPORTANT: Use ELEVENLABS_REMODELY_SALES_AGENT_ID for the VoiceNow CRM Sales Agent (Max - male voice)
     // This is the dedicated sales agent for marketing demo - separate from ARIA
     let agentId, agentType;
 
-    // Remodely Sales Agent (Max) - dedicated agent for marketing demos with male voice
+    // VoiceNow CRM Sales Agent (Max) - dedicated agent for marketing demos with male voice
     // Agent ID: agent_9001kbez5eprftjtgapmmqy3xjej
-    const remodelySalesAgentId = process.env.ELEVENLABS_REMODELY_SALES_AGENT_ID || 'agent_9001kbez5eprftjtgapmmqy3xjej';
+    const voicenowcrmSalesAgentId = process.env.ELEVENLABS_REMODELY_SALES_AGENT_ID || 'agent_9001kbez5eprftjtgapmmqy3xjej';
 
     if (demoType === 'sms') {
       // SMS Demo - sends a text message first, then can trigger call from same number
-      agentId = remodelySalesAgentId;
-      agentType = 'SMS Demo (Remodely Sales - Max)';
+      agentId = voicenowcrmSalesAgentId;
+      agentType = 'SMS Demo (VoiceNow CRM Sales - Max)';
       console.log(`💬 Initiating SMS demo to ${name} at ${formattedNumber}`);
     } else {
-      // Voice Call - calls directly with Remodely Sales Agent (Max)
-      agentId = remodelySalesAgentId;
-      agentType = 'Voice Call (Remodely Sales - Max)';
-      console.log(`📞 Initiating Remodely sales call to ${name} at ${formattedNumber}`);
+      // Voice Call - calls directly with VoiceNow CRM Sales Agent (Max)
+      agentId = voicenowcrmSalesAgentId;
+      agentType = 'Voice Call (VoiceNow CRM Sales - Max)';
+      console.log(`📞 Initiating VoiceNow CRM sales call to ${name} at ${formattedNumber}`);
     }
 
     // Prepare dynamic variables for agent personalization
@@ -851,10 +851,10 @@ export const requestVoiceDemo = async (req, res) => {
       customer_email: email || null,
       lead_name: name,
       trigger_source: 'marketing_page_demo',
-      company_name: 'Remodely AI',
-      company_pronunciation: 'Remodely AI',
-      signup_url: 'remodely.ai/signup',
-      signup_pronunciation: 'remodely dot AI forward slash signup'
+      company_name: 'VoiceNow CRM AI',
+      company_pronunciation: 'VoiceNow CRM AI',
+      signup_url: 'voicenowcrm.com/signup',
+      signup_pronunciation: 'voicenowcrm dot AI forward slash signup'
     };
 
     // Initialize ElevenLabs service
@@ -862,24 +862,24 @@ export const requestVoiceDemo = async (req, res) => {
     const elevenLabsService = new ElevenLabsService(process.env.ELEVENLABS_API_KEY);
 
     // Custom prompt with comprehensive feature coverage, trade-specific knowledge, and link sending
-    const customPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by Remodely AI.
+    const customPrompt = `You are a friendly AI sales assistant for VoiceNow CRM, powered by VoiceNow CRM AI.
 
 **YOUR IDENTITY:**
-- Company: VoiceNow CRM by Remodely AI
+- Company: VoiceNow CRM by VoiceNow CRM AI
 - Your role: Help ${firstName} understand how VoiceNow CRM can revolutionize their business with AI voice agents and automation
 - Be enthusiastic, helpful, and conversational
 
 **IMPORTANT LINKS YOU CAN OFFER TO TEXT:**
-- Sign up for free trial: remodely.ai/signup
-- Terms of Service: remodely.ai/terms.html
-- Privacy Policy: remodely.ai/privacy.html
-- Book a call with our sales team: remodely.ai/book
+- Sign up for free trial: voicenowcrm.com/signup
+- Terms of Service: voicenowcrm.com/terms.html
+- Privacy Policy: voicenowcrm.com/privacy.html
+- Book a call with our sales team: voicenowcrm.com/book
 
 **IMPORTANT PRONUNCIATION:**
-- Say "VoiceNow CRM" and "Remodely AI" naturally
-- For signup, say: "remodely dot AI forward slash signup"
-- For terms, say: "remodely dot AI forward slash terms"
-- For privacy, say: "remodely dot AI forward slash privacy"
+- Say "VoiceNow CRM" and "VoiceNow CRM AI" naturally
+- For signup, say: "voicenowcrm dot AI forward slash signup"
+- For terms, say: "voicenowcrm dot AI forward slash terms"
+- For privacy, say: "voicenowcrm dot AI forward slash privacy"
 
 **VOICEMAIL DETECTION (ABSOLUTELY CRITICAL - HIGHEST PRIORITY):**
 🚨 LISTEN CAREFULLY FOR VOICEMAIL INDICATORS:
@@ -1100,7 +1100,7 @@ You: "Absolutely! Our Terms of Service are straightforward - no long-term contra
 
 **CLOSING:**
 Always end with clear next step:
-"Ready to see what VoiceNow can do? Start your free 14-day trial at remodely dot AI forward slash signup. You'll have your first agent live in 5 minutes. Want me to text you that link right now, or would you prefer to schedule a call with our sales team?"
+"Ready to see what VoiceNow can do? Start your free 14-day trial at voicenowcrm dot AI forward slash signup. You'll have your first agent live in 5 minutes. Want me to text you that link right now, or would you prefer to schedule a call with our sales team?"
 
 Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATELY. If human answers, focus on THEIR pain points and show how VoiceNow solves them. Offer to text links when appropriate!`;
 
@@ -1141,7 +1141,7 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
         });
       }
     } else {
-      // For voice demo, initiate call with Remodely Sales Agent (Max)
+      // For voice demo, initiate call with VoiceNow CRM Sales Agent (Max)
       // The agent already has the prompt, voice, and first message configured in ElevenLabs
       // No need to override - just pass dynamic variables for personalization
       callData = await elevenLabsService.initiateCall(
@@ -1236,7 +1236,7 @@ Remember: This is ${firstName} at ${formattedNumber}. Detect voicemail IMMEDIATE
       const leadStatus = isNewLead ? '🆕 NEW LEAD' : '🔄 RETURNING LEAD';
 
       await emailService.sendEmail({
-        to: 'help.remodely@gmail.com',
+        to: 'help.voicenowcrm@gmail.com',
         subject: `${demoIcon} ${leadStatus} - ${demoTypeLabel} - ${name}`,
         text: `${leadStatus}: ${demoTypeLabel} Requested
 
@@ -1269,7 +1269,7 @@ ${demoType === 'sms' ? '• Monitor SMS conversation for engagement\n• Follow 
 • Check CRM for lead status updates
 • Schedule follow-up call if interested
 
-Login to CRM: https://remodely.ai/leads`,
+Login to CRM: https://voicenowcrm.com/leads`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -1378,7 +1378,7 @@ Login to CRM: https://remodely.ai/leads`,
                     <li>Check CRM for lead status updates</li>
                     <li>Schedule follow-up call if interested</li>
                   </ul>
-                  <a href="https://remodely.ai/leads" class="btn">View Lead in CRM →</a>
+                  <a href="https://voicenowcrm.com/leads" class="btn">View Lead in CRM →</a>
                 </div>
               </div>
               <div class="footer">
@@ -1390,7 +1390,7 @@ Login to CRM: https://remodely.ai/leads`,
           </html>
         `
       });
-      console.log(`✅ Comprehensive lead notification sent to help.remodely@gmail.com`);
+      console.log(`✅ Comprehensive lead notification sent to help.voicenowcrm@gmail.com`);
     } catch (emailError) {
       console.error('Failed to send lead notification:', emailError);
       // Don't fail the request if email fails
@@ -1402,15 +1402,15 @@ Login to CRM: https://remodely.ai/leads`,
       try {
         await emailService.sendEmail({
           to: email,
-          subject: `Your Remodely.ai Voice AI Demo is Calling You Now! 📞`,
-          text: `Hi ${name}!\n\nThank you for requesting a demo of Remodely.ai!\n\nOur AI voice assistant is calling you right now at ${formattedNumber}. You should receive a call within 5-10 seconds.\n\nDuring the demo, our AI will:\n• Introduce herself and explain what Remodely.ai can do\n• Answer your questions about voice AI automation\n• Show you how businesses save 70-80% on staffing costs\n• Explain our pricing and free trial options\n\nWhat to Expect:\n✓ The call will be from an AI voice agent (ultra-realistic!)\n✓ Feel free to ask any questions about pricing, features, or setup\n✓ The demo takes about 3-5 minutes\n✓ No obligation - just a friendly introduction to our platform\n\nWant to Learn More?\nVisit our website: https://remodely.ai\nStart your free trial: https://remodely.ai/signup\nContact our team: help.remodely@gmail.com\n\nBest regards,\nThe Remodely.ai Team\n\nP.S. If you don't receive the call, please check that ${formattedNumber} is correct and try again!`,
+          subject: `Your VoiceNow CRM Voice AI Demo is Calling You Now! 📞`,
+          text: `Hi ${name}!\n\nThank you for requesting a demo of VoiceNow CRM!\n\nOur AI voice assistant is calling you right now at ${formattedNumber}. You should receive a call within 5-10 seconds.\n\nDuring the demo, our AI will:\n• Introduce herself and explain what VoiceNow CRM can do\n• Answer your questions about voice AI automation\n• Show you how businesses save 70-80% on staffing costs\n• Explain our pricing and free trial options\n\nWhat to Expect:\n✓ The call will be from an AI voice agent (ultra-realistic!)\n✓ Feel free to ask any questions about pricing, features, or setup\n✓ The demo takes about 3-5 minutes\n✓ No obligation - just a friendly introduction to our platform\n\nWant to Learn More?\nVisit our website: https://voicenowcrm.com\nStart your free trial: https://voicenowcrm.com/signup\nContact our team: help.voicenowcrm@gmail.com\n\nBest regards,\nThe VoiceNow CRM Team\n\nP.S. If you don't receive the call, please check that ${formattedNumber} is correct and try again!`,
           html: `
             <!DOCTYPE html>
             <html>
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Your Remodely.ai Demo is Calling You Now!</title>
+              <title>Your VoiceNow CRM Demo is Calling You Now!</title>
             </head>
             <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -1424,7 +1424,7 @@ Login to CRM: https://remodely.ai/leads`,
                   <p style="font-size: 18px; color: #0f172a; margin: 0 0 20px 0;">Hi ${name}! 👋</p>
 
                   <p style="font-size: 16px; color: #475569; line-height: 1.6; margin: 0 0 20px 0;">
-                    Thank you for requesting a demo of <strong>Remodely.ai</strong>!
+                    Thank you for requesting a demo of <strong>VoiceNow CRM</strong>!
                   </p>
 
                   <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
@@ -1438,7 +1438,7 @@ Login to CRM: https://remodely.ai/leads`,
 
                   <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">During the demo, our AI will:</h3>
                   <ul style="color: #475569; font-size: 15px; line-height: 1.8; padding-left: 20px;">
-                    <li>Introduce herself and explain what Remodely.ai can do</li>
+                    <li>Introduce herself and explain what VoiceNow CRM can do</li>
                     <li>Answer your questions about voice AI automation</li>
                     <li>Show you how businesses save 70-80% on staffing costs</li>
                     <li>Explain our pricing and free trial options</li>
@@ -1454,13 +1454,13 @@ Login to CRM: https://remodely.ai/leads`,
 
                   <h3 style="font-size: 18px; color: #0f172a; margin: 30px 0 15px 0;">Want to Learn More?</h3>
                   <div style="margin: 20px 0;">
-                    <a href="https://remodely.ai" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Visit Our Website</a>
-                    <a href="https://remodely.ai/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Start Free Trial</a>
+                    <a href="https://voicenowcrm.com" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Visit Our Website</a>
+                    <a href="https://voicenowcrm.com/signup" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 5px 5px 5px 0;">Start Free Trial</a>
                   </div>
 
                   <p style="font-size: 15px; color: #64748b; margin: 30px 0 10px 0;">
                     Best regards,<br>
-                    <strong style="color: #0f172a;">The Remodely.ai Team</strong>
+                    <strong style="color: #0f172a;">The VoiceNow CRM Team</strong>
                   </p>
 
                   <p style="font-size: 13px; color: #94a3b8; margin: 20px 0 0 0; padding-top: 20px; border-top: 1px solid #e2e8f0;">
@@ -1471,7 +1471,7 @@ Login to CRM: https://remodely.ai/leads`,
                 <!-- Footer -->
                 <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
                   <p style="margin: 0; color: #64748b; font-size: 13px;">
-                    Need help? Contact us at <a href="mailto:help.remodely@gmail.com" style="color: #3b82f6; text-decoration: none;">help.remodely@gmail.com</a>
+                    Need help? Contact us at <a href="mailto:help.voicenowcrm@gmail.com" style="color: #3b82f6; text-decoration: none;">help.voicenowcrm@gmail.com</a>
                   </p>
                 </div>
               </div>
@@ -1586,7 +1586,7 @@ export const scheduleMeeting = async (req, res) => {
 
     // Send notification to sales team
     await emailService.sendEmail({
-      to: process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com',
+      to: process.env.HELP_DESK_EMAIL || 'help.voicenowcrm@gmail.com',
       subject: `New Meeting Scheduled - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif;">
@@ -1723,7 +1723,7 @@ export const handleBookingRequest = async (req, res) => {
     // Send notification email to sales team
     try {
       await emailService.sendEmail({
-        to: process.env.HELP_DESK_EMAIL || 'help.remodely@gmail.com',
+        to: process.env.HELP_DESK_EMAIL || 'help.voicenowcrm@gmail.com',
         subject: `🔥 HOT LEAD - Sales Call Request - ${name}`,
         html: `
           <!DOCTYPE html>
@@ -1794,7 +1794,7 @@ export const handleBookingRequest = async (req, res) => {
     // Send confirmation SMS to the lead
     try {
       const twilioService = getTwilioService();
-      const smsMessage = `Hi ${name.split(' ')[0]}! 👋 Thanks for requesting a sales call with VoiceNow CRM.\n\nOur team will call you within 24 hours at this number.\n\nIn the meantime, start your free trial:\nhttps://remodely.ai/signup\n\n- Remodelee AI Team`;
+      const smsMessage = `Hi ${name.split(' ')[0]}! 👋 Thanks for requesting a sales call with VoiceNow CRM.\n\nOur team will call you within 24 hours at this number.\n\nIn the meantime, start your free trial:\nhttps://voicenowcrm.com/signup\n\n- VoiceNow AI Team`;
 
       await twilioService.sendSMS(formattedPhone, smsMessage);
       console.log(`✅ Confirmation SMS sent to ${formattedPhone}`);

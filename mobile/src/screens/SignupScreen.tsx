@@ -308,8 +308,8 @@ export default function SignupScreen({ navigation }: any) {
       {/* Background Gradient */}
       <LinearGradient
         colors={isDark
-          ? ['#7C3AED', '#1E3A8A', '#0F172A']
-          : ['#8B5CF6', '#3B82F6', '#F1F5F9']
+          ? ['#2563EB', '#1E3A8A', '#0F172A']
+          : ['#3B82F6', '#3B82F6', '#F1F5F9']
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -317,7 +317,7 @@ export default function SignupScreen({ navigation }: any) {
       />
 
       {/* Decorative Circles */}
-      <View style={[styles.decorativeCircle, styles.circle1, { backgroundColor: isDark ? '#8B5CF620' : '#FFFFFF30' }]} />
+      <View style={[styles.decorativeCircle, styles.circle1, { backgroundColor: isDark ? '#3B82F620' : '#FFFFFF30' }]} />
       <View style={[styles.decorativeCircle, styles.circle2, { backgroundColor: isDark ? '#3B82F620' : '#FFFFFF20' }]} />
 
       <KeyboardAvoidingView
@@ -352,7 +352,7 @@ export default function SignupScreen({ navigation }: any) {
             }
           ]}>
             <LinearGradient
-              colors={['#8B5CF6', '#3B82F6']}
+              colors={['#3B82F6', '#3B82F6']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.cardAccent}
@@ -411,7 +411,7 @@ export default function SignupScreen({ navigation }: any) {
                     {
                       backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
                       borderColor: focusedInput === 'name'
-                        ? '#8B5CF6'
+                        ? '#3B82F6'
                         : isDark ? '#334155' : '#E2E8F0',
                       borderWidth: focusedInput === 'name' ? 2 : 1,
                     },
@@ -419,12 +419,12 @@ export default function SignupScreen({ navigation }: any) {
                 >
                   <View style={[
                     styles.inputIconContainer,
-                    { backgroundColor: focusedInput === 'name' ? '#8B5CF615' : 'transparent' }
+                    { backgroundColor: focusedInput === 'name' ? '#3B82F615' : 'transparent' }
                   ]}>
                     <Ionicons
                       name="person"
                       size={18}
-                      color={focusedInput === 'name' ? '#8B5CF6' : isDark ? '#64748B' : '#94A3B8'}
+                      color={focusedInput === 'name' ? '#3B82F6' : isDark ? '#64748B' : '#94A3B8'}
                     />
                   </View>
                   <TextInput
@@ -452,7 +452,7 @@ export default function SignupScreen({ navigation }: any) {
                     {
                       backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
                       borderColor: focusedInput === 'email'
-                        ? '#8B5CF6'
+                        ? '#3B82F6'
                         : isDark ? '#334155' : '#E2E8F0',
                       borderWidth: focusedInput === 'email' ? 2 : 1,
                     },
@@ -460,12 +460,12 @@ export default function SignupScreen({ navigation }: any) {
                 >
                   <View style={[
                     styles.inputIconContainer,
-                    { backgroundColor: focusedInput === 'email' ? '#8B5CF615' : 'transparent' }
+                    { backgroundColor: focusedInput === 'email' ? '#3B82F615' : 'transparent' }
                   ]}>
                     <Ionicons
                       name="mail"
                       size={18}
-                      color={focusedInput === 'email' ? '#8B5CF6' : isDark ? '#64748B' : '#94A3B8'}
+                      color={focusedInput === 'email' ? '#3B82F6' : isDark ? '#64748B' : '#94A3B8'}
                     />
                   </View>
                   <TextInput
@@ -495,7 +495,7 @@ export default function SignupScreen({ navigation }: any) {
                     {
                       backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
                       borderColor: focusedInput === 'password'
-                        ? '#8B5CF6'
+                        ? '#3B82F6'
                         : isDark ? '#334155' : '#E2E8F0',
                       borderWidth: focusedInput === 'password' ? 2 : 1,
                     },
@@ -503,12 +503,12 @@ export default function SignupScreen({ navigation }: any) {
                 >
                   <View style={[
                     styles.inputIconContainer,
-                    { backgroundColor: focusedInput === 'password' ? '#8B5CF615' : 'transparent' }
+                    { backgroundColor: focusedInput === 'password' ? '#3B82F615' : 'transparent' }
                   ]}>
                     <Ionicons
                       name="lock-closed"
                       size={18}
-                      color={focusedInput === 'password' ? '#8B5CF6' : isDark ? '#64748B' : '#94A3B8'}
+                      color={focusedInput === 'password' ? '#3B82F6' : isDark ? '#64748B' : '#94A3B8'}
                     />
                   </View>
                   <TextInput
@@ -571,7 +571,7 @@ export default function SignupScreen({ navigation }: any) {
                     {
                       backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
                       borderColor: focusedInput === 'confirmPassword'
-                        ? '#8B5CF6'
+                        ? '#3B82F6'
                         : confirmPassword && password !== confirmPassword
                           ? '#EF4444'
                           : isDark ? '#334155' : '#E2E8F0',
@@ -581,12 +581,12 @@ export default function SignupScreen({ navigation }: any) {
                 >
                   <View style={[
                     styles.inputIconContainer,
-                    { backgroundColor: focusedInput === 'confirmPassword' ? '#8B5CF615' : 'transparent' }
+                    { backgroundColor: focusedInput === 'confirmPassword' ? '#3B82F615' : 'transparent' }
                   ]}>
                     <Ionicons
                       name="lock-closed"
                       size={18}
-                      color={focusedInput === 'confirmPassword' ? '#8B5CF6' : isDark ? '#64748B' : '#94A3B8'}
+                      color={focusedInput === 'confirmPassword' ? '#3B82F6' : isDark ? '#64748B' : '#94A3B8'}
                     />
                   </View>
                   <TextInput
@@ -622,8 +622,8 @@ export default function SignupScreen({ navigation }: any) {
                   style={[
                     styles.checkbox,
                     {
-                      backgroundColor: agreedToTerms ? '#8B5CF6' : 'transparent',
-                      borderColor: agreedToTerms ? '#8B5CF6' : isDark ? '#475569' : '#CBD5E1',
+                      backgroundColor: agreedToTerms ? '#3B82F6' : 'transparent',
+                      borderColor: agreedToTerms ? '#3B82F6' : isDark ? '#475569' : '#CBD5E1',
                     },
                   ]}
                 >
@@ -648,7 +648,7 @@ export default function SignupScreen({ navigation }: any) {
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
+                  colors={['#3B82F6', '#2563EB']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.signupButtonGradient}
@@ -679,7 +679,7 @@ export default function SignupScreen({ navigation }: any) {
               style={styles.loginButton}
             >
               <Text style={styles.loginLink}>Sign In</Text>
-              <Ionicons name="arrow-forward" size={16} color="#8B5CF6" />
+              <Ionicons name="arrow-forward" size={16} color="#3B82F6" />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -930,13 +930,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   termsLink: {
-    color: '#8B5CF6',
+    color: '#3B82F6',
     fontWeight: '600',
   },
   signupButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#8B5CF6',
+    shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -982,6 +982,6 @@ const styles = StyleSheet.create({
   loginLink: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8B5CF6',
+    color: '#3B82F6',
   },
 });

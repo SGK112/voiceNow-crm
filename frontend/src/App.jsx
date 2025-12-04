@@ -54,6 +54,7 @@ import Credits from './pages/Credits';
 import Checkout from './pages/Checkout';
 import MultimodalAgentDemo from './pages/MultimodalAgentDemo';
 import Onboarding from './pages/Onboarding';
+import HybridOnboarding from './pages/HybridOnboarding';
 import RemodelStudio from './components/RemodelStudio';
 import Contacts from './pages/Contacts';
 
@@ -102,7 +103,8 @@ function App() {
         <Route index element={<Navigate to="/app/dashboard" replace />} />
 
         {/* Onboarding flow for new users */}
-        <Route path="onboarding" element={<Onboarding />} />
+        <Route path="onboarding" element={<HybridOnboarding />} />
+        <Route path="onboarding-legacy" element={<Onboarding />} />
 
         {/* Dashboard as main landing page */}
         <Route path="dashboard" element={<Dashboard />} />

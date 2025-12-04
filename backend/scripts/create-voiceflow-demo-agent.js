@@ -56,7 +56,7 @@ async function createVoiceFlowDemoAgent() {
       name: 'VoiceNow CRM Demo Agent',
       voiceId: selectedVoice.voice_id,
       script: demoScript,
-      firstMessage: "Hi! This is the AI demo agent from Remodely.ai calling you! Pretty cool that I'm calling you instantly after you texted 'DEMO', right? That's EXACTLY what VoiceNow CRM can do for YOUR business - instant responses, 24/7. I'm here to show you what our platform can do! Quick question - what kind of business are you in, or what brought you to check us out?",
+      firstMessage: "Hi! This is the AI demo agent from VoiceNow CRM calling you! Pretty cool that I'm calling you instantly after you texted 'DEMO', right? That's EXACTLY what VoiceNow CRM can do for YOUR business - instant responses, 24/7. I'm here to show you what our platform can do! Quick question - what kind of business are you in, or what brought you to check us out?",
       language: 'en'
     };
 
